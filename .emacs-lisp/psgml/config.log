@@ -1,0 +1,8 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:538: checking whether make sets ${MAKE}
+configure:595: checking for a BSD compatible install
+configure:655: checking for emacs
+configure:693: checking where .elc files should go
+configure:718: checking for makeinfo
