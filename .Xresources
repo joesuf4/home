@@ -1,0 +1,17 @@
+Emacs*Scrollbar.shadowWidth:    1
+Emacs*Scrollbar.borderWidth:    0
+Emacs.scrollBarWidth:   10
+Emacs*scroll-bar*attributeBackground: skyblue
+Emacs.mode-line.attributeBackground: steelblue
+Emacs.mode-line.attributeForeground: white
+Emacs.background:   whitesmoke
+Emacs.foreground:   black
+
+XBoard*boardSize:    Small
+
+XTerm*background:    lightslategray
+XTerm*foreground:    white
+XTerm*cursorColor:   black
+Xterm*utf8:          1
+Xterm*font:     -misc-fixed-medium-r-semicondensed--0-0-75-75-c-0-iso10646-1
+Xterm*wideFont: -misc-fixed-medium-r-semicondensed-ja-0-0-75-75-c-0-iso10646-1
