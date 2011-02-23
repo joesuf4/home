@@ -33,7 +33,7 @@
             (make-directory dir t)))
       (set-default-file-modes umask))))
 
-(setq semanticdb-project-roots (list "/home/joe/src/apache"))
+(setq semanticdb-project-roots (list "~/src/apache"))
 (setq temporary-file-directory (concat "/tmp/emacs-" (user-login-name) "/"))
 (setq semanticdb-default-save-directory
       (concat temporary-file-directory "semantics/"))
