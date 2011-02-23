@@ -34,7 +34,7 @@
    "Connect to IRC."
    (interactive)
    (erc-tls :server "irc.freenode.net" :port 7000
-        :nick "joes4" :full-name "Joe Schaefer")
+        :nick "joes4" :password (password-read "Freenode Password: " "freenode") :full-name "Joe Schaefer")
    (setq erc-autojoin-channels-alist '(("freenode.net" "#asfinfra"))))
 
 ;--------------------------------------------------
