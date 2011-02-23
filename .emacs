@@ -7,6 +7,9 @@
 (require 'cedet)
 (require 'git)
 (require 'doxymacs)
+(require 'tls)
+(require 'erc)
+
 (load-library "semantic-load")
 (semantic-load-enable-code-helpers)
 
@@ -20,6 +23,19 @@
 (setq default-buffer-file-coding-system 'utf-8)
 ;; From Emacs wiki
 (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+
+;--------------------------------------------------
+; erc + tls
+
+(setq tls-program '("openssl s_client -connect %h:%p -no_ssl2 -ign_eof"))
+
+ ; M-x start-irc
+ (defun start-irc ()
+   "Connect to IRC."
+   (interactive)
+   (erc-tls :server "irc.freenode.net" :port 7000
+        :nick "joes4" :full-name "Joe Schaefer")
+   (setq erc-autojoin-channels-alist '(("freenode.net" "#asfinfra"))))
 
 ;--------------------------------------------------
 ; hygenics (semantic.cache, backup and autosave files)
