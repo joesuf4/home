@@ -27,15 +27,15 @@
 ;--------------------------------------------------
 ; erc + tls
 
-(setq tls-program '("openssl s_client -connect %h:%p -no_ssl2 -ign_eof"))
 
- ; M-x start-irc
- (defun start-irc ()
-   "Connect to IRC."
-   (interactive)
-   (erc-tls :server "irc.freenode.net" :port 7000
-        :nick "joes4" :password (password-read "Freenode Password: " "freenode") :full-name "Joe Schaefer")
-   (setq erc-autojoin-channels-alist '(("freenode.net" "#asfinfra"))))
+; M-x start-irc
+(defun start-irc ()
+  "Connect to IRC."
+  (interactive)
+  (setq tls-program '("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CAfile ~/GandiStandardSSLCA.crt"))
+  (erc-tls :server "irc.freenode.net" :port 7000
+           :nick "joes4" :password (password-read "Freenode Password: " "freenode") :full-name "Joe Schaefer")
+  (setq erc-autojoin-channels-alist '(("freenode.net" "#asfinfra"))))
 
 ;--------------------------------------------------
 ; hygenics (semantic.cache, backup and autosave files)
