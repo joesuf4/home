@@ -3,6 +3,7 @@ SAVEHIST=1000
 HISTFILE=~/.zsh_history
 setopt share_history extended_history hist_expire_dups_first hist_no_store prompt_subst
 export LESSCHARSET=utf-8
+export PAGER=less
 export VISUAL=emacs
 export MOZILLA=mozilla-firefox
 export JAVA_HOME=~/java/jre1.5.0_06
