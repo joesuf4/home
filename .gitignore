@@ -29,6 +29,7 @@
 .fetchmailrc
 .fontconfig/
 .fonts/
+.forward/
 .fvwm/
 .gaimrc
 .gconf/
