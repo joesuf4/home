@@ -59,12 +59,18 @@ PR_RESET="%{${reset_color}%}";
 title () {
     case $TERM in
         screen)
-            print -Pn "\ek%n@%m: $1 [%j]\e\\"
+            print -Pn "\ek%n@%m: "
+            print -rn $1
+            print -Pn " [%j]\e\\"
 
-            print -Pn "\e]0;%n@%m: $1 [%j]\a"
+            print -Pn "\e]0;%n@%m: "
+            print -rn $1
+            print -Pn " [%j]\a"
             ;;
         xterm*)
-            print -Pn "\e]0;%n@%m: $1 [%j]\a"
+            print -Pn "\e]0;%n@%m: "
+            print -rn $1
+            print -Pn " [%j]\a"
             ;;
 
     esac
