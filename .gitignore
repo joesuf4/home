@@ -88,6 +88,7 @@
 .semanticdb/
 .serverauth.*
 .signature
+.sqlite_history
 .ssh-old/
 .ssh/
 .subversion/
