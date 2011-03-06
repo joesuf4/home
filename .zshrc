@@ -122,3 +122,9 @@ elif [ "`uname`" = "SunOS" ]; then
     PATH=$PATH:/opt/sfw/bin:/usr/sfw/bin:/opt/subversion-current/bin:/sbin:/usr/sbin
     unset RPROMPT
 fi
+
+alias zfs >/dev/null && unalias zfs
+alias zpool > /dev/null && unalias zpool
+
+true
+
