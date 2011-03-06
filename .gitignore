@@ -30,6 +30,7 @@
 .fontconfig/
 .fonts/
 .forward
+.fvwm/.FvwmConsole-History
 .gaimrc
 .gconf/
 .gconfd/
