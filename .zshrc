@@ -46,6 +46,7 @@ alias screen='screen -U'
 alias tplay='perl -MPOSIX=ctermid -MTerm::ReadKey -e '\''open my $t, "+<", ctermid; ReadMode raw => $t; my $opt = shift eq "-s"; while ($opt or ($_=ReadKey(0, $t)) ne "q") { if ($opt or $_ eq "s") { while(<>) { print and last if /[$#%] / }}  else { print scalar <> } last if eof } ReadMode restore => $t'\'' -- $1'
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^(\w+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 alias pw_driver='TERM=ansi SCREENCAP="$SCREENCAP" ~/src/apache/infra-trunk/machines/root/bin/apue/pty -d ~/src/apache/infra-trunk/machines/root/bin/apue/pw-driver.pl --'
+alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
 autoload colors
 colors
