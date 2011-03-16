@@ -1,0 +1,18 @@
+# Home directory git repo
+
+I use this primarily to distribute my home directory's essential
+files across several servers at the ASF.  The sources are found
+on my local workstation, is pushed to my github account, and from
+there is cloned to my home directory across various ASF hosts.  At
+the ASF we have a few scripts for sysadmins to use to run shell commands
+across several machines, and this setup allows me to update each host by
+simply by running git pull.
+
+Most of my worktime is spent in zsh running inside a screen session on
+my workstation, and that's reflected in my config.  Obviously I use emacs
+a lot, and the .emacs-lisp dir contains a few essential elisp extensions;
+I couldn't get by without some of them.
+
+The configs are messy and not really aimed at public distribution, but
+I'd be happy to consider appropriate patches if there's something you'd
+like to see me make use of.
