@@ -546,7 +546,6 @@
 (custom-set-variables
   ;; custom-set-variables was added by Custom -- don't edit or cut/paste it!
   ;; Your init file should contain only one such instance.
- '(canlock-password "c6c1251bc1696898cd9a6859c6aef57382db43ab")
  '(ecb-options-version "2.27")
  '(message-send-mail-partially-limit 100000000)
  '(message-sendmail-f-is-evil t))
