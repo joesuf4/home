@@ -42,7 +42,7 @@ MANPATH_MAP	/usr/games		/usr/share/man
 MANPATH_MAP	/opt/bin		/opt/man
 MANPATH_MAP	/opt/sbin		/opt/man
 MANPATH_MAP	/home/joe/bin		/home/joe/share/man
-MANPATH_MAP     /var/qmain/bin          /var/qmail/man
+MANPATH_MAP     /var/qmail/bin          /var/qmail/man
 
 #---------------------------------------------------------
 # For a manpath element to be treated as a system manpath (as most of those
