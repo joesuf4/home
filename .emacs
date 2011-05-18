@@ -373,6 +373,7 @@
 ;; Include error message patterns for Apache::Test and Test::More
 (dolist (item
          '(("\\[ +error\\] error running tests (please examine \\(.+\\))" 1 1)
+           ("# at (\\([^:]+\\):\\([0-9]+\\)) test" 1 2)
            ("# +Failed test (\\(.+\\) at line +\\([0-9]+\\))" 1 2)
            ("# +Failed test \\([0-9]+\\) in \\(.+\\) at line \\([0-9]+\\)" 2 3)))
   (push item compilation-error-regexp-alist))
