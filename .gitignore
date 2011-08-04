@@ -21,6 +21,7 @@
 .cvsrc
 .designerrctb2
 .dia/
+.dbus/
 .dmrc
 .ecb-tip-of-day.el
 .emacs.d/
@@ -66,6 +67,7 @@
 .metacity/
 .mime.types
 .mozilla/
+.mozilla-linux/
 .mysql_history
 .nautilus/
 .netrc

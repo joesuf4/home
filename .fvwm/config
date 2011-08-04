@@ -6,7 +6,9 @@ Style * MouseFocus
 Xinerama on
 #EdgeScroll 0 0
 DesktopSize 1x2
-EdgeResistance 500 100
+EdgeResistance 500
+Style * EdgeMoveDelay 500
+Style * EdgeMoveResistance 100
 
 #DestroyFunc StartFunction
 #AddToFunc StartFunction
@@ -70,7 +72,7 @@ MenuStyle * MenuColorset 100
 
 ##################################################
 # Icons
-ImagePath /usr/share/icons/crystalsvg/32x32/apps
+ImagePath /usr/local/share/fvwm/pixmaps
 Style xterm Icon terminal.png
 Style emacs Icon emacs.png
 
@@ -88,7 +90,7 @@ Style "FvwmTaskBar" NoTitle, NoHandles, Sticky, WindowListSkip,\
 *FvwmTaskBar: AutoHide
 *FvwmTaskBar: DeskOnly
 *FvwmTaskBar: AutoStick
-*FvwmTaskBar: Geometry +0-0
+*FvwmTaskBar: Geometry +0+0
 *FvwmTaskBar: Colorset 100
 *FvwmTaskBar: IconColorset 101
 *FvwmTaskBar: ClockFormat %a, %d %b %R
@@ -98,33 +100,11 @@ Style "FvwmTaskBar" NoTitle, NoHandles, Sticky, WindowListSkip,\
 
 ##################################################
 
-# gesture "e"
-Stroke 563214789 2 R N  Exec exec emacs
-Stroke 63214789  2 R N  Exec exec emacs
-Stroke 53214789  2 R N  Exec exec emacs
-Stroke 56214789  2 R N  Exec exec emacs
-Stroke 56324789  2 R N  Exec exec emacs
-Stroke 56321489  2 R N  Exec exec emacs
-Stroke 56321478  2 R N  Exec exec emacs
-
-# gesture "S"
-Stroke 321456987 2 R N Exec exec xterm
-Stroke 21456987  2 R N Exec exec xterm
-Stroke 32456987  2 R N Exec exec xterm
-Stroke 32156987  2 R N Exec exec xterm
-Stroke 32145987  2 R N Exec exec xterm
-Stroke 32145687  2 R N Exec exec xterm
-Stroke 32145698  2 R N Exec exec xterm
-
-# gesture "N"
-Stroke 7415963 2 R N Exec exec firefox
-Stroke 415963  2 R N Exec exec firefox
-Stroke 745963  2 R N Exec exec firefox
-Stroke 741563  2 R N Exec exec firefox
-Stroke 741596  2 R N Exec exec firefox
-
-# gesture "L"
-Stroke 14789   2 R N Exec exec gnome-system-monitor
-Stroke 1478    2 R N Exec exec gnome-system-monitor
-
-
+AddToMenu Desktop
++ Xterm%xterm.xpm%     Exec exec xterm
++ Emacs%lemacs.xpm%    Exec exec emacs
++ Firefox              Exec exec firefox
++ ""                   Nop
++ Restart              Restart
++ Quit%bomb.xpm%       Quit
+Mouse 1 R A Menu Desktop Nop

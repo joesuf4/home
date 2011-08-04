@@ -3,4 +3,6 @@ export LANG
 PATH=$PATH:$HOME/bin
 floatbg &
 numlockx on
-fvwm2
+xrdb -load .Xresources
+xset r rate 500 30
+ssh-agent fvwm2
