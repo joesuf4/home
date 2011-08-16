@@ -2,6 +2,7 @@
 .DCOP*
 .ICEauthority
 .MCOP-random-seed
+.VirtualBox/
 .Xauthority
 .acrobat/
 .adobe/
@@ -131,6 +132,7 @@ crons/
 dead.letter
 favicon.ico
 fintrx.dat
+foo.iso
 game.log
 howard
 httpd/
@@ -154,3 +156,4 @@ sunstar_logo_16x16.png
 sunstar_logo_256x256.png
 sunstar_logo_32x32.png
 tmp/
+VirtualBox VMs/

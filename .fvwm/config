@@ -5,7 +5,7 @@ Style * MouseFocus
 
 Xinerama on
 #EdgeScroll 0 0
-DesktopSize 1x2
+DesktopSize 1x3
 EdgeResistance 500
 Style * EdgeMoveDelay 500
 Style * EdgeMoveResistance 100
@@ -104,6 +104,7 @@ AddToMenu Desktop
 + Xterm%xterm.xpm%     Exec exec xterm
 + Emacs%lemacs.xpm%    Exec exec emacs
 + Firefox              Exec exec firefox
++ VirtualBox           Exec exec VirtualBox
 + ""                   Nop
 + Restart              Restart
 + Quit%bomb.xpm%       Quit
