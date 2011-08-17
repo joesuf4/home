@@ -90,7 +90,7 @@ Style "FvwmTaskBar" NoTitle, NoHandles, Sticky, WindowListSkip,\
 *FvwmTaskBar: AutoHide
 *FvwmTaskBar: DeskOnly
 *FvwmTaskBar: AutoStick
-*FvwmTaskBar: Geometry +0+0
+*FvwmTaskBar: Geometry +0-0
 *FvwmTaskBar: Colorset 100
 *FvwmTaskBar: IconColorset 101
 *FvwmTaskBar: ClockFormat %a, %d %b %R
