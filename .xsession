@@ -6,4 +6,5 @@ numlockx on
 xrdb -load .Xresources
 xset r rate 500 30
 xinput set-int-prop 6 "Middle Button Emulation" 8 1
+mixer vol 100:100
 ssh-agent fvwm2
