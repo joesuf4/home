@@ -79,7 +79,6 @@ zstyle ':vcs_info:*' check-for-changes true
 zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{1}:%F{11}%r'
 zstyle ':vcs_info:*' enable svn git
 
-setopt prompt_subst
 RPROMPT='$vcs_info_msg_0_'
 
 if [[ $EMACS == t ]]; then
