@@ -33,7 +33,7 @@ AddToFunc RaiseMoveShade
 
 Mouse 1 T A RaiseMoveShade
 Mouse 3 T A Lower
-Mouse 2 T A Exec exec xwd -id $w -out screenshot-`date +%Y%m%d%H%M%S`
+Mouse 2 T A Exec exec publish_screenshot.sh $[w.id]
 Mouse 3 R A Module FvwmPager -transient
 
 Mouse 1 I A Iconify off
