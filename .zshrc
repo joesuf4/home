@@ -1,7 +1,8 @@
 HISTSIZE=1000
 SAVEHIST=1000
 HISTFILE=~/.zsh_history
-setopt share_history extended_history hist_expire_dups_first hist_no_store prompt_subst unset
+setopt share_history extended_history hist_expire_dups_first hist_no_store prompt_subst
+unsetopt unset
 export LESSCHARSET=utf-8
 export PAGER=less
 export VISUAL=emacs
