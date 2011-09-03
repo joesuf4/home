@@ -13,7 +13,7 @@ if echo $PATH | grep -v $HOME/bin >/dev/null; then
     PATH=$PATH:$HOME/bin
 fi
 
-# ctrl-up/down history bindings
+# ctrl-(up/down/left/right) bindings
 bindkey ';5A' history-search-backward
 bindkey ';5B' history-search-forward
 bindkey ';5C' emacs-forward-word
