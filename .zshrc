@@ -16,6 +16,8 @@ fi
 # ctrl-up/down history bindings
 bindkey ';5A' history-search-backward
 bindkey ';5B' history-search-forward
+bindkey ';5C' emacs-forward-word
+bindkey ';5D' emacs-backward-word
 
 # directory stuff
 nd () { export $1=$PWD; : ~$1 }
