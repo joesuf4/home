@@ -83,8 +83,6 @@ precmd () {
 }
 preexec () { title $2 }
 
-[[ ${EMACS+} == t ]] && unsetopt zle
-
 autoload -U compinit
 compinit
 
