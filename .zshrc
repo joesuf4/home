@@ -5,9 +5,7 @@ setopt share_history extended_history hist_expire_dups_first hist_no_store promp
 export LESSCHARSET=utf-8
 export PAGER=less
 export VISUAL=emacs
-export MOZILLA=mozilla-firefox
-export JAVA_HOME=~/java/jre1.5.0_06
-export ANT_HOME=~/java/ant/apache-ant-1.6.1
+export MOZILLA=firefox
 
 if echo $PATH | grep -v $HOME/bin >/dev/null; then
     PATH=$PATH:$HOME/bin
