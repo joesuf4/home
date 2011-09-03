@@ -100,15 +100,15 @@ if [[ ${EMACS+} == t ]]; then
     unsetopt zle
     PROMPT=$'%n@%m:%~%(?..(%?%))%# '
     unset RPROMPT
-elif [ "`uname`" = "FreeBSD" ]; then
+elif [[ "`uname`" == "FreeBSD" ]]; then
     alias ls='ls -G'
     alias grep='grep --color=auto'
     PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
-elif [ "`uname`" = "Linux" ]; then
+elif [[ "`uname`" == "Linux" ]]; then
     alias ls='ls --color=auto'
     alias grep='grep --color=auto'
     PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%# '
-elif [ "`uname`" = "SunOS" ]; then
+elif [[ "`uname`" == "SunOS" ]]; then
     PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
     PATH=$PATH:/opt/sfw/bin:/usr/sfw/bin:/opt/subversion-current/bin:/sbin:/usr/sbin:/usr/local/bin
     unset RPROMPT
