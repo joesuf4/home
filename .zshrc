@@ -28,7 +28,7 @@ alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $
 alias pw_driver='TERM=vt220 ~/src/apache/infra-trunk/machines/root/bin/apue/pty -d ~/src/apache/infra-trunk/machines/root/bin/apue/pw-driver.pl --'
 alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
-tplay() {
+tplay () {
     perl -MPOSIX=ctermid -MTerm::ReadKey -e '
         open my $t, "+<", ctermid;
         ReadMode raw => $t;
