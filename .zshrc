@@ -30,7 +30,17 @@ alias pw_driver='TERM=vt220 ~/src/apache/infra-trunk/machines/root/bin/apue/pty 
 alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
 tplay() {
-    perl -MPOSIX=ctermid -MTerm::ReadKey -e 'open my $t, "+<", ctermid; ReadMode raw => $t; my $opt = shift eq "-s"; while ($opt or ($_=ReadKey(0, $t)) ne "q") { if ($opt or $_ eq "s") { while(<>) { print and last if /[#%\$] / }}  else { print scalar <> } last if eof } ReadMode restore => $t' -- "$@"
+    perl -MPOSIX=ctermid -MTerm::ReadKey -e '
+        open my $t, "+<", ctermid;
+        ReadMode raw => $t;
+        my $opt = shift eq "-s";
+        while ($opt or ($_=ReadKey(0, $t)) ne "q") {
+            if ($opt or $_ eq "s") { while(<>) { print and last if /[#%\$] / }}
+            else { print scalar <> }
+            last if eof
+        }
+        ReadMode restore => $t
+    ' -- "$@"
 }
 
 autoload colors
