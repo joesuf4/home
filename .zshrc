@@ -83,7 +83,7 @@ precmd () {
 }
 preexec () { title $2 }
 
-[[ ${EMACS:-} == t ]] && unsetopt zle
+[[ ${EMACS+} == t ]] && unsetopt zle
 
 autoload -U compinit
 compinit
@@ -98,7 +98,7 @@ zstyle ':vcs_info:*' enable svn git
 
 RPROMPT='$vcs_info_msg_0_'
 
-if [[ ${EMACS:-} == t ]]; then
+if [[ ${EMACS+} == t ]]; then
     unsetopt zle
     PROMPT=$'%n@%m:%~%(?..(%?%))%# '
     unset RPROMPT
