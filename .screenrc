@@ -7,3 +7,4 @@ escape ^Tt
 defobuflimit 4096
 nethack on
 vbell on
+defutf8 on
