@@ -13,26 +13,6 @@ if echo $PATH | grep -v $HOME/bin >/dev/null; then
     PATH=$PATH:$HOME/bin
 fi
 
-# history
-typeset -A key
-
-key[Home]=${terminfo[khome]}
-key[End]=${terminfo[kend]}
-key[Insert]=${terminfo[kich1]}
-key[Delete]=${terminfo[kdch1]}
-key[Up]=${terminfo[kcuu1]}
-key[Down]=${terminfo[kcud1]}
-key[Left]=${terminfo[kcub1]}
-key[Right]=${terminfo[kcuf1]}
-key[PageUp]=${terminfo[kpp]}
-key[PageDown]=${terminfo[knp]}
-
-for k in ${(k)key} ; do
-    # $terminfo[] entries are weird in ncurses application mode...
-    [[ ${key[$k]} == $'\eO'* ]] && key[$k]=${key[$k]/O/[}
-done
-unset k
-
 # ctrl-up/down history bindings
 bindkey ';5A' history-search-backward
 bindkey ';5B' history-search-forward
