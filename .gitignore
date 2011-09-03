@@ -54,6 +54,7 @@
 .gtklp/
 .gtkrc
 .gtkrc-1.2-gnome2
+.gtkrc-2.0
 .gtkrc-kde
 .history
 .kde/
