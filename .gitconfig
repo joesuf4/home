@@ -3,3 +3,5 @@
 	email = joes@apache.org
 [clean]
 	requireForce = 1
+[push]
+	default = simple
