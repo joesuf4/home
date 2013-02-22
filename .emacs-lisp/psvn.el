@@ -1132,28 +1132,30 @@ If there is no .svn directory, examine if there is CVS and run
   (interactive (list (svn-read-directory-name "SVN status directory: "
                                               nil default-directory nil)
                      current-prefix-arg))
-  (let ((svn-dir (format "%s%s"
-                         (file-name-as-directory dir)
-                         (svn-wc-adm-dir-name)))
-        (cvs-dir (format "%sCVS" (file-name-as-directory dir))))
-    (cond
-     ((file-directory-p svn-dir)
-      (setq arg (svn-status-possibly-negate-meaning-of-arg arg 'svn-status))
-      (svn-status-1 dir arg))
-     ((and (file-directory-p cvs-dir)
-           (fboundp 'cvs-examine))
-      (cvs-examine dir nil))
-     (t
-      (when (y-or-n-p
-             (format
-              (concat
-               "%s "
-               "is not Subversion controlled (missing %s "
-               "directory). "
-               "Run dired instead? ")
-              dir
-              (svn-wc-adm-dir-name)))
-        (dired dir))))))
+    (setq arg (svn-status-possibly-negate-meaning-of-arg arg 'svn-status))
+    (svn-status-1 dir arg))
+ ; (let ((svn-dir (format "%s%s"
+ ;                        (file-name-as-directory dir)
+ ;                        (svn-wc-adm-dir-name)))
+ ;       (cvs-dir (format "%sCVS" (file-name-as-directory dir))))
+ ;   (cond
+ ;    ((file-directory-p svn-dir)
+ ;     (setq arg (svn-status-possibly-negate-meaning-of-arg arg 'svn-status))
+ ;     (svn-status-1 dir arg))
+ ;    ((and (file-directory-p cvs-dir)
+ ;          (fboundp 'cvs-examine))
+ ;     (cvs-examine dir nil))
+ ;    (t
+ ;     (when (y-or-n-p
+ ;            (format
+ ;             (concat
+ ;              "%s "
+ ;              "is not Subversion controlled (missing %s "
+ ;              "directory). "
+ ;              "Run dired instead? ")
+ ;             dir
+ ;             (svn-wc-adm-dir-name)))
+ ;       (dired dir))))))
 
 (defvar svn-status-display-new-status-buffer nil)
 (defun svn-status-1 (dir &optional arg)
