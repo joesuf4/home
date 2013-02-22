@@ -105,6 +105,11 @@ elif [[ "`uname`" == "FreeBSD" ]]; then
     alias ls='ls -G'
     alias grep='grep --color=auto'
     PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
+elif [[ "`uname`" == "Darwin" ]]; then
+    alias ls='ls -G'
+    alias grep='grep --color=auto'
+    PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
+    PATH=/opt/local/bin:$PATH
 elif [[ "`uname`" == "Linux" ]]; then
     alias ls='ls --color=auto'
     alias grep='grep --color=auto'
