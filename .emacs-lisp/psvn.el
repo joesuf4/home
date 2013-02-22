@@ -2,7 +2,7 @@
 ;; Copyright (C) 2002-2009 by Stefan Reichoer
 
 ;; Author: Stefan Reichoer <stefan@xsteve.at>
-;; $Id$
+;; $Id: psvn.el 1369093 2012-08-03 16:36:46Z philip $
 
 ;; psvn.el is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -256,7 +256,7 @@
       (require 'diff-mode))
   (error nil))
 
-(defconst svn-psvn-revision "$Id$"
+(defconst svn-psvn-revision "$Id: psvn.el 1369093 2012-08-03 16:36:46Z philip $"
   "The revision number of psvn.")
 
 ;;; user setable variables
@@ -3575,7 +3575,7 @@ If the file is not found, return nil."
     (and found start-pos)))
 
 (defun svn-status-goto-file-name (name)
-  "Move the cursor the the line that displays NAME."
+  "Move the cursor to the line that displays NAME."
   (let ((pos (svn-status-get-file-name-buffer-position name)))
     (if pos
         (goto-char pos)
