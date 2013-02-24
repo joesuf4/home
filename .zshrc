@@ -25,7 +25,6 @@ setopt autocd autopushd pushdminus pushdsilent pushdtohome
 alias dh='dirs -v'
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 alias asf_pw_driver='TERM=vt220 ~/src/apache/infra-trunk/machines/root/bin/apue/pty -d ~/src/apache/infra-trunk/machines/root/bin/apue/pw-driver.pl --'
-alias wbs_pw_driver='TERM=vt220 ~/src/apache/infra-trunk/machines/root/bin/apue/pty -d ~/src/vdio/wbs/sysops/puppet/modules/mod_base/files/root/bin/apue/pw-driver.pl --'
 alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
 tplay () {
