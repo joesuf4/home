@@ -6041,7 +6041,7 @@ Return nil, if not in a svn working copy."
              (in-tree (and repository-root (file-exists-p dot-svn-dir)))
              (dir-below (expand-file-name base-dir)))
         ;;(message "repository-root: %s start-dir: %s" repository-root start-dir)
-        (if (and (>= (car svn-client-version) 1) (>= (cadr svn-client-version) 7))
+        (if (or (> (car svn-client-version) 1) (and (= (car svn-client-version) 1) (>= (cadr svn-client-version) 7)))
             (while (when (and dir-below (not (file-exists-p dot-svn-dir)))
                      (string-match "\\(.+/\\).+/" dir-below)
                      (setq dir-below
