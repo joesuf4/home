@@ -6041,11 +6041,20 @@ Return nil, if not in a svn working copy."
              (in-tree (and repository-root (file-exists-p dot-svn-dir)))
              (dir-below (expand-file-name base-dir)))
         ;;(message "repository-root: %s start-dir: %s" repository-root start-dir)
-        (if (and (>= (car svn-client-version) 1) (> (cadr svn-client-version)
-6))
-            (setq base-dir start-dir)
+        (if (and (>= (car svn-client-version) 1) (>= (cadr svn-client-version) 7))
+            (while (when (and dir-below (not (file-exists-p dot-svn-dir)))
+                       (string-match "\\(.+/\\).+/" dir-below)
+                       (setq dir-below
+                             (and (string-match "\\(.*/\\)[^/]+/" dir-below)
+                                  (match-string 1 dir-below)))
+                       (message "base-dir: %s, dir-below: %s, dot-svn-dir: %s in-tree: %s" base-dir dir-below dot-svn-dir in-tree)
+                       (when dir-below
+                        (if (string= (svn-status-repo-for-path dir-below) repository-root)
+                             (setq dot-svn-dir (concat dir-below (svn-wc-adm-dir-name)))
+                           (setq dir-below nil)))
+               (setq base-dir (file-name-directory dot-svn-dir))))
 
-
+            ;;(setq base-dir start-dir)
             (if (and (<= (car svn-client-version) 1) (< (cadr svn-client-version) 3))
                 (setq base-dir (svn-status-base-dir-for-ancient-svn-client start-dir)) ;; svn version < 1.3
               (while (when (and dir-below (file-exists-p dot-svn-dir))

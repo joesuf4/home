@@ -10,8 +10,8 @@
 (require 'tls)
 (require 'erc)
 
-(load-library "semantic-load")
-(semantic-load-enable-code-helpers)
+;(load-library "semantic-load")
+;(semantic-load-enable-code-helpers)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; set up unicode
