@@ -564,7 +564,7 @@
 (ignore-errors
   (require 'battery)
   (unless (string-match "battery N/A" (battery))
-    (display-battery)))
+    (display-battery-mode)))
 
 (put 'narrow-to-page 'disabled nil)
 (require 'page-ext)
