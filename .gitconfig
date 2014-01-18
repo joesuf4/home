@@ -4,4 +4,4 @@
 [clean]
 	requireForce = 1
 [push]
-	default = simple
+	default = matching
