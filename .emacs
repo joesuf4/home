@@ -403,7 +403,7 @@
 				 'grep-find-history))))
   (let ((null-device nil))		; see grep
     (grep (concat "svn status -v | perl -nwal0 "
-                  "-e 'print $F[-1] if @F and -f $F[-1]' | xargs -r0 -- "
+                  "-e 'print $F[-1] if @F and -f $F[-1]' | xargs -0 -- "
                   command-args))))
 
 (define-key svn-status-mode-map (kbd "G") 'svn-grep-find)
