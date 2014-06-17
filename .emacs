@@ -1,6 +1,7 @@
 ; .emacs config file
 (global-set-key (kbd "C-l") 'redraw-display)
 (setq load-path (cons "~/.emacs-lisp" load-path))
+(add-to-list 'load-path "~/.emacs-lisp/linepad")
 (setq exec-path (append exec-path '("~/bin")))
 ;(require 'w3m) ; use W3 browser
 (setq semantic-load-turn-useful-things-on t)
@@ -9,7 +10,7 @@
 (require 'doxymacs)
 (require 'tls)
 (require 'erc)
-
+(load-library "linepad")
 ;(load-library "semantic-load")
 ;(semantic-load-enable-code-helpers)
 
