@@ -116,8 +116,7 @@ elif [[ "`uname`" == "Linux" ]]; then
     PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%# '
 elif [[ "`uname`" == "SunOS" ]]; then
     PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
-    PATH=$PATH:/opt/sfw/bin:/usr/sfw/bin:/opt/subversion-current/bin:/sbin:/usr/sbin:/usr/local/bin
-    unset RPROMPT
+    PATH=$PATH:/opt/sfw/bin:/usr/sfw/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/ccs/bin
 fi
 
 alias zfs >/dev/null && unalias zfs
