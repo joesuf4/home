@@ -175,3 +175,5 @@ Dropbox
 Google Drive
 .dropbox-master
 Applications/
+.cache/
+.dbus-keyrings/
