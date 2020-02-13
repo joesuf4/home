@@ -12,6 +12,6 @@ XBoard*boardSize:    Small
 XTerm*background:    lightslategray
 XTerm*foreground:    white
 XTerm*cursorColor:   black
-Xterm*utf8:          1
-Xterm*font:     -misc-fixed-medium-r-semicondensed--0-0-75-75-c-0-iso10646-1
-Xterm*wideFont: -misc-fixed-medium-r-semicondensed-ja-0-0-75-75-c-0-iso10646-1
+XTerm*utf8:          1
+XTerm*faceName:      DejaVuSansMono
+XTerm*faceSize:      10

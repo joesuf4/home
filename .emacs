@@ -1,18 +1,27 @@
 ; .emacs config file
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+(package-initialize)
+
 (global-set-key (kbd "C-l") 'redraw-display)
 (setq load-path (cons "~/.emacs-lisp" load-path))
-(add-to-list 'load-path "~/.emacs-lisp/linepad")
+;(add-to-list 'load-path "~/.emacs-lisp/linepad")
 (setq exec-path (append exec-path '("~/bin")))
 ;(require 'w3m) ; use W3 browser
 (setq semantic-load-turn-useful-things-on t)
-(require 'cedet)
-(require 'git)
-(require 'doxymacs)
-(require 'tls)
-(require 'erc)
-(load-library "linepad")
+;(require 'cedet)
+;(require 'git)
+;(require 'doxymacs)
+;(require 'tls)
+;(require 'erc)
+;(load-library "linepad")
 ;(load-library "semantic-load")
 ;(semantic-load-enable-code-helpers)
+(require 'dired-x)
+(require 'bpftrace-mode)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; set up unicode
@@ -50,14 +59,14 @@
             (make-directory dir t)))
       (set-default-file-modes umask))))
 
-(setq semanticdb-project-roots (list "~/src/apache"))
+;(setq semanticdb-project-roots (list "~/src/apache"))
 (setq temporary-file-directory (concat "/tmp/emacs-" (user-login-name) "/"))
-(setq semanticdb-default-save-directory
-      (concat temporary-file-directory "semantics/"))
+;(setq semanticdb-default-save-directory
+;      (concat temporary-file-directory "semantics/"))
 (defvar autosave-dir (concat temporary-file-directory "autosaves/"))
 (defvar backup-dir (concat temporary-file-directory "backups/"))
 
-(make-private-directory (list semanticdb-default-save-directory
+(make-private-directory (list ;semanticdb-default-save-directory
                               autosave-dir backup-dir))
 
 ;; Put autosave files (ie #foo#) in one place, *not* scattered all over the
@@ -127,18 +136,18 @@
 ;(setq load-path (cons "/usr/local/share/emacs/site-lisp" load-path))
 
 ; remove silly toolbar & menu
-(ignore-errors 
+(ignore-errors
   (tool-bar-mode 0)
   (menu-bar-mode 0)
 )
 ; jclark's nxml mode
-(load "nxml-mode/rng-auto.el")
-(setq auto-mode-alist
-      (cons '("\\.\\(xml\\|xsl\\|xsd\\|rng\\|xhtml\\)\\'" . nxml-mode)
-            auto-mode-alist))
+;(load "nxml-mode/rng-auto.el")
+;(setq auto-mode-alist
+;      (cons '("\\.\\(xml\\|xsl\\|xsd\\|rng\\|xhtml\\)\\'" . nxml-mode)
+;            auto-mode-alist))
 
 ; Steve Reichoer's svn-status mode
-(require 'psvn)
+;(require 'psvn)
 
 ;Info path
 ;(setq Info-directory-list
@@ -171,92 +180,6 @@
 (setq-default indent-tabs-mode nil)
 
 
-;__________________________________________________
-
-; VM
-;(autoload 'vm "vm" "Start VM on your primary inbox." t)
-;(autoload 'vm-other-frame "vm" "Like `vm' but starts in another frame." t)
-;(autoload 'vm-visit-folder "vm" "Start VM on an arbitrary folder." t)
-;(autoload 'vm-visit-virtual-folder "vm" "Visit a VM virtual folder." t)
-;(autoload 'vm-mode "vm" "Run VM major mode on a buffer" t)
-;(autoload 'vm-mail "vm" "Send a mail message using VM." t)
-;(autoload 'vm-submit-bug-report "vm" "Send a bug report about VM." t)
-
-; more Mail STUFF
-;(custom-set-variables
-; '(mail-from-style (quote system-default))
-; '(user-mail-address "joe@sunstarsys.com"))
-
-
-;__________________________________________________
-
-; GPG stuff (MailCrypt)
-;(require 'mailcrypt-init) ; provides "mc-setversion"
-;(mc-setversion "gpg") ; GnuPG privacy
-
-;(autoload 'mc-install-write-mode "mailcrypt" nil t)
-;(autoload 'mc-install-read-mode "mailcrypt" nil t)
-;(add-hook 'mail-mode-hook 'mc-install-write-mode)
-
-;     (add-hook 'rmail-show-message-hook 'mc-install-read-mode)
-;     (add-hook 'rmail-summary-mode-hook 'mc-install-read-mode)
-
-;     (add-hook 'vm-mode-hook 'mc-install-read-mode)
-;     (add-hook 'vm-summary-mode-hook 'mc-install-read-mode)
-;     (add-hook 'vm-virtual-mode-hook 'mc-install-read-mode)
-;     (add-hook 'vm-mail-mode-hook 'mc-install-write-mode)
-
-(add-hook 'gnus-summary-mode-hook 'mc-install-read-mode)
-(add-hook 'message-mode-hook 'mc-install-write-mode)
-(add-hook 'news-reply-mode-hook 'mc-install-write-mode)
-
-;__________________________________________________
-; GNUS
-;(setq gnus-select-method '(nntp "newsgroups.bellsouth.net"))
-(setq mail-user-agent 'gnus-user-agent)
-;__________________________________________________
-
-; first some TeX stuff...
-
-; make sure AUCTeX package and friends load up
-;(require 'tex-site)
-;(setq TeX-parse-self t) ; Enable parse on load
-;(setq TeX-auto-save t)  ; Enable parse on autosave
-;; (setq TeX-auto-untabify nil); default (t) converts TAB's
-			      ; into spaces before saving
-
-;(setq-default TeX-master nil) ; Query for master file if it's not the
-			      ; current file.
-; Above adds the following to the end of a TeX-file to pass file info
-; to AUC-TeX for future reference (see /usr/local/doc/auctex.dvi
-; for details )-
-;  % Local Variables:
-;  % TeX-master: "master file"
-;  % End:
-
-; sectioning stuff
-;(setq LaTeX-section-hook
-;      '(LaTeX-(turn-on-auto-fill)
-
-;section-heading
-;	LaTeX-section-title
-;	LaTeX-section-toc
-;	LaTeX-section-section
-;	LaTeX-section-label))
-
-; Hooks to tex-specific files (containing key rebinds, mainly).  Removed
-; tex-related ones- however lisp files and bibtex link remain.
-
-;(add-hook 'bibtex-mode-hook
-;	  '(lambda () (load "~/lib/emacs/bib")))
-;(add-hook 'LaTeX-mode-hook
-;	  '(lambda () (load "~/lib/emacs/LaTeX"))) ; caps on `LaTeX' due
-					       ; to AUCTeX presence.
-
-;some TeX additions (unhooked via AUCTeX requirement above) gray65
-;(set-face-foreground 'font-lock-string-face "gray66")
-;(set-face-foreground 'font-lock-warning-face "red")
-;(set-face-foreground 'font-lock-comment-face "red")
 
 ;__________________________________________________
 ;set some more colors
@@ -275,10 +198,10 @@
 	  '(lambda () (set-face-background 'highlight "darkslategray")))
 
 
-(add-hook 'font-lock-mode-hook
-          '(lambda()
-             (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
-                 (doxymacs-font-lock))))
+;(add-hook 'font-lock-mode-hook
+;          '(lambda()
+;             (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
+;                 (doxymacs-font-lock))))
 
 ;__________________________________________________
 
@@ -287,19 +210,19 @@
 ; allows normal <TAB> behavior in the middle of a line
 (setq c-tab-always-indent nil)
 (setq show-trailing-whitespace t)
-(add-hook 'c-mode-common-hook (lambda ()
-				(c-set-style "stroustrup")))
+;(add-hook 'c-mode-common-hook (lambda ()
+;				(c-set-style "stroustrup")))
 ; ASF style
-(add-hook 'c-mode-common-hook
-          (function (lambda ()
-			(c-set-offset 'inclass' ++)
-			(c-set-offset 'defun-block-intro' ++)
-			(c-set-offset 'statement-block-intro' ++)
-			(c-set-offset 'substatement' ++)
-			(c-set-offset 'brace-list-intro' ++)
-			(c-set-offset 'statement-case-intro' ++)
-			(c-set-offset 'inextern-lang' 0)
-			)))
+;(add-hook 'c-mode-common-hook
+;          (function (lambda ()
+;			(c-set-offset 'inclass' ++)
+;			(c-set-offset 'defun-block-intro' ++)
+;			(c-set-offset 'statement-block-intro' ++)
+;			(c-set-offset 'substatement' ++)
+;			(c-set-offset 'brace-list-intro' ++)
+;			(c-set-offset 'statement-case-intro' ++)
+;			(c-set-offset 'inextern-lang' 0)
+;			)))
 
 
 
@@ -363,7 +286,7 @@
 
 (require 'compile)
 
-(setq compilation-scroll-output t); let buffer scroll with output
+(setq compilation-scroll-output t); let buffer scroll to bottom
 
 ;; Open the error_log in compile mode so it's easier to jump
 ;; to files with failing tests.
@@ -389,55 +312,130 @@
 ;; I: install
 ;; G: grep
 
-(define-key svn-status-mode-map (kbd "M") 'compile)
-(define-key svn-status-mode-map (kbd "B") 'compile)
+;(define-key svn-status-mode-map (kbd "M") 'compile)
+;(define-key svn-status-mode-map (kbd "B") 'compile)
 
 ;--------------------------------------------------
-;; grep over every file that svn can see.
+;; grep over pffxg.sh output
 
-(defvar svn-grep-find-command "grep -n -e ")
-(defun svn-grep-find (command-args)
+(defvar pffxg-command "pffxg.sh '*' ")
+(defun pffxg (command-args)
   (interactive
    (progn
-     (list (read-from-minibuffer "Grep *svn-status* files (like this): "
-				 svn-grep-find-command nil nil
+     (list (read-from-minibuffer "Find filenames and grep them (like this): "
+				 pffxg-command nil nil
 				 'grep-find-history))))
   (let ((null-device nil))		; see grep
-    (grep (concat "svn status -v | perl -nwal0 "
-                  "-e 'print $F[-1] if @F and -f $F[-1]' | xargs -0 -- "
-                  command-args))))
+    (grep command-args)))
 
-(define-key svn-status-mode-map (kbd "G") 'svn-grep-find)
 
 
 ;--------------------------------------------------
-(defvar test-command "make test")
+(defvar ml1-make-command "make -j")
 
 ;; XXX would love to launch gdb on Apache::Test segfault reports.
-(defun test-compile (command)
-   "M-x test-compile: Compile and run the project's test suite,
+(defun ml1-make (command)
+   "M-x ml-make: Compile and run the project's test suite,
    basically duplicating `compile' and adding a simple
    post-processing regexp to preserve the *nix shell
    semantics of '\r'."
 
    (interactive
    (if (or compilation-read-command current-prefix-arg)
-       (list (read-from-minibuffer "Test command: "
-                                   (eval test-command) nil nil
+       (list (read-from-minibuffer "ML1 Make command: "
+                                   (eval ml1-make-command) nil nil
                                    '(compile-history . 1)))
-     (list (eval test-command))))
+     (list (eval ml1-make-command))))
 
-  (unless (equal command (eval test-command))
-    (setq test-command command))
+  (unless (equal command (eval ml1-make-command))
+    (setq ml1-make-command command))
 
   (save-some-buffers (not compilation-ask-about-save) nil)
 
   (let ((compilation-buffer-name-function
-         '(lambda (mmode) (concat "*test-" (downcase mmode) "*" ))))
-    (compile-internal (concat command " | perl -ple 's/^.*\\r//, s/.[\\b]//sg'")
-                      "No more errors")))
+         '(lambda (mmode) (concat "*ml1-make-" (downcase mmode) "*" ))))
+    (compilation-start (concat "unset JAVA_HOME ANDROID_JAVA_HOME \
+         ANDROID_PRE_BUILD_PATHS ANDROID_JAVA_TOOLCHAIN \
+         ANDROID_HOST_OUT_TESTCASES ANDROID_TARGET_OUT_TESTCASES; \
+cd ~/builds-ssd/magicleap/ML1; . build/envsetup.sh; lunch phaedra-userdebug; export USE_CCACHE=1 CCACHE_DIR=~/builds-ssd/.ccache-ML1; ccache -M 32G;" command " | perl -ple 's/^.*\\r//, s/.[\\b]//sg'"))))
+;--------------------------------------------------
+(defvar ml19-make-command "make -j")
 
-(define-key svn-status-mode-map (kbd "T") 'test-compile)
+;; XXX would love to launch gdb on Apache::Test segfault reports.
+(defun ml19-make (command)
+   "M-x ml-make: Compile and run the project's test suite,
+   basically duplicating `compile' and adding a simple
+   post-processing regexp to preserve the *nix shell
+   semantics of '\r'."
+
+   (interactive
+   (if (or compilation-read-command current-prefix-arg)
+       (list (read-from-minibuffer "ML19 Make command: "
+                                   (eval ml19-make-command) nil nil
+                                   '(compile-history . 1)))
+     (list (eval ml19-make-command))))
+
+  (unless (equal command (eval ml19-make-command))
+    (setq ml19-make-command command))
+
+  (save-some-buffers (not compilation-ask-about-save) nil)
+
+  (let ((compilation-buffer-name-function
+         '(lambda (mmode) (concat "*ml19-make-" (downcase mmode) "*" ))))
+    (compilation-start (concat "cd ~/builds-ssd/magicleap/ML19; . build/envsetup.sh; lunch phaedrax-userdebug; export USE_CCACHE=1 CCACHE_DIR=~/builds-ssd/.ccache-ML19; ccache -M 32G;" command " | perl -ple 's/^.*\\r//, s/.[\\b]//sg'"))))
+;--------------------------------------------------
+(defvar ml2-make-command "make -j")
+
+;; XXX would love to launch gdb on Apache::Test segfault reports.
+(defun ml2-make (command)
+   "M-x ml-make: Compile and run the project's test suite,
+   basically duplicating `compile' and adding a simple
+   post-processing regexp to preserve the *nix shell
+   semantics of '\r'."
+
+   (interactive
+   (if (or compilation-read-command current-prefix-arg)
+       (list (read-from-minibuffer "ML2 Make command: "
+                                   (eval ml2-make-command) nil nil
+                                   '(compile-history . 1)))
+     (list (eval ml2-make-command))))
+
+  (unless (equal command (eval ml2-make-command))
+    (setq ml2-make-command command))
+
+  (save-some-buffers (not compilation-ask-about-save) nil)
+
+  (let ((compilation-buffer-name-function
+         '(lambda (mmode) (concat "*ml2-make-" (downcase mmode) "*" ))))
+    (compilation-start (concat "cd ~/builds-f2fs/magicleap/ML2; . build/envsetup.sh; lunch acamas-userdebug; export USE_CCACHE=1 CCACHE_DIR=~/builds-f2fs/.ccache-ML2; ccache -M 32G;" command " | perl -ple 's/^.*\\r//, s/.[\\b]//sg'"))))
+
+;--------------------------------------------------
+(defvar ml2-mma-command "mma -j")
+
+;; XXX would love to launch gdb on Apache::Test segfault reports.
+(defun ml2-mma (command)
+   "M-x ml-make: Compile and run the project's test suite,
+   basically duplicating `compile' and adding a simple
+   post-processing regexp to preserve the *nix shell
+   semantics of '\r'."
+
+   (interactive
+   (if (or compilation-read-command current-prefix-arg)
+       (list (read-from-minibuffer "ML2 MMA command: "
+                                   (eval ml2-mma-command) nil nil
+                                   '(compile-history . 1)))
+     (list (eval ml2-mma-command))))
+
+  (unless (equal command (eval ml2-mma-command))
+    (setq ml2-mma-command command))
+
+  (save-some-buffers (not compilation-ask-about-save) nil)
+
+  (let ((compilation-buffer-name-function
+         '(lambda (mmode) (concat "*ml2-mma-" (downcase mmode) "*" ))))
+    (compilation-start (concat "cd ~/builds-f2fs/magicleap/ML2; . build/envsetup.sh; lunch acamas-userdebug; export USE_CCACHE=1 CCACHE_DIR=~/builds-f2fs/.ccache-ML2; ccache -M 32G; cd $OLDPWD;" command " | perl -ple 's/^.*\\r//, s/.[\\b]//sg'"))))
+
+;(define-key svn-status-mode-map (kbd "T") 'test-compile)
 ;--------------------------------------------------
 
 (defvar configure-command "./configure")
@@ -459,7 +457,7 @@
          '(lambda (mmode) (concat "*configure-" (downcase mmode) "*" ))))
     (compile-internal command "No more errors")))
 
-(define-key svn-status-mode-map (kbd "C") 'configure)
+;(define-key svn-status-mode-map (kbd "C") 'configure)
 
 ;;--------------------------------------------------
 
@@ -482,7 +480,7 @@
          '(lambda (mmode) (concat "*install-" (downcase mmode) "*" ))))
     (compile-internal command "No more errors")))
 
-(define-key svn-status-mode-map (kbd "I") 'install)
+;(define-key svn-status-mode-map (kbd "I") 'install)
 
 ;;--------------------------------------------------
 
@@ -546,22 +544,38 @@
 ;(require 'jde)
 
 (custom-set-variables
-  ;; custom-set-variables was added by Custom -- don't edit or cut/paste it!
-  ;; Your init file should contain only one such instance.
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(ecb-options-version "2.27")
+ '(flycheck-c/c++-clang-executable "clang-8")
+ '(flycheck-clang-analyzer-executable "clang-8")
+ '(lsp-enable-file-watchers nil)
+ '(lsp-file-watch-threshold nil)
  '(message-send-mail-partially-limit 100000000)
- '(message-sendmail-f-is-evil t))
+ '(message-sendmail-f-is-evil t)
+ '(package-archives
+   (quote
+    (("gnu" . "https://elpa.gnu.org/packages/")
+     ("melpa" . "https://melpa.org/packages/")
+     ("melpa-stable" . "https://stable.melpa.org/packages/"))))
+ '(package-selected-packages
+   (quote
+    (flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))))
 
 ;;(custom-set-faces
   ;; custom-set-faces was added by Custom -- don't edit or cut/paste it!
   ;; Your init file should contain only one such instance.
 ;; '(mmm-default-submode-face ((t (:background "midnightblue")))))
 (custom-set-faces
-  ;; custom-set-faces was added by Custom -- don't edit or cut/paste it!
-  ;; Your init file should contain only one such instance.
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  )
 
-(server-start)
+;;(server-start)
 (ignore-errors
   (require 'battery)
   (unless (string-match "battery N/A" (battery))
@@ -569,3 +583,50 @@
 
 (put 'narrow-to-page 'disabled nil)
 (require 'page-ext)
+
+;; windows power-shell delete
+(normal-erase-is-backspace-mode 1)
+
+(require 'magicleap)
+(require 'zoom-frm)
+(defun transparency (value)
+   "Sets the transparency of the frame window. 0=transparent/100=opaque"
+   (interactive "nTransparency Value 0 - 100 opaque:")
+   (set-frame-parameter (selected-frame) 'alpha value))
+(defun transparency-90-hook (framenum)
+  (set-frame-parameter framenum 'alpha 90))
+
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+(package-initialize)
+
+(use-package lsp-mode
+  :hook (c-mode-common . lsp)
+  :commands lsp)
+(require 'ccls)
+(setq ccls-executable "ccls")
+;; optionally
+(use-package lsp-ui :commands lsp-ui-mode)
+(use-package company-lsp :commands company-lsp)
+(use-package helm-lsp :commands helm-lsp-workspace-symbol)
+(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+;; optionally if you want to use debugger
+;(use-package dap-mode)
+;(use-package dap-gdb-lldb); to load the dap adapter for your language
+(use-package flycheck-clang-analyzer
+  :ensure t
+  :after flycheck
+  :config (flycheck-clang-analyzer-setup))
+(use-package flycheck-clang-tidy
+  :after flycheck
+  :hook
+  (flycheck-mode . flycheck-clang-tidy-setup))
+(require 'dired-git-info)
+(add-hook 'dired-after-readin-hook 'dired-git-info-auto-enable)
+(add-hook 'after-make-frame-functions 'transparency-90-hook)
+(setq ccls-initialization-options
+      '(:compilationDatabaseDirectory "out"
+        :cache (:directory "out/.ccls-cache")
+        :include (:maxPathSize 10000 :maxNum 1000000)
+        :workspaceSymbol (:maxNum 1000000)
+        :xref (:maxNum 2000000)
+        ))

@@ -1,22 +1,49 @@
 HISTSIZE=1000
 SAVEHIST=1000
 HISTFILE=~/.zsh_history
-setopt share_history extended_history hist_expire_dups_first hist_no_store prompt_subst
+setopt share_history extended_history hist_expire_dups_first hist_no_store prompt_subst extendedglob
 unsetopt unset
 export LESSCHARSET=utf-8
 export PAGER=less
-export VISUAL=emacs
+export VISUAL="emacsclient -nw -c"
 export MOZILLA=firefox
+export EDITOR="emacsclient -nw -c"
+export GIT_SSH_VARIANT=ssh
+export SPR_ROOT=src/magicleap/spr_root
+#export XAUTHORITY=/run/user/1401826122/gdm/Xauthority
 
-if echo $PATH | grep -v $HOME/bin >/dev/null; then
-    PATH=$PATH:$HOME/bin
-fi
+# commonly used directories
+
+orchestra=~/src/magicleap/spr_root/infrastructure/orchestration
+ML2=~/builds-f2fs/magicleap/ML2
+ML1=~/builds-ssd/magicleap/ML1
+ML19=~/builds-ssd/magicleap/ML19
+
+
+#if echo $PATH | grep -qv $HOME/bin; then
+    PATH=$HOME/bin:$PATH
+#fi
+
 
 # ctrl-(up/down/left/right) bindings
-bindkey ';5A' history-search-backward
-bindkey ';5B' history-search-forward
+
+if [[ "`uname`" == "Darwin" ]]; then
+    bindkey '^[[A' history-search-backward
+    bindkey '^[[B' history-search-forward
+    bindkey '^[[C' emacs-forward-word
+    bindkey '^[[D' emacs-backward-word
+else
+    bindkey ';5A' history-search-backward
+    bindkey ';5B' history-search-forward
+    bindkey '5A' history-search-backward
+    bindkey '5B' history-search-forward
+fi
+
+
 bindkey ';5C' emacs-forward-word
 bindkey ';5D' emacs-backward-word
+bindkey '5C' emacs-forward-word
+bindkey '5D' emacs-backward-word
 
 # directory stuff
 nd () { export $1=$PWD; : ~$1 }
@@ -24,8 +51,6 @@ DIRSTACKSIZE=8
 setopt autocd autopushd pushdminus pushdsilent pushdtohome
 alias dh='dirs -v'
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
-alias vt220_pw_driver='TERM=vt220 ~/src/apache/infra-trunk/machines/root/bin/apue/pty -d ~/src/apache/infra-trunk/machines/root/bin/apue/pw-driver.pl --'
-alias ansi_pw_driver='TERM=ansi ~/src/apache/infra-trunk/machines/root/bin/apue/pty -d ~/src/apache/infra-trunk/machines/root/bin/apue/pw-driver.pl --'
 alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
 tplay () {
@@ -54,9 +79,9 @@ PR_RESET="%{${reset_color}%}";
 title () {
     case $TERM in
         screen)
-            print -Pn "\ek%n@%m: "
-            print -rn $1
-            print -Pn " [%j]\e\\"
+#            print -Pn "\ek%n@%m: "
+            print -Pn "\ek$1\e\\"
+#            print -Pn " [%j]\e\\"
 
             print -Pn "\e]0;%n@%m: "
             print -rn $1
@@ -79,7 +104,7 @@ precmd () {
     } else {
         zstyle ':vcs_info:*' formats "[${PR_BLACK}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_RED}?${PR_RESET}]"
     }
- 
+
     vcs_info 2>/dev/null
 }
 preexec () { title $2 }
@@ -88,7 +113,7 @@ autoload -U compinit
 compinit
 
 autoload -Uz vcs_info
- 
+
 zstyle ':vcs_info:*' stagedstr 'S'
 zstyle ':vcs_info:*' unstagedstr 'M'
 zstyle ':vcs_info:*' check-for-changes true
@@ -96,6 +121,36 @@ zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{1}:%F{11}%r'
 zstyle ':vcs_info:*' enable svn git
 
 RPROMPT='$vcs_info_msg_0_'
+
+_ssh_zsh_config_hosts=($(grep '^Host' ~/.ssh/config 2>/dev/null | sed -e 's/^Host//'))
+
+_ssh_zsh () {
+    local state
+
+    _arguments '1: :->ssh_host'
+
+    case $state in
+        (ssh_host) _arguments "1:ssh_hosts:($_ssh_zsh_config_hosts)" ;;
+    esac
+}
+
+ssh_zsh () {
+    /usr/bin/ssh -Y -t $@ -- zsh
+}
+
+compdef _ssh_zsh ssh_zsh
+
+_ssh_host_completion () {
+    local h
+    h=($_ssh_zsh_config_hosts $(grep -v '^#' /etc/hosts | awk '{print $2}'))
+    if [[ $#h -gt 0 ]]; then
+        for x in ssh scp sftp rsync; do
+            zstyle ":completion:*:$x:*" hosts $h
+        done
+    fi
+}
+
+_ssh_host_completion
 
 if [[ ${EMACS+} == t ]]; then
     unsetopt zle
@@ -122,5 +177,57 @@ fi
 alias zfs >/dev/null && unalias zfs
 alias zpool > /dev/null && unalias zpool
 
-true
+alias my_mplayer='mplayer tv:// driver=v4l2:device=/dev/video0:width=640:height=480 -vo jpeg'
+alias flash_ml2_build='(cd ~/builds/magicleap/ML2/out/target/product/acamas && ./flashall_amd.sh)'
+alias flash_ml1_build='(cd ~/builds-ssd/magicleap/ML1/out/target/product/phaedra && ./flashall.sh)'
+alias flash_ml19_build='(cd ~/builds-ssd/magicleap/ML19/out/target/product/phaedra && ./flashall.sh)'
+alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
+alias toggle='echo toggle'
+alias git_ml_push='git push origin HEAD:refs/for/$(git branch --show-current)'
+alias uart_console='screen cu --parity=none --speed=115200 --line=/dev/ttyUSB0'
+alias emacsd='bash -c "exec emacs --daemon"'
 
+emac () {
+    local args=()
+    local nw=false
+    local running=false
+    # check if emacsclient is already running
+    pgrep -U $(id -u) emacsclient > /dev/null && running=true
+
+    # check if the user wants TUI mode
+    local arg;
+    for arg; do
+    	if [ "$arg" = "-nw" ] || [ "$arg" = "-t" ] || [ "$arg" = "--tty" ]
+        then
+            nw=true
+    	fi
+    done
+
+    # if called without arguments - open a new gui instance
+    if [ "$#" -eq "0" ] || [ "$running" != true ]; then
+        args+=(-c) # open emacsclient in a new window
+    fi
+    if [ "$#" -gt "0" ]; then
+        # if 'emac -' open standard input (e.g. pipe)
+        if [[ "$1" == "-" ]]; then
+    	    local TMP="$(mktemp /tmp/$0-stdin-XXXX)"
+    	    cat >$TMP
+	    args+=(--eval '(let ((b (generate-new-buffer "*stdin*"))) (switch-to-buffer b) (insert-file-contents "'${TMP}'") (delete-file "'${TMP}'"))')
+        else
+            args+=("$@")
+        fi
+    fi
+
+    # emacsclient $args
+    if $nw; then
+	emacsclient "${args[@]}"
+    else
+        local display="MLLW3993:0.0"
+        if [ "${DISPLAY:-}" != "localhost:10.0" ]; then
+            display="$DISPLAY"
+        fi
+	(nohup emacsclient "${args[@]}" --display $display </dev/null >/dev/null 2>&1 &) > /dev/null 2>&1
+    fi
+}
+
+true
