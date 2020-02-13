@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX License Identifier: Apache License 2.0
 #
 # Parallel Find Filename Xargs Grep (pffxg).
 #
@@ -58,7 +59,6 @@ version="2.1"
 # - Borrows ag file extension classes
 # - Adds --* args largely to override env vars
 
-# license: https://www.apache.org/licenses/LICENSE-2.0.txt
 # customizable env vars:
 
 # Fully-Qualified Path to (optional) config file
@@ -96,9 +96,9 @@ filename=""
 temp_dir="$(mktemp -d ${TEMPDIR:-/tmp}/pffxg-XXXXXX)"
 my_exclusions="[.]repo [.]git [.]svn"
 exit_loop=0
-usage_head=30
+usage_head=31
 usage_tail=27
-env_head=119
+env_head=85
 env_tail=25
 all=0
 unzip=0
