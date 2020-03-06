@@ -31,7 +31,7 @@
 
 version="2.1"
 
-# Changes with 2.1
+# Changes with 2.1:
 #
 # - reliability and sanity-check features for compressed cache users
 #
@@ -445,7 +445,7 @@ fi
 # named filters
 
 function filter_exclusions () {
-    grep -Ev "^($(echo '[.][.]?' $my_exclusions $PFFXG_EXCLUSIONS | tr ' ' '|'))\$"
+    grep -Ev "^($(echo $my_exclusions $PFFXG_EXCLUSIONS | tr ' ' '|'))\$"
 }
 
 function filter_extensions () {
@@ -590,9 +590,9 @@ export -f unzip_prefix filter_extensions process_cache compress_cache
 # Stuff like 'foobar "$@" "'"$(echo "$@")"'"bat'"quux'\"\$@\"' $Z" is about the
 # level of chicanery in what lies ahead.
 
-find_args="$(ls -a | filter_exclusions | wc -l | awk "{printf \"%d\", \$1 / $PFFXG_WORKERS + 1}")"
+find_args="$(ls -A | filter_exclusions | wc -l | awk "{printf \"%d\", \$1 / $PFFXG_WORKERS + 1}")"
 
-ls -a | filter_exclusions | xargs -r -d '\n' -P $PFFXG_WORKERS -n $find_args bash -c \
+ls -A | filter_exclusions | xargs -r -d '\n' -P $PFFXG_WORKERS -n $find_args bash -c \
     'find "$@" -type f '$not' -name '"$(single_quote "$filename")"' \
     | grep -vE "/('"$(echo $my_exclusions | tr ' ' '|')"')/" \
     | filter_extensions \
