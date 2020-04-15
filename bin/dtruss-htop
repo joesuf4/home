@@ -1,5 +1,6 @@
 #!/bin/sh
 # #!/usr/bin/sh
+# dtruss-htop: ignore first two args
 shift;shift
 #
 # dtruss - print process system call time details.
@@ -1034,6 +1035,7 @@ dtrace='
 ### Run DTrace (Mac OS X)
 # Redirect the output to stderr so that it doesn't mingle with
 # data going to the target's stdout
+# dtruss-htop: use exec here to make process cleanup by htop work cleanly
 if [ $opt_wait -eq 1 ]; then
 	exec /usr/sbin/dtrace -x dynvarsize=$buf -n "$dtrace" \
 	    -W "$wname" >&2
