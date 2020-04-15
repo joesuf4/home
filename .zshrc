@@ -3,14 +3,6 @@ SAVEHIST=1000
 HISTFILE=~/.zsh_history
 setopt share_history extended_history hist_expire_dups_first hist_no_store prompt_subst extendedglob
 unsetopt unset
-export LESSCHARSET=utf-8
-export PAGER=less
-export VISUAL="emacsclient -nw -c"
-export MOZILLA=firefox
-export EDITOR="emacsclient -nw -c"
-export GIT_SSH_VARIANT=ssh
-export SPR_ROOT=src/magicleap/spr_root
-#export XAUTHORITY=/run/user/1401826122/gdm/Xauthority
 
 # commonly used directories
 
@@ -21,29 +13,28 @@ ML19=~/builds-ssd/magicleap/ML19
 
 
 #if echo $PATH | grep -qv $HOME/bin; then
-    PATH=$HOME/bin:$PATH
+
 #fi
 
 
 # ctrl-(up/down/left/right) bindings
 
-if [[ "`uname`" == "Darwin" ]]; then
+#if [[ "`uname`" == "Darwin" ]]; then
     bindkey '^[[A' history-search-backward
     bindkey '^[[B' history-search-forward
-    bindkey '^[[C' emacs-forward-word
-    bindkey '^[[D' emacs-backward-word
-else
+#    bindkey '^[[C' emacs-forward-word
+#    bindkey '^[[D' emacs-backward-word
+#else
     bindkey ';5A' history-search-backward
     bindkey ';5B' history-search-forward
     bindkey '5A' history-search-backward
     bindkey '5B' history-search-forward
-fi
+    bindkey ';5C' emacs-forward-word
+    bindkey ';5D' emacs-backward-word
+    bindkey '5C' emacs-forward-word
+    bindkey '5D' emacs-backward-word
+#fi
 
-
-bindkey ';5C' emacs-forward-word
-bindkey ';5D' emacs-backward-word
-bindkey '5C' emacs-forward-word
-bindkey '5D' emacs-backward-word
 
 # directory stuff
 nd () { export $1=$PWD; : ~$1 }
@@ -188,7 +179,7 @@ alias uart_console='screen cu --parity=none --speed=115200 --line=/dev/ttyUSB0'
 alias emacsd='bash -c "exec emacs --daemon"'
 
 emac () {
-    local args=()
+    local args; args=()
     local nw=false
     local running=false
     # check if emacsclient is already running
@@ -226,7 +217,7 @@ emac () {
         if [ "${DISPLAY:-}" != "localhost:10.0" ]; then
             display="$DISPLAY"
         fi
-	(nohup emacsclient "${args[@]}" --display $display </dev/null >/dev/null 2>&1 &) > /dev/null 2>&1
+	(nohup emacsclient "${args[@]}" </dev/null >/dev/null 2>&1 &) > /dev/null 2>&1
     fi
 }
 

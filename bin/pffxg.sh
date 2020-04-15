@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # SPDX License Identifier: Apache License 2.0
 #
 # Parallel Find Filename Xargs Grep (pffxg).
@@ -93,7 +93,7 @@ version="2.1"
 # internal variables
 
 filename=""
-temp_dir="$(mktemp -d ${TEMPDIR:-/tmp}/pffxg-XXXXXX)"
+temp_dir="$(mktemp -d ${TMPDIR:-/tmp}/pffxg-XXXXXX)"
 my_exclusions="[.]repo [.]git [.]svn"
 exit_loop=0
 usage_head=31

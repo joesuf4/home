@@ -6,23 +6,13 @@
 ;; You may delete these explanatory comments.
 (package-initialize)
 
-(global-set-key (kbd "C-l") 'redraw-display)
-(setq load-path (cons "~/.emacs-lisp" load-path))
-;(add-to-list 'load-path "~/.emacs-lisp/linepad")
-(setq exec-path (append exec-path '("~/bin")))
-;(require 'w3m) ; use W3 browser
-(setq semantic-load-turn-useful-things-on t)
-;(require 'cedet)
-;(require 'git)
-;(require 'doxymacs)
-;(require 'tls)
-;(require 'erc)
-;(load-library "linepad")
-;(load-library "semantic-load")
-;(semantic-load-enable-code-helpers)
-(require 'dired-x)
-(require 'bpftrace-mode)
+(require 'color-theme)
+(color-theme-initialize)
+(color-theme-pok-wog)
 
+
+(require 'bpftrace-mode)
+(require 'dired-x)
 ;;;;;;;;;;;;;;;;;;;;
 ;; set up unicode
 (prefer-coding-system       'utf-8)
@@ -36,17 +26,6 @@
 
 ;--------------------------------------------------
 ; erc + tls
-
-
-; M-x start-irc
-(defun start-irc ()
-  "Connect to IRC."
-  (interactive)
-  (setq tls-program '("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CAfile ~/GandiStandardSSLCA.crt"))
-  (erc-tls :server "irc.freenode.net" :port 7000
-           :nick "joes4" :password (password-read "Freenode Password: " "freenode") :full-name "Joe Schaefer")
-  (setq erc-autojoin-channels-alist '(("freenode.net" "#asfinfra"))))
-
 ;--------------------------------------------------
 ; hygenics (semantic.cache, backup and autosave files)
 
@@ -83,7 +62,6 @@
       (concat "#" (file-name-nondirectory buffer-file-name) "#")
     (expand-file-name
      (concat "#%" (buffer-name) "#")))))
-
 
 ;; Put backup files (ie foo~) in one place too. (The backup-directory-alist
 ;; list contains regexp=>directory mappings; filenames matching a regexp are
@@ -132,28 +110,11 @@
 
 ;--------------------------------------------------
 
-; (load-file "/usr/gnu/share/emacs/ilisp/ilisp.emacs")
-;(setq load-path (cons "/usr/local/share/emacs/site-lisp" load-path))
-
 ; remove silly toolbar & menu
 (ignore-errors
   (tool-bar-mode 0)
   (menu-bar-mode 0)
 )
-; jclark's nxml mode
-;(load "nxml-mode/rng-auto.el")
-;(setq auto-mode-alist
-;      (cons '("\\.\\(xml\\|xsl\\|xsd\\|rng\\|xhtml\\)\\'" . nxml-mode)
-;            auto-mode-alist))
-
-; Steve Reichoer's svn-status mode
-;(require 'psvn)
-
-;Info path
-;(setq Info-directory-list
-;      '("/usr/gnu/info"
-;	"/usr/info"))
-
 (display-time) ; show time on mode line
 (global-font-lock-mode t) ; turn on font-lock mode
 (column-number-mode t) ; show column number
@@ -166,13 +127,11 @@
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 
 (setq-default fill-column 79)
-(add-hook 'message-setup-hook '(lambda ()
-                                 (set-fill-column 72)
-                                 (add-to-list 'message-syntax-checks
-                                              '(sender . disabled))))
-;; (add-hook 'message-send-hook 'ispell-message)
-(setq message-cite-function 'message-cite-original-without-signature)
 
+
+
+
+(global-set-key (kbd "C-l") 'redraw-display)
 (setq transient-mark-mode t) ;comment out if bothersome
 
 (setq outline-minor-mode-prefix "\C-c\C-o") ; outlining rebind
@@ -549,8 +508,8 @@ cd ~/builds-ssd/magicleap/ML1; . build/envsetup.sh; lunch phaedra-userdebug; exp
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ecb-options-version "2.27")
- '(flycheck-c/c++-clang-executable "clang-8")
- '(flycheck-clang-analyzer-executable "clang-8")
+ '(flycheck-c/c++-clang-executable "clang-10")
+ '(flycheck-clang-analyzer-executable "clang-10")
  '(lsp-enable-file-watchers nil)
  '(lsp-file-watch-threshold nil)
  '(message-send-mail-partially-limit 100000000)
@@ -562,7 +521,7 @@ cd ~/builds-ssd/magicleap/ML1; . build/envsetup.sh; lunch phaedra-userdebug; exp
      ("melpa-stable" . "https://stable.melpa.org/packages/"))))
  '(package-selected-packages
    (quote
-    (flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))))
+    (color-theme flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))))
 
 ;;(custom-set-faces
   ;; custom-set-faces was added by Custom -- don't edit or cut/paste it!
@@ -587,8 +546,7 @@ cd ~/builds-ssd/magicleap/ML1; . build/envsetup.sh; lunch phaedra-userdebug; exp
 ;; windows power-shell delete
 (normal-erase-is-backspace-mode 1)
 
-(require 'magicleap)
-(require 'zoom-frm)
+;(require 'zoom-frm)
 (defun transparency (value)
    "Sets the transparency of the frame window. 0=transparent/100=opaque"
    (interactive "nTransparency Value 0 - 100 opaque:")
