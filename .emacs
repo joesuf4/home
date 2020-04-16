@@ -558,7 +558,7 @@ cd ~/builds-ssd/magicleap/ML1; . build/envsetup.sh; lunch phaedra-userdebug; exp
   :hook (c-mode-common . lsp)
   :commands lsp)
 (require 'ccls)
-(setq ccls-executable "ccls")
+(setq ccls-executable "/usr/local/bin/ccls")
 ;; optionally
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package company-lsp :commands company-lsp)
@@ -579,8 +579,8 @@ cd ~/builds-ssd/magicleap/ML1; . build/envsetup.sh; lunch phaedra-userdebug; exp
 (add-hook 'dired-after-readin-hook 'dired-git-info-auto-enable)
 (add-hook 'after-make-frame-functions 'transparency-90-hook)
 (setq ccls-initialization-options
-      '(:compilationDatabaseDirectory "out"
-        :cache (:directory "out/.ccls-cache")
+      '(;:compilationDatabaseDirectory "out"
+        ;:cache (:directory "out/.ccls-cache")
         :include (:maxPathSize 10000 :maxNum 1000000)
         :workspaceSymbol (:maxNum 1000000)
         :xref (:maxNum 2000000)

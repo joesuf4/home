@@ -16,7 +16,6 @@ defdynamictitle on
 
 bind c screen zsh
 bind ^C screen zsh
-bind z screen zsh
+bind z screen zsh -c '. ~/.zshrc; title "ssh zeus"; exec ssh zeus'
 bind b screen zsh -c '. ~/.zshrc; title bash; exec bash'
 bind h screen zsh -c '. ~/.zshrc; title htop; exec sudo htop'
-#bind u screen zsh -c '. ~/.zshrc; title uart_console; exec cu --parity=none --speed=115200 --line=/dev/ttyUSB0'
