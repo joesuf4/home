@@ -29,7 +29,7 @@ and more feature-rich product in one-tenth the source code line count.  Comes
 with native support for a tmpfs-based (optionally lzo-compressed) cache, which
 provides *consistency* in search result efficiency unavaible in other similar
 products.  Portable to any platform that supports bash + standard Unix `fileutils`,
-including Windows 10 and Mac OSX.
+plus `lzop` if you need a cache, including Windows 10 and Mac OSX.
 
 
 To search `pwd` for `foo`:
