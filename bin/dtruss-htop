@@ -1,7 +1,12 @@
 #!/bin/sh
 # #!/usr/bin/sh
 # dtruss-htop: ignore first two args
-shift;shift
+if [ "`uname`" = "Darwin" ]; then
+   shift;shift
+   ln -s -f dtruss-htop strace
+else
+    exit -1
+fi
 #
 # dtruss - print process system call time details.
 #          Written using DTrace (Solaris 10 3/05).

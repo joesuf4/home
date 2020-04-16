@@ -178,9 +178,9 @@ Applications/
 .dbus-keyrings/
 .sunw/
 .oracle*/
-bin/pty
+bin/pty*
 bin/nproc
 bin/publish*
 bin/script.sh
-bin/update_ssh_config.pl
+bin/strace
 www/
