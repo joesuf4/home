@@ -18,7 +18,5 @@ bind c screen zsh
 bind ^C screen zsh
 bind z screen zsh
 bind b screen zsh -c '. ~/.zshrc; title bash; exec bash'
-bind m screen zsh -c '. ~/.zshrc; title mldb; exec mldb shell'
-bind a screen zsh -c '. ~/.zshrc; title adeb; exec adeb --adb mldb shell'
-bind h screen zsh -c '. ~/.zshrc; title htop; exec htop'
-bind u screen zsh -c '. ~/.zshrc; title uart_console; exec cu --parity=none --speed=115200 --line=/dev/ttyUSB0'
+bind h screen zsh -c '. ~/.zshrc; title htop; exec sudo htop'
+#bind u screen zsh -c '. ~/.zshrc; title uart_console; exec cu --parity=none --speed=115200 --line=/dev/ttyUSB0'

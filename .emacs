@@ -25,8 +25,6 @@
 (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
 
 ;--------------------------------------------------
-; erc + tls
-;--------------------------------------------------
 ; hygenics (semantic.cache, backup and autosave files)
 
 (defun make-private-directory (directory-list)
@@ -286,7 +284,6 @@
 				 'grep-find-history))))
   (let ((null-device nil))		; see grep
     (grep command-args)))
-
 
 
 ;--------------------------------------------------

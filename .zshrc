@@ -27,8 +27,8 @@ ML19=~/builds-ssd/magicleap/ML19
 #else
     bindkey ';5A' history-search-backward
     bindkey ';5B' history-search-forward
-    bindkey '5A' history-search-backward
-    bindkey '5B' history-search-forward
+#    bindkey '5A' history-search-backward
+#    bindkey '5B' history-search-forward
     bindkey ';5C' emacs-forward-word
     bindkey ';5D' emacs-backward-word
     bindkey '5C' emacs-forward-word
@@ -155,14 +155,12 @@ elif [[ "`uname`" == "Darwin" ]]; then
     alias ls='ls -G'
     alias grep='grep --color=auto'
     PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
-    PATH=/opt/local/bin:$PATH
 elif [[ "`uname`" == "Linux" ]]; then
     alias ls='ls --color=auto'
     alias grep='grep --color=auto'
     PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%# '
 elif [[ "`uname`" == "SunOS" ]]; then
     PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
-    PATH=$PATH:/opt/sfw/bin:/usr/sfw/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/ccs/bin
 fi
 
 alias zfs >/dev/null && unalias zfs

@@ -177,3 +177,9 @@ Applications/
 .cache/
 .dbus-keyrings/
 .sunw/
+.oracle*/
+bin/nproc
+bin/publish*
+bin/script.sh
+bin/update_ssh_config.pl
+www/
