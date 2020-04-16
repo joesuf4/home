@@ -149,7 +149,6 @@ alias zfs >/dev/null && unalias zfs
 alias zpool > /dev/null && unalias zpool
 
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
-alias toggle='echo toggle'
 alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
 alias bash_emacsd='bash -c "exec emacs --daemon"'
 

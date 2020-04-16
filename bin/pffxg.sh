@@ -29,11 +29,17 @@
 #     If you really want all files searched (including binary files), pass
 #     the --all flag instead.
 
-version="2.1"
+version="2.2"
 
+# Changes with 2.2:
+#
+# - 'convenience' argument preprocessing
+#
+#
 # Changes with 2.1:
 #
 # - reliability and sanity-check features for compressed cache users
+#
 #
 # Changes with 2.0:
 #
@@ -42,6 +48,7 @@ version="2.1"
 # - keep internal copy of `ag --list-file-types` for future "modernization".
 # - added 'bp' extension to 'make' file extension class
 # - introduce PFFXG_CONF optional (sourced) shell config file.
+#
 #
 # Changes with 1.2:
 #
@@ -53,6 +60,7 @@ version="2.1"
 # - --unzip decompresses range of types (including .core.lzo) on the fly
 # - migrate script to bash for export -f (can't export fcns in sh)
 # - implement "!"-prefix for $filename
+#
 #
 # Changes with 1.1:
 #
@@ -90,6 +98,13 @@ version="2.1"
 [ -f "$PFFXG_CONF" ] && . "$PFFXG_CONF"
 
 
+# 'convenience' preprocessing...
+
+if [ $# -eq 1 -o $# -gt 1 -a "${1#-}" != "$1" -a "${1#--}" = "$1" ]; then
+    set -- -- "$@"
+fi
+
+
 # internal variables
 
 filename=""
@@ -98,8 +113,8 @@ my_exclusions="[.]repo [.]git [.]svn"
 exit_loop=0
 usage_head=31
 usage_tail=27
-env_head=85
-env_tail=25
+env_head=93
+env_tail=24
 all=0
 unzip=0
 not=""
