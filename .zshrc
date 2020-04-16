@@ -4,36 +4,20 @@ HISTFILE=~/.zsh_history
 setopt share_history extended_history hist_expire_dups_first hist_no_store prompt_subst extendedglob
 unsetopt unset
 
-# commonly used directories
-
-orchestra=~/src/magicleap/spr_root/infrastructure/orchestration
-ML2=~/builds-f2fs/magicleap/ML2
-ML1=~/builds-ssd/magicleap/ML1
-ML19=~/builds-ssd/magicleap/ML19
-
-
-#if echo $PATH | grep -qv $HOME/bin; then
-
-#fi
-
-
 # ctrl-(up/down/left/right) bindings
 
-#if [[ "`uname`" == "Darwin" ]]; then
+if [[ "`uname`" == "Darwin" ]]; then
     bindkey '^[[A' history-search-backward
     bindkey '^[[B' history-search-forward
-#    bindkey '^[[C' emacs-forward-word
-#    bindkey '^[[D' emacs-backward-word
-#else
-    bindkey ';5A' history-search-backward
-    bindkey ';5B' history-search-forward
-#    bindkey '5A' history-search-backward
-#    bindkey '5B' history-search-forward
-    bindkey ';5C' emacs-forward-word
-    bindkey ';5D' emacs-backward-word
-    bindkey '5C' emacs-forward-word
-    bindkey '5D' emacs-backward-word
-#fi
+fi
+bindkey ';5A' history-search-backward
+bindkey ';5B' history-search-forward
+bindkey '5A' history-search-backward
+bindkey '5B' history-search-forward
+bindkey ';5C' emacs-forward-word
+bindkey ';5D' emacs-backward-word
+bindkey '5C' emacs-forward-word
+bindkey '5D' emacs-backward-word
 
 
 # directory stuff
@@ -70,9 +54,7 @@ PR_RESET="%{${reset_color}%}";
 title () {
     case $TERM in
         screen)
-#            print -Pn "\ek%n@%m: "
             print -Pn "\ek$1\e\\"
-#            print -Pn " [%j]\e\\"
 
             print -Pn "\e]0;%n@%m: "
             print -rn $1
@@ -166,15 +148,10 @@ fi
 alias zfs >/dev/null && unalias zfs
 alias zpool > /dev/null && unalias zpool
 
-alias my_mplayer='mplayer tv:// driver=v4l2:device=/dev/video0:width=640:height=480 -vo jpeg'
-alias flash_ml2_build='(cd ~/builds/magicleap/ML2/out/target/product/acamas && ./flashall_amd.sh)'
-alias flash_ml1_build='(cd ~/builds-ssd/magicleap/ML1/out/target/product/phaedra && ./flashall.sh)'
-alias flash_ml19_build='(cd ~/builds-ssd/magicleap/ML19/out/target/product/phaedra && ./flashall.sh)'
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
 alias toggle='echo toggle'
-alias git_ml_push='git push origin HEAD:refs/for/$(git branch --show-current)'
-alias uart_console='screen cu --parity=none --speed=115200 --line=/dev/ttyUSB0'
-alias emacsd='bash -c "exec emacs --daemon"'
+alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
+alias bash_emacsd='bash -c "exec emacs --daemon"'
 
 emac () {
     local args; args=()
@@ -211,10 +188,6 @@ emac () {
     if $nw; then
 	emacsclient "${args[@]}"
     else
-        local display="MLLW3993:0.0"
-        if [ "${DISPLAY:-}" != "localhost:10.0" ]; then
-            display="$DISPLAY"
-        fi
 	(nohup emacsclient "${args[@]}" </dev/null >/dev/null 2>&1 &) > /dev/null 2>&1
     fi
 }
