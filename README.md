@@ -35,14 +35,14 @@ plus `lzop` if you need a cache, including Windows 10 and Mac OSX.
 To search `pwd` for `foo`:
 
 ```
-    % pffxg.sh -- foo
+    % pffxg.sh foo
 ```
 
 ### Usage
 
 ```
    % pffxg.sh --help
-   Parallel Find Filename Xargs Grep (pffxg) VERSION 2.1
+   Parallel Find Filename Xargs Grep (pffxg) VERSION 2.2
 
    Usage:
 
@@ -102,7 +102,7 @@ To search `pwd` for `foo`:
 ```
     % cat .pffxg.conf
     PFFXG_WORKERS=3
-    PFFXG_EXCLUSIONS=
+    PFFXG_EXCLUSIONS=.ccls-cache
     PFFXG_ARGS=1000
     PFFXG_CMD="grep --color=always --with-filename --line-number"
 ```
