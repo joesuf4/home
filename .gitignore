@@ -1,4 +1,5 @@
 *~
+\#*
 .DCOP*
 .ICEauthority
 .MCOP-random-seed
@@ -162,16 +163,16 @@ VirtualBox VMs/
 .Trash
 .CFUserTextEncoding
 .DS_Store
-Documents
-Downloads
-Library
-Movies
-Music
-Pictures
-Public
-Dropbox
+Documents/
+Downloads/
+Library/
+Movies/
+Music/
+Pictures/
+Public/
+Dropbox/
 .dropbox
-Google Drive
+Google Drive/
 .dropbox-master
 Applications/
 .cache/
@@ -183,4 +184,3 @@ bin/nproc
 bin/publish*
 bin/script.sh
 bin/strace
-www/
