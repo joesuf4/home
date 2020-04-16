@@ -178,6 +178,7 @@ Applications/
 .dbus-keyrings/
 .sunw/
 .oracle*/
+bin/pty
 bin/nproc
 bin/publish*
 bin/script.sh
