@@ -275,7 +275,7 @@
 ;--------------------------------------------------
 ;; grep over pffxg.sh output
 
-(defvar pffxg-command "pffxg.sh '*' ")
+(defvar pffxg-command "pffxg.sh ")
 (defun pffxg (command-args)
   (interactive
    (progn
