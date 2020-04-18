@@ -3,7 +3,7 @@
 # dtruss-htop: ignore first two args
 if [ "`uname`" = "Darwin" ]; then
    shift;shift
-   ln -s -f dtruss-htop strace
+   ln -s -f dtruss-htop ~/bin/strace
 else
     exit -1
 fi
