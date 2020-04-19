@@ -28,7 +28,7 @@ Modeled on the API for The Silver Surfer (`ag`), `pffxg.sh` is a simpler, faster
 and more feature-rich product in one-tenth the source code line count.  Comes
 with native support for a tmpfs-based (optionally lzo-compressed) cache, which
 provides *consistency* in search result efficiency unavaible in other similar
-products.  Portable to any platform that supports bash + standard Unix `fileutils`,
+products.  Portable to any platform that supports bash + standard GNU `fileutils`,
 plus `lzop` if you need a cache, including Windows 10 and Mac OSX.
 
 
