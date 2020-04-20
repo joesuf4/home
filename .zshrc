@@ -4,6 +4,7 @@ HISTFILE=~/.zsh_history
 setopt share_history extended_history hist_expire_dups_first hist_no_store prompt_subst extendedglob
 unsetopt unset
 
+
 # ctrl-(up/down/left/right) bindings
 
 if [[ "`uname`" == "Darwin" ]]; then
@@ -21,12 +22,16 @@ bindkey '5D' emacs-backward-word
 
 
 # directory stuff
+
 nd () { export $1=$PWD; : ~$1 }
 DIRSTACKSIZE=8
 setopt autocd autopushd pushdminus pushdsilent pushdtohome
 alias dh='dirs -v'
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
+
+
+# typescript file walker
 
 tplay () {
     perl -MPOSIX=ctermid -MTerm::ReadKey -e '
@@ -42,6 +47,9 @@ tplay () {
     ' -- "$@"
 }
 
+
+# color vars
+
 autoload colors
 colors
 
@@ -50,6 +58,9 @@ for COLOR in RED GREEN YELLOW WHITE BLACK CYAN BLUE MAGENTA; do
     eval PR_BRIGHT_$COLOR='%{$fg_bold[${(L)COLOR}]%}'
 done
 PR_RESET="%{${reset_color}%}";
+
+
+# window titles
 
 title () {
     case $TERM in
@@ -82,8 +93,8 @@ precmd () {
 }
 preexec () { title $2 }
 
-autoload -U compinit
-compinit
+
+# VCS status RPROMPT
 
 autoload -Uz vcs_info
 
@@ -94,6 +105,12 @@ zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{1}:%F{11}%r'
 zstyle ':vcs_info:*' enable svn git
 
 RPROMPT='$vcs_info_msg_0_'
+
+
+# ssh_zsh() for remote systems that are bash-login based
+
+autoload -U compinit
+compinit
 
 _ssh_zsh_config_hosts=($(grep '^Host' ~/.ssh/config 2>/dev/null | sed -e 's/^Host//'))
 
@@ -125,6 +142,9 @@ _ssh_host_completion () {
 
 _ssh_host_completion
 
+
+# various platform prompts
+
 if [[ ${EMACS+} == t ]]; then
     unsetopt zle
     PROMPT=$'%n@%m:%~%(?..(%?%))%# '
@@ -145,12 +165,16 @@ elif [[ "`uname`" == "SunOS" ]]; then
     PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
 fi
 
-alias zfs >/dev/null && unalias zfs
-alias zpool > /dev/null && unalias zpool
 
+# utilities
+
+# translate between big-endian and little-endian objdumps.
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
+
 alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
-alias bash_emacsd='bash -c "exec emacs --daemon"'
+
+
+# presumes a running emacs-server
 
 emac () {
     local args; args=()
@@ -170,7 +194,7 @@ emac () {
 
     # if called without arguments - open a new gui instance
     if [ "$#" -eq "0" ] || [ "$running" != true ]; then
-        args+=(-c) # open emacsclient in a new window
+        args+=(-c) # open emacsclient in a new frame
     fi
     if [ "$#" -gt "0" ]; then
         # if 'emac -' open standard input (e.g. pipe)
@@ -183,12 +207,14 @@ emac () {
         fi
     fi
 
-    # emacsclient $args
     if $nw; then
 	emacsclient "${args[@]}"
     else
 	(nohup emacsclient "${args[@]}" </dev/null >/dev/null 2>&1 &) > /dev/null 2>&1
     fi
 }
+
+
+# return
 
 true
