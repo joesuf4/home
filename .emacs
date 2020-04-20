@@ -228,7 +228,7 @@
 
 
 ;;--------------------------------------------------
-;; packaged stuff
+;; packaged LSP stuff
 
 (use-package lsp-mode
   :hook (c-mode-common . lsp)
@@ -274,8 +274,10 @@
 ;;--------------------------------------------------
 ;; dired-git-info mode - too lazy to deal with fancy git-mode packages
 (require 'dired-x)
-(require 'dired-git-info)
-(add-hook 'dired-after-readin-hook 'dired-git-info-auto-enable)
+(use-package dired-git-info
+    :ensure t
+    :bind (:map dired-mode-map
+                (")" . dired-git-info-mode)))
 
 ;;--------------------------------------------------
 ;; UI (frame) look and feel
