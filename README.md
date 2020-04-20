@@ -5,10 +5,12 @@ files across several servers.  The sources are found on my laptop, are
 pushed to my github account, and from there are cloned to my home directory
 across various hosts, typically with ansible.
 
-Most of my worktime is spent in zsh running inside a screen session on
-my laptop, and that's reflected in my config.  Obviously I use emacs
+Most of my worktime is spent in zsh running inside a pty-driven screen session
+on my laptop, and that's reflected in my config.  Obviously I use emacs
 a lot, and the .emacs file contains a few essential elpa/melpa packages;
-I couldn't get by without some of them.
+I couldn't get by without some of them.  Of particular note is `ccls`, which
+is an excellent piece of software to drive clang-based LSP IDE apps (like
+emacs).
 
 The configs are messy and not really aimed at public distribution, but
 I'd be happy to consider appropriate patches if there's something you'd
@@ -18,7 +20,7 @@ The reusable scripts are over in the bin/ dir.  I have an "strace" drop-in
 for my MBP for `sudo htop` to use for tracing processes. The only nontrivial
 script is `bin/pffxg.sh` - a parallelized recursive grep - targeting *very*
 large source trees typical for embedded development work.  I've included some
-documentation for it below.
+primitive documentation for it below.
 
 ## Parallel Find Filename Xargs Grep (~/bin/pffxg.sh)
 
@@ -30,7 +32,6 @@ with native support for a tmpfs-based (optionally lzo-compressed) cache, which
 provides *consistency* in search result efficiency unavaible in other similar
 products.  Portable to any platform that supports bash + standard GNU `fileutils`,
 plus `lzop` if you need a cache, including Windows 10 and Mac OSX.
-
 
 To search `pwd` for `foo`:
 
