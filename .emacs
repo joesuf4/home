@@ -1,6 +1,7 @@
 ; startup config file
 
 (package-initialize)
+(setq exec-path (append exec-path '("/usr/local/bin")))
 
 ;;--------------------------------------------------
 ;; set up unicode (bulletproof, from a different era)
@@ -278,6 +279,8 @@
 
 ;;--------------------------------------------------
 ;; UI (frame) look and feel
+
+(display-time) ; prints load avg too, which is more relevant than clock
 
 (ignore-errors
   (tool-bar-mode 0)
