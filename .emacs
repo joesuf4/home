@@ -83,7 +83,7 @@
     (shrink-window-if-larger-than-buffer)))
 
 ;;--------------------------------------------------
-;; Now some C-stuff...
+;; Now some whitespace-stuff...
 
 (setq c-tab-always-indent nil) ; allows normal <TAB> behavior in the middle of a line
 (setq show-trailing-whitespace t)
