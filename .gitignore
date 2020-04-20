@@ -89,6 +89,7 @@
 .thumbnails/
 .user60.rdb
 .viminfo
+.vscode/
 .wireshark/
 .w3m/
 .wmrc
