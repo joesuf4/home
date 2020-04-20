@@ -77,6 +77,8 @@
 
 ;--------------------------------------------------
 ; Mario Lang's indirect-region maps a region into its own buffer
+; Ideal for source files with regions from different coding languages
+; since you only get one language mode per buffer.
 
 (defvar indirect-mode-name nil
   "Mode to set for indirect buffers.")
