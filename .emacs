@@ -146,15 +146,15 @@
 (defun pffxg (command-args)
   (interactive
    (progn
-     (list (read-from-minibuffer "Find filenames and grep them (like this): "
+     (list (read-from-minibuffer "Find files (by name) and grep them: "
 				 pffxg-command nil nil
 				 'grep-find-history))))
   (let ((null-device nil))
     (grep command-args)))
 
 ;;--------------------------------------------------
-;;; Kevin Rogers' compile-input.el
-;;; http://groups.google.com/groups?selm=3F6A3405.8040609%40yahoo.com
+;; Kevin Rogers' compile-input.el
+;; http://groups.google.com/groups?selm=3F6A3405.8040609%40yahoo.com
 
 (defvar comint-last-input-start)
 (defvar comint-last-input-end)
@@ -253,18 +253,6 @@
 
 
 ;;--------------------------------------------------
-;; see-thru windows
-(defun transparency (value)
-   "Sets the transparency of the frame window. 0=transparent/100=opaque"
-   (interactive "Transparency Value 0 - 100 opaque:")
-   (set-frame-parameter (selected-frame) 'alpha value))
-(defun transparency-90-hook (framenum)
-  (set-frame-parameter framenum 'alpha 90))
-(add-hook 'after-make-frame-functions 'transparency-90-hook)
-;;--------------------------------------------------
-
-
-;;--------------------------------------------------
 ;; modes for Brendan Gregg's brainchildren...
 (require 'bpftrace-mode)
 (require 'dtrace-script-mode)
@@ -273,7 +261,7 @@
 ;;--------------------------------------------------
 ;; ccls: nice LSP app for emacs integration
 (require 'ccls)
-(setq ccls-executable "/usr/local/bin/ccls")
+(setq ccls-executable "ccls")
 (setq ccls-initialization-options
       '(;:compilationDatabaseDirectory "out"
         ;:cache (:directory "out/.ccls-cache")
@@ -289,17 +277,25 @@
 (add-hook 'dired-after-readin-hook 'dired-git-info-auto-enable)
 
 ;;--------------------------------------------------
-;; UI look and feel
+;; UI (frame) look and feel
 
 (ignore-errors
   (tool-bar-mode 0)
   (menu-bar-mode 0))
 
-(put 'narrow-to-page 'disabled nil)
-(require 'page-ext)
+(defun transparency (value)
+   "Sets the transparency of the frame window. 0=transparent/100=opaque"
+   (interactive "Transparency Value 0 - 100 opaque:")
+   (set-frame-parameter (selected-frame) 'alpha value))
+(defun transparency-90-hook (framenum)
+  (set-frame-parameter framenum 'alpha 90))
+(add-hook 'after-make-frame-functions 'transparency-90-hook)
 
 (color-theme-initialize)
 (color-theme-pok-wog)
+
+(put 'narrow-to-page 'disabled nil)
+(require 'page-ext)
 
 ;; windows power-shell delete
 (normal-erase-is-backspace-mode 1)
