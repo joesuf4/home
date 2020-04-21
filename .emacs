@@ -218,7 +218,7 @@
      ("melpa-stable" . "https://stable.melpa.org/packages/"))))
  '(package-selected-packages
    (quote
-    (diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))))
+    (magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -253,7 +253,6 @@
   :hook
   (flycheck-mode . flycheck-clang-tidy-setup))
 
-
 ;;--------------------------------------------------
 ;; modes for Brendan Gregg's brainchildren...
 (require 'bpftrace-mode)
@@ -274,12 +273,14 @@
 
 ;;--------------------------------------------------
 ;; dired-git-info mode - too lazy to deal with fancy git-mode packages
+(use-package magithub)
 (require 'dired-x)
 (require 'diredfl)
 (use-package dired-git-info
     :ensure t
     :bind (:map dired-mode-map
-                (")" . dired-git-info-mode)))
+                (")" . dired-git-info-mode)
+                ("M-s s" . magit-status)))
 
 ;;--------------------------------------------------
 ;; UI (frame) look and feel

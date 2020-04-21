@@ -5,3 +5,5 @@
 	requireForce = 1
 [push]
 	default = matching
+[github]
+	user = joesuf4
