@@ -1,8 +1,10 @@
 *~
-\#*
+.CFUserTextEncoding
 .DCOP*
+.DS_Store
 .ICEauthority
 .MCOP-random-seed
+.Trash
 .VirtualBox/
 .Xauthority
 .acrobat/
@@ -27,6 +29,8 @@
 .dbus*
 .dia/
 .dmrc
+.dropbox
+.dropbox-master
 .emacs.d/
 .esd_auth
 .evolution/
@@ -90,8 +94,8 @@
 .user60.rdb
 .viminfo
 .vscode/
-.wireshark/
 .w3m/
+.wireshark/
 .wmrc
 .xchat2/
 .xine/
@@ -101,16 +105,11 @@
 .xvpics/
 .zcompdump
 .zsh_history
-.Trash
-.CFUserTextEncoding
-.DS_Store
 Applications/
 Desktop/
 Documents/
 Downloads/
 Dropbox/
-.dropbox
-.dropbox-master
 Google Drive/
 Library/
 Mail/
@@ -121,21 +120,22 @@ Pictures/
 Public/
 TODO
 VirtualBox VMs/
+\#*
 audio/
+bin/nproc
+bin/pty*
+bin/publish*
+bin/script.sh
+bin/strace
 build/
 console.out
 crons/
 dead.letter
 lib/
 libexec/
-public_html/
 private/
+public_html/
 share/
 specs/
 src/
 tmp/
-bin/pty*
-bin/nproc
-bin/publish*
-bin/script.sh
-bin/strace
