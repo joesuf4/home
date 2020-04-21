@@ -143,7 +143,7 @@ _ssh_host_completion () {
 _ssh_host_completion
 
 
-# various platform prompts
+# various platform colorized prompts (and basic utils)
 
 if [[ ${EMACS+} == t ]]; then
     unsetopt zle

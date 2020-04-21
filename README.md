@@ -26,7 +26,7 @@ primitive documentation for it below.
 
 ### TLDR; 4x faster than any other parallelized-recursive-grep solution.
 
-Modeled on the API for The Silver Surfer (`ag`), `pffxg.sh` is a simpler, faster,
+Modeled on the API for The Silver Searcher (`ag`), `pffxg.sh` is a simpler, faster,
 and more feature-rich product in one-tenth the source code line count.  Comes
 with native support for a tmpfs-based (optionally lzo-compressed) cache, which
 provides *consistency* in search result efficiency unavailable in other similar
