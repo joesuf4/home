@@ -64,7 +64,7 @@ PR_RESET="%{${reset_color}%}";
 
 title () {
     # screen title
-    print -Pn "\ek$1\e\\"
+    [[ "$TERM" == "screen" || "`uname`" == "SunOS" ]] && print -Pn "\ek$1\e\\"
     # xterm title
     print -Pn "\e]0;%n@%m: "
     print -rn $1
