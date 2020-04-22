@@ -140,18 +140,27 @@ if [[ ${EMACS+} == t ]]; then
     unsetopt zle
     PROMPT=$'%n@%m:%~%(?..(%?%))%# '
     unset RPROMPT
-elif [[ "`uname`" == "FreeBSD" || "`uname`" == "Darwin" ]]; then
-    alias ls='ls -G'
-    alias grep='grep --color=auto'
-    PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
-elif [[ "`uname`" == "Linux" ]]; then
-    alias ls='ls --color=auto'
-    alias grep='grep --color=auto'
-    PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%# '
-elif [[ "`uname`" == "SunOS" ]]; then
-    PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
-    alias ls='ls -F'
-    alias grep='ggrep --color=auto'
+else
+    case "$(uname)" in
+
+        FreeBSD|Darwin)
+            alias ls='ls -G'
+            alias grep='grep --color=auto'
+            PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
+            ;;
+
+        Linux)
+            alias ls='ls --color=auto'
+            alias grep='grep --color=auto'
+            PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%# '
+            ;;
+
+        SunOS)
+            alias ls='ls -F'
+            alias grep='ggrep --color=auto'
+            PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
+            ;;
+    esac
 fi
 
 
