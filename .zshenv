@@ -11,5 +11,5 @@ do
     PATH="$p:$(echo "$PATH" | /usr/bin/sed -e "s|:$p||g")"
 done
 
-${TERM:=xterm}
+: ${TERM:=xterm}
 export TERM
