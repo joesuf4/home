@@ -7,7 +7,7 @@ unsetopt unset
 
 # ctrl-(up/down/left/right) bindings
 
-if [[ "`uname`" == "Darwin" ]]; then
+if [[ "$(uname)" == "Darwin" ]]; then
     bindkey '^[[A' history-search-backward
     bindkey '^[[B' history-search-forward
 fi
@@ -64,7 +64,7 @@ PR_RESET="%{${reset_color}%}";
 
 title () {
     # screen title
-    [[ "$TERM" == "screen" || "`uname`" == "SunOS" ]] && print -Pn "\ek$1\e\\"
+    [[ "$TERM" == "screen" || "$(uname)" == "SunOS" ]] && print -Pn "\ek$1\e\\"
     # xterm title
     print -Pn "\e]0;%n@%m: "
     print -rn $1
