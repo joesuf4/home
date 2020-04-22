@@ -63,21 +63,12 @@ PR_RESET="%{${reset_color}%}";
 # window titles
 
 title () {
-    case $TERM in
-        screen)
-            print -Pn "\ek$1\e\\"
-
-            print -Pn "\e]0;%n@%m: "
-            print -rn $1
-            print -Pn " [%j]\a"
-            ;;
-        xterm*)
-            print -Pn "\e]0;%n@%m: "
-            print -rn $1
-            print -Pn " [%j]\a"
-            ;;
-
-    esac
+    # screen title
+    print -Pn "\ek$1\e\\"
+    # xterm title
+    print -Pn "\e]0;%n@%m: "
+    print -rn $1
+    print -Pn " [%j]\a"
 }
 
 precmd () {
