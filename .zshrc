@@ -163,6 +163,8 @@ elif [[ "`uname`" == "Linux" ]]; then
     PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%# '
 elif [[ "`uname`" == "SunOS" ]]; then
     PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
+    alias ls='ls -F'
+    alias grep='ggrep --color=auto'
 fi
 
 
