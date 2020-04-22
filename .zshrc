@@ -140,11 +140,7 @@ if [[ ${EMACS+} == t ]]; then
     unsetopt zle
     PROMPT=$'%n@%m:%~%(?..(%?%))%# '
     unset RPROMPT
-elif [[ "`uname`" == "FreeBSD" ]]; then
-    alias ls='ls -G'
-    alias grep='grep --color=auto'
-    PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
-elif [[ "`uname`" == "Darwin" ]]; then
+elif [[ "`uname`" == "FreeBSD" || "`uname`" == "Darwin" ]]; then
     alias ls='ls -G'
     alias grep='grep --color=auto'
     PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
