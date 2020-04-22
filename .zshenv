@@ -10,3 +10,6 @@ for p in /usr/local/bin /usr/local/opt/python@3.8/bin /usr/local/opt/findutils/l
 do
     PATH="$p:$(echo "$PATH" | /usr/bin/sed -e "s|:$p||g")"
 done
+
+${TERM:=xterm}
+export TERM
