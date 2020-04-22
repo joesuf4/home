@@ -160,6 +160,9 @@ else
             alias grep='ggrep --color=auto'
             PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
             ;;
+        *)
+            PROMPT=$'%n@%m:%~%(?..(%?%))%# '
+            ;;
     esac
 fi
 
