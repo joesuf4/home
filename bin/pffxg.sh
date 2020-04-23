@@ -588,7 +588,7 @@ export -f unzip_prefix filter_extensions process_cache compress_cache
 
 # In this program, $PFFXG_WORKERS caps the concurrency of the xargs -P targets.
 
-# In the following 2-stage pipeline, an `ls -a` initiated pipeline, ending in
+# In the following 2-stage pipeline, an `ls -A` initiated pipeline, ending in
 # xargs -P, will spawn one find-job per $find_args entries of $PWD, each of
 # which will create a second pipeline ending in xargs -P again, to spawn
 # $PFFXG_CMD-jobs with up to $PFFXG_ARGS files on the command line. Each of
