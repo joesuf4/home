@@ -27,8 +27,6 @@ nd () { export $1=$PWD; : ~$1 }
 DIRSTACKSIZE=8
 setopt autocd autopushd pushdminus pushdsilent pushdtohome
 alias dh='dirs -v'
-alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
-alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
 
 # typescript file walker
@@ -82,6 +80,7 @@ precmd () {
 
     vcs_info 2>/dev/null
 }
+
 preexec () { title $2 }
 
 
@@ -173,6 +172,10 @@ fi
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
 
 alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
+
+alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
+
+alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
 
 # presumes a running emacs-server
