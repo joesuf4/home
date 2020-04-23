@@ -100,10 +100,6 @@ version="2.2"
 
 # 'convenience' preprocessing...
 
-if [ $# -eq 1 -o $# -gt 1 -a "${1#-}" != "$1" -a "${1#--}" = "$1" ]; then
-    set -- -- "$@"
-fi
-
 
 # internal variables
 
@@ -269,6 +265,13 @@ function print_extension_flags () {
         echo -e "  --$type\n\t${extension_types[$type]}\n"
     done
 }
+
+
+# convenient argument processing
+
+if [ $# -eq 1 -a "$1" != "--help" -a "$1" != "--version" -o $# -gt 1 -a "${1#-}" != "$1" -a "${1#--}" = "$1" ]; then
+    set -- -- "$@"
+fi
 
 
 # simple argument processing
