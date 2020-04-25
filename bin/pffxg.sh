@@ -6,7 +6,7 @@
 # Usage:
 #
 # $0 [ --version | --help | `ag` file extension class | --all | --unzip \
-#     | --conf* $PFFXG_CONF
+#     | --conf* $PFFXG_CONF \
 #     | --list* | --no-* \
 #     | [--args|--files|--batch] $PFFXG_ARGS \
 #     | --cmd $PFFXG_CMD \
