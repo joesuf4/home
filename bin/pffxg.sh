@@ -12,7 +12,7 @@
 #     | --cmd $PFFXG_CMD \
 #     | [--workers|--jobs] $PFFXG_WORKERS \
 #     | --max* $PFFXG_MAX_STATUS \
-#     | --cache $PFFXG_CACHE [--re*]? [--compress]?
+#     | --cache $PFFXG_CACHE [--re*]? [--compress]? \
 #     | --level $PFFXG_LEVEL \
 #     | --compressor $PFFXG_COMPRESSOR \
 #     | [--excl*|--ignore] $PFFXG_EXCLUSIONS]* [$filename|--] ${cmd_args[@]}
