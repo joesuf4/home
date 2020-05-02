@@ -98,9 +98,6 @@ version="2.2"
 [ -f "$PFFXG_CONF" ] && . "$PFFXG_CONF"
 
 
-# 'convenience' preprocessing...
-
-
 # internal variables
 
 filename=""
@@ -267,7 +264,7 @@ function print_extension_flags () {
 }
 
 
-# convenient argument processing
+# 'convenience' argument preprocessing
 
 if [ $# -eq 1 -a "$1" != "--help" -a "$1" != "--version" -o $# -gt 1 -a "${1#-}" != "$1" -a "${1#--}" = "$1" ]; then
     set -- -- "$@"
