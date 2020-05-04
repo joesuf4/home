@@ -78,6 +78,7 @@
 .projects.ede
 .qmail*
 .qt/
+.rc-persist/
 .recently-used
 .recently-used.xbel
 .rhn-applet*
