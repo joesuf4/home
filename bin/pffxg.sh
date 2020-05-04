@@ -425,8 +425,8 @@ fi
 # create cache dir if configured and deal with subsequent compression settings
 
 if [ -n "$PFFXG_CACHE" ]; then
+    mkdir -p -m 0700 $PFFXG_CACHE
     mkdir -p "$PFFXG_CACHE$PWD"
-    chmod 0700 $PFFXG_CACHE
     if ! df "$PFFXG_CACHE" | grep -Eq '^te?mpfs'; then
         echo "pffxg.sh: WARNING: cache base dir '$PFFXG_CACHE' not on tempfs!" >&2
     fi
@@ -561,7 +561,7 @@ function compress_cache () {
 }
 
 function single_quote () {
-    # Embed "$@" arguments in a single quotes and escape embedded quotes
+    # Embed "$@" arguments in single quotes and escape embedded quotes
     # (echo is a bash built-in so has no limit to argument list size).
     # Note: this only runs twice per pffxg.sh invocation so we need correctness,
     # not speed.  It should only be processing the "cmd_args" passed on
