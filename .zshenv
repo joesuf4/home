@@ -12,4 +12,5 @@ do
 done
 
 : ${TERM:=xterm}
+[ "$(uname)" = "SunOS" ] && TERM=xterm
 export TERM
