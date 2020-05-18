@@ -103,7 +103,7 @@
 .xscreensaver
 .xsession-errors
 .xvpics/
-.zcompdump
+.zcompdump*
 .zsh_history
 Applications/
 Desktop/
