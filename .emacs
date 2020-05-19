@@ -1,8 +1,8 @@
 ; startup config file
 
 (package-initialize)
-(setq exec-path (append exec-path '("/usr/local/bin")))
-
+(setq exec-path (append '("/usr/local/bin") exec-path))
+(setq tls-program '("gnutls-cli --no-ca-verification -p %p %h"))
 ;;--------------------------------------------------
 ;; set up unicode (bulletproof, from a different era)
 (prefer-coding-system       'utf-8)
