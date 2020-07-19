@@ -306,7 +306,7 @@
 (require 'page-ext)
 
 ;; windows power-shell delete
-(normal-erase-is-backspace-mode 1)
+;(normal-erase-is-backspace-mode 1)
 
 (global-font-lock-mode t)
 (column-number-mode t)
