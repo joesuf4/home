@@ -1,9 +1,9 @@
 #!/bin/sh
 # #!/usr/bin/sh
 # dtruss-htop: ignore first two args
-if [ "`uname`" = "Darwin" ]; then
+if [ "`uname`" = "Darwin" -o "`uname`" = "SunOS" ]; then
    shift;shift
-   ln -s -f dtruss-htop ~/bin/strace
+   ln -s -f dtruss-htop $HOME/bin/strace
 else
     exit -1
 fi
