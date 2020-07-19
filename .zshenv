@@ -7,6 +7,7 @@ export EDITOR="emacs"
 export MANPATH="/usr/local/share/man:/usr/share/man"
 export LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib"
 export CPPFLAGS="-I/usr/local/include"
+export GIT_SSL_NO_VERIFY=1
 
 for p in /usr/ccs/bin /opt/sfw/bin /usr/sfw/bin /usr/sbin /sbin /usr/local/bin /usr/local/opt/python@3.8/bin \
          /usr/local/opt/findutils/libexec/gnubin /usr/local/opt/llvm/bin $HOME/bin
