@@ -16,6 +16,6 @@ defdynamictitle on
 
 bind c screen zsh
 bind ^C screen zsh
-bind z screen zsh -c '. ~/.zshrc; title "ssh zeus"; TERM=xterm; exec ssh zeus'
+bind z screen zsh -c '. ~/.zshrc; title "ssh zeus"; exec ssh -t zeus ssh-agent zsh'
 bind b screen zsh -c '. ~/.zshrc; title bash; exec bash'
 bind h screen zsh -c '. ~/.zshrc; title htop; exec sudo htop'
