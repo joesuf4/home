@@ -4,10 +4,9 @@ HISTFILE=~/.zsh_history
 setopt share_history extended_history hist_expire_dups_first hist_no_store prompt_subst extendedglob
 unsetopt unset
 
-
 # ctrl-(up/down/left/right) bindings
 
-if [[ "$(uname)" == "Darwin" ]]; then
+if [[ "$(uname)" == "Darwin" || "$(uname)" == "SunOS" ]]; then
     bindkey '^[[A' history-search-backward
     bindkey '^[[B' history-search-forward
 fi
@@ -20,14 +19,12 @@ bindkey ';5D' emacs-backward-word
 bindkey '5C' emacs-forward-word
 bindkey '5D' emacs-backward-word
 
-
 # directory stuff
 
 nd () { export $1=$PWD; : ~$1 }
 DIRSTACKSIZE=8
 setopt autocd autopushd pushdminus pushdsilent pushdtohome
 alias dh='dirs -v'
-
 
 # typescript file walker
 
@@ -45,7 +42,6 @@ tplay () {
     ' -- "$@"
 }
 
-
 # color vars
 
 autoload colors
@@ -56,7 +52,6 @@ for COLOR in RED GREEN YELLOW WHITE BLACK CYAN BLUE MAGENTA; do
     eval PR_BRIGHT_$COLOR='%{$fg_bold[${(L)COLOR}]%}'
 done
 PR_RESET="%{${reset_color}%}";
-
 
 # window titles
 
@@ -179,8 +174,6 @@ alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
 alias htop='sudo -E htop'
 
-#alias ssh='ssh -i ~joe/.ssh/id_rsa'
-
 alias perlfreq="sudo dtrace -qZn 'sub-entry { @[strjoin(strjoin(copyinstr(arg3),\"::\"),copyinstr(arg0))] = count() } END {trunc(@, 10)}'"
 
 alias perlop="sudo dtrace -qZn 'sub-entry { self->fqn = strjoin(copyinstr(arg3), strjoin(\"::\", copyinstr(arg0))) } op-entry /self->fqn != \"\"/ { @[self->fqn] = count() } END { trunc(@, 3) }'"
@@ -226,7 +219,49 @@ emac () {
     fi
 }
 
+oci_intialize_region () {
+    local region=$1
+    local ad=$2
+    [ -n "$region$ad" ] || return 1
+    sed -i -e "s/ [$region]=$ad//g" ~joe/.zshenv
+    sudo rm -rf /x1/httpd/cores/*
+    for volume in ${ZFS_EXPORTS[@]}
+    do
+        local fs=${volume#*/}
+        echo Syncing $fs ...
+        for id in $(seq 1 $ad)
+        do
+            (sudo zfs snapshot -r $volume@baseline; \
+             sudo zfs send -rc $volume@baseline | gzip | ssh opc@HA-fileserver-$id.$region sudo sh -c "'zfs create -o mountpoint=/x1 HApool/x1; zfs destroy HApool/$fs; zfs create -p HApool/$fs; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs'"; \
+             echo Done with $fs: zfs receive exit status=$?.) &
+        done
+        wait
+    done
+    sed -i -e "s/OCI_AD=[(]/OCI_AD=( [$region]=$ad" ~joe/.zshenv
+    . ~/.zshenv
+    echo "All set."
+}
 
-# return
+oci_release () {
+    local ZULU=$(date -Iseconds | tr '+' 'Z')
+    local TMPFILE=/tmp/oci-$ZULU.lzo
+    set -e
+    for volume in ${ZFS_EXPORTS[@]}
+    do
+        local fs=${volume#*/}
+        sudo zfs snapshot -r $volume@$ZULU
+        sudo zfs send -Rc -I baseline $volume@$ZULU | lzop -c > $TMPFILE
+        for region ad in ${(kv)OCI_AD}
+        do
+            for id in 1..$ad
+            do
+                scp $TMPFILE opc@HA-fileserver-$id.$region:$TMPFILE && ssh opc@HA-fileserver-$id.$region sudo sh -c "svcadm disable site/http:apache24 && /usr/local/bin/lzop -d | zfs receive HApool/$fs <$TMPFILE && rm $TMPFILE && svcadm enable site/http:apache24"
+            done
+        done
+      rm $TMPFILE
+    done
+    set +e
+    echo $ZULU > ~joe/.zulu-last
+}
 
 true

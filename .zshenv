@@ -8,9 +8,12 @@ export MANPATH="/usr/local/share/man:/usr/share/man"
 export LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib"
 export CPPFLAGS="-I/usr/local/include"
 export GIT_SSL_NO_VERIFY=1
+declare -A OCI_AD;
+# do not edit the next line manually!
+OCI_AD=( )
+export ZFS_EXPORTS=(rpool/usr/local rpool/lib/svc/manifest/site rpool/etc/letsencrypt tank/x1/cms tank/x1/svnpubsub tank/x1/httpd)
 
-for p in /usr/ccs/bin /opt/sfw/bin /usr/sfw/bin /usr/sbin /sbin /usr/local/bin /usr/local/opt/python@3.8/bin \
-         /usr/local/opt/findutils/libexec/gnubin /usr/local/opt/llvm/bin $HOME/bin
+for p in /usr/ccs/bin /opt/sfw/bin /usr/sfw/bin /usr/sbin /sbin /usr/cluster/bin /usr/local/bin $HOME/bin
 do
     PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
 done

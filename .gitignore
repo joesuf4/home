@@ -10,6 +10,7 @@
 .acrobat/
 .adobe/
 .alsaplayer/
+.ansible
 .apache-test/
 .aptitude/
 .authinfo
@@ -31,6 +32,8 @@
 .dmrc
 .dropbox
 .dropbox-master
+.dt/
+.dtprofile
 .emacs.d/
 .esd_auth
 .evolution/
@@ -70,12 +73,15 @@
 .netrc
 .newsrc*
 .nnmail-cache
+.node_repl_history
+.npm/
 .openoffice.org2/
 .oracle*/
 .plan
 .plugin141_02.trace
 .profile
 .projects.ede
+.python_history
 .qmail*
 .qt/
 .recently-used
@@ -85,11 +91,13 @@
 .semantic*
 .serverauth.*
 .signature
+.softwareupdate
 .sqlite_history
 .ssh/
 .subversion/
 .sunw/
 .sversionrc
+.tarsnap*
 .thumbnails/
 .user60.rdb
 .viminfo
@@ -133,6 +141,7 @@ crons/
 dead.letter
 lib/
 libexec/
+pkg.oracle.com.*
 private/
 public_html/
 share/
