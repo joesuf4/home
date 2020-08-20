@@ -232,7 +232,7 @@ oci_intialize_region () {
         for id in {1..$ad}
         do
             (sudo zfs snapshot -r $volume@baseline; \
-             sudo zfs send -rc $volume@baseline | gzip | ssh HA-fileserver-$id.$region sudo sh -c "'zfs create -o mountpoint=/x1 HApool/x1; zfs destroy HApool/$fs; zfs create -p HApool/$fs; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs'"; \
+             sudo zfs send -rc $volume@baseline | gzip | ssh HA-fileserver-$id.$region sudo sh -c "'zfs create -o mountpoint=/x1 HApool/x1; zfs destroy HApool/$fs; zfs create -p HApool/$fs; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs' [ /\$fs = /etc/svc/manifest/site ] svccfg import /\$fs && svcadm enable site/markdownd && svcadm enable site/http:apache24 && svcadm site/svnwcsub"; \
              echo Done with /$fs on HA-fileserver-$id.$region: zfs receive exit status=$?.) &
         done
         wait
@@ -257,7 +257,7 @@ oci_release () {
         do
             for id in {1..$ad}
             do
-                scp $TMPFILE HA-fileserver-$id.$region:$TMPFILE && ssh HA-fileserver-$id.$region sudo sh -c "'[ /$fs = /etc/svc/manifest/site ] && (svcadm disable site/http:apache24; svcadm disable site/svnwcsub; svcadm disable site/markdownd) >/dev/null 2>&1; /usr/local/bin/lzop -d <$TMPFILE | zfs receive -F HApool/$fs && rm $TMPFILE; rc=\$?; [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub && svcadm enable site/markdownd; exit \$rc'" || return $?
+                scp $TMPFILE HA-fileserver-$id.$region:$TMPFILE && ssh HA-fileserver-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F HApool/$fs && rm $TMPFILE; rc=\$?; [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub && svcadm enable site/markdownd; exit \$rc'" || return $?
             done
         done
       rm $TMPFILE
@@ -270,8 +270,10 @@ oci_ship_crons () {
     do
         for id in {1..$ad}
         do
-            scp  /var/spool/cron/crontabs/{root,httpd} opc@HA-fileserver-$id.$region:/tmp && \
-                ssh HA-fileserver-$id.$region sudo sh -c "mv /tmp/{root,httpd} /var/spool/cron/crontabs && svcadm restart cron"
+            for file in root httpd
+            do
+                sudo cat /var/spool/cron/crontabs/$file | ssh HA-fileserver-$id.$region sudo sh -c "'cat > /var/spool/cron/crontabs/$file && svcadm restart cron'" || return $?
+            done
         done
     done
 }
