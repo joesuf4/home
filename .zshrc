@@ -219,7 +219,7 @@ emac () {
     fi
 }
 
-oci_intialize_region () {
+oci_initialize_region () {
     local region=$1
     local ad=$2
     [ -n "$region$ad" ] || return 1
@@ -232,7 +232,7 @@ oci_intialize_region () {
         for id in {1..$ad}
         do
             (sudo zfs snapshot -r $volume@baseline; \
-             sudo zfs send -rc $volume@baseline | gzip | ssh HA-fileserver-$id.$region sudo sh -c "'zfs create -o mountpoint=/x1 HApool/x1; zfs destroy HApool/$fs; zfs create -p HApool/$fs; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs' [ /\$fs = /etc/svc/manifest/site ] svccfg import /\$fs && svcadm enable site/markdownd && svcadm enable site/http:apache24 && svcadm site/svnwcsub"; \
+             sudo zfs send -rc $volume@baseline | gzip | ssh HA-fileserver-$id.$region sudo sh -c "'zfs create -o mountpoint=/x1 HApool/x1; mv /etc/mail /etc/mail-orig; zfs destroy HApool/$fs; zfs create -p HApool/$fs; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs' [ /\$fs = /etc/svc/manifest/site ] svccfg import /\$fs && svcadm enable site/markdownd && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub"; \
              echo Done with /$fs on HA-fileserver-$id.$region: zfs receive exit status=$?.) &
         done
         wait
@@ -245,22 +245,22 @@ oci_intialize_region () {
 
 oci_release () {
     local ZULU=$(date -Iseconds | tr '+' 'Z')
-    local TMPFILE=/tmp/oci-$ZULU.lzo
     LAST=$(cat ~joe/.zulu-last)
     [ -n "$LAST" ] || return 1
     for volume in ${ZFS_EXPORTS[@]}
     do
         local fs=${volume#*/}
+        local TMPFILE=/tmp/oci-($basename $fs)-$ZULU.lzo
         sudo zfs snapshot -r $volume@$ZULU
         sudo zfs send -R -I $LAST $volume@$ZULU | lzop -c > $TMPFILE
         for region ad in ${(kv)OCI_AD}
         do
             for id in {1..$ad}
             do
-                scp $TMPFILE HA-fileserver-$id.$region:$TMPFILE && ssh HA-fileserver-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F HApool/$fs && rm $TMPFILE; rc=\$?; [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub && svcadm enable site/markdownd; exit \$rc'" || return $?
+                scp $TMPFILE HA-fileserver-$id.$region:$TMPFILE && ssh HA-fileserver-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F HApool/$fs && rm $TMPFILE; rc=\$?; [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub && svcadm enable site/markdownd && svcadm restart sendmail-client; exit \$rc'" || return $?
             done
         done
-      rm $TMPFILE
+        rm $TMPFILE
     done
     echo $ZULU > ~joe/.zulu-last
 }

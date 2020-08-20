@@ -11,7 +11,8 @@ export GIT_SSL_NO_VERIFY=1
 declare -A OCI_AD;
 # do not edit the next line manually!
 OCI_AD=( [us-ashburn-1]=3 )
-export ZFS_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt tank/x1/cms tank/x1/svnpubsub tank/x1/httpd rpool/etc/svc/manifest/site)
+export ZFS_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt tank/x1/cms tank/x1/svnpubsub tank/x1/httpd rpool/etc/mail rpool/etc/svc/manifest/site)
+
 for p in /usr/ccs/bin /opt/sfw/bin /usr/sfw/bin /usr/sbin /sbin /usr/cluster/bin /usr/local/bin $HOME/bin
 do
     PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"

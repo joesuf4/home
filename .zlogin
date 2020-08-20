@@ -1,1 +1,1 @@
-.zshenv
+ssh-add
