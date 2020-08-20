@@ -1,7 +1,6 @@
 #!/usr/local/bin/zsh
 
 . ~joe/.zshenv
-. ~joe/.zshrc
 
 for region ad in ${(kv)OCI_AD}
 do
