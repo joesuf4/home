@@ -250,7 +250,7 @@ oci_release () {
     for volume in ${ZFS_EXPORTS[@]}
     do
         local fs=${volume#*/}
-        local TMPFILE=/tmp/oci-($basename $fs)-$ZULU.lzo
+        local TMPFILE=/tmp/oci-$(basename $fs)-$ZULU.lzo
         sudo zfs snapshot -r $volume@$ZULU
         sudo zfs send -R -I $LAST $volume@$ZULU | lzop -c > $TMPFILE
         for region ad in ${(kv)OCI_AD}
