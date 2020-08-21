@@ -222,6 +222,7 @@ emac () {
 oci_initialize_region () {
     local region=$1
     local ad=$2
+    local LAST=$(cat ~/.zulu-last)
     [ -n "$region$ad" ] || return 1
     sed -i -e "s/ \\[$region\\]=$ad//g" ~joe/.zshenv
     sudo rm -rf /x1/httpd/cores/*
@@ -231,22 +232,21 @@ oci_initialize_region () {
         echo Syncing /$fs ...
         for id in {1..$ad}
         do
-            (sudo zfs snapshot -r $volume@baseline; \
-             sudo zfs send -rc $volume@baseline | gzip | ssh HA-fileserver-$id.$region sudo sh -c "'zfs create -o mountpoint=/x1 HApool/x1 >/dev/null 2>&1; mv /etc/mail /etc/mail-orig >/dev/null 2>&1; zfs create -p HApool/$fs >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs && [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs && svcadm enable site/markdownd && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub'"; \
+            sudo zfs snapshot $volume@$LAST >/dev/null 2>&1
+            (sudo zfs send -rc $volume@$LAST | gzip | ssh HA-fileserver-$id.$region sudo sh -c "'zfs create -o mountpoint=/x1 HApool/x1 >/dev/null 2>&1; mv /etc/mail /etc/mail-orig >/dev/null 2>&1; zfs create -p HApool/$fs >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs && [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs && svcadm enable site/markdownd && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub'"; \
              echo Done with /$fs on HA-fileserver-$id.$region: zfs receive exit status=$?.) &
         done
         wait
     done
     sed -i -e "s/OCI_AD=[(]/OCI_AD=( [$region]=$ad/" ~joe/.zshenv
     . ~/.zshenv
-    echo baseline > ~joe/.zulu-last
     echo "All set."
 }
 
 oci_release () {
     local slice="${1-}"
     local ZULU=$(date -Iseconds | tr '+' 'Z')
-    LAST=$(cat ~joe/.zulu-last)
+    local LAST=$(cat ~joe/.zulu-last)
     [ -n "$LAST" ] || return 1
     for region ad in ${(kv)OCI_AD}
     do
@@ -284,12 +284,10 @@ oci_ship_crons () {
 
 oci_ship_svcs () {
     local ZFS_EXPORTS=( rpool/etc/svc/manifest/site )
-    LAST=$(cat ~joe/.zulu-last)
     for region ad in ${(kv)OCI_AD}
     do
         oci_initialize_region $region $ad
     done
-    echo $LAST > ~joe/.zulu-last
 }
 
 true
