@@ -232,7 +232,7 @@ oci_initialize_region () {
         for id in {1..$ad}
         do
             (sudo zfs snapshot -r $volume@baseline; \
-             sudo zfs send -rc $volume@baseline | gzip | ssh HA-fileserver-$id.$region sudo sh -c "'zfs create -o mountpoint=/x1 HApool/x1; mv /etc/mail /etc/mail-orig; zfs destroy HApool/$fs; zfs create -p HApool/$fs; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs' [ /\$fs = /etc/svc/manifest/site ] svccfg import /\$fs && svcadm enable site/markdownd && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub"; \
+             sudo zfs send -rc $volume@baseline | gzip | ssh HA-fileserver-$id.$region sudo sh -c "'zfs create -o mountpoint=/x1 HApool/x1 >/dev/null 2>&1; mv /etc/mail /etc/mail-orig >/dev/null 2>&1; zfs create -p HApool/$fs >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs && [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs && svcadm enable site/markdownd && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub'"; \
              echo Done with /$fs on HA-fileserver-$id.$region: zfs receive exit status=$?.) &
         done
         wait
@@ -280,6 +280,16 @@ oci_ship_crons () {
             done
         done
     done
+}
+
+oci_ship_svcs () {
+    local ZFS_EXPORTS=( rpool/etc/svc/manifest/site )
+    LAST=$(cat ~joe/.zulu-last)
+    for region ad in ${(kv)OCI_AD}
+    do
+        oci_initialize_region $region $ad
+    done
+    echo $LAST > ~joe/.zulu-last
 }
 
 true
