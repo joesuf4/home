@@ -10,6 +10,7 @@
 .acrobat/
 .adobe/
 .alsaplayer/
+.ansible/
 .apache-test/
 .aptitude/
 .authinfo
@@ -69,6 +70,8 @@
 .nautilus/
 .netrc
 .newsrc*
+.node_repl_history
+.npm/
 .nnmail-cache
 .openoffice.org2/
 .oracle*/
@@ -91,6 +94,7 @@
 .subversion/
 .sunw/
 .sversionrc
+.tarsnap.key
 .thumbnails/
 .user60.rdb
 .viminfo
@@ -118,6 +122,7 @@ Movies/
 Music/
 News/
 Pictures/
+PLAN.md
 Public/
 TODO
 VirtualBox VMs/
@@ -134,9 +139,11 @@ crons/
 dead.letter
 lib/
 libexec/
+node_modules/
 private/
 public_html/
 share/
 specs/
 src/
 tmp/
+zeus/
