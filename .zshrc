@@ -277,7 +277,7 @@ oci_ship_crons () {
         do
             for file in root httpd
             do
-                sudo cat /var/spool/cron/crontabs/$file | ssh HA-fileserver-$id.$region sudo sh -c "'cat > /var/spool/cron/crontabs/$file && svcadm restart cron'" || return $?
+                sudo cat /var/spool/cron/crontabs/$file | perl -ple 's/sleep 0/"sleep " . int rand 100/e' | ssh HA-fileserver-$id.$region sudo sh -c "'cat > /var/spool/cron/crontabs/$file && svcadm restart cron'" || return $?
             done
         done
     done
