@@ -260,7 +260,7 @@ oci_release () {
                 local TMPFILE=/tmp/oci-$(basename $fs)-$ZULU.zfs.lzo
                 sudo zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
                 [ -f $TMPFILE ] || sudo zfs send -R -I $LAST $volume@$ZULU | lzop -c > $TMPFILE
-                scp $TMPFILE HA-fileserver-$id.$region:$TMPFILE && ssh HA-fileserver-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F HApool/$fs && rm $TMPFILE; rc=\$?; [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub && svcadm enable site/markdownd && svcadm restart sendmail-client; exit \$rc'" || return $?
+                scp $TMPFILE HA-fileserver-$id.$region:$TMPFILE && ssh HA-fileserver-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F HApool/$fs && rm $TMPFILE; rc=\$?; [ /$fs = /etc/svc/manifest/site ] && svcadm refresh site/http:apache24 && svcadm restart site/svnwcsub && svcadm restart site/markdownd; exit \$rc'" || return $?
             done
             echo HA-fileserver-$id.$region upgrade complete.
         done
