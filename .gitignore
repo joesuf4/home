@@ -113,7 +113,7 @@
 .xvpics/
 .zcompdump*
 .zsh_history
-.zulu-last
+.zulu-*
 Applications/
 Desktop/
 Documents/

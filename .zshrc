@@ -240,7 +240,7 @@ oci_initialize_region () {
     done
     sed -i -e "s/OCI_AD=[(]/OCI_AD=( [$region]=$ad/" ~joe/.zshenv
     . ~/.zshenv
-    echo "All set."
+    echo "All set: $region initialized to $LAST."
 }
 
 oci_release () {
@@ -265,8 +265,9 @@ oci_release () {
             echo HA-fileserver-$id.$region upgrade complete.
         done
     done
-    [ -z "$slice" ] && echo $ZULU > ~joe/.zulu-last
+    [ -z "$slice" ] && mv ~joe/.zulu-last ~joe/.zulu-rollback && echo $ZULU > ~joe/.zulu-last
     rm /tmp/oci-*
+    echo "Released $ZULU."
 }
 
 oci_ship_crons () {
@@ -288,6 +289,26 @@ oci_ship_svcs () {
     do
         oci_initialize_region $region $ad
     done
+}
+
+oci_rollback () {
+    local TARGET=$(cat ~/.zulu-rollback)
+    [ -n "$TARGET" ] || return 1
+    for region ad in ${(kv)OCI_AD}
+    do
+        for id in {1..$ad}
+        do
+            for volume in ${ZFS_EXPORTS[@]}
+            do
+                local fs=${volume#*/}
+                ssh HA-fileserver-$id.$region sudo zfs rollback -R HApool/$fs@$TARGET
+                [ $fs = /etc/svc/manifest/site ] && \
+                    { ssh HA-fileserver-$id.$region sudo sh -c "'svcadm refresh site/http:apache24; svcadm restart site/markdownd; svcadm restart site/svnwcsub'" || return 1 }
+            done
+        done
+    done
+    echo Rolled back from $(cat ~/joe/.zulu-last) to $TARGET.
+    cp ~joe/.zulu-rollback ~joe/.zulu-last
 }
 
 true
