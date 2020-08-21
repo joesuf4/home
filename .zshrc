@@ -244,6 +244,7 @@ oci_initialize_region () {
 }
 
 oci_release () {
+    local slice="${1-}"
     local ZULU=$(date -Iseconds | tr '+' 'Z')
     LAST=$(cat ~joe/.zulu-last)
     [ -n "$LAST" ] || return 1
@@ -251,7 +252,7 @@ oci_release () {
     do
         for id in {1..$ad}
         do
-            [ -n "$1" -a $1 -eq $id ] || continue
+            [ -z "$slice" -o $slice -eq $id ] || continue
             echo Upgrading HA-fileserver-$id.$region...
             for volume in ${ZFS_EXPORTS[@]}
             do
@@ -264,7 +265,7 @@ oci_release () {
             echo HA-fileserver-$id.$region upgrade complete.
         done
     done
-    [ -z "$1" ] && echo $ZULU > ~joe/.zulu-last
+    [ -z "$slice" ] && echo $ZULU > ~joe/.zulu-last
     rm /tmp/oci-*
 }
 
