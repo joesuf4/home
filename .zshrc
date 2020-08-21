@@ -247,22 +247,25 @@ oci_release () {
     local ZULU=$(date -Iseconds | tr '+' 'Z')
     LAST=$(cat ~joe/.zulu-last)
     [ -n "$LAST" ] || return 1
-    for volume in ${ZFS_EXPORTS[@]}
+    for region ad in ${(kv)OCI_AD}
     do
-        local fs=${volume#*/}
-        local TMPFILE=/tmp/oci-$(basename $fs)-$ZULU.lzo
-        sudo zfs snapshot -r $volume@$ZULU
-        sudo zfs send -R -I $LAST $volume@$ZULU | lzop -c > $TMPFILE
-        for region ad in ${(kv)OCI_AD}
+        for id in {1..$ad}
         do
-            for id in {1..$ad}
+            [ -n "$1" -a $1 -eq $id ] || continue
+            echo Upgrading HA-fileserver-$id.$region...
+            for volume in ${ZFS_EXPORTS[@]}
             do
+                local fs=${volume#*/}
+                local TMPFILE=/tmp/oci-$(basename $fs)-$ZULU.zfs.lzo
+                sudo zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
+                [ -f $TMPFILE ] || sudo zfs send -R -I $LAST $volume@$ZULU | lzop -c > $TMPFILE
                 scp $TMPFILE HA-fileserver-$id.$region:$TMPFILE && ssh HA-fileserver-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F HApool/$fs && rm $TMPFILE; rc=\$?; [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub && svcadm enable site/markdownd && svcadm restart sendmail-client; exit \$rc'" || return $?
             done
+            echo HA-fileserver-$id.$region upgrade complete.
         done
-        rm $TMPFILE
     done
-    echo $ZULU > ~joe/.zulu-last
+    [ -z "$1" ] && echo $ZULU > ~joe/.zulu-last
+    rm /tmp/oci-*
 }
 
 oci_ship_crons () {

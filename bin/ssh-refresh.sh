@@ -9,5 +9,3 @@ do
         ssh HA-fileserver-$id.$region true
     done
 done
-
-ssh 127.0.0.1 true
