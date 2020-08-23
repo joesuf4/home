@@ -311,4 +311,14 @@ oci_rollback () {
     cp ~joe/.zulu-rollback ~joe/.zulu-last
 }
 
-true
+oci_tail_logs () {
+    local kind=${1-access}
+    for region ad in ${(kv)OCI_AD};
+    do
+        for id in {1..$ad}
+        do
+            ssh HA-fileserver-$id.$region /usr/local/bin/tail -F /x1/logs/httpd/${kind}_log | grep -v "Go" &
+        done
+    done
+    wait
+}
