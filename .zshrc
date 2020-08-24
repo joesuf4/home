@@ -160,7 +160,6 @@ else
     esac
 fi
 
-
 # utilities
 
 # translate between big-endian and little-endian objdumps.
@@ -219,11 +218,68 @@ emac () {
     fi
 }
 
+
+_oci_pre_sync () {
+    [ -z "$OCI_AD[$region]" ] || return 1
+    echo Preparing $region with $ad Availability Domains.
+    echo -n Step 1. Intitialize ssh.
+    for id in {1..$ad}
+    do
+        echo Connecting to HA-fileserver-$id.$region...
+        ssh HA-fileserver-$id.$region hostname
+    done
+    echo Step 2. Attach ISCSI devices manually, using details from OCI console.
+    for id in {1..$ad}
+    do
+        echo Opening root shell on HA-fileserver-$id.region...
+        ssh HA-fileserver-$id.$region sudo -s
+    done
+    echo -n Step 3. Create HApool, service accounts, and permissions.
+    for id in {1..$ad}
+    do
+        for user in svn httpd ssh bb-master bb-worker
+        do
+            ssh HA-fileserver-$id.$region sudo useradd -m -g 1 $user
+        done
+        ssh HA-fileserver-$id.$region sudo iscsiadm modify discovery --static enable
+        ssh HA-fileserver-$id.$region sudo zpool create HApool c2t0d0
+        ssh HA-fileserver-$id.$region sudo zfs create -o mountpoint=/x1 HApool/x1
+        ssh HA-fileserver-$id.$region sudo usermod -K defaultpriv=basic,net_privaddr opc
+    done
+    echo Pre-sync prep complete.
+}
+
+
+_oci_post_sync () {
+    echo Adjusting and Reloading config files.
+    sed -i -e "s/OCI_AD=[(]/OCI_AD=( [$region]=$ad/" ~joe/.zshenv
+    sed -i -e 's/^(Host \*\.us-ashburn-1.*)$/\1 *.'$region'/' ~/joe/.ssh/config
+    . ~/.zshenv
+
+    echo Reinitializing ssh connection cache for $region.
+    rm ~joe/.ssh/sockets/*.$region-22
+    for i in {1..$ad}
+    do
+        ssh HA-fileserver-$i.$region true
+    done
+
+    echo Delegating zfs permissions to httpd.
+    for i in {1..$ad}
+    do
+        ssh HA-fileserver-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy HApool/x1/cms/wc
+    done
+
+    echo Post-sync prep complete.
+}
+
 oci_initialize_region () {
     local region=$1
     local ad=$2
-    local LAST=$(cat ~/.zulu-last)
+    local LAST=$(realpath --relative-to ~joe ~joe/.zulu-last | sed -e 's/^\.zulu-//')
     [ -n "$region$ad" ] || return 1
+
+    _oci_pre_sync
+
     sed -i -e "s/ \\[$region\\]=$ad//g" ~joe/.zshenv
     sudo rm -rf /x1/httpd/cores/*
     for volume in ${ZFS_EXPORTS[@]}
@@ -233,21 +289,25 @@ oci_initialize_region () {
         for id in {1..$ad}
         do
             sudo zfs snapshot $volume@$LAST >/dev/null 2>&1
-            (sudo zfs send -rc $volume@$LAST | gzip | ssh HA-fileserver-$id.$region sudo sh -c "'zfs create -o mountpoint=/x1 HApool/x1 >/dev/null 2>&1; mv /etc/mail /etc/mail-orig >/dev/null 2>&1; zfs create -p HApool/$fs >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs && [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs && svcadm enable site/markdownd && svcadm enable site/http:apache24 && svcadm enable site/svnwcsub'"; \
+            (sudo zfs send -rc $volume@$LAST | gzip | ssh HA-fileserver-$id.$region sudo sh -c "' >/dev/null 2>&1; [ /$fs = /etc/mail ] && rm -rf /etc/mail; zfs create -p HApool/$fs >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs && [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs'"; \
              echo Done with /$fs on HA-fileserver-$id.$region: zfs receive exit status=$?.) &
         done
         wait
     done
-    sed -i -e "s/OCI_AD=[(]/OCI_AD=( [$region]=$ad/" ~joe/.zshenv
-    . ~/.zshenv
+
+    _oci_post_sync
+
     echo "All set: $region initialized to $LAST."
 }
 
 oci_release () {
     local slice="${1-}"
     local ZULU=$(date -Iseconds | tr '+' 'Z')
-    local LAST=$(cat ~joe/.zulu-last)
+    local LAST=$(realpath --relative-to ~joe ~joe/.zulu-last | sed -e 's/^\.zulu-//')
     [ -n "$LAST" ] || return 1
+
+    sudo -u httpd /x1/cms/webgui/garbage_collector.pl 0 >/dev/null
+
     for region ad in ${(kv)OCI_AD}
     do
         for id in {1..$ad}
@@ -259,13 +319,18 @@ oci_release () {
                 local fs=${volume#*/}
                 local TMPFILE=/tmp/oci-$(basename $fs)-$ZULU.zfs.lzo
                 sudo zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
-                [ -f $TMPFILE ] || sudo zfs send -R -I $LAST $volume@$ZULU | lzop -c > $TMPFILE
+                [ -f $TMPFILE ] || sudo zfs send -Rc -I $LAST $volume@$ZULU | lzop -c > $TMPFILE
                 scp $TMPFILE HA-fileserver-$id.$region:$TMPFILE && ssh HA-fileserver-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F HApool/$fs && rm $TMPFILE; rc=\$?; [ /$fs = /etc/svc/manifest/site ] && svcadm refresh site/http:apache24 && svcadm restart site/svnwcsub && svcadm restart site/markdownd; exit \$rc'" || return $?
             done
             echo HA-fileserver-$id.$region upgrade complete.
         done
     done
-    [ -z "$slice" ] && mv ~joe/.zulu-last ~joe/.zulu-rollback && echo $ZULU > ~joe/.zulu-last
+    touch ~joe/.zulu-$ZULU
+    if [ -z "$slice" ]
+    then
+        ln -s -f $(realpath --relative-to ~joe ~joe/.zulu-last) ~joe/.zulu-rollback
+        ln -s -f .zulu-$ZULU ~joe/.zulu-last
+    fi
     rm /tmp/oci-*
     echo "Released $ZULU."
 }
@@ -283,16 +348,24 @@ oci_ship_crons () {
     done
 }
 
-oci_ship_svcs () {
-    local ZFS_EXPORTS=( rpool/etc/svc/manifest/site )
-    for region ad in ${(kv)OCI_AD}
+oci_svcs_region_action () {
+    local region=$1
+    local action=${2-restart}
+    for ad in $OCI_AD[$region]
     do
-        oci_initialize_region $region $ad
+        for i in {1..$ad}
+        do
+            for svc in ${OCI_SITE_SVCS[@]}
+            do
+                ssh HA-fileserver-$i.$region sudo svcadm $action site/$svc
+                sleep 10
+            done
+        done
     done
 }
 
 oci_rollback () {
-    local TARGET=$(cat ~/.zulu-rollback)
+    local TARGET=$(realpath --relative-to ~joe ~joe/.zulu-rollback | sed -e 's/^\.zulu-//')
     [ -n "$TARGET" ] || return 1
     for region ad in ${(kv)OCI_AD}
     do
@@ -302,22 +375,25 @@ oci_rollback () {
             do
                 local fs=${volume#*/}
                 ssh HA-fileserver-$id.$region sudo zfs rollback -R HApool/$fs@$TARGET
-                [ $fs = /etc/svc/manifest/site ] && \
-                    { ssh HA-fileserver-$id.$region sudo sh -c "'svcadm refresh site/http:apache24; svcadm restart site/markdownd; svcadm restart site/svnwcsub'" || return 1 }
             done
         done
+        oci_svcs_region_action $region restart
     done
-    echo Rolled back from $(cat ~/joe/.zulu-last) to $TARGET.
-    cp ~joe/.zulu-rollback ~joe/.zulu-last
+
+    echo Rolled back from $(realpath --relative-to ~joe ~joe/.zulu-last | sed -e 's/^\.zulu-//') to $TARGET.
+    rm $(realpath ~joe/.zulu-last)
+    ln -s -f .zulu-$TARGET ~joe/.zulu-last
+    TARGET=$(echo ~joe/.zulu-2* | tr ' ' '\n' | tail -n 2 | head -n 1 | sed -e 's/^.*\.zulu-//')
+    ln -s -f .zulu-$TARGET ~joe/.zulu-rollback
 }
 
 oci_tail_logs () {
     local kind=${1-access}
-    for region ad in ${(kv)OCI_AD};
+    for region ad in ${(kv)OCI_AD}
     do
         for id in {1..$ad}
         do
-            ssh HA-fileserver-$id.$region /usr/local/bin/tail -F /x1/logs/httpd/${kind}_log | grep -v "Go" &
+            ssh HA-fileserver-$id.$region /usr/local/bin/tail -F /x1/logs/httpd/${kind}_log | grep -Ev "Go|libwww" &
         done
     done
     wait
