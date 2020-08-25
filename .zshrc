@@ -225,26 +225,26 @@ _oci_pre_sync () {
     echo -n Step 1. Intitialize ssh.
     for id in {1..$ad}
     do
-        echo Connecting to HA-fileserver-$id.$region...
-        ssh HA-fileserver-$id.$region hostname
+        echo Connecting to $OCI_HOST_PREFIX-$id.$region...
+        ssh $OCI_HOST_PREFIX-$id.$region hostname
     done
     echo Step 2. Attach ISCSI devices manually, using details from OCI console.
     for id in {1..$ad}
     do
-        echo Opening root shell on HA-fileserver-$id.region...
-        ssh HA-fileserver-$id.$region sudo -s
+        echo Opening root shell on $OCI_HOST_PREFIX-$id.region...
+        ssh $OCI_HOST_PREFIX-$id.$region sudo -s
     done
     echo -n Step 3. Create HApool, service accounts, and permissions.
     for id in {1..$ad}
     do
         for user in svn httpd ssh bb-master bb-worker
         do
-            ssh HA-fileserver-$id.$region sudo useradd -m -g 1 $user
+            ssh $OCI_HOST_PREFIX-$id.$region sudo useradd -m -g 1 $user
         done
-        ssh HA-fileserver-$id.$region sudo iscsiadm modify discovery --static enable
-        ssh HA-fileserver-$id.$region sudo zpool create HApool c2t0d0
-        ssh HA-fileserver-$id.$region sudo zfs create -o mountpoint=/x1 HApool/x1
-        ssh HA-fileserver-$id.$region sudo usermod -K defaultpriv=basic,net_privaddr opc
+        ssh $OCI_HOST_PREFIX-$id.$region sudo iscsiadm modify discovery --static enable
+        ssh $OCI_HOST_PREFIX-$id.$region sudo zpool create HApool c2t0d0
+        ssh $OCI_HOST_PREFIX-$id.$region sudo zfs create -o mountpoint=/x1 HApool/x1
+        ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=basic,net_privaddr opc
     done
     echo Pre-sync prep complete.
 }
@@ -260,16 +260,68 @@ _oci_post_sync () {
     rm ~joe/.ssh/sockets/*.$region-22
     for i in {1..$ad}
     do
-        ssh HA-fileserver-$i.$region true
+        ssh $OCI_HOST_PREFIX-$i.$region true
     done
 
     echo Delegating zfs permissions to httpd.
     for i in {1..$ad}
     do
-        ssh HA-fileserver-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy HApool/x1/cms/wc
+        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy HApool/x1/cms/wc
     done
 
     echo Post-sync prep complete.
+}
+
+oci_refresh_region_zones () {
+    local region=$1
+    local ad=$OCI_AD[$region]
+    local ZONES=( $(ls /system/zones) )
+
+    for id in {1..$ad}
+    do
+        for zone in ${ZONES[@]}
+        do
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone shutdown
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone detach
+        done >/dev/null 2>&1
+
+        for zone in ${ZONES[@]}
+        do
+            echo Refreshing $zone on $OCI_HOST_PREFIX-$id.$region
+            sudo zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c 'cat > $zone.cfg'
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone $zone.cfg
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone attach
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone boot
+        done
+    done
+}
+
+oci_ship_region_zones () {
+    local region=$1
+    local ad=$OCI_AD[$region]
+    local ZONES=( $(ls /system/zones) )
+    local LAST=$(realpath --relative-to ~joe ~joe/.zulu-last | sed -e 's/^\.zulu-//')
+    local vol=rpool/VARSHARE/zones
+    local target_vol=rpool1/VARSHARE/zones
+
+    sudo zfs snapshot -r $vol@$LAST >/dev/null 2>&1
+
+    for id in {1..$ad}
+    do
+        for zone in ${ZONES[@]}
+        do
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone shutdown
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone detach
+        done >/dev/null 2>&1
+        sudo zfs send -rc $vol@$LAST | lzop -c | ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'/usr/local/bin/lzop -d | zfs receive -F $target_vol'"
+        for zone in ${ZONES[@]}
+        do
+            sudo zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c 'cat > $zone.cfg'
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone $zone.cfg
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone attach
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone boot
+        done >/dev/null 2>&1
+    done
 }
 
 oci_initialize_region () {
@@ -284,13 +336,21 @@ oci_initialize_region () {
     sudo rm -rf /x1/httpd/cores/*
     for volume in ${ZFS_EXPORTS[@]}
     do
-        local fs=${volume#*/}
-        echo Syncing /$fs ...
+        local vol=${volume#*/}
+        local dst_mount=$vol
+        local dst_pool=HApool
+        if echo $fs | grep -q /VARSHARE/
+        then
+            dst_mount=$(echo $vol | sed s/VARSHARE/system/)
+            dst_pool=rpool1
+        fi
+
+        echo Syncing /$dst_mount ...
         for id in {1..$ad}
         do
             sudo zfs snapshot $volume@$LAST >/dev/null 2>&1
-            (sudo zfs send -rc $volume@$LAST | gzip | ssh HA-fileserver-$id.$region sudo sh -c "' >/dev/null 2>&1; [ /$fs = /etc/mail ] && rm -rf /etc/mail; zfs create -p HApool/$fs >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$fs HApool/$fs && [ /$fs = /etc/svc/manifest/site ] && svccfg import /$fs'"; \
-             echo Done with /$fs on HA-fileserver-$id.$region: zfs receive exit status=$?.) &
+            (sudo zfs send -rc $volume@$LAST | gzip | ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "' >/dev/null 2>&1; [ /$fs = /etc/mail ] && rm -rf /etc/mail >/dev/null 2>&1; zfs create -p $dst_pool/$vol >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol && [ /$fs = /etc/svc/manifest/site ] && svccfg import /$dst_mount'"; \
+             echo Done with /$fs on $OCI_HOST_PREFIX-$id.$region: zfs receive exit status=$?.) &
         done
         wait
     done
@@ -313,16 +373,32 @@ oci_release () {
         for id in {1..$ad}
         do
             [ -z "$slice" -o $slice -eq $id ] || continue
-            echo Upgrading HA-fileserver-$id.$region...
+            echo Upgrading $OCI_HOST_PREFIX-$id.$region...
             for volume in ${ZFS_EXPORTS[@]}
             do
-                local fs=${volume#*/}
-                local TMPFILE=/tmp/oci-$(basename $fs)-$ZULU.zfs.lzo
+                local vol=${volume#*/}
+
+                local dst_mount=$vol
+                local dst_pool=HApool
+                if echo $vol | grep -q /VARSHARE/
+                then
+                    dst_mount=$(echo $vol | sed s/VARSHARE/system/)
+                    dst_pool=rpool1
+                fi
+
+                local TMPFILE=/tmp/oci-$(basename $vol)-$ZULU.zfs.lzo
                 sudo zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
                 [ -f $TMPFILE ] || sudo zfs send -Rc -I $LAST $volume@$ZULU | lzop -c > $TMPFILE
-                scp $TMPFILE HA-fileserver-$id.$region:$TMPFILE && ssh HA-fileserver-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F HApool/$fs && rm $TMPFILE; rc=\$?; [ /$fs = /etc/svc/manifest/site ] && svcadm refresh site/http:apache24 && svcadm restart site/svnwcsub && svcadm restart site/markdownd; exit \$rc'" || return $?
+                scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
+                if [ /$vol = /etc/svc/manifest/site ]
+                then
+                    for svc in ${OCI_SITE_SVCS[@]}
+                    do
+                        ssh $OCI_HOST_PREFIX-$id.$region sudo svcadm restart $svc
+                    done
+                fi
             done
-            echo HA-fileserver-$id.$region upgrade complete.
+            echo $OCI_HOST_PREFIX-$id.$region upgrade complete.
         done
     done
     touch ~joe/.zulu-$ZULU
@@ -342,7 +418,7 @@ oci_ship_crons () {
         do
             for file in root httpd
             do
-                sudo cat /var/spool/cron/crontabs/$file | perl -ple 's/sleep 0/"sleep " . int rand 100/e' | ssh HA-fileserver-$id.$region sudo sh -c "'cat > /var/spool/cron/crontabs/$file && svcadm restart cron'" || return $?
+                sudo cat /var/spool/cron/crontabs/$file | perl -ple 's/sleep 0/"sleep " . int rand 100/e' | ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'cat > /var/spool/cron/crontabs/$file && svcadm restart cron'" || return $?
             done
         done
     done
@@ -357,7 +433,7 @@ oci_svcs_region_action () {
         do
             for svc in ${OCI_SITE_SVCS[@]}
             do
-                ssh HA-fileserver-$i.$region sudo svcadm $action site/$svc
+                ssh $OCI_HOST_PREFIX-$i.$region sudo svcadm $action site/$svc
                 sleep 10
             done
         done
@@ -374,7 +450,7 @@ oci_rollback () {
             for volume in ${ZFS_EXPORTS[@]}
             do
                 local fs=${volume#*/}
-                ssh HA-fileserver-$id.$region sudo zfs rollback -R HApool/$fs@$TARGET
+                ssh $OCI_HOST_PREFIX-$id.$region sudo zfs rollback -R HApool/$fs@$TARGET
             done
         done
         oci_svcs_region_action $region restart
@@ -393,8 +469,25 @@ oci_tail_logs () {
     do
         for id in {1..$ad}
         do
-            ssh HA-fileserver-$id.$region /usr/local/bin/tail -F /x1/logs/httpd/${kind}_log | grep -Ev "Go|libwww" &
+            ssh $OCI_HOST_PREFIX-$id.$region /usr/local/bin/tail -F /x1/logs/httpd/${kind}_log | grep -Ev "Go|libwww" &
         done
     done
     wait
+}
+
+oci_upgrade_region () {
+    local region=$1
+    for ad in $OCI_AD[$region]
+    do
+        for i in {1..$ad}
+        do
+            ssh $OCI_HOST_PREFIX-$i.$region sudo pkg set-publisher -G "'*'" -g "$PKG_REPOS" solaris
+            ssh $OCI_HOST_PREFIX-$i.$region sudo pkg refresh
+            ssh $OCI_HOST_PREFIX-$i.$region sudo sh -c "'pkg update && reboot'"
+            echo $OCI_HOST_PREFIX-$i.$region upgraded - rebooting.
+            sleep 100
+        done
+    done
+
+
 }
