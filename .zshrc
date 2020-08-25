@@ -252,12 +252,12 @@ _oci_pre_sync () {
 
 _oci_post_sync () {
     echo Adjusting and Reloading config files.
-    sed -i -e "s/OCI_AD=[(]/OCI_AD=( [$region]=$ad/" ~joe/.zshenv
+    sed -i -e "s/OCI_AD=[(]/OCI_AD=( [$region]=$ad/" ~/.zshenv
     sed -i -e 's/^(Host \*\.us-ashburn-1.*)$/\1 *.'$region'/' ~/joe/.ssh/config
     . ~/.zshenv
 
     echo Reinitializing ssh connection cache for $region.
-    rm ~joe/.ssh/sockets/*.$region-22
+    rm ~/.ssh/sockets/*.$region-22
     for i in {1..$ad}
     do
         ssh $OCI_HOST_PREFIX-$i.$region true
@@ -277,7 +277,7 @@ _oci_post_sync () {
 
 oci_ship_zone () {
     local zone=$1
-    local LAST=$(realpath --relative-to ~joe ~joe/.zulu-last | sed -e 's/^\.zulu-//')
+    local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
     local vol=VARSHARE/zones/$zone
 
     sudo zoneadm -z $zone shutdown
@@ -309,7 +309,7 @@ _oci_ship_region_zones () {
     local region=$1
     local ad=$OCI_AD[$region]
     local ZONES=( $(ls /system/zones) )
-    local LAST=$(realpath --relative-to ~joe ~joe/.zulu-last | sed -e 's/^\.zulu-//')
+    local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
     local vol=rpool/VARSHARE/zones
     local target_vol=rpool1/VARSHARE/zones
 
@@ -353,12 +353,12 @@ _oci_ship_region_zones () {
 oci_initialize_region () {
     local region=$1
     local ad=$2
-    local LAST=$(realpath --relative-to ~joe ~joe/.zulu-last | sed -e 's/^\.zulu-//')
+    local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
     [ -n "$region$ad" ] || return 1
 
     _oci_pre_sync
 
-    sed -i -e "s/ \\[$region\\]=$ad//g" ~joe/.zshenv
+    sed -i -e "s/ \\[$region\\]=$ad//g" ~/.zshenv
     sudo rm -rf /x1/httpd/cores/*
     for volume in ${ZFS_EXPORTS[@]}
     do
@@ -389,7 +389,7 @@ oci_initialize_region () {
 oci_release () {
     local slice="${1-}"
     local ZULU=$(date -Iseconds | tr '+' 'Z')
-    local LAST=$(realpath --relative-to ~joe ~joe/.zulu-last | sed -e 's/^\.zulu-//')
+    local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
     local ZONES=( $(ls /system/zones) )
     [ -n "$LAST" ] || return 1
 
@@ -433,11 +433,11 @@ oci_release () {
         done
     done
 
-    touch ~joe/.zulu-$ZULU
+    touch ~/.zulu-$ZULU
     if [ -z "$slice" ]
     then
-        ln -s -f $(realpath --relative-to ~joe ~joe/.zulu-last) ~joe/.zulu-rollback
-        ln -s -f .zulu-$ZULU ~joe/.zulu-last
+        ln -s -f $(realpath --relative-to ~ ~/.zulu-last) ~/.zulu-rollback
+        ln -s -f .zulu-$ZULU ~/.zulu-last
     fi
     rm /tmp/oci-*
     echo "Released $ZULU."
@@ -466,7 +466,6 @@ oci_region_sudo () {
     done
 }
 
-
 oci_svcs_region_action () {
     local region=$1
     local action=${2-restart}
@@ -482,7 +481,7 @@ oci_svcs_region_action () {
 }
 
 oci_rollback () {
-    local TARGET=$(realpath --relative-to ~joe ~joe/.zulu-rollback | sed -e 's/^\.zulu-//')
+    local TARGET=$(realpath --relative-to ~ ~/.zulu-rollback | sed -e 's/^\.zulu-//')
     [ -n "$TARGET" ] || return 1
     for region ad in ${(kv)OCI_AD}
     do
@@ -497,11 +496,11 @@ oci_rollback () {
         oci_svcs_region_action $region restart
     done
 
-    echo Rolled back from $(realpath --relative-to ~joe ~joe/.zulu-last | sed -e 's/^\.zulu-//') to $TARGET.
-    rm $(realpath ~joe/.zulu-last)
-    ln -s -f .zulu-$TARGET ~joe/.zulu-last
-    TARGET=$(echo ~joe/.zulu-2* | tr ' ' '\n' | tail -n 2 | head -n 1 | sed -e 's/^.*\.zulu-//')
-    ln -s -f .zulu-$TARGET ~joe/.zulu-rollback
+    echo Rolled back from $(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//') to $TARGET.
+    rm $(realpath ~/.zulu-last)
+    ln -s -f .zulu-$TARGET ~/.zulu-last
+    TARGET=$(echo ~/.zulu-2* | tr ' ' '\n' | tail -n 2 | head -n 1 | sed -e 's/^.*\.zulu-//')
+    ln -s -f .zulu-$TARGET ~/.zulu-rollback
 }
 
 oci_tail_logs () {
@@ -529,6 +528,4 @@ oci_upgrade_region () {
             sleep 100
         done
     done
-
-
 }
