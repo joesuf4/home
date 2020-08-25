@@ -13,11 +13,11 @@ declare -A OCI_AD;
 # do not edit the next line manually!
 OCI_AD=( [us-ashburn-1]=3 )
 
-OCI_SITE_SVCS=(httpd:apache24 markdownd svnwcsub watchdog)
+OCI_SITE_SVCS=(http:apache24 markdownd svnwcsub watchdog)
 
 OCI_HOST_PREFIX=HA-fileserver
 
-ZFS_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt tank/x1/cms tank/x1/svnpubsub tank/x1/httpd rpool/etc/mail rpool/etc/svc/manifest/site rpool/VARSHARE/zones)
+ZFS_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt tank/x1/cms tank/x1/svnpubsub tank/x1/httpd rpool/etc/mail rpool/etc/svc/manifest/site)
 
 PKG_REPOS=http://127.0.0.1:9999/
 

@@ -269,6 +269,8 @@ _oci_post_sync () {
         ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy HApool/x1/cms/wc
     done
 
+    _oci_ship_region_zones $region
+
     echo Post-sync prep complete.
 }
 
@@ -296,7 +298,37 @@ oci_refresh_region_zones () {
     done
 }
 
-oci_ship_region_zones () {
+oci_ship_zone () {
+    local zone=$1
+    local LAST=$(realpath --relative-to ~joe ~joe/.zulu-last | sed -e 's/^\.zulu-//')
+    local vol=VARSHARE/zones/$zone
+
+    sudo zoneadm -z $zone shutdown
+    sudo zoneadm -z $zone detach
+    sudo zfs snapshot -r rpool/$vol@$LAST >/dev/null 2>&1
+
+    for region ad in ${(kv)OCI_AD}
+    do
+        for id in {1..$ad}
+        do
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone shutdown
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone detach
+
+            sudo zfs send -rc rpool/$vol@$LAST | lzop -c | \
+                ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'/usr/local/bin/lzop -d | zfs receive -F rpool1/$vol'"
+            sudo zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
+            ssh  $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone attach
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone boot
+        done
+    done
+
+    sudo zoneadm -z $zone attach
+    sudo zoneadm -z $zone boot
+
+}
+
+_oci_ship_region_zones () {
     local region=$1
     local ad=$OCI_AD[$region]
     local ZONES=( $(ls /system/zones) )
@@ -304,24 +336,41 @@ oci_ship_region_zones () {
     local vol=rpool/VARSHARE/zones
     local target_vol=rpool1/VARSHARE/zones
 
-    sudo zfs snapshot -r $vol@$LAST >/dev/null 2>&1
+    for zone in ${ZONES[@]}
+    do
+        sudo zoneadm -z $zone shutdown
+        sudo zoneadm -z $zone detach
+    done
+
+    sudo zfs snapshot -r $vol@$LAST
 
     for id in {1..$ad}
     do
         for zone in ${ZONES[@]}
         do
+            ssh $OCI_HOST_PREFIX-$id.$region sudo pkg install uvfs udfs diagnostic/cpu-counters service/file-system/nfs
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone shutdown
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone detach
         done >/dev/null 2>&1
+        echo Shipping $vol to $OCI_HOST_PREFIX-$id.$region ...
         sudo zfs send -rc $vol@$LAST | lzop -c | ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'/usr/local/bin/lzop -d | zfs receive -F $target_vol'"
         for zone in ${ZONES[@]}
         do
-            sudo zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c 'cat > $zone.cfg'
-            ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone $zone.cfg
+            sudo zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone attach
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone boot
-        done >/dev/null 2>&1
+        done
     done
+
+    sudo zfs destroy -r $vol@$LAST
+
+    for zone in ${ZONES[@]}
+    do
+        sudo zoneadm -z $zone attach
+        sudo zoneadm -z $zone boot
+    done
+    echo All zones synced to $region.
 }
 
 oci_initialize_region () {
@@ -334,12 +383,12 @@ oci_initialize_region () {
 
     sed -i -e "s/ \\[$region\\]=$ad//g" ~joe/.zshenv
     sudo rm -rf /x1/httpd/cores/*
-    for volume in ${ZFS_EXPORTS[@]}
+    for volume in ${ZFS_EXPORTS[@]} rpool/VARSHARE/zones
     do
         local vol=${volume#*/}
         local dst_mount=$vol
         local dst_pool=HApool
-        if echo $fs | grep -q /VARSHARE/
+        if echo $vol | grep VARSHARE
         then
             dst_mount=$(echo $vol | sed s/VARSHARE/system/)
             dst_pool=rpool1
@@ -364,9 +413,16 @@ oci_release () {
     local slice="${1-}"
     local ZULU=$(date -Iseconds | tr '+' 'Z')
     local LAST=$(realpath --relative-to ~joe ~joe/.zulu-last | sed -e 's/^\.zulu-//')
+    local ZONES=( $(ls /system/zones) )
     [ -n "$LAST" ] || return 1
 
     sudo -u httpd /x1/cms/webgui/garbage_collector.pl 0 >/dev/null
+
+    for zone in ${ZONES[@]}
+    do
+        sudo zoneadm -z $zone shutdown
+        sudo zoneadm -z $zone detach
+    done
 
     for region ad in ${(kv)OCI_AD}
     do
@@ -374,33 +430,51 @@ oci_release () {
         do
             [ -z "$slice" -o $slice -eq $id ] || continue
             echo Upgrading $OCI_HOST_PREFIX-$id.$region...
+            for zone in ${ZONES[@]}
+            do
+                ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone shutdown
+                ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone detach
+            done >/dev/null 2>&1
             for volume in ${ZFS_EXPORTS[@]}
             do
                 local vol=${volume#*/}
 
-                local dst_mount=$vol
                 local dst_pool=HApool
-                if echo $vol | grep -q /VARSHARE/
+                if echo $vol | grep -q VARSHARE
                 then
-                    dst_mount=$(echo $vol | sed s/VARSHARE/system/)
-                    dst_pool=rpool1
+                     dst_pool=rpool1
                 fi
 
                 local TMPFILE=/tmp/oci-$(basename $vol)-$ZULU.zfs.lzo
                 sudo zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
-                [ -f $TMPFILE ] || sudo zfs send -Rc -I $LAST $volume@$ZULU | lzop -c > $TMPFILE
+
+                [ -f $TMPFILE ] || sudo zfs send -RcI $LAST $volume@$ZULU | lzop -c > $TMPFILE
                 scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
                 if [ /$vol = /etc/svc/manifest/site ]
                 then
                     for svc in ${OCI_SITE_SVCS[@]}
                     do
-                        ssh $OCI_HOST_PREFIX-$id.$region sudo svcadm restart $svc
+                        ssh $OCI_HOST_PREFIX-$id.$region sudo svcadm restart site/$svc
                     done
                 fi
             done
+
+            for zone in ${ZONES[@]}
+            do
+                ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone attach
+                ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone boot
+            done >/dev/null 2>&1
+
             echo $OCI_HOST_PREFIX-$id.$region upgrade complete.
         done
     done
+
+    for zone in ${ZONES[@]}
+    do
+        sudo zoneadm -z $zone attach
+        sudo zoneadm -z $zone boot
+    done
+
     touch ~joe/.zulu-$ZULU
     if [ -z "$slice" ]
     then
@@ -424,18 +498,27 @@ oci_ship_crons () {
     done
 }
 
+oci_region_sudo () {
+    local region=$1
+    shift
+    local ad=$OCI_AD[$region]
+    for i in {1..$ad}
+    do
+        ssh $OCI_HOST_PREFIX-$i.$region sudo "$@"
+    done
+}
+
+
 oci_svcs_region_action () {
     local region=$1
     local action=${2-restart}
-    for ad in $OCI_AD[$region]
+    local ad=$OCI_AD[$region]
+    for i in {1..$ad}
     do
-        for i in {1..$ad}
+        for svc in ${OCI_SITE_SVCS[@]}
         do
-            for svc in ${OCI_SITE_SVCS[@]}
-            do
-                ssh $OCI_HOST_PREFIX-$i.$region sudo svcadm $action site/$svc
-                sleep 10
-            done
+            ssh $OCI_HOST_PREFIX-$i.$region sudo svcadm $action site/$svc
+            sleep 10
         done
     done
 }
