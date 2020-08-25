@@ -274,29 +274,6 @@ _oci_post_sync () {
     echo Post-sync prep complete.
 }
 
-oci_refresh_region_zones () {
-    local region=$1
-    local ad=$OCI_AD[$region]
-    local ZONES=( $(ls /system/zones) )
-
-    for id in {1..$ad}
-    do
-        for zone in ${ZONES[@]}
-        do
-            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone shutdown
-            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone detach
-        done >/dev/null 2>&1
-
-        for zone in ${ZONES[@]}
-        do
-            echo Refreshing $zone on $OCI_HOST_PREFIX-$id.$region
-            sudo zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c 'cat > $zone.cfg'
-            ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone $zone.cfg
-            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone attach
-            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone boot
-        done
-    done
-}
 
 oci_ship_zone () {
     local zone=$1
