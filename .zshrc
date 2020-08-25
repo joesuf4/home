@@ -418,12 +418,6 @@ oci_release () {
 
     sudo -u httpd /x1/cms/webgui/garbage_collector.pl 0 >/dev/null
 
-    for zone in ${ZONES[@]}
-    do
-        sudo zoneadm -z $zone shutdown
-        sudo zoneadm -z $zone detach
-    done
-
     for region ad in ${(kv)OCI_AD}
     do
         for id in {1..$ad}
@@ -458,21 +452,8 @@ oci_release () {
                     done
                 fi
             done
-
-            for zone in ${ZONES[@]}
-            do
-                ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone attach
-                ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone boot
-            done >/dev/null 2>&1
-
             echo $OCI_HOST_PREFIX-$id.$region upgrade complete.
         done
-    done
-
-    for zone in ${ZONES[@]}
-    do
-        sudo zoneadm -z $zone attach
-        sudo zoneadm -z $zone boot
     done
 
     touch ~joe/.zulu-$ZULU
