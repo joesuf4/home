@@ -383,7 +383,7 @@ oci_initialize_region () {
 
     sed -i -e "s/ \\[$region\\]=$ad//g" ~joe/.zshenv
     sudo rm -rf /x1/httpd/cores/*
-    for volume in ${ZFS_EXPORTS[@]} rpool/VARSHARE/zones
+    for volume in ${ZFS_EXPORTS[@]}
     do
         local vol=${volume#*/}
         local dst_mount=$vol
