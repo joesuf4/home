@@ -274,15 +274,11 @@ _oci_post_sync () {
     echo Post-sync prep complete.
 }
 
-
-oci_ship_zone () {
+oci_clone_zone () {
     local zone=$1
+    local source=${2-cms-public}
     local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
     local vol=VARSHARE/zones/$zone
-
-    sudo zoneadm -z $zone shutdown
-    sudo zoneadm -z $zone detach
-    sudo zfs snapshot -r rpool/$vol@$LAST >/dev/null 2>&1
 
     for region ad in ${(kv)OCI_AD}
     do
@@ -290,19 +286,15 @@ oci_ship_zone () {
         do
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone shutdown
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone detach
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zfs destroy -Rrf rpool1/$vol
 
-            sudo zfs send -rc rpool/$vol@$LAST | lzop -c | \
-                ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'/usr/local/bin/lzop -d | zfs receive -F rpool1/$vol'"
             sudo zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
             ssh  $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone clone $szone
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone attach
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone boot
         done
     done
-
-    sudo zoneadm -z $zone attach
-    sudo zoneadm -z $zone boot
-
 }
 
 _oci_ship_region_zones () {
@@ -329,6 +321,7 @@ _oci_ship_region_zones () {
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone shutdown
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone detach
         done >/dev/null 2>&1
+        ssh $OCI_HOST_PREFIX-$id.$region sudo zfs destroy -Rrf $target_vol
         echo Shipping $vol to $OCI_HOST_PREFIX-$id.$region ...
         sudo zfs send -rc $vol@$LAST | lzop -c | ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'/usr/local/bin/lzop -d | zfs receive -F $target_vol'"
         for zone in ${ZONES[@]}
@@ -401,11 +394,6 @@ oci_release () {
         do
             [ -z "$slice" -o $slice -eq $id ] || continue
             echo Upgrading $OCI_HOST_PREFIX-$id.$region...
-            for zone in ${ZONES[@]}
-            do
-                ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone shutdown
-                ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone detach
-            done >/dev/null 2>&1
             for volume in ${ZFS_EXPORTS[@]}
             do
                 local vol=${volume#*/}
