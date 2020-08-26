@@ -411,6 +411,7 @@ oci_release () {
                 scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
                 if [ /$vol = /etc/svc/manifest/site ]
                 then
+                    ssh $OCI_HOST_PREFIX-$id.$region sudo svccfg import /$vol
                     for svc in ${OCI_SITE_SVCS[@]}
                     do
                         ssh $OCI_HOST_PREFIX-$id.$region sudo svcadm restart site/$svc
@@ -462,8 +463,10 @@ oci_svcs_region_action () {
     do
         for svc in ${OCI_SITE_SVCS[@]}
         do
+            echo -n Performing $action on site/$svc ...
             ssh $OCI_HOST_PREFIX-$i.$region sudo svcadm $action site/$svc
-            sleep 10
+            sleep 2
+            echo done.
         done
     done
 }
