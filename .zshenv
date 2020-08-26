@@ -17,7 +17,9 @@ OCI_SITE_SVCS=(http:apache24 markdownd svnwcsub watchdog)
 
 OCI_HOST_PREFIX=HA-fileserver
 
-ZFS_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt tank/x1/cms tank/x1/svnpubsub tank/x1/httpd rpool/etc/mail rpool/etc/svc/manifest/site)
+ZFS_TANK_EXPORTS=(tank/x1/cms tank/x1/svnpubsub tank/x1/httpd)
+ZFS_RPOOL_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt rpool/etc/mail rpool/etc/svc/manifest/site)
+ZFS_EXPORTS=(${ZFS_TANK_EXPORTS[@]} ${ZFS_RPOOL_EXPORTS[@]})
 
 PKG_REPOS=http://127.0.0.1:9999/
 
