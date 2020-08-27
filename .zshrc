@@ -222,6 +222,7 @@ emac () {
 
 _oci_pre_sync () {
     echo Preparing $region with $ad Availability Domains.
+
     echo Step 1. Intitialize ssh, create password, and bootstrap RBAC.
     for id in {1..$ad}
     do
@@ -229,15 +230,16 @@ _oci_pre_sync () {
         ssh -t $OCI_HOST_PREFIX-$id.$region sudo passwd opc
         ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=all opc
     done
-    rm -rf ~/.ssh/sockets/*
-    ~/bin/ssh-refresh.sh
+    rm -rf ~/.ssh/sockets/*.$region-*
+
     echo Step 2. Disable Firewall and attach ISCSI devices manually.
     oci_region_pfexec $region svcadm disable firewall
     for id in {1..$ad}
     do
         echo Opening root shell on $OCI_HOST_PREFIX-$id.region...
-        ssh -t $OCI_HOST_PREFIX-$id.$region pfexec -s
+        ssh -t $OCI_HOST_PREFIX-$id.$region pfbash -l
     done
+
     echo Step 3. Create HApool, service accounts, and permissions.
     for id in {1..$ad}
     do
@@ -250,6 +252,7 @@ _oci_pre_sync () {
         ssh $OCI_HOST_PREFIX-$id.$region pfexec zfs create -o mountpoint=/x1 HApool/x1
         ssh $OCI_HOST_PREFIX-$id.$region pfexec usermod -K defaultpriv=basic,net_privaddr opc
     done
+
     echo Pre-sync prep complete.
 }
 
