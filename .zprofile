@@ -1,2 +1,1 @@
 . /etc/profile
-ssh-add

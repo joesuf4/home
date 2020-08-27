@@ -578,3 +578,4 @@ oci_region_upgrade () {
         echo $OCI_HOST_PREFIX-$i.$region upgraded - rebooting.
     done
 }
+ssh-add
