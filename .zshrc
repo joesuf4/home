@@ -228,10 +228,10 @@ _oci_pre_sync () {
     do
         echo Connecting to $OCI_HOST_PREFIX-$id.$region...
         ssh -t $OCI_HOST_PREFIX-$id.$region sudo passwd opc
-        # revisit for CLI sudo
-        #ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=all opc
+        ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=all opc
         ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K profiles+="Zone Management" opc
     done
+    # reinitialize cached ssh connections for $region
     rm -f ~/.ssh/sockets/*.$region-*
 
     echo Step 2. Disable Firewall and attach ISCSI devices manually.
@@ -269,17 +269,13 @@ _oci_post_sync () {
     oci_region_pfexec $region mv pf_ssh_only.conf /etc/firewall
     oci_region_pfexec $region svcadm enable firewall
 
-    echo Reinitializing ssh connection cache for $region.
-    rm ~/.ssh/sockets/*.$region-22
-    for i in {1..$ad}
-    do
-        ssh $OCI_HOST_PREFIX-$i.$region true
-    done
 
-    echo Delegating zfs permissions to httpd.
+    echo Delegating zfs permissions.
     for i in {1..$ad}
     do
-        ssh $OCI_HOST_PREFIX-$i.$region pfexec zfs allow -ld httpd create,mount,snapshot,clone,destroy HApool/x1/cms/wc
+        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy HApool/x1/cms/wc
+        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld opc create,mount,snapshot,clone,destroy,hold HApool
+        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld opc create,mount,snapshot,clone,destroy,hold rpool
     done
 
     echo Fixing up ~/.profile and /etc/hosts.
@@ -291,6 +287,9 @@ _oci_post_sync () {
     oci_region_pfexec $region mkdir -p .config/htop
     oci_region_pfexec $region mv htoprc .config/htop
     oci_region_pfexec $region sh -c "'echo alias htop=\\\"pfexec htop\\\" >> .profile'"
+
+    echo 'Importing svc:site/*'
+    oci_region_pfexec sudo svccfg import /etc/svc/manifest/site
 
     oci_region_upgrade $region
     oci_region_ship_zones $region
@@ -476,7 +475,6 @@ oci_release () {
                 scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfexec sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
                 if [ /$vol = /etc/svc/manifest/site ]
                 then
-                    ssh $OCI_HOST_PREFIX-$id.$region pfexec svccfg import /$vol
                     for svc in ${OCI_SITE_SVCS[@]}
                     do
                         ssh $OCI_HOST_PREFIX-$id.$region pfexec svcadm restart site/$svc
