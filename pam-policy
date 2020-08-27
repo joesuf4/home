@@ -1,0 +1,12 @@
+# cat /etc/opt/pam_policy/custom-config
+#
+# PAM configuration which uses UNIX authentication for console logins,
+# LDAP for SSH keyboard-interactive logins, and denies telnet logins.
+#
+login auth requisite          pam_authtok_get.so.1
+login auth required           pam_dhkeys.so.1
+login auth required           pam_unix_auth.so.1
+login auth required           pam_unix_cred.so.1
+login auth required           pam_dial_auth.so.1
+#
+sudo auth required           /usr/local/lib/security/pam_orthrus.so

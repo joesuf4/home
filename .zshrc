@@ -228,10 +228,11 @@ _oci_pre_sync () {
     do
         echo Connecting to $OCI_HOST_PREFIX-$id.$region...
         ssh -t $OCI_HOST_PREFIX-$id.$region sudo passwd opc
-        ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=all opc
+        # revisit for CLI sudo
+        #ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=all opc
         ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K profiles+="Zone Management" opc
     done
-    rm -rf ~/.ssh/sockets/*.$region-*
+    rm -f ~/.ssh/sockets/*.$region-*
 
     echo Step 2. Disable Firewall and attach ISCSI devices manually.
     oci_region_pfexec $region svcadm disable firewall
@@ -251,7 +252,7 @@ _oci_pre_sync () {
         ssh $OCI_HOST_PREFIX-$id.$region pfexec iscsiadm modify discovery --static enable
         ssh $OCI_HOST_PREFIX-$id.$region pfexec zpool create HApool c2t0d0
         ssh $OCI_HOST_PREFIX-$id.$region pfexec zfs create -o mountpoint=/x1 HApool/x1
-        ssh $OCI_HOST_PREFIX-$id.$region pfexec usermod -K defaultpriv=basic,net_privaddr opc
+        ssh $OCI_HOST_PREFIX-$id.$region pfexec usermod -K defaultpriv=basic,net_privaddr $user
     done
 
     echo Pre-sync prep complete.
@@ -294,7 +295,19 @@ _oci_post_sync () {
     oci_region_upgrade $region
     oci_region_ship_zones $region
 
-    echo Post-sync prep complete.
+    echo Resetting PAM sudo policy for Orthrus OTP...
+    oci_region_pfexec $region ortpasswd
+    for id in {1..$ad}
+    do
+        scp pam-policy $OCI_HOST_PREFIX-$id.$region
+        ssh $OCI_HOST_PREFIX-$id.$region chown root:root pam-policy
+        ssh $OCI_HOST_PREFIX-$id.$region sudo mkdir -p /etc/opt/pam-policy
+        ssh $OCI_HOST_PREFIX-$id.$region sudo cp pam-policy /etc/opt/pam-policy/opc
+        ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K pam_policy=/etc/opt/pam-policy/opc opc
+    done
+    rm -f ~/.ssh/sockets/*.$region*
+    echo Post-sync prep complete; refreshing ssh connections to $region.
+    ~/bin/ssh-refresh.sh
 }
 
 oci_ship_zone () {
