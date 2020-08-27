@@ -229,6 +229,7 @@ _oci_pre_sync () {
         echo Connecting to $OCI_HOST_PREFIX-$id.$region...
         ssh -t $OCI_HOST_PREFIX-$id.$region sudo passwd opc
         ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=all opc
+        ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K profiles+="Zone Management" opc
     done
     rm -rf ~/.ssh/sockets/*.$region-*
 

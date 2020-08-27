@@ -12,12 +12,10 @@ do
         zfs snapshot tank$svn_repo@$LAST
         TMPFILE=/x1/backups/svn/$(basename $svn_repo)-$LAST.zfs
         zfs send -rc tank$svn_repo@$LAST > $TMPFILE
-        lzip $TMPFILE
         continue
     fi
     TMPFILE=/x1/backups/svn/$(basename $svn_repo)-$ZULU.zfs
     zfs snapshot tank$svn_repo@$ZULU
-    zfs send -rci $LAST tank$svn_repo@$ZULU > $TMPFILE
-    lzip $TMPFILE
+    zfs send -D -Rci $LAST tank$svn_repo@$ZULU > $TMPFILE
     zfs destroy tank$svn_repo@$LAST
 done
