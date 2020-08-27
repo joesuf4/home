@@ -288,7 +288,7 @@ _oci_post_sync () {
 
     oci_region_upgrade $region
 
-    _oci_region_ship_zones $region
+    oci_region_ship_zones $region
 
     echo Post-sync prep complete.
 }
@@ -328,7 +328,7 @@ oci_ship_zone () {
     sudo zoneadm -z $zone boot
 }
 
-_oci_region_ship_zones () {
+oci_region_ship_zones () {
     local region=$1
     local ad=$OCI_AD[$region]
     local ZONES=( $(ls /system/zones) )
@@ -507,7 +507,7 @@ oci_region_scp () {
     local ad=$OCI_AD[$region]
     for i in {1..$ad}
     do
-         scp "$@" $OCI_HOST_PREFIX-$i.$region:.
+        scp "$@" $OCI_HOST_PREFIX-$i.$region:.
     done
 }
 
