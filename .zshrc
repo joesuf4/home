@@ -300,8 +300,10 @@ oci_ship_zone () {
 
     sudo zoneadm -z $zone shutdown
     sudo zoneadm -z $zone detach
+    sudo zfs snapshot -r rpool/$vol@$LAST
+    sudo zoneadm -z $zone attach
+    sudo zoneadm -z $zone boot
 
-    sudo zfs snapshot -r rpool/$vol@$LAST >/dev/null 2>&1
     local TMPFILE="/tmp/oci-$(basename $vol)-$LAST.zfs.lzo"
     [ -f $TMPFILE ] || sudo zfs send -rc rpool/$vol@$LAST | lzop -c > $TMPFILE
 
@@ -324,8 +326,6 @@ oci_ship_zone () {
         done
     done
     rm $TMPFILE
-    sudo zoneadm -z $zone attach
-    sudo zoneadm -z $zone boot
 }
 
 oci_region_ship_zones () {
