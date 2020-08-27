@@ -17,5 +17,4 @@ do
     TMPFILE=/x1/backups/svn/$(basename $svn_repo)-$ZULU.zfs
     zfs snapshot tank$svn_repo@$ZULU
     zfs send -D -Rci $LAST tank$svn_repo@$ZULU > $TMPFILE
-    zfs destroy tank$svn_repo@$LAST
 done
