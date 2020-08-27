@@ -23,7 +23,7 @@ ZFS_EXPORTS=(${ZFS_TANK_EXPORTS[@]} ${ZFS_RPOOL_EXPORTS[@]})
 
 PKG_REPOS=http://127.0.0.1:9999/
 
-for p in /usr/cluster/bin /usr/local/bin $HOME/bin
+for p in /sbin /usr/bin /usr/cluster/bin /usr/local/bin $HOME/bin
 do
     PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
 done
