@@ -309,7 +309,7 @@ oci_ship_zone () {
 
     for region ad in ${(kv)OCI_AD}
     do
-        for id in {3..$ad}
+        for id in {1..$ad}
         do
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone halt
             ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone detach
