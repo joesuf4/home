@@ -221,7 +221,6 @@ emac () {
 # Oracle Cloud Infrastructure
 
 _oci_pre_sync () {
-
     echo Preparing $region with $ad Availability Domains.
     echo Step 1. Intitialize ssh and create password.
     for id in {1..$ad}
@@ -287,7 +286,6 @@ _oci_post_sync () {
     oci_region_sudo $region sh -c "'echo alias htop=\\\"sudo -E htop\\\" >> .profile'"
 
     oci_region_upgrade $region
-
     oci_region_ship_zones $region
 
     echo Post-sync prep complete.
@@ -413,9 +411,10 @@ oci_region_initialize () {
         local dst_pool=HApool
 
         echo Syncing /$dst_mount ...
+        sudo zfs snapshot $volume@$LAST >/dev/null 2>&1
+
         for id in {1..$ad}
         do
-            sudo zfs snapshot $volume@$LAST >/dev/null 2>&1
             (sudo zfs send -rc $volume@$LAST | gzip | ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "' >/dev/null 2>&1; zfs create -p $dst_pool/$vol >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol'"; \
              echo Done with /$vol on $OCI_HOST_PREFIX-$id.$region: zfs receive exit status=$?.) &
         done
@@ -566,15 +565,12 @@ oci_tail_logs () {
 
 oci_region_upgrade () {
     local region=$1
-    for ad in $OCI_AD[$region]
+    local ad=$OCI_AD[$region]
+    for i in {1..$ad}
     do
-        for i in {1..$ad}
-        do
-            ssh $OCI_HOST_PREFIX-$i.$region sudo pkg set-publisher -G "'*'" -g "$PKG_REPOS" solaris
-            ssh $OCI_HOST_PREFIX-$i.$region sudo pkg refresh
-            ssh $OCI_HOST_PREFIX-$i.$region sudo sh -c "'pkg update && reboot'"
-            echo $OCI_HOST_PREFIX-$i.$region upgraded - rebooting.
-            sleep 100
-        done
+        ssh $OCI_HOST_PREFIX-$i.$region sudo pkg set-publisher -G "'*'" -g "$PKG_REPOS" solaris
+        ssh $OCI_HOST_PREFIX-$i.$region sudo pkg refresh
+        ssh $OCI_HOST_PREFIX-$i.$region sudo sh -c "'pkg update && reboot'"
+        echo $OCI_HOST_PREFIX-$i.$region upgraded - rebooting.
     done
 }
