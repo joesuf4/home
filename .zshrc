@@ -350,6 +350,12 @@ _oci_region_ship_zones () {
 
     sudo zfs snapshot -r $vol@$LAST
 
+    for zone in ${ZONES[@]}
+    do
+        sudo zoneadm -z $zone attach
+        sudo zoneadm -z $zone boot
+    done
+
     for id in {1..$ad}
     do
         (
@@ -361,6 +367,8 @@ _oci_region_ship_zones () {
                 ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone detach
                 ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone uninstall
                 ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone delete -F
+                sudo zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
+                ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
             done >/dev/null 2>&1
 
             ssh $OCI_HOST_PREFIX-$id.$region sudo zfs destroy -Rrf $target_vol
@@ -371,8 +379,6 @@ _oci_region_ship_zones () {
 
             for zone in ${ZONES[@]}
             do
-                sudo zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
-                ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
                 ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone attach
                 ssh $OCI_HOST_PREFIX-$id.$region sudo zoneadm -z $zone boot
             done
@@ -383,11 +389,6 @@ _oci_region_ship_zones () {
 
     sudo zfs destroy -r $vol@$LAST
 
-    for zone in ${ZONES[@]}
-    do
-        sudo zoneadm -z $zone attach
-        sudo zoneadm -z $zone boot
-    done
     echo All zones synced to $region.
 }
 
