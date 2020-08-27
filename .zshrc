@@ -298,12 +298,12 @@ oci_ship_zone () {
 
     sudo zoneadm -z $zone shutdown
     sudo zoneadm -z $zone detach
-    sudo zfs snapshot -r rpool/$vol@$LAST
+    zfs snapshot -r rpool/$vol@$LAST
     sudo zoneadm -z $zone attach
     sudo zoneadm -z $zone boot
 
     local TMPFILE="/tmp/oci-$(basename $vol)-$LAST.zfs.lzo"
-    [ -f $TMPFILE ] || sudo zfs send -rc rpool/$vol@$LAST | lzop -c > $TMPFILE
+    [ -f $TMPFILE ] || zfs send -rc rpool/$vol@$LAST | lzop -c > $TMPFILE
 
     for region ad in ${(kv)OCI_AD}
     do
@@ -348,7 +348,7 @@ oci_region_ship_zones () {
         sudo zoneadm -z $zone detach
     done
 
-    sudo zfs snapshot -r $vol@$LAST
+    zfs snapshot -r $vol@$LAST
 
     for zone in ${ZONES[@]}
     do
@@ -375,7 +375,7 @@ oci_region_ship_zones () {
 
             echo Shipping $vol to $OCI_HOST_PREFIX-$id.$region ...
 
-            sudo zfs send -rc $vol@$LAST | lzop -c | ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'/usr/local/bin/lzop -d | zfs receive -F $target_vol'"
+            zfs send -rc $vol@$LAST | lzop -c | ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'/usr/local/bin/lzop -d | zfs receive -F $target_vol'"
 
             for zone in ${ZONES[@]}
             do
@@ -387,7 +387,7 @@ oci_region_ship_zones () {
 
     wait
 
-    sudo zfs destroy -r $vol@$LAST
+    zfs destroy -r $vol@$LAST
 
     echo All zones synced to $region.
 }
@@ -411,11 +411,11 @@ oci_region_initialize () {
         local dst_pool=HApool
 
         echo Syncing /$dst_mount ...
-        sudo zfs snapshot $volume@$LAST >/dev/null 2>&1
+        zfs snapshot $volume@$LAST >/dev/null 2>&1
 
         for id in {1..$ad}
         do
-            (sudo zfs send -rc $volume@$LAST | gzip | ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "' >/dev/null 2>&1; zfs create -p $dst_pool/$vol >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol'"; \
+            (zfs send -rc $volume@$LAST | gzip | ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "' >/dev/null 2>&1; zfs create -p $dst_pool/$vol >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol'"; \
              echo Done with /$vol on $OCI_HOST_PREFIX-$id.$region: zfs receive exit status=$?.) &
         done
         wait
@@ -432,8 +432,6 @@ oci_release () {
     local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
     local ZONES=( $(ls /system/zones) )
     [ -n "$LAST" ] || return 1
-
-    sudo -u httpd /x1/cms/webgui/garbage_collector.pl 0 >/dev/null
 
     for region ad in ${(kv)OCI_AD}
     do
@@ -452,9 +450,9 @@ oci_release () {
                 fi
 
                 local TMPFILE=/tmp/oci-$(basename $vol)-$ZULU.zfs.lzo
-                sudo zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
+                zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
 
-                [ -f $TMPFILE ] || sudo zfs send -RcI $LAST $volume@$ZULU | lzop -c > $TMPFILE
+                [ -f $TMPFILE ] || zfs send -RcI $LAST $volume@$ZULU | lzop -c > $TMPFILE
                 scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region sudo sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
                 if [ /$vol = /etc/svc/manifest/site ]
                 then
