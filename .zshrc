@@ -305,6 +305,7 @@ _oci_post_sync () {
         ssh $OCI_HOST_PREFIX-$id.$region sudo cp pam-policy /etc/opt/pam-policy/opc
         ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K pam_policy=/etc/opt/pam-policy/opc opc
     done
+    oci_region_pfexec $region sed -i s/NOPASSWD:// /etc/sudoers.d/svc-system-config-user
     rm -f ~/.ssh/sockets/*.$region*
     echo Post-sync prep complete; refreshing ssh connections to $region.
     ~/bin/ssh-refresh.sh
