@@ -341,6 +341,8 @@ oci_region_ship_zones () {
     oci_region_sudo $region dladm create-vnic -l etherstub0 www0
     oci_region_sudo $region ipadm create-ip gz0
     oci_region_sudo $region ipadm create-addr -T static -a 192.168.254.1/24 gz0
+    oci_region_sudo ipadm set-ifprop -p forwarding=on -m ipv4 net0
+    oci_region_sudo ipadm set-ifprop -p forwarding=on -m ipv4 gz0
 
     for zone in ${ZONES[@]}
     do
