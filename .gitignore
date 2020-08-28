@@ -22,7 +22,7 @@
 .cache/
 .chess-save
 .ckl
-.config/
+.config/configstore
 .cpan/
 .cups/
 .cvspass
