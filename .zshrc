@@ -598,6 +598,6 @@ oci_region_zlogin () {
     oci_region_exec $region zlogin -l joe $zone "$@"
 }
 
-[ "$(whoami)" = "joe" ] &&  ssh-add
+[[ "$(whoami)" == "joe" ]] && ssh-add
 
 true
