@@ -331,11 +331,11 @@ oci_ship_zone () {
             ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone halt
             ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone detach
             ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone uninstall
-            ssh $OCI_HOST_PREFIX-$id.$region zonecfg -z $zone delete -F
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone delete -F
             ssh $OCI_HOST_PREFIX-$id.$region zfs destroy -Rrf rpool1/$vol
 
             zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
-            ssh  $OCI_HOST_PREFIX-$id.$region zonecfg -z $zone -f $zone.cfg
+            ssh  $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
             scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE
             ssh $OCI_HOST_PREFIX-$id.$region sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F rpool1/$vol; rm $TMPFILE'"
             ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone attach
@@ -385,9 +385,9 @@ oci_region_ship_zones () {
                 ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone halt
                 ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone detach
                 ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone uninstall
-                ssh $OCI_HOST_PREFIX-$id.$region zonecfg -z $zone delete -F
+                ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone delete -F
                 zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
-                ssh $OCI_HOST_PREFIX-$id.$region zonecfg -z $zone -f $zone.cfg
+                ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
             done >/dev/null 2>&1
 
             ssh $OCI_HOST_PREFIX-$id.$region zfs destroy -Rrf $target_vol
