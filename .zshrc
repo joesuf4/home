@@ -337,7 +337,7 @@ oci_ship_zone () {
             zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
             ssh  $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
             scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE
-            ssh $OCI_HOST_PREFIX-$id.$region sh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F rpool1/$vol; rm $TMPFILE'"
+            ssh $OCI_HOST_PREFIX-$id.$region sh -c "'lzop -d <$TMPFILE | zfs receive -F rpool1/$vol; rm $TMPFILE'"
             ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone attach
             ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone boot
         done
@@ -394,7 +394,7 @@ oci_region_ship_zones () {
 
             echo Shipping $vol to $OCI_HOST_PREFIX-$id.$region ...
 
-            zfs send -rc $vol@$LAST | lzop -c | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'/usr/local/bin/lzop -d | zfs receive -F $target_vol'"
+            zfs send -rc $vol@$LAST | lzop -c | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'lzop -d | zfs receive -F $target_vol'"
 
             for zone in ${ZONES[@]}
             do
@@ -472,7 +472,7 @@ oci_release () {
                 zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
 
                 [ -f $TMPFILE ] || zfs send -RcI $LAST $volume@$ZULU | lzop -c > $TMPFILE
-                scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
+                scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'lzop -d <$TMPFILE | zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
                 if [ /$vol = /etc/svc/manifest/site ]
                 then
                     for svc in ${OCI_SITE_SVCS[@]}
@@ -573,7 +573,7 @@ oci_tail_logs () {
     do
         for id in {1..$ad}
         do
-            ssh $OCI_HOST_PREFIX-$id.$region /usr/local/bin/tail -F /x1/logs/httpd/${kind}_log | grep -Ev "Go|libwww" &
+            ssh $OCI_HOST_PREFIX-$id.$region tail -F /x1/logs/httpd/${kind}_log | grep -Ev "Go|libwww" &
         done
     done
     wait
