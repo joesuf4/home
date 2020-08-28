@@ -593,4 +593,12 @@ oci_region_upgrade () {
 
 [ "$(hostname)" = "zeus" ] &&  ssh-add
 
+
+oci_region_zlogin () {
+    local region=$1
+    local zone=$2
+    oci_region_exec $region zlogin -l joe $zone
+}
+
+
 true
