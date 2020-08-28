@@ -591,6 +591,6 @@ oci_region_upgrade () {
     done
 }
 
-ssh-add
+[ "$(hostname)" = "zeus" ] &&  ssh-add
 
 true
