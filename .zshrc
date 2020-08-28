@@ -298,8 +298,15 @@ _oci_post_sync () {
         ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K pam_policy=/etc/opt/pam-policy/opc opc
     done
     oci_region_exec $region sed -i s/NOPASSWD:// /etc/sudoers.d/svc-system-config-user
-    rm -f ~/.ssh/sockets/*.$region*
+
+    echo Cloning home..
+    oci_region_exec $region GIT_SSL_NO_VERIFY=1 /usr/local/bin/git clone https://github.com/joesuf4/home
+    oci_region_exec $region mv home.git .
+    oci_region_exec $region /usr/local/bin/git checkout solaris .
+    oci_region_exec $region rm -rf home
+
     echo Post-sync prep complete; refreshing ssh connections to $region.
+    rm -f ~/.ssh/sockets/*.$region*
     ~/bin/ssh-refresh.sh
 }
 
