@@ -299,9 +299,6 @@
   (set-frame-parameter framenum 'alpha 90))
 (add-hook 'after-make-frame-functions 'transparency-90-hook)
 
-(color-theme-initialize)
-(color-theme-pok-wog)
-
 (put 'narrow-to-page 'disabled nil)
 (require 'page-ext)
 
