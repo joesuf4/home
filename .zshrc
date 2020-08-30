@@ -427,25 +427,26 @@ oci_region_initialize () {
 
     sed -i -e "s/ \\[$region\\]=$ad//g" ~/.zshenv
     rm -rf /x1/httpd/cores/*
-    for volume in ${ZFS_EXPORTS[@]}
+    for id in {1..$ad}
     do
-        local vol=${volume#*/}
-        local dst_mount=$vol
-        local dst_pool=HApool
-
-        echo Syncing /$dst_mount ...
-        zfs snapshot $volume@$LAST >/dev/null 2>&1
-
-        for id in {1..$ad}
+        for volume in ${ZFS_EXPORTS[@]}
         do
-            (zfs send -rc $volume@$LAST | gzip -c | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'zfs create -p $dst_pool/$vol >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol'"; \
-             echo Done with /$vol on $OCI_HOST_PREFIX-$id.$region: zfs receive exit status=$?.) &
+            local vol=${volume#*/}
+            local dst_mount=$vol
+            local dst_pool=HApool
+            local TMPFILE="/tmp/oci-$(basename $vol)-$LAST.zfs.gz"
+            [ -f $TMPFILE ] || zfs send -rc $volume@$LAST | gzip -c > $TMPFILE
+
+            echo Syncing /$dst_mount ...
+            zfs snapshot $volume@$LAST >/dev/null 2>&1
+            scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'(zfs destroy -Rr $dst_pool/$vol; zfs create -p $dst_pool/$vol) >/dev/null 2>&1; gzip -d <$TMPFILE | zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol && rm $TMPFILE'"
+            echo Done with /$vol on $OCI_HOST_PREFIX-$id.$region: zfs receive exit status=$?.
         done
-        wait
     done
 
     _oci_post_sync
 
+    rm -f /tmp/oci-*
     echo "All set: $region initialized to $LAST."
 }
 
