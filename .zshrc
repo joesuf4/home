@@ -226,9 +226,13 @@ _oci_pre_sync () {
     do
         echo Connecting to $OCI_HOST_PREFIX-$id.$region...
         ssh -t $OCI_HOST_PREFIX-$id.$region sudo passwd opc
-        ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -s /usr/bin/pfzsh opc
-        ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=all opc
-        ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K profiles+="Zone Management" opc
+        ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=all opc
+        ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -s /usr/bin/pfzsh opc
+        for zone in $(ls /system/zones)
+        do
+            ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -A +solaris.zone.manage/$zone opc
+            ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -A +solaris.zone.login/$zone opc
+        done
     done
     # reinitialize cached ssh connections for $region
     rm -f ~/.ssh/sockets/*.$region-*
@@ -246,12 +250,12 @@ _oci_pre_sync () {
     do
         for user in svn httpd ssh bb-master bb-worker
         do
-            ssh $OCI_HOST_PREFIX-$id.$region useradd -m -g 1 $user
+            ssh $OCI_HOST_PREFIX-$id.$region sudo useradd -m -g 1 $user
         done
         ssh $OCI_HOST_PREFIX-$id.$region iscsiadm modify discovery --static enable
         ssh $OCI_HOST_PREFIX-$id.$region zpool create HApool c2t0d0
         ssh $OCI_HOST_PREFIX-$id.$region zfs create -o mountpoint=/x1 HApool/x1
-        ssh $OCI_HOST_PREFIX-$id.$region usermod -K defaultpriv=basic,net_privaddr $user
+        ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=basic,!proc_session $user
     done
 
     echo Pre-sync prep complete.
@@ -434,7 +438,7 @@ oci_region_initialize () {
 
         for id in {1..$ad}
         do
-            (zfs send -rc $volume@$LAST | gzip | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "' >/dev/null 2>&1; zfs create -p $dst_pool/$vol >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol'"; \
+            (zfs send -rc $volume@$LAST | gzip -c | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'zfs create -p $dst_pool/$vol >/dev/null 2>&1; gzip -d | zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol'"; \
              echo Done with /$vol on $OCI_HOST_PREFIX-$id.$region: zfs receive exit status=$?.) &
         done
         wait
@@ -598,6 +602,6 @@ oci_region_zlogin () {
     oci_region_exec $region zlogin -l joe $zone "$@"
 }
 
-[[ "$(whoami)" == "joe" ]] && ssh-add
+[[ "$(whoami)" == "joe" && "$(hostname)" == "zeus" ]] && ssh-add
 
 true
