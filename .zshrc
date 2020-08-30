@@ -423,7 +423,7 @@ oci_region_initialize () {
 
     OCI_AD[$region]=$ad
 
-    [-z "$retry"] && _oci_pre_sync
+    [ -z "$retry" ] && _oci_pre_sync
 
     sed -i -e "s/ \\[$region\\]=$ad//g" ~/.zshenv
     rm -rf /x1/httpd/cores/*
