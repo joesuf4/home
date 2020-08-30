@@ -269,7 +269,7 @@ _oci_post_sync () {
 
     echo Restablishing Firewall config.
     oci_region_scp $region ~/pf_ssh_only.conf
-    oci_region_exec $region mv pf_ssh_only.conf /etc/firewall
+    oci_region_exec $region mv -f pf_ssh_only.conf /etc/firewall
     oci_region_exec $region svcadm enable firewall
 
 
