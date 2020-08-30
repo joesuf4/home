@@ -417,13 +417,13 @@ oci_region_ship_zones () {
 
 oci_region_initialize () {
     local region=$1
-    local ad=$2
+    local ad=${2-1}
+    local retry=${3-}
     local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
-    [ -n "$region$ad" ] || return 1
 
     OCI_AD[$region]=$ad
 
-    _oci_pre_sync
+    [-z "$retry"] && _oci_pre_sync
 
     sed -i -e "s/ \\[$region\\]=$ad//g" ~/.zshenv
     rm -rf /x1/httpd/cores/*
