@@ -298,7 +298,7 @@ _oci_post_sync () {
     _oci_home_setup
     _oci_pam_setup
 
-    echo Post-sync prep complete; refreshing ssh connections to $region.
+    echo Post-sync prep complete: refreshing ssh connections to $region.
     rm -f ~/.ssh/sockets/*.$region*
     ~/bin/ssh-refresh.sh
 }
@@ -318,7 +318,6 @@ _oci_pam_setup () {
     oci_region_exec $region /usr/local/bin/ortpasswd
     for id in {1..$ad}
     do
-        scp pam-policy $OCI_HOST_PREFIX-$id.$region
         ssh $OCI_HOST_PREFIX-$id.$region chown root:root pam-policy
         ssh $OCI_HOST_PREFIX-$id.$region sudo mkdir -p /etc/opt/pam-policy
         ssh $OCI_HOST_PREFIX-$id.$region sudo cp pam-policy /etc/opt/pam-policy/opc
