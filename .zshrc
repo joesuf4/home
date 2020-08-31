@@ -252,9 +252,10 @@ _oci_pre_sync () {
         do
             ssh $OCI_HOST_PREFIX-$id.$region sudo useradd -m -g 1 $user
         done
-        ssh $OCI_HOST_PREFIX-$id.$region iscsiadm modify discovery --static enable
-        ssh $OCI_HOST_PREFIX-$id.$region zpool create HApool c2t0d0
-        ssh $OCI_HOST_PREFIX-$id.$region zfs create -o mountpoint=/x1 HApool/x1
+        ssh $OCI_HOST_PREFIX-$id.$region sudo iscsiadm modify discovery -s enable
+        sleep 2
+        ssh $OCI_HOST_PREFIX-$id.$region sudo zpool create HApool c2t0d0
+        ssh $OCI_HOST_PREFIX-$id.$region sudo zfs create -o mountpoint=/x1 HApool/x1
         ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=basic,!proc_session $user
     done
 
@@ -264,7 +265,7 @@ _oci_pre_sync () {
 _oci_post_sync () {
     echo Adjusting and Reloading config files.
     sed -i -e "s/OCI_AD=[(]/OCI_AD=( [$region]=$ad/" ~/.zshenv
-    sed -i -e 's/^(Host \*\.us-ashburn-1.*)$/$1 *.'$region'/' ~/joe/.ssh/config
+    sed -i -e 's/^(Host \*\.us-ashburn-1.*)$/$1 *.'$region'/' ~/.ssh/config
     . ~/.zshenv
 
     echo Restablishing Firewall config.
@@ -446,7 +447,6 @@ oci_region_initialize () {
 
     _oci_post_sync
 
-    rm -f /tmp/oci-*
     echo "All set: $region initialized to $LAST."
 }
 
