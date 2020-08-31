@@ -423,7 +423,7 @@ oci_region_ship_zones () {
     echo All zones synced to $region.
 }
 
-oci_region_initialize () {
+oci_region_setup () {
     local region=$1
     local ad=${2-1}
     local slice=${3-}
