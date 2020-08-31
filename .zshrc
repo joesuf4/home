@@ -457,7 +457,7 @@ oci_region_setup () {
         done
     done
 
-    _oci_post_sync
+    [[ -z "$slice" ]] && _oci_post_sync
 
     echo "All set: $region initialized to $LAST."
 }
