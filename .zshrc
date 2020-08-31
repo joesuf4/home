@@ -279,19 +279,35 @@ _oci_post_sync () {
     do
         ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy HApool/x1/cms/wc
         ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld opc create,mount,snapshot,clone,destroy,hold HApool
-        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld opc create,mount,snapshot,clone,destroy,hold rpool
+        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld opc create,mount,snapshot,clone,destroy,hold rpool1
     done
 
-    echo Fixing up ~/.profile and /etc/hosts.
-    oci_region_exec $region sh -c "'echo export PATH=$PATH LANG=$LANG >> .profile'"
+    echo Fixing up /etc/hosts.
     oci_region_exec $region sh -c '"echo 127.0.0.1 localhost.localdomain localhost $(hostname) >> /etc/hosts"'
 
     echo 'Importing svc:site/*'
-    oci_region_exec sudo svccfg import /etc/svc/manifest/site
+    oci_region_exec $region sudo svccfg import /etc/svc/manifest/site
 
     oci_region_upgrade $region
     oci_region_ship_zones $region
 
+    _oci_region_pam_setup
+    _oci_region_home_setup
+
+    echo Post-sync prep complete; refreshing ssh connections to $region.
+    rm -f ~/.ssh/sockets/*.$region*
+    ~/bin/ssh-refresh.sh
+}
+
+_oci_region_home_setup () {
+    echo Cloning home...
+    oci_region_exec $region GIT_SSL_NO_VERIFY=1 /usr/local/bin/git clone https://github.com/joesuf4/home
+    oci_region_exec $region mv home.git .
+    oci_region_exec $region /usr/local/bin/git checkout solaris .
+    oci_region_exec $region rm -rf home
+}
+
+_oci_region_pam_setup () {
     echo Resetting PAM sudo policy for Orthrus OTP...
     oci_region_exec $region ortpasswd
     for id in {1..$ad}
@@ -303,16 +319,6 @@ _oci_post_sync () {
         ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K pam_policy=/etc/opt/pam-policy/opc opc
     done
     oci_region_exec $region sed -i s/NOPASSWD:// /etc/sudoers.d/svc-system-config-user
-
-    echo Cloning home..
-    oci_region_exec $region GIT_SSL_NO_VERIFY=1 /usr/local/bin/git clone https://github.com/joesuf4/home
-    oci_region_exec $region mv home.git .
-    oci_region_exec $region /usr/local/bin/git checkout solaris .
-    oci_region_exec $region rm -rf home
-
-    echo Post-sync prep complete; refreshing ssh connections to $region.
-    rm -f ~/.ssh/sockets/*.$region*
-    ~/bin/ssh-refresh.sh
 }
 
 oci_ship_zone () {
@@ -363,8 +369,8 @@ oci_region_ship_zones () {
     oci_region_exec $region dladm create-vnic -l etherstub0 www0
     oci_region_exec $region ipadm create-ip gz0
     oci_region_exec $region ipadm create-addr -T static -a 192.168.254.1/24 gz0
-    oci_region_exec ipadm set-ifprop -p forwarding=on -m ipv4 net0
-    oci_region_exec ipadm set-ifprop -p forwarding=on -m ipv4 gz0
+    oci_region_exec $region ipadm set-ifprop -p forwarding=on -m ipv4 net0
+    oci_region_exec $region ipadm set-ifprop -p forwarding=on -m ipv4 gz0
 
     for zone in ${ZONES[@]}
     do
@@ -372,7 +378,7 @@ oci_region_ship_zones () {
         zoneadm -z $zone detach
     done
 
-    zfs snapshot -r $vol@$LAST
+    zfs snapshot -r $vol@$LAST >/dev/null 2>&1
 
     for zone in ${ZONES[@]}
     do
@@ -382,34 +388,30 @@ oci_region_ship_zones () {
 
     for id in {1..$ad}
     do
-        (
-            ssh $OCI_HOST_PREFIX-$id.$region pkg install uvfs udfs diagnostic/cpu-counters service/file-system/nfs >/dev/null 2>&1
+        ssh $OCI_HOST_PREFIX-$id.$region pkg install uvfs udfs diagnostic/cpu-counters service/file-system/nfs >/dev/null 2>&1
 
-            for zone in ${ZONES[@]}
-            do
-                ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone halt
-                ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone detach
-                ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone uninstall
-                ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone delete -F
-                zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
-                ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
-            done >/dev/null 2>&1
+        for zone in ${ZONES[@]}
+        do
+            ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone halt
+            ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone detach
+            ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone uninstall
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone delete -F
+            zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
+        done >/dev/null 2>&1
 
-            ssh $OCI_HOST_PREFIX-$id.$region zfs destroy -Rrf $target_vol
+        ssh $OCI_HOST_PREFIX-$id.$region zfs destroy -Rrf $target_vol
 
-            echo Shipping $vol to $OCI_HOST_PREFIX-$id.$region ...
+        echo Shipping $vol to $OCI_HOST_PREFIX-$id.$region ...
 
-            zfs send -rc $vol@$LAST | lzop -c | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'lzop -d | zfs receive -F $target_vol'"
+        zfs send -rc $vol@$LAST | lzop -c | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'/usr/local/bin/lzop -d | zfs receive -F $target_vol'"
 
-            for zone in ${ZONES[@]}
-            do
-                ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone attach
-                ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone boot
-            done
-        )&
+        for zone in ${ZONES[@]}
+        do
+            ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone attach
+            ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone boot
+        done
     done
-
-    wait
 
     zfs destroy -r $vol@$LAST
 
@@ -439,7 +441,7 @@ oci_region_initialize () {
             [ -f $TMPFILE ] || zfs send -rc $volume@$LAST | gzip -c > $TMPFILE
 
             echo Syncing /$dst_mount ...
-            zfs snapshot $volume@$LAST >/dev/null 2>&1
+            zfs snapshot -r $volume@$LAST >/dev/null 2>&1
             scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'(zfs destroy -Rr $dst_pool/$vol; zfs create -p $dst_pool/$vol) >/dev/null 2>&1; gzip -d <$TMPFILE | zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol && rm $TMPFILE'"
             echo Done with /$vol on $OCI_HOST_PREFIX-$id.$region: zfs receive exit status=$?.
         done
@@ -591,7 +593,7 @@ oci_region_upgrade () {
     do
         ssh $OCI_HOST_PREFIX-$i.$region pkg set-publisher -G "'*'" -g "$PKG_REPOS" solaris
         ssh $OCI_HOST_PREFIX-$i.$region pkg refresh
-        ssh $OCI_HOST_PREFIX-$i.$region sh -c "'pkg update && reboot'"
+        ssh -t $OCI_HOST_PREFIX-$i.$region sh -c "'pkg update && reboot'"
         echo $OCI_HOST_PREFIX-$i.$region upgraded.
     done
 }
