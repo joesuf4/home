@@ -248,7 +248,7 @@ _oci_pre_sync () {
         ssh -t $OCI_HOST_PREFIX-$id.$region
     done
 
-    echo Step 3. Create HApool, service accounts, and permissions.
+    echo Step 3. Create HApool, service accounts, permissions, and rm /etc/mail.
     for id in {1..$ad}
     do
         for user in svn httpd ssh bb-master bb-worker
@@ -260,8 +260,8 @@ _oci_pre_sync () {
         ssh $OCI_HOST_PREFIX-$id.$region sudo zpool create HApool c2t0d0
         ssh $OCI_HOST_PREFIX-$id.$region sudo zfs create -o mountpoint=/x1 HApool/x1
         ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=basic,!proc_session $user
+        ssh $OCI_HOST_PREFIX-$id.$region sudo rm -rf /etc/mail
     done
-
     echo Pre-sync prep complete.
 }
 
@@ -285,8 +285,9 @@ _oci_post_sync () {
         ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld opc create,mount,snapshot,clone,destroy,hold rpool1
     done
 
-    echo Fixing up /etc/hosts.
+    echo Fixing up /etc/hosts and /x1/logs.
     oci_region_exec $region sh -c '"echo 127.0.0.1 localhost.localdomain localhost $(hostname) >> /etc/hosts"'
+    oci_region_exec $region sudo mkdir -p /x1/logs/httpd /x1/logs/svnpubsub
 
     echo 'Importing svc:site/*'
     oci_region_exec $region sudo svccfg import /etc/svc/manifest/site
@@ -294,8 +295,8 @@ _oci_post_sync () {
     oci_region_upgrade $region $slice
     oci_region_ship_zones $region $slice
 
-    _oci_pam_setup
     _oci_home_setup
+    _oci_pam_setup
 
     echo Post-sync prep complete; refreshing ssh connections to $region.
     rm -f ~/.ssh/sockets/*.$region*
@@ -304,15 +305,17 @@ _oci_post_sync () {
 
 _oci_home_setup () {
     echo Cloning home...
+    oci_region_exec $region rm -rf .git home
     oci_region_exec $region GIT_SSL_NO_VERIFY=1 /usr/local/bin/git clone https://github.com/joesuf4/home
-    oci_region_exec $region mv home.git .
-    oci_region_exec $region /usr/local/bin/git checkout solaris .
+    oci_region_exec $region mv home/.git .
+    oci_region_exec $region /usr/local/bin/git checkout solaris
+    oci_region_exec $region /usr/local/bin/git checkout .
     oci_region_exec $region rm -rf home
 }
 
 _oci_pam_setup () {
     echo Resetting PAM sudo policy for Orthrus OTP...
-    oci_region_exec $region ortpasswd
+    oci_region_exec $region /usr/local/bin/ortpasswd
     for id in {1..$ad}
     do
         scp pam-policy $OCI_HOST_PREFIX-$id.$region
@@ -361,7 +364,7 @@ oci_ship_zone () {
 
 oci_region_ship_zones () {
     local region=$1
-    local $slice=${2-}
+    local slice=${2-}
     local ad=$OCI_AD[$region]
     local ZONES=( $(ls /system/zones) )
     local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
@@ -394,6 +397,7 @@ oci_region_ship_zones () {
     do
         [[ -z "$slice" || $slice -eq $id ]] || continue
         ssh $OCI_HOST_PREFIX-$id.$region pkg install uvfs udfs diagnostic/cpu-counters service/file-system/nfs >/dev/null 2>&1
+        ssh $OCI_HOST_PREFIX-$id.$region useradd joe
 
         for zone in ${ZONES[@]}
         do
@@ -403,7 +407,7 @@ oci_region_ship_zones () {
             ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone delete -F
             zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
             ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
-        done >/dev/null 2>&1
+        done
 
         ssh $OCI_HOST_PREFIX-$id.$region zfs destroy -Rrf $target_vol
 
