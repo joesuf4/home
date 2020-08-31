@@ -187,17 +187,17 @@ emac () {
     # check if the user wants TUI mode
     local arg;
     for arg; do
-    	if [ "$arg" = "-nw" ] || [ "$arg" = "-t" ] || [ "$arg" = "--tty" ]
+    	if [[ "$arg" = "-nw" || "$arg" = "-t" || "$arg" = "--tty" ]]
         then
             nw=true
     	fi
     done
 
     # if called without arguments - open a new gui instance
-    if [ "$#" -eq "0" ] || [ "$running" != true ]; then
+    if [[ "$#" -eq "0" || "$running" != true ]]; then
         args+=(-c) # open emacsclient in a new frame
     fi
-    if [ "$#" -gt "0" ]; then
+    if [[ "$#" -gt "0" ]]; then
         # if 'emac -' open standard input (e.g. pipe)
         if [[ "$1" == "-" ]]; then
     	    local TMP="$(mktemp /tmp/$0-stdin-XXXX)"
@@ -217,6 +217,9 @@ emac () {
 
 
 # Oracle Cloud Infrastructure
+
+# Note:
+# _oci_$foo take no arguments: you must set $region and $ad in the env
 
 _oci_pre_sync () {
     echo Preparing $region with $ad Availability Domains.
@@ -288,18 +291,18 @@ _oci_post_sync () {
     echo 'Importing svc:site/*'
     oci_region_exec $region sudo svccfg import /etc/svc/manifest/site
 
-    oci_region_upgrade $region
-    oci_region_ship_zones $region
+    oci_region_upgrade $region $slice
+    oci_region_ship_zones $region $slice
 
-    _oci_region_pam_setup
-    _oci_region_home_setup
+    _oci_pam_setup
+    _oci_home_setup
 
     echo Post-sync prep complete; refreshing ssh connections to $region.
     rm -f ~/.ssh/sockets/*.$region*
     ~/bin/ssh-refresh.sh
 }
 
-_oci_region_home_setup () {
+_oci_home_setup () {
     echo Cloning home...
     oci_region_exec $region GIT_SSL_NO_VERIFY=1 /usr/local/bin/git clone https://github.com/joesuf4/home
     oci_region_exec $region mv home.git .
@@ -307,7 +310,7 @@ _oci_region_home_setup () {
     oci_region_exec $region rm -rf home
 }
 
-_oci_region_pam_setup () {
+_oci_pam_setup () {
     echo Resetting PAM sudo policy for Orthrus OTP...
     oci_region_exec $region ortpasswd
     for id in {1..$ad}
@@ -333,7 +336,7 @@ oci_ship_zone () {
     zoneadm -z $zone boot
 
     local TMPFILE="/tmp/oci-$(basename $vol)-$LAST.zfs.lzo"
-    [ -f $TMPFILE ] || zfs send -rc rpool/$vol@$LAST | lzop -c > $TMPFILE
+    [[ -f $TMPFILE ]] || zfs send -rc rpool/$vol@$LAST | lzop -c > $TMPFILE
 
     for region ad in ${(kv)OCI_AD}
     do
@@ -358,6 +361,7 @@ oci_ship_zone () {
 
 oci_region_ship_zones () {
     local region=$1
+    local $slice=${2-}
     local ad=$OCI_AD[$region]
     local ZONES=( $(ls /system/zones) )
     local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
@@ -388,6 +392,7 @@ oci_region_ship_zones () {
 
     for id in {1..$ad}
     do
+        [[ -z "$slice" || $slice -eq $id ]] || continue
         ssh $OCI_HOST_PREFIX-$id.$region pkg install uvfs udfs diagnostic/cpu-counters service/file-system/nfs >/dev/null 2>&1
 
         for zone in ${ZONES[@]}
@@ -421,24 +426,25 @@ oci_region_ship_zones () {
 oci_region_initialize () {
     local region=$1
     local ad=${2-1}
-    local retry=${3-}
+    local slice=${3-}
     local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
 
     OCI_AD[$region]=$ad
 
-    [ -z "$retry" ] && _oci_pre_sync
+    [[ -z "$slice" ]] && _oci_pre_sync
 
     sed -i -e "s/ \\[$region\\]=$ad//g" ~/.zshenv
     rm -rf /x1/httpd/cores/*
     for id in {1..$ad}
     do
+        [[ -z "$slice" || $slice -eq $id ]] || continue
         for volume in ${ZFS_EXPORTS[@]}
         do
             local vol=${volume#*/}
             local dst_mount=$vol
             local dst_pool=HApool
             local TMPFILE="/tmp/oci-$(basename $vol)-$LAST.zfs.gz"
-            [ -f $TMPFILE ] || zfs send -rc $volume@$LAST | gzip -c > $TMPFILE
+            [[ -f $TMPFILE ]] || zfs send -rc $volume@$LAST | gzip -c > $TMPFILE
 
             echo Syncing /$dst_mount ...
             zfs snapshot -r $volume@$LAST >/dev/null 2>&1
@@ -457,13 +463,13 @@ oci_release () {
     local ZULU=$(date -Iseconds | tr '+' 'Z')
     local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
     local ZONES=( $(ls /system/zones) )
-    [ -n "$LAST" ] || return 1
+    [[ -n "$LAST" ]] || return 1
 
     for region ad in ${(kv)OCI_AD}
     do
         for id in {1..$ad}
         do
-            [ -z "$slice" -o $slice -eq $id ] || continue
+            [[ -z "$slice" || $slice -eq $id ]] || continue
             echo Upgrading $OCI_HOST_PREFIX-$id.$region...
             for volume in ${ZFS_EXPORTS[@]}
             do
@@ -478,9 +484,9 @@ oci_release () {
                 local TMPFILE=/tmp/oci-$(basename $vol)-$ZULU.zfs.lzo
                 zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
 
-                [ -f $TMPFILE ] || zfs send -RcI $LAST $volume@$ZULU | lzop -c > $TMPFILE
+                [[ -f $TMPFILE ]] || zfs send -RcI $LAST $volume@$ZULU | lzop -c > $TMPFILE
                 scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'lzop -d <$TMPFILE | zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
-                if [ /$vol = /etc/svc/manifest/site ]
+                if [[ /$vol = /etc/svc/manifest/site ]]
                 then
                     for svc in ${OCI_SITE_SVCS[@]}
                     do
@@ -493,7 +499,7 @@ oci_release () {
     done
 
     touch ~/.zulu-$ZULU
-    if [ -z "$slice" ]
+    if [[ -z "$slice" ]]
     then
         ln -s -f $(realpath --relative-to ~ ~/.zulu-last) ~/.zulu-rollback
         ln -s -f .zulu-$ZULU ~/.zulu-last
@@ -553,7 +559,7 @@ oci_region_site_svcs () {
 
 oci_rollback () {
     local TARGET=$(realpath --relative-to ~ ~/.zulu-rollback | sed -e 's/^\.zulu-//')
-    [ -n "$TARGET" ] || return 1
+    [[ -n "$TARGET" ]] || return 1
     for region ad in ${(kv)OCI_AD}
     do
         for id in {1..$ad}
@@ -588,9 +594,11 @@ oci_tail_logs () {
 
 oci_region_upgrade () {
     local region=$1
+    local slice=${2:-}
     local ad=$OCI_AD[$region]
     for i in {1..$ad}
     do
+        [[ -z "$slice" || $slice -eq $id ]] || continue
         ssh $OCI_HOST_PREFIX-$i.$region pkg set-publisher -G "'*'" -g "$PKG_REPOS" solaris
         ssh $OCI_HOST_PREFIX-$i.$region pkg refresh
         ssh -t $OCI_HOST_PREFIX-$i.$region sh -c "'pkg update && reboot'"
