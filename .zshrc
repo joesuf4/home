@@ -395,7 +395,7 @@ oci_region_ship_zones () {
     for id in {1..$ad}
     do
         [[ -z "$slice" || $slice -eq $id ]] || continue
-        ssh $OCI_HOST_PREFIX-$id.$region pkg install uvfs udfs diagnostic/cpu-counters service/file-system/nfs >/dev/null 2>&1
+        ssh $OCI_HOST_PREFIX-$id.$region pkg install sendmail uvfs udfs diagnostic/cpu-counters service/file-system/nfs >/dev/null 2>&1
         ssh $OCI_HOST_PREFIX-$id.$region useradd joe
 
         for zone in ${ZONES[@]}
