@@ -11,7 +11,7 @@ export GIT_SSL_NO_VERIFY=1
 
 declare -A OCI_AD;
 # do not edit the next line manually!
-OCI_AD=(  [us-ashburn-1]=3 [us-phoenix-1]=3 [au-sydney-1]=1 [bz-saopaolo-1]=1 )
+OCI_AD=( [de-frankfurt-1]=3 [us-ashburn-1]=3 [us-phoenix-1]=3 [au-sydney-1]=1 [bz-saopaolo-1]=1 )
 
 OCI_SITE_SVCS=(http:apache24 markdownd svnwcsub watchdog)
 
