@@ -319,9 +319,9 @@ _oci_pam_setup () {
     for id in {1..$ad}
     do
         ssh $OCI_HOST_PREFIX-$id.$region chown root:root pam-policy
-        ssh $OCI_HOST_PREFIX-$id.$region sudo mkdir -p /etc/opt/pam-policy
-        ssh $OCI_HOST_PREFIX-$id.$region sudo cp pam-policy /etc/opt/pam-policy/opc
-        ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K pam_policy=/etc/opt/pam-policy/opc opc
+        ssh -t $OCI_HOST_PREFIX-$id.$region sudo mkdir -p /etc/opt/pam-policy
+        ssh -t $OCI_HOST_PREFIX-$id.$region sudo cp pam-policy /etc/opt/pam-policy/opc
+        ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K pam_policy=/etc/opt/pam-policy/opc opc
     done
     oci_region_exec $region sed -i s/NOPASSWD:// /etc/sudoers.d/svc-system-config-user
 }
