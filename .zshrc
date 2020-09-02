@@ -397,6 +397,7 @@ oci_region_ship_zones () {
         [[ -z "$slice" || $slice -eq $id ]] || continue
         ssh $OCI_HOST_PREFIX-$id.$region pkg install sendmail uvfs udfs diagnostic/cpu-counters service/file-system/nfs >/dev/null 2>&1
         ssh $OCI_HOST_PREFIX-$id.$region useradd joe
+        ssh $OCI_HOST_PREFIX-$id.$region svcadm disable smtp:sendmail
 
         for zone in ${ZONES[@]}
         do
