@@ -299,6 +299,7 @@ _oci_post_sync () {
     _oci_pam_setup
 
     echo Post-sync prep complete: refreshing ssh connections to $region.
+    oci_region_sshd_fixup $region
     rm -f ~/.ssh/sockets/*.$region*
     ~/bin/ssh-refresh.sh
 }
@@ -610,11 +611,13 @@ oci_region_upgrade () {
     done
 }
 
-oci_region_msa_fixup () {
+oci_region_sshd_fixup () {
     local region=$1
-    local msa=$OCI_MSA[$region]
-    oci_region_exec $region sed -i "'s/192.168.1.254/$msa/'" /etc/mail/submit.cf
-    oci_region_exec $region sed -i "'s/^domain .*/domain sunstarsys.com/'" /etc/resolv.conf
+    oci_region_exec $region cp /etc/ssh/sshd_config /etc/ssh/sss_sshd_config
+    oci_region_exec $region sh -c "'echo GatewayPorts clientspecified >> /etc/ssh/sss_sshd_config'"
+    oci_region_exec $region sed -i "'s/sshd_config/sss_sshd_config/'" /lib/svc/manifest/network/ssh.xml
+    oci_region_exec $region sed -i "'s!/usr/lib/ssh/sshd\$!/usr/lib/ssh/sshd -f /etc/ssh/sss_sshd_config!'" /lib/svc/method/sshd
+    oci_region_exec $region svcadm restart ssh
 }
 
 oci_region_zlogin () {
