@@ -9,9 +9,12 @@ export LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -
 export CPPFLAGS="-I/usr/local/include"
 export GIT_SSL_NO_VERIFY=1
 
-declare -A OCI_AD;
+declare -A OCI_AD
 # do not edit the next line manually!
 OCI_AD=( [de-frankfurt-1]=3 [us-ashburn-1]=3 [us-phoenix-1]=3 [au-sydney-1]=1 [bz-saopaolo-1]=1 )
+
+declare -A OCI_MSA
+OCI_MSA=( [de-frankfurt-1]=192.168.1.2 [us-ashburn-1]=192.168.1.1 [us-phoenix-1]=192.168.1.5 [au-sydney-1]=191.168.1.3 [bz-saopaolo-1]=192.168.1.4 )
 
 OCI_SITE_SVCS=(http:apache24 markdownd svnwcsub watchdog)
 

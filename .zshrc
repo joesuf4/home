@@ -610,6 +610,13 @@ oci_region_upgrade () {
     done
 }
 
+oci_region_msa_fixup () {
+    local region=$1
+    local msa=$OCI_MSA[$region]
+    oci_region_exec $region sed -i "'s/192.168.1.254/$msa/'" /etc/mail/submit.cf
+    oci_region_exec $region sed -i "'s/^domain .*/domain sunstarsys.com/'" /etc/resolv.conf
+}
+
 oci_region_zlogin () {
     local region=$1
     local zone=$2
