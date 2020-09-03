@@ -614,9 +614,9 @@ oci_region_upgrade () {
 oci_region_sshd_fixup () {
     local region=$1
     oci_region_exec $region cp /etc/ssh/sshd_config /etc/ssh/sss_sshd_config
-    oci_region_exec $region sh -c "'echo GatewayPorts clientspecified >> /etc/ssh/sss_sshd_config'"
-    oci_region_exec $region sed -i "'s/sshd_config/sss_sshd_config/'" /lib/svc/manifest/network/ssh.xml
-    oci_region_exec $region sed -i "'s!/usr/lib/ssh/sshd\$!/usr/lib/ssh/sshd -f /etc/ssh/sss_sshd_config!'" /lib/svc/method/sshd
+    oci_region_exec $region sh -c "'echo GatewayPorts clientspecified >> /etc/ssh/gwports_sshd_config'"
+    oci_region_exec $region sed -i "'s/sshd_config/gwports_sshd_config/'" /lib/svc/manifest/network/ssh.xml
+    oci_region_exec $region sed -i "'s!/usr/lib/ssh/sshd\$!/usr/lib/ssh/sshd -f /etc/ssh/gwports_sshd_config!'" /lib/svc/method/sshd
     oci_region_exec $region svcadm restart ssh
 }
 
