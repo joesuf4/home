@@ -15,7 +15,7 @@ OCI_AD=( [de-frankfurt-1]=3 [us-ashburn-1]=3 [us-phoenix-1]=3 [au-sydney-1]=1 [b
 
 OCI_SITE_SVCS=(http:apache24 markdownd svnwcsub watchdog)
 OCI_HOST_PREFIX=HA-fileserver
-OCI_POOL=HApool
+OCI_ZPOOL=HApool
 
 ZFS_TANK_EXPORTS=(tank/x1/cms tank/x1/svnpubsub tank/x1/httpd)
 ZFS_RPOOL_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt rpool/etc/mail rpool/etc/svc/manifest/site)
