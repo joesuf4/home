@@ -616,7 +616,8 @@ oci_region_upgrade () {
 
 oci_region_ssh_enable_gwp () {
     local region=$1
-    oci_region_exec $region sudo svccfg -s network/ssh setprop tm_proppat_nt_config_GatewayPorts/name=clientspecified
+    oci_region_exec $region perl -i -pe "/GatewayPorts/...s/boolean/astring/" /lib/svc/manifest/network/ssh.xml
+    oci_region_exec $region sudo svccfg -s network/ssh:default setprop config/GatewayPorts = astring: clientspecified
     oci_region_exec $region svcadm restart ssh
 }
 
