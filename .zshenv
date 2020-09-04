@@ -13,12 +13,9 @@ declare -A OCI_AD
 # do not edit the next line manually!
 OCI_AD=( [de-frankfurt-1]=3 [us-ashburn-1]=3 [us-phoenix-1]=3 [au-sydney-1]=1 [bz-saopaolo-1]=1 )
 
-declare -A OCI_MSA
-OCI_MSA=( [de-frankfurt-1]=192.168.1.2 [us-ashburn-1]=192.168.1.1 [us-phoenix-1]=192.168.1.5 [au-sydney-1]=191.168.1.3 [bz-saopaolo-1]=192.168.1.4 )
-
 OCI_SITE_SVCS=(http:apache24 markdownd svnwcsub watchdog)
-
 OCI_HOST_PREFIX=HA-fileserver
+OCI_POOL=HApool
 
 ZFS_TANK_EXPORTS=(tank/x1/cms tank/x1/svnpubsub tank/x1/httpd)
 ZFS_RPOOL_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt rpool/etc/mail rpool/etc/svc/manifest/site)

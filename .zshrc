@@ -248,7 +248,7 @@ _oci_pre_sync () {
         ssh -t $OCI_HOST_PREFIX-$id.$region
     done
 
-    echo Step 3. Create HApool, service accounts, permissions, and rm /etc/mail.
+    echo Step 3. Create $OCI_POOL, service accounts, permissions, and rm /etc/mail.
     for id in {1..$ad}
     do
         for user in svn httpd ssh bb-master bb-worker
@@ -257,8 +257,8 @@ _oci_pre_sync () {
         done
         ssh $OCI_HOST_PREFIX-$id.$region sudo iscsiadm modify discovery -s enable
         sleep 2
-        ssh $OCI_HOST_PREFIX-$id.$region sudo zpool create HApool c2t0d0
-        ssh $OCI_HOST_PREFIX-$id.$region sudo zfs create -o mountpoint=/x1 HApool/x1
+        ssh $OCI_HOST_PREFIX-$id.$region sudo zpool create $OCI_POOL c2t0d0
+        ssh $OCI_HOST_PREFIX-$id.$region sudo zfs create -o mountpoint=/x1 $OCI_POOL/x1
         ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=basic,!proc_session $user
         ssh $OCI_HOST_PREFIX-$id.$region sudo rm -rf /etc/mail
     done
@@ -280,8 +280,8 @@ _oci_post_sync () {
     echo Delegating zfs permissions.
     for i in {1..$ad}
     do
-        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy HApool/x1/cms/wc
-        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld opc create,mount,snapshot,clone,destroy,hold HApool
+        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy $OCI_POOL/x1/cms/wc
+        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld opc create,mount,snapshot,clone,destroy,hold $OCI_POOL
         ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld opc create,mount,snapshot,clone,destroy,hold rpool1
     done
 
@@ -447,7 +447,7 @@ oci_region_setup () {
         do
             local vol=${volume#*/}
             local dst_mount=$vol
-            local dst_pool=HApool
+            local dst_pool=$OCI_POOL
             local TMPFILE="/tmp/oci-$(basename $vol)-$LAST.zfs.gz"
             [[ -f $TMPFILE ]] || zfs send -rc $volume@$LAST | gzip -c > $TMPFILE
 
@@ -480,7 +480,7 @@ oci_release () {
             do
                 local vol=${volume#*/}
 
-                local dst_pool=HApool
+                local dst_pool=$OCI_POOL
                 if echo $vol | grep -q VARSHARE
                 then
                      dst_pool=rpool1
@@ -572,7 +572,7 @@ oci_rollback () {
             for volume in ${ZFS_EXPORTS[@]}
             do
                 local vol=${volume#*/}
-                ssh $OCI_HOST_PREFIX-$id.$region zfs rollback -R HApool/vol@$TARGET
+                ssh $OCI_HOST_PREFIX-$id.$region zfs rollback -R $OCI_POOL/vol@$TARGET
             done
         done
         oci_svcs_region_action $region restart
