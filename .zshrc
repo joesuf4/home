@@ -589,11 +589,12 @@ oci_rollback () {
 
 oci_tail_logs () {
     local kind=${1-access}
+    local pcre=${2-}
     for region ad in ${(kv)OCI_AD}
     do
         for id in {1..$ad}
         do
-            ssh $OCI_HOST_PREFIX-$id.$region tail -F /x1/logs/httpd/${kind}_log | grep -Ev "Go|libwww|python" &
+            ssh $OCI_HOST_PREFIX-$id.$region tail -F /x1/logs/httpd/${kind}_log | grep -Pv "'^[\d.]+ |Go|libwww|python'" | grep -Pi "'$pcre'" &
         done
     done
     wait
