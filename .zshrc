@@ -464,7 +464,7 @@ oci_region_setup () {
 }
 
 oci_release () {
-    local slice="${1-}"
+    local slice=${1-}
     local ZULU=$(date -Iseconds | tr '+' 'Z')
     local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
     local ZONES=( $(ls /system/zones) )
@@ -514,10 +514,12 @@ oci_release () {
 }
 
 oci_ship_crons () {
+    local slice=${1-}
     for region ad in ${(kv)OCI_AD}
     do
         for id in {1..$ad}
         do
+            [[ -z "$slice" || $slice -eq $id ]] || continue
             for file in root httpd
             do
                 cat /var/spool/cron/crontabs/$file | perl -ple 's/sleep 0/"sleep " . int rand 100/e' | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'cat > /var/spool/cron/crontabs/$file && svcadm restart cron'" || return $?
@@ -591,7 +593,7 @@ oci_tail_logs () {
     do
         for id in {1..$ad}
         do
-            ssh $OCI_HOST_PREFIX-$id.$region tail -F /x1/logs/httpd/${kind}_log | grep -Ev "Go|libwww" &
+            ssh $OCI_HOST_PREFIX-$id.$region tail -F /x1/logs/httpd/${kind}_log | grep -Ev "Go|libwww|python" &
         done
     done
     wait
