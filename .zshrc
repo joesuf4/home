@@ -594,7 +594,7 @@ oci_tail_logs () {
     do
         for id in {1..$ad}
         do
-            ssh $OCI_HOST_PREFIX-$id.$region tail -F /x1/logs/httpd/${kind}_log | grep -Pv "'^[\d.]+ |Go|libwww|python'" | grep -Pi "'$pcre'" &
+            ssh $OCI_HOST_PREFIX-$id.$region tail -F /x1/logs/httpd/${kind}_log | grep --line-buffered -Pve '^[\d.]+ |Go|libwww|python' | grep -Pe "$pcre" &
         done
     done
     wait
