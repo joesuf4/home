@@ -299,7 +299,7 @@ _oci_post_sync () {
     _oci_pam_setup
 
     echo Post-sync prep complete: refreshing ssh connections to $region.
-    oci_region_sshd_fixup $region
+    oci_region_sshd_enable_gwp $region
     rm -f ~/.ssh/sockets/*.$region*
     ~/bin/ssh-refresh.sh
 }
@@ -613,12 +613,9 @@ oci_region_upgrade () {
     done
 }
 
-oci_region_sshd_fixup () {
+oci_region_ssh_enable_gwp () {
     local region=$1
-    oci_region_exec $region cp /etc/ssh/sshd_config /etc/ssh/sss_sshd_config
-    oci_region_exec $region sh -c "'echo GatewayPorts clientspecified >> /etc/ssh/gwports_sshd_config'"
-    oci_region_exec $region sed -i "'s/sshd_config/gwports_sshd_config/'" /lib/svc/manifest/network/ssh.xml
-    oci_region_exec $region sed -i "'s!/usr/lib/ssh/sshd\$!/usr/lib/ssh/sshd -f /etc/ssh/gwports_sshd_config!'" /lib/svc/method/sshd
+    oci_region_exec $region sudo svccfg -s network/ssh setprop tm_proppat_nt_config_GatewayPorts/name=clientspecified
     oci_region_exec $region svcadm restart ssh
 }
 
