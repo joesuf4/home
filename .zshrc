@@ -476,6 +476,12 @@ oci_release () {
         do
             [[ -z "$slice" || $slice -eq $id ]] || continue
             echo Upgrading $OCI_HOST_PREFIX-$id.$region...
+
+            for svc in ${OCI_SITE_SVCS[@]}
+            do
+                ssh $OCI_HOST_PREFIX-$id.$region svcadm disable site/$svc
+            done
+
             for volume in ${ZFS_EXPORTS[@]}
             do
                 local vol=${volume#*/}
@@ -491,14 +497,18 @@ oci_release () {
 
                 [[ -f $TMPFILE ]] || zfs send -RcI $LAST $volume@$ZULU | lzop -c > $TMPFILE
                 scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'lzop -d <$TMPFILE | zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
-                if [[ /$vol = /etc/svc/manifest/site ]]
-                then
-                    for svc in ${OCI_SITE_SVCS[@]}
-                    do
-                        ssh $OCI_HOST_PREFIX-$id.$region svcadm restart site/$svc
-                    done
-                fi
             done
+
+            for svc in ${OCI_SITE_SVCS[@]}
+            do
+                ssh $OCI_HOST_PREFIX-$id.$region svcadm enable site/$svc
+            done
+
+            for zone in $(ls /system/zones)
+            do
+                ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone reboot
+            done
+
             echo $OCI_HOST_PREFIX-$id.$region release complete.
         done
     done
