@@ -179,7 +179,7 @@ oci_region_ship_zones () {
     do
         [[ -z "$slice" || $slice -eq $id ]] || continue
         ssh $OCI_HOST_PREFIX-$id.$region pkg install sendmail uvfs udfs diagnostic/cpu-counters service/file-system/nfs >/dev/null 2>&1
-        ssh $OCI_HOST_PREFIX-$id.$region useradd joe
+        ssh $OCI_HOST_PREFIX-$id.$region useradd $USER
         ssh $OCI_HOST_PREFIX-$id.$region svcadm disable smtp:sendmail
 
         for zone in ${ZONES[@]}
@@ -433,5 +433,5 @@ oci_region_zlogin () {
     local region=$1
     local zone=$2
     shift; shift;
-    oci_region_exec $region zlogin -l joe $zone "$@"
+    oci_region_exec $region zlogin -l $USER $zone "$@"
 }
