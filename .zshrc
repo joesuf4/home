@@ -499,14 +499,14 @@ oci_release () {
                 scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'lzop -d <$TMPFILE | zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
             done
 
-            for svc in ${OCI_SITE_SVCS[@]}
-            do
-                ssh $OCI_HOST_PREFIX-$id.$region svcadm enable site/$svc
-            done
-
             for zone in $(ls /system/zones)
             do
                 ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone reboot
+            done
+
+            for svc in ${OCI_SITE_SVCS[@]}
+            do
+                ssh $OCI_HOST_PREFIX-$id.$region svcadm enable site/$svc
             done
 
             echo $OCI_HOST_PREFIX-$id.$region release complete.
@@ -581,13 +581,29 @@ oci_rollback () {
     do
         for id in {1..$ad}
         do
+            for svc in ${OCI_SITE_SVCS[@]}
+            do
+                ssh $OCI_HOST_PREFIX-$id.$region svcadm disable site/$svc
+            done
+
             for volume in ${ZFS_EXPORTS[@]}
             do
                 local vol=${volume#*/}
                 ssh $OCI_HOST_PREFIX-$id.$region zfs rollback -R $OCI_ZPOOL/vol@$TARGET
             done
+
+            for zone in $(ls /system/zones)
+            do
+                ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone reboot
+            done
+
+            for svc in ${OCI_SITE_SVCS[@]}
+            do
+                ssh $OCI_HOST_PREFIX-$id.$region svcadm enable site/$svc
+            done
+
+            echo $OCI_HOST_PREFIX-$id.$region rollback complete.
         done
-        oci_svcs_region_action $region restart
     done
 
     echo Rolled back from $(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//') to $TARGET.
