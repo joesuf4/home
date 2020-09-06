@@ -81,7 +81,7 @@ _oci_post_sync () {
     _oci_pam_setup
 
     echo Post-sync prep complete: refreshing ssh connections to $region.
-    oci_region_sshd_enable_gwp $region
+    oci_region_ssh_enable_gwp $region
     rm -f ~/.ssh/sockets/*.$region*
     ~/bin/ssh-refresh.sh
 }
