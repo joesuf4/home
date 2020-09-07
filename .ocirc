@@ -410,7 +410,7 @@ oci_tail_logs () {
 
 oci_region_upgrade () {
     local region=$1
-    local slice=${2:-}
+    local slice=${2-}
     local ad=$OCI_AD[$region]
     for i in {1..$ad}
     do
