@@ -1,4 +1,4 @@
-# Oracle Cloud Infrastructure
+# Oracle Cloud Infrastructure        -*- sh -*-
 
 # Note:
 # _oci_$foo take no arguments: you must set $region and $ad in the env
