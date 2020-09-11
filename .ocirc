@@ -314,7 +314,8 @@ oci_ship_crons () {
             [[ -z "$slice" || $slice -eq $id ]] || continue
             for file in root httpd
             do
-                cat /var/spool/cron/crontabs/$file | perl -ple 's/sleep 0/"sleep " . int rand 100/e' | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'cat > /var/spool/cron/crontabs/$file && svcadm restart cron'" || return $?
+                local path=/var/spool/cron/crontabs/$file
+                perl -ple 's/sleep 0/"sleep " . int rand 100/e' $path | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'cat > $path && svcadm restart cron'" || return $?
             done
         done
     done
