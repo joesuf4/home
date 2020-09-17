@@ -473,8 +473,7 @@ function filter_extensions () {
 
         [ -n "$PFFXG_CACHE" -a -z "$refresh" -a -n "$PFFXG_COMPRESS" ] \
             && compression_suffix="[.]$cache_compression_extension"
-
-        grep -E "[.]($(echo $PFFXG_EXTENSIONS | tr ' ' '|')))([.][^./]+)*$compression_suffix\$"
+        grep -E "[.]($(echo $PFFXG_EXTENSIONS | tr ' ' '|'))([.][^./]+)*$compression_suffix\$"
     else
         cat
     fi
