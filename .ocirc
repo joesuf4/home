@@ -257,7 +257,7 @@ oci_release () {
         for id in {1..$ad}
         do
             [[ -z "$slice" || $slice -eq $id ]] || continue
-            echo Upgrading $OCI_HOST_PREFIX-$id.$region...
+            echo Releasing $ZULU to $OCI_HOST_PREFIX-$id.$region...
 
             for svc in ${OCI_SITE_SVCS[@]}
             do
@@ -291,7 +291,7 @@ oci_release () {
                 ssh $OCI_HOST_PREFIX-$id.$region svcadm enable site/$svc
             done
 
-            echo $OCI_HOST_PREFIX-$id.$region release complete.
+            echo $OCI_HOST_PREFIX-$id.$region $ZULU release complete.
         done
     done
 
@@ -302,7 +302,7 @@ oci_release () {
         ln -s -f .zulu-$ZULU ~/.zulu-last
     fi
     rm /tmp/oci-*
-    echo "Released $ZULU."
+    echo "Released $ZULU to OCI $slice"
 }
 
 oci_ship_crons () {
@@ -314,8 +314,8 @@ oci_ship_crons () {
             [[ -z "$slice" || $slice -eq $id ]] || continue
             for file in root httpd
             do
-                local path=/var/spool/cron/crontabs/$file
-                perl -ple 's/sleep 0/"sleep " . int rand 100/e' $path | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'cat > $path && svcadm restart cron'" || return $?
+                local cron_path=/var/spool/cron/crontabs/$file
+                perl -ple 's/sleep 0/"sleep " . int rand 100/e' $cron_path | ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'cat > $cron_path && svcadm restart cron'" || return $?
             done
         done
     done
