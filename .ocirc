@@ -1,6 +1,7 @@
 # Oracle Cloud Infrastructure        -*- sh -*-
 
-# Note:
+# Notes:
+# GNU-specific utility tooling throughout (primarily built to /usr/local)
 # _oci_$foo take no arguments: you must set $region and $ad in the env
 
 _oci_pre_sync () {
