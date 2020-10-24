@@ -1,4 +1,4 @@
-#!/usr/local/bin/zsh
+#!/usr/bin/env zsh
 
 H2_OPTS=(-n 100 -m)
 declare -A URL_ENC
