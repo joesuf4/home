@@ -3,6 +3,7 @@
 echo "$0: https://github.com/joesuf4/home/blob/master/bin/h2bench.sh"
 
 H2_OPTS=(-n 100 -m)
+
 declare -A URL_ENC
 declare -A RESULTS
 
@@ -34,22 +35,34 @@ report () {
     echo
 }
 
+benchmark () {
+    for url in ${(k)URL_ENC%%/*}
+    RESULTS[$url]=$(ping -c 1 $url | awk -F '[/]' '$5 {print $5}')
 
-for url in ${(k)URL_ENC%%/*}
-RESULTS[$url]=$(ping -c 1 $url | awk -F '[/]' '$5 {print $5}')
+    report "Ping(RTT) in ms"
 
-report "Ping(RTT) in ms"
-
-for url in ${(k)URL_ENC}
-RESULTS[$url]=$(curl -s -H "Accept-Encoding: $URL_ENC[$url]" https://$url | wc -c)
-
-DIVISOR=1000
-report "Content-Length in B"
-
-for i in 1 5 10 25
-do
     for url in ${(k)URL_ENC}
-    RESULTS[$url]=$(h2load $H2_OPTS $i -H "Accept-Encoding: $URL_ENC[$url]" https://$url | awk -F '[s, ]' '/^finished/ {print $4}')
+    RESULTS[$url]=$(curl -s $H2_COOKIE -H "Accept-Encoding: $URL_ENC[$url]" https://$url | wc -c)
 
-    report "h2load $H2_OPTS $i -- duration in s"
-done
+    DIVISOR=1000
+    report "Content-Length in B"
+
+    for i in 1 5 10 25
+    do
+        for url in ${(k)URL_ENC}
+        RESULTS[$url]=$(h2load $H2_COOKIE $H2_OPTS $i -H "Accept-Encoding: $URL_ENC[$url]" https://$url | awk -F '[s, ]' '/^finished/ {print $4}')
+
+        report "h2load $H2_OPTS $i -- duration in s"
+   done
+}
+
+echo "                 Static Page Delivery Benchmarks"
+benchmark
+
+URL_ENC=(
+    www.sunstarsys.com/cgi-bin/enquiry.pl br
+    'joesuf4.wordpress.com/wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=184609717' gz
+)
+
+echo "                Dynamic Page Delivery Benchmarks"
+benchmark
