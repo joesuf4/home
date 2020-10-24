@@ -8,9 +8,9 @@ declare -A URL_ENC
 declare -A RESULTS
 
 URL_ENC=(
-    # wordpress is nginx
+    # wordpress is nginx (doesn't support brotli)
     wordpress.com                                     gzip
-    # allstate is akamai
+    # allstate is akamai (doesn't support brotli)
     www.allstate.com                                  gzip
     # pagecloud is cloudflare
     www.pagecloud.com/blog                            br
