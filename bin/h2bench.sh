@@ -1,15 +1,23 @@
 #!/usr/bin/env zsh
 
+echo "$0: https://github.com/joesuf4/home/blob/master/bin/h2bench.sh"
+
+
 H2_OPTS=(-n 100 -m)
 declare -A URL_ENC
 declare -A RESULTS
 
 URL_ENC=(
+    # wordpress is nginx
     wordpress.com                                     gzip
+    # allstate is akamai
     www.allstate.com                                  gzip
+    # pagecloud is cloudflare
     www.pagecloud.com/blog                            br
+    # netlify is AWS
     www.netlify.com/blog                              br
-    www.sunstarsys.com/js/jquery.min                  br
+    # sunstarsys is OCI:httpd/2.4
+    www.sunstarsys.com/js/jquery.min.js               br
 )
 
 report () {
@@ -29,18 +37,18 @@ report () {
 for url in ${(k)URL_ENC%%/*}
 RESULTS[$url]=$(ping -c 1 $url | awk -F '[/]' '$5 {print $5}')
 
-report "Ping(RTT)"
+report "Ping(RTT) in ms"
 
 for url in ${(k)URL_ENC}
 RESULTS[$url]=$(curl -s -H "Accept-Encoding: $URL_ENC[$url]" https://$url | wc -c)
 
-DIVISOR=20000
-report "Content-Length(B)"
+DIVISOR=1000
+report "Content-Length in B"
 
 for i in 1 5 10 25
 do
     for url in ${(k)URL_ENC}
     RESULTS[$url]=$(h2load $H2_OPTS $i -H "Accept-Encoding: $URL_ENC[$url]" https://$url | awk -F '[s, ]' '/^finished/ {print $4}')
 
-    report "h2load $H2_OPTS $i"
+    report "h2load $H2_OPTS $i -- duration in s"
 done
