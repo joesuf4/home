@@ -11,6 +11,8 @@ URL_ENC=(
     wordpress.com                                     gzip
     # allstate is akamai (doesn't support brotli)
     www.allstate.com                                  gzip
+    # newyorker is fastly (doesn't support brotli)
+    www.newyorker.com/prebid.min.js                   gzip
     # pagecloud is cloudflare
     www.pagecloud.com/blog                            br
     # netlify is AWS
