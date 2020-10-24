@@ -2,7 +2,6 @@
 
 echo "$0: https://github.com/joesuf4/home/blob/master/bin/h2bench.sh"
 
-
 H2_OPTS=(-n 100 -m)
 declare -A URL_ENC
 declare -A RESULTS
