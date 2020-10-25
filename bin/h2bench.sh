@@ -40,6 +40,8 @@ benchmark () {
     done
 }
 
+# static urls w/ compression
+
 URL_ENC=(
     # wordpress is nginx (doesn't support brotli)
     wordpress.com                                     gzip
@@ -56,6 +58,8 @@ URL_ENC=(
 )
 
 benchmark "                 Static Page Delivery Benchmarks"
+
+# dynamic urls w/ compression
 
 URL_ENC=(
     # modperl registry
