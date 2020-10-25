@@ -41,14 +41,14 @@ benchmark () {
     report "Ping(RTT) in ms"
 
     for url in ${(k)URL_ENC}
-    RESULTS[$url]=$(curl -s $H2_COOKIE -H "Accept-Encoding: $URL_ENC[$url]" https://$url | wc -c)
+    RESULTS[$url]=$(curl -s $H2_COOKIE -H "Accept-Encoding: $URL_ENC[$url]" "https://$url" | wc -c)
 
     report "Content-Length in B" 1000
 
     for i in 1 5 10 25
     do
         for url in ${(k)URL_ENC}
-        RESULTS[$url]=$(h2load $H2_COOKIE $H2_OPTS $i -H "Accept-Encoding: $URL_ENC[$url]" https://$url | awk -F '[s, ]' '/^finished/ {print $4}')
+        RESULTS[$url]=$(h2load $H2_COOKIE $H2_OPTS $i -H "Accept-Encoding: $URL_ENC[$url]" "https://$url" | awk -F '[s, ]' '/^finished/ {print $4}')
 
         report "h2load $H2_OPTS $i -- duration in s"
    done
@@ -59,8 +59,10 @@ benchmark
 
 URL_ENC=(
     www.sunstarsys.com/cgi-bin/enquiry.pl br
-    'joesuf4.wordpress.com/wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=184609717' gz
+    'joesuf4.wordpress.com/wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=184609717' gzip
 )
+
+[ -f ~/.h2cookie ] && . ~/.h2cookie
 
 echo "                Dynamic Page Delivery Benchmarks"
 benchmark
