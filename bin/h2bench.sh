@@ -21,7 +21,7 @@ report () {
 
 benchmark () {
     echo
-    echo $@
+    echo "             $1, Compressed HTTP/2 Page Delivery Benchmarks"
     echo
 
     for url in ${(k)URL_ENC%%/*}
@@ -65,7 +65,7 @@ URL_ENC=(
     www.sunstarsys.com/js/jquery.min.js               br
 )
 
-benchmark "             Static, Compressed HTTP/2 Page Delivery Benchmarks"
+benchmark Static
 
 # dynamic urls w/ compression
 
@@ -79,4 +79,4 @@ URL_ENC=(
 
 [ -f ~/.h2cookie ] && . ~/.h2cookie
 
-benchmark "            Dynamic, Compressed HTTP/2 Page Delivery Benchmarks"
+benchmark Dynamic
