@@ -65,7 +65,7 @@ URL_ENC=(
     www.sunstarsys.com/js/jquery.min.js               br
 )
 
-benchmark "                 Static Page Delivery Benchmarks"
+benchmark "             Static, Compressed HTTP/2 Page Delivery Benchmarks"
 
 # dynamic urls w/ compression
 
@@ -79,4 +79,4 @@ URL_ENC=(
 
 [ -f ~/.h2cookie ] && . ~/.h2cookie
 
-benchmark "                Dynamic Page Delivery Benchmarks"
+benchmark "            Dynamic, Compressed HTTP/2 Page Delivery Benchmarks"
