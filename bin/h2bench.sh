@@ -35,6 +35,7 @@ report () {
 }
 
 benchmark () {
+    echo $@
     for url in ${(k)URL_ENC%%/*}
     RESULTS[$url]=$(ping -c 1 $url | awk -F '[/]' '$5 {print $5}')
 
@@ -54,8 +55,7 @@ benchmark () {
     done
 }
 
-echo "                 Static Page Delivery Benchmarks"
-benchmark
+benchmark "                 Static Page Delivery Benchmarks"
 
 URL_ENC=(
     www.sunstarsys.com/cgi-bin/enquiry.pl br
@@ -64,5 +64,4 @@ URL_ENC=(
 
 [ -f ~/.h2cookie ] && . ~/.h2cookie
 
-echo "                Dynamic Page Delivery Benchmarks"
-benchmark
+benchmark "                Dynamic Page Delivery Benchmarks"
