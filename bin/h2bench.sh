@@ -20,7 +20,10 @@ report () {
 }
 
 benchmark () {
+    echo
     echo $@
+    echo
+
     for url in ${(k)URL_ENC%%/*}
     RESULTS[$url]=$(ping -c 1 $url | awk -F '[/]' '$5 {print $5}')
 
@@ -45,14 +48,19 @@ benchmark () {
 URL_ENC=(
     # wordpress is nginx (doesn't support brotli)
     wordpress.com                                     gzip
+
     # allstate is akamai (doesn't support brotli)
     www.allstate.com                                  gzip
+
     # newyorker is fastly (doesn't support brotli)
     www.newyorker.com/prebid.min.js                   gzip
+
     # pagecloud is cloudflare
     www.pagecloud.com/blog                            br
+
     # netlify is AWS:custom
     www.netlify.com/blog                              br
+
     # sunstarsys is OCI:httpd/2.4
     www.sunstarsys.com/js/jquery.min.js               br
 )
@@ -62,8 +70,9 @@ benchmark "                 Static Page Delivery Benchmarks"
 # dynamic urls w/ compression
 
 URL_ENC=(
-    # modperl registry
-    www.sunstarsys.com/cgi-bin/enquiry.pl br
+    # simple modperl registry script
+    'www.sunstarsys.com/cgi-bin/enquiry.pl?lang=.en' br
+
     # tiny admin bar graphic
     'joesuf4.wordpress.com/wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=184609717' gzip
 )
