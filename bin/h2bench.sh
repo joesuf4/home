@@ -16,22 +16,21 @@ URL_ENC=(
     www.newyorker.com/prebid.min.js                   gzip
     # pagecloud is cloudflare
     www.pagecloud.com/blog                            br
-    # netlify is AWS
+    # netlify is AWS:custom
     www.netlify.com/blog                              br
     # sunstarsys is OCI:httpd/2.4
     www.sunstarsys.com/js/jquery.min.js               br
 )
 
 report () {
-    echo $@
+    echo $1
     echo --------------------
     for k v in ${(kv)RESULTS}
     do
         echo ${k%%/*} $v
-    done | perl -nale 'END{ printf "%20s: %s\n", $_, ("x" x ($h{$_} / '${DIVISOR-1}') . " $h{$_}") for sort {$h{$b} <=> $h{$a}} keys %h}
+    done | perl -nale 'END{ printf "%20s: %s\n", $_, ("x" x ($h{$_} / '${2-1}') . " $h{$_}") for sort {$h{$b} <=> $h{$a}} keys %h}
      tr/m//d && tr/.//d && s/^/./ for $F[1]; $h{$F[0]}=$F[1]'
     RESULTS=()
-    unset DIVISOR
     echo
 }
 
@@ -44,8 +43,7 @@ benchmark () {
     for url in ${(k)URL_ENC}
     RESULTS[$url]=$(curl -s $H2_COOKIE -H "Accept-Encoding: $URL_ENC[$url]" https://$url | wc -c)
 
-    DIVISOR=1000
-    report "Content-Length in B"
+    report "Content-Length in B" 1000
 
     for i in 1 5 10 25
     do
