@@ -7,21 +7,6 @@ H2_OPTS=(-n 100 -m)
 declare -A URL_ENC
 declare -A RESULTS
 
-URL_ENC=(
-    # wordpress is nginx (doesn't support brotli)
-    wordpress.com                                     gzip
-    # allstate is akamai (doesn't support brotli)
-    www.allstate.com                                  gzip
-    # newyorker is fastly (doesn't support brotli)
-    www.newyorker.com/prebid.min.js                   gzip
-    # pagecloud is cloudflare
-    www.pagecloud.com/blog                            br
-    # netlify is AWS:custom
-    www.netlify.com/blog                              br
-    # sunstarsys is OCI:httpd/2.4
-    www.sunstarsys.com/js/jquery.min.js               br
-)
-
 report () {
     echo $1
     echo --------------------
@@ -55,10 +40,27 @@ benchmark () {
     done
 }
 
+URL_ENC=(
+    # wordpress is nginx (doesn't support brotli)
+    wordpress.com                                     gzip
+    # allstate is akamai (doesn't support brotli)
+    www.allstate.com                                  gzip
+    # newyorker is fastly (doesn't support brotli)
+    www.newyorker.com/prebid.min.js                   gzip
+    # pagecloud is cloudflare
+    www.pagecloud.com/blog                            br
+    # netlify is AWS:custom
+    www.netlify.com/blog                              br
+    # sunstarsys is OCI:httpd/2.4
+    www.sunstarsys.com/js/jquery.min.js               br
+)
+
 benchmark "                 Static Page Delivery Benchmarks"
 
 URL_ENC=(
+    # modperl registry
     www.sunstarsys.com/cgi-bin/enquiry.pl br
+    # tiny admin bar graphic
     'joesuf4.wordpress.com/wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=184609717' gzip
 )
 
