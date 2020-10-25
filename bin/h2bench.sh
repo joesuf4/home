@@ -10,10 +10,11 @@ declare -A RESULTS
 report () {
     echo $1
     echo ----------------------
+    local DIVISOR=${2-1}
     for k v in ${(kv)RESULTS}
     do
         echo ${k%%/*} $v
-    done | perl -nale 'END{ printf "%22s: %s\n", $_, ("x" x ($h{$_} / '${2-1}') . " $h{$_}") for sort {$h{$b} <=> $h{$a}} keys %h}
+    done | perl -nale 'END{ printf "%22s: %s\n", $_, ("x" x ($h{$_} / '$DIVISOR') . " $h{$_}") for sort {$h{$b} <=> $h{$a}} keys %h}
      tr/m//d && tr/.//d && s/^/./ for $F[1]; $h{$F[0]}=$F[1]'
     RESULTS=()
     echo
