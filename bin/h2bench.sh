@@ -51,7 +51,7 @@ benchmark () {
         RESULTS[$url]=$(h2load $H2_COOKIE $H2_OPTS $i -H "Accept-Encoding: $URL_ENC[$url]" "https://$url" | awk -F '[s, ]' '/^finished/ {print $4}')
 
         report "h2load $H2_OPTS $i -- duration in s"
-   done
+    done
 }
 
 echo "                 Static Page Delivery Benchmarks"
