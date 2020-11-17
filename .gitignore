@@ -57,6 +57,7 @@
 .history
 .kde/
 .kderc
+.landscape/
 .lesshst
 .local/
 .lpoptions
@@ -65,6 +66,7 @@
 .mcop*
 .metacity/
 .mime.types
+.motd_shown
 .mozilla*/
 .mysql_history
 .nautilus/
