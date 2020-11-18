@@ -219,6 +219,4 @@ emac () {
 
 . ~/.ocirc
 
-[[ "$(whoami)" == "joe" && "$(hostname)" == "zeus" ]] && ssh-add
-
 true
