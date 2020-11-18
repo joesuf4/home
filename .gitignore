@@ -94,6 +94,7 @@
 .sqlite_history
 .ssh/
 .subversion/
+.sudo_as_admin_successful
 .sunw/
 .sversionrc
 .tarsnap.key
@@ -130,6 +131,7 @@ TODO
 VirtualBox VMs/
 \#*
 audio/
+bin/emacs
 bin/nproc
 bin/pty*
 bin/publish*

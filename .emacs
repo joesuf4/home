@@ -299,9 +299,6 @@
   (set-frame-parameter framenum 'alpha 90))
 (add-hook 'after-make-frame-functions 'transparency-90-hook)
 
-(color-theme-initialize)
-(color-theme-pok-wog)
-
 (put 'narrow-to-page 'disabled nil)
 (require 'page-ext)
 
@@ -327,3 +324,5 @@
 (setq outline-minor-mode-prefix "\C-c\C-o") ; outlining rebind
 (setq tab-stop-list '(2 4 8 12 16 24 32 40 48 56 64 72 80 88 96 104 112 120))
 (setq-default indent-tabs-mode nil)
+
+(ignore-errors (color-theme-initialize) (color-theme-pok-wog))
