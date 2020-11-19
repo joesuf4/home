@@ -179,6 +179,7 @@ alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
 alias htop='sudo -E htop'
 
+alias pty_screen='pty -d pty-driver.pl ssh-agent screen'
 
 # presumes a running emacs-server
 
