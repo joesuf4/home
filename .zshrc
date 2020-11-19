@@ -151,7 +151,7 @@ else
         SunOS)
             alias ls='ls --color=auto'
             alias grep='grep --color=auto'
-            PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
+            PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_CYAN%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
             ;;
         *)
             PROMPT=$'%n@%m:%~%(?..(%?%))%# '
