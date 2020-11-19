@@ -131,7 +131,7 @@ TODO
 VirtualBox VMs/
 \#*
 audio/
-bin/emacs
+bin/emacs*
 bin/nproc
 bin/pty*
 bin/publish*
