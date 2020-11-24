@@ -2,7 +2,7 @@
 # Connect via SSM to honorlock Instances by tag:hostname
 
 : ${PROFILE:=honorlock}
-HOSTNAME="$1"
+HOSTNAME="${1-list}"
 
 if [ "$HOSTNAME" = "list" ]; then
   echo "Listing SSM resources:"
