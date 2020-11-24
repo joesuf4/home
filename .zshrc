@@ -221,6 +221,7 @@ emac () {
     fi
 }
 
+. $(which aws_zsh_completer.sh)
 
 # return
 
