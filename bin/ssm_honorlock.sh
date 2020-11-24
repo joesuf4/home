@@ -1,7 +1,7 @@
 #!/bin/bash
 # Connect via SSM to honorlock Instances by tag:hostname
 
-PROFILE=honorlock
+: ${PROFILE:=honorlock}
 HOSTNAME="$1"
 
 if [ "$HOSTNAME" = "list" ]; then
