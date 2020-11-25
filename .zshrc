@@ -231,7 +231,7 @@ aws_push_ssh_public_key () {
 }
 
 aws_webapp_exec () {
-    echo "${(k)AWS_ID}" | tr ' ' '\n' | grep -e "-web-" | xargs -P $(nproc) -n 1 -i ssh {} sudo -u ubuntu bash -c "cd /var/www/html && $@"
+    echo "${(k)AWS_ID}" | tr ' ' '\n' | grep -e "-web-" | xargs -P $AWS_BATCH -n 1 -i ssh {} sudo -u ubuntu bash -c "cd /var/www/html && $@"
 }
 
 # return
