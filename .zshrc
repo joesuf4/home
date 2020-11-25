@@ -231,13 +231,13 @@ aws_push_ssh_public_key () {
 }
 
 aws_webapp_batch_exec () {
-    echo "${(k)AWS_ID}" | tr ' ' '\n' | grep -e "-web-" | xargs -P $AWS_BATCH -n 1 -i ssh {} sudo -u ubuntu bash -c "cd /var/www/html && $@"
+    echo "${(k)AWS_ID}" | tr ' ' '\n' | grep -e "-web-" | sort | xargs -P $AWS_BATCH -n 1 -i ssh {} sudo -u ubuntu bash -c "cd /var/www/html && $@"
 }
 
 aws_filter_terminal_exec () {
     local FILTER="${1-}"
     shift
-    for host in $(echo "${(k)AWS_ID}" | tr ' ' '\n' | grep -Pe "$FILTER"); ssh -t $host "$@"
+    for host in $(echo "${(k)AWS_ID}" | tr ' ' '\n' | sort | grep -Pe "$FILTER"); ssh -t $host "$@"
 }
 
 aws_inventory_profile () {
