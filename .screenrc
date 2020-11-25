@@ -18,4 +18,4 @@ bind c screen zsh
 bind ^C screen zsh
 bind z screen zsh -c '. ~/.zshrc; title "ssh zeus"; exec ssh -At zeus zsh'
 bind b screen zsh -c '. ~/.zshrc; title bash; exec bash'
-bind h screen zsh -c '. ~/.zshrc; title htop; exec sudo htop'
+bind h screen zsh -c '. ~/.zshrc; for host in $(aws ec2 describe-instances --profile=honorlock --filters "Name=tag:hlrole,Values=web" --output json | jq ".Reservations[].Instances[].Tags[]|select(.Key==\"hostname\").Value"); screen -X screen -t $host bash -c "pty -d ssm-driver.pl ssm_honorlock.sh $host"'
