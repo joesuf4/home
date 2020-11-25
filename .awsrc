@@ -7,7 +7,8 @@ export AWS_BATCH AWS_PROFILE
 
 function aws_inventory_profile () {
     AWS_PROFILE=${1-honorlock}
-    AWS_ID=($(ssm_honorlock.sh))
+    AWS_ID=()
+    for host id in $(ssm_honorlock.sh); do : ${AWS_ID[$host]:=$id}; done
 }
 
 function aws_list_inventory_filter () {
