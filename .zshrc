@@ -233,7 +233,7 @@ aws_push_ssh_public_key () {
 aws_batch_filter_exec () {
     local FILTER=${1-}
     shift
-    aws_list_inventory_filter "$FILTER" | xargs -P $AWS_BATCH -n 1 -i ssh {} sudo -u ubuntu bash -c "cd /var/www/html && $@"
+    aws_list_inventory_filter "$FILTER" | xargs -P $AWS_BATCH -i ssh {} sudo -u ubuntu bash -c "'cd /var/www/html && $@'"
 }
 
 aws_terminal_filter_exec () {
