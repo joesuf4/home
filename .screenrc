@@ -18,4 +18,5 @@ bind c screen zsh
 bind ^C screen zsh
 bind z screen zsh -c '. ~/.zshrc; title "ssh zeus"; exec ssh -At zeus zsh'
 bind b screen zsh -c '. ~/.zshrc; title bash; exec bash'
-bind h screen zsh -c '. ~/.zshenv; . ~/.zshrc; aws_screen_filter_exec "-web-" sudo -E htop'
+bind w screen zsh -c '. ~/.zshenv; . ~/.zshrc; aws_screen_filter_exec "-web-" sudo -E htop'
+bind q screen zsh -c '. ~/.zshenv; . ~/.zshrc; aws_screen_filter_exec "-q-" sudo -E htop'
