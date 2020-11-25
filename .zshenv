@@ -5,7 +5,9 @@ export VISUAL="emacs"
 export MOZILLA=firefox
 export EDITOR="emacs"
 export DISPLAY="$(awk '/nameserver/ {print $2;exit}' /etc/resolv.conf):0.0"
-export AWS_BATCH=4
+
+: ${AWS_BATCH:=4} ${AWS_PROFILE:=honorlock}
+export AWS_BATCH AWS_PROFILE
 declare -A AWS_ID=($(ssm_honorlock.sh))
 
 for p in /usr/ccs/bin /opt/sfw/bin /usr/sfw/bin /usr/sbin /sbin /usr/local/bin /usr/local/opt/python@3.8/bin \

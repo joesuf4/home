@@ -230,8 +230,19 @@ aws_push_ssh_public_key () {
     for host in "$@"; (sleep 2; echo 'mkdir -p ~/.ssh'; sleep 1; echo grep $USER '~/.ssh/authorized_keys' '||' echo "$pubs" '>> ~/.ssh/authorized_keys'; sleep 2) | pty ssm_honorlock.sh $host
 }
 
-aws_webapp_exec () {
+aws_webapp_batch_exec () {
     echo "${(k)AWS_ID}" | tr ' ' '\n' | grep -e "-web-" | xargs -P $AWS_BATCH -n 1 -i ssh {} sudo -u ubuntu bash -c "cd /var/www/html && $@"
+}
+
+aws_filter_terminal_exec () {
+    local FILTER="${1-}"
+    shift
+    for host in $(echo "${(k)AWS_ID}" | tr ' ' '\n' | grep -Pe "$FILTER"); ssh -t $host "$@"
+}
+
+aws_inventory_profile () {
+    AWS_PROFILE=${1-honorlock}
+    AWS_ID=($(ssm_honorlock.sh))
 }
 
 # return
