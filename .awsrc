@@ -42,7 +42,10 @@ function aws_terminal_filter_exec () {
 function aws_screen_filter_exec () {
     local FILTER="${1-}"
     shift
-    for host in $(aws_list_inventory_filter "$FILTER"); do screen -X screen -t $host ssh -t $host "$@"; done
+    for host in $(aws_list_inventory_filter "$FILTER")
+    do
+        screen -X screen -t $host sh -c "AWS_PROFILE=$AWS_PROFILE exec ssh -t $host \"$@\""
+    done
 }
 
 aws_inventory_profile $AWS_PROFILE
