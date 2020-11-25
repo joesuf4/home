@@ -221,7 +221,18 @@ emac () {
     fi
 }
 
+# aws
+
 . $(which aws_zsh_completer.sh)
+
+aws_push_ssh_public_key () {
+    local pubs="$(cat ~/.ssh/id_*.pub)"
+    for host in "$@"; (sleep 2; echo 'mkdir -p ~/.ssh'; sleep 1; echo grep $USER '~/.ssh/authorized_keys' '||' echo "$pubs" '>> ~/.ssh/authorized_keys'; sleep 2) | pty ssm_honorlock.sh $host
+}
+
+aws_webapp_exec () {
+    echo "${(k)AWS_ID}" | tr ' ' '\n' | grep -e "-web-" | xargs -P $(nproc) -n 1 -i ssh {} sudo -u ubuntu bash -c "cd /var/www/html && $@"
+}
 
 # return
 

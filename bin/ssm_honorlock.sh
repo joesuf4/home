@@ -5,8 +5,7 @@
 HOSTNAME="${1-list}"
 
 if [ "$HOSTNAME" = "list" ]; then
-  echo "Listing SSM resources:"
-  aws ec2 describe-instances --profile=$PROFILE --query "Reservations[].Instances[?not_null(Tags[?Key=='hostname'].Value)]|[].[Tags[?Key=='hostname'].Value|[0],InstanceId]" --output=table
+  aws ec2 describe-instances --profile=$PROFILE --query "Reservations[].Instances[?not_null(Tags[?Key=='hostname'].Value)]|[].[Tags[?Key=='hostname'].Value|[0],InstanceId]" --output=text
 
 else
   INSTANCE_ID=$(aws ec2 describe-instances --profile=$PROFILE --filters "Name=tag:hostname,Values=$HOSTNAME" --query 'Reservations[*].Instances[*].[InstanceId]' --output=text)
