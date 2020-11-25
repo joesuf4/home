@@ -225,37 +225,8 @@ emac () {
 
 . $(which aws_zsh_completer.sh)
 
-aws_push_ssh_public_key () {
-    local pubs="$(cat ~/.ssh/id_*.pub)"
-    for host in "$@"; (sleep 2; echo 'mkdir -p ~/.ssh'; sleep 1; echo grep $USER '~/.ssh/authorized_keys' '||' echo "$pubs" '>> ~/.ssh/authorized_keys'; sleep 2) | pty ssm_honorlock.sh $host
-}
+. ~/.awsrc
 
-aws_batch_filter_exec () {
-    local FILTER=${1-}
-    shift
-    aws_list_inventory_filter "$FILTER" | xargs -P $AWS_BATCH -i ssh {} sudo -u ubuntu bash -c "'cd /var/www/html && $@'"
-}
-
-aws_terminal_filter_exec () {
-    local FILTER="${1-}"
-    shift
-    for host in $(aws_list_inventory_filter "$FILTER"); ssh -t $host "$@"
-}
-
-aws_screen_filter_exec () {
-    local FILTER="${1-}"
-    shift
-    for host in $(aws_list_inventory_filter "$FILTER"); screen -X screen -t $host ssh -t $host "$@"
-}
-
-aws_inventory_profile () {
-    AWS_PROFILE=${1-honorlock}
-    AWS_ID=($(ssm_honorlock.sh))
-}
-
-aws_list_inventory_filter () {
-    echo "${(k)AWS_ID}" | tr ' ' '\n' | sort | grep -Pe "${1-}"
-}
 # return
 
 true
