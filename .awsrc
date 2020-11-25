@@ -15,7 +15,7 @@ function aws_inventory_profile () {
 }
 
 function aws_list_inventory_filter () {
-    ([ "$SHELL" = "zsh" ] && echo "${(k)AWS_ID}" || echo "${!AWS_ID[@]}") | tr ' ' '\n' | sort | grep -Pe "${1-}"
+    (echo "$SHELL" | grep -q "zsh" && echo "${(k)AWS_ID}" || echo "${!AWS_ID[@]}") | tr ' ' '\n' | sort | grep -Pe "${1-}"
 }
 
 function aws_push_ssh_public_key () {
