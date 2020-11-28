@@ -50,7 +50,7 @@ function aws_screen_filter_exec () {
     done
 }
 
-function aws_ship_htop_config_filter_bg () {
+function aws_htop_ship_config_filter_bg () {
     local FILTER="${1-}"
     shift
     for host in $(aws_list_inventory_filter "$FILTER")
