@@ -55,9 +55,8 @@ function aws_ship_htop_config_filter_bg () {
     shift
     for host in $(aws_list_inventory_filter "$FILTER")
     do
-        ssh $host sudo bash -c '"cat > /home/ssm-user/.config/htop/htoprc"' <~/.config/htop/htoprc & 2>&-
+        (ssh $host sudo bash -c '"cat > /home/ssm-user/.config/htop/htoprc"' <~/.config/htop/htoprc &)
     done
-    wait
 }
 
 aws_inventory_profile $AWS_PROFILE
