@@ -36,7 +36,7 @@ function aws_batch_filter_exec () {
 }
 
 function aws_terminal_filter_exec () {
-    local FILTER="${1-}"
+   local FILTER="${1-}"
     shift
     for host in $(aws_list_inventory_filter "$FILTER"); do ssh -t $host "$@"; done
 }
@@ -47,6 +47,15 @@ function aws_screen_filter_exec () {
     for host in $(aws_list_inventory_filter "$FILTER")
     do
         screen -X screen -t $host sh -c "AWS_PROFILE=$AWS_PROFILE "'ssh -t '"$host"' "$@"' -- "$@"
+    done
+}
+
+function aws_ship_htop_config_filter_bg () {
+    local FILTER="${1-}"
+    shift
+    for host in $(aws_list_inventory_filter "$FILTER")
+    do
+        (ssh $host sudo bash -c '"cat > /home/ssm-user/.config/htop/htoprc"' <~/.config/htop/htoprc &)
     done
 }
 
