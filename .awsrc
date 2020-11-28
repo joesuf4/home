@@ -1,5 +1,25 @@
 # -*- sh -*-
 
+# Embedded whitespace is a pain, so all shells compensate by doing magic
+# with this literal expression - "$@" - which tells the shell to list all the arguments
+# passed into this particular shell function from the command line, single-space-separated,
+# and wrap any of the whitespace-containing arguments in (internally escaped) ' '- quotes.
+
+# What's in this resource file that is difficult to deal with mentally, are the various
+# games that have to be played with this "$@" technique, to get whitespace cleanly
+# carried though to the target machines' command line.  It's not perfect, but workable.
+
+# The key automation principles implemented, are these:
+
+# 1. to use the (hostname tags) convention over configuration (aka hostname PCRE "$FILTER"),
+# 2. to deal with a consistent inventory (hostname tags) list as a whole via profile mgmt,
+# 3. to introduce the basic "batch processing techniques" of ansible with error (logging),
+# 4. to farm out all the profile switching details to ssm_honorlock.sh (as an assoc array),
+# 5. to farm out all the AWS ssm session txn management to a small (advanced) ~/.ssh/config.
+
+# All of these principles will factor into the ansible orchestration work to come next.
+
+
 declare -A AWS_ID
 
 : ${AWS_BATCH:=4} ${AWS_PROFILE:=honorlock}
