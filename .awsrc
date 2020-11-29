@@ -56,7 +56,7 @@ function aws_batch_filter_exec () {
     aws_list_inventory_filter "$FILTER" | xargs -P $AWS_BATCH -i ssh {} sudo -u ubuntu \
         bash -c '"cd /var/www/html && ((\"\$@\") 2>&1 \
         || echo '"$fg[red]$bg[white]error$reset_color"': \"[\"\$@\"]\" failed with status code \$?) \
-        | while read line; do echo \"'"$fg[green]{}$reset_color:"'\" \$line; done"' -- "$@"
+        | while read line; do echo \"'"$fg_bold[green]{}$reset_color:"'\" \$line; done"' -- "$@"
 }
 
 function aws_terminal_filter_exec () {
