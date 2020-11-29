@@ -51,6 +51,7 @@ function aws_push_ssh_public_key () {
               echo "$pubs" '>> ~/.ssh/authorized_keys'; sleep 2
         ) | pty ssm_honorlock.sh $host &
     done
+    wait
 }
 
 function aws_batch_filter_exec () {
