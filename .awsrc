@@ -60,7 +60,7 @@ function aws_batch_filter_exec () {
 }
 
 function aws_terminal_filter_exec () {
-   local FILTER="${1-}"
+    local FILTER="${1-}"
     shift
     for host in $(aws_list_inventory_filter "$FILTER"); do ssh -t $host "$@"; done
 }
