@@ -40,7 +40,7 @@ function aws_list_inventory_filter () {
         | tr ' ' '\n' | sort | grep -Pe "${1-}"
 }
 
-function aws_bootstrap_ssh_public_key () {
+function aws_push_ssh_public_key () {
     local FILTER=${1-}
     local pubs="$(cat ~/.ssh/id_*.pub)"
 
