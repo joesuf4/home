@@ -53,10 +53,14 @@ function aws_push_ssh_public_key () {
 function aws_batch_filter_exec () {
     local FILTER=${1-}
     shift
+
+    local errstr="$(tput bold)$(tput setaf 1)$(tput setab 0)error$(tput sgr0)"
+    local prefix="$(tput bold)$(tput setaf 2){}$(tput sgr0)"
+
     aws_list_inventory_filter "$FILTER" | xargs -P $AWS_BATCH -i ssh {} sudo -u ubuntu \
         bash -c '"cd /var/www/html && ((\"\$@\") 2>&1 \
-        || echo \"'"$fg_bold[red]$bg[black]error$reset_color"':\" \"[\"\$@\"]\" failed with status code \$?) \
-        | while read line; do echo \"'"$fg_bold[green]{}$reset_color:"'\" \$line; done"' -- "$@"
+        || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) \
+        | while read line; do echo \"'"$prefix"':\" \$line; done"' -- "$@"
 }
 
 function aws_terminal_filter_exec () {
