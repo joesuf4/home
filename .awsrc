@@ -15,7 +15,8 @@
 # 2. to deal with a consistent inventory (hostname tags) list as a whole via profile mgmt,
 # 3. to introduce the basic "batch processing techniques" of ansible with errors (logging),
 # 4. to farm out all the profile switching details to ssm_honorlock.sh (as an assoc array),
-# 5. to farm out all the AWS ssm session txn management to a small (advanced) ~/.ssh/config.
+# 5. to farm out all the AWS ssm session txn management to a small (advanced) ~/.ssh/config,
+# 6. introdude conceptual idempotency into the CLI mix.
 
 # All of these principles will factor into the ansible orchestration work to come next.
 
@@ -66,12 +67,14 @@ function aws_batch_filter_exec () {
 function aws_terminal_filter_exec () {
     local FILTER="${1-}"
     shift
+
     for host in $(aws_list_inventory_filter "$FILTER"); do ssh -t $host "$@"; done
 }
 
 function aws_screen_filter_exec () {
     local FILTER="${1-}"
     shift
+
     for host in $(aws_list_inventory_filter "$FILTER")
     do
         screen -X screen -t $host $SHELL -c \
@@ -82,6 +85,7 @@ function aws_screen_filter_exec () {
 function aws_htop_ship_config_filter_bg () {
     local FILTER="${1-}"
     shift
+
     for host in $(aws_list_inventory_filter "$FILTER")
     do
         ssh $host sudo bash -c \
