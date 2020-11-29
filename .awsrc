@@ -67,7 +67,7 @@ function aws_screen_filter_exec () {
     shift
     for host in $(aws_list_inventory_filter "$FILTER")
     do
-        screen -X screen -t $host sh -c "AWS_PROFILE=$AWS_PROFILE "'ssh -t '"$host"' "$@"' -- "$@"
+        screen -X screen -t $host $SHELL -c "AWS_PROFILE=$AWS_PROFILE "'ssh -t '"$host"' "$@"' -- "$@"
     done
 }
 
