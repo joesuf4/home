@@ -35,14 +35,17 @@ function aws_inventory_profile () {
 }
 
 function aws_list_inventory_filter () {
-    (echo "$SHELL" | grep -q "zsh" && echo "${(k)AWS_ID}" || echo "${!AWS_ID[@]}") | tr ' ' '\n' | sort | grep -Pe "${1-}"
+    (echo "$SHELL" | grep -q "zsh" && echo "${(k)AWS_ID}" || echo "${!AWS_ID[@]}") \
+        | tr ' ' '\n' | sort | grep -Pe "${1-}"
 }
 
 function aws_push_ssh_public_key () {
     local pubs="$(cat ~/.ssh/id_*.pub)"
     for host in "$@"
     do
-        (sleep 2; echo 'mkdir -p ~/.ssh'; sleep 1; echo grep "$USER@" '~/.ssh/authorized_keys' '||' echo "$pubs" '>> ~/.ssh/authorized_keys'; sleep 2
+        (sleep 2; echo 'mkdir -p ~/.ssh'; sleep 1; \
+         echo grep "$USER@" '~/.ssh/authorized_keys' '||' \
+              echo "$pubs" '>> ~/.ssh/authorized_keys'; sleep 2
         ) | pty ssm_honorlock.sh $host &
     done
 }
@@ -67,7 +70,8 @@ function aws_screen_filter_exec () {
     shift
     for host in $(aws_list_inventory_filter "$FILTER")
     do
-        screen -X screen -t $host $SHELL -c "AWS_PROFILE=$AWS_PROFILE "'ssh -t '"$host"' "$@"' -- "$@"
+        screen -X screen -t $host $SHELL -c \
+               "AWS_PROFILE=$AWS_PROFILE "'ssh -t '"$host"' "$@"' -- "$@"
     done
 }
 
@@ -76,7 +80,8 @@ function aws_htop_ship_config_filter_bg () {
     shift
     for host in $(aws_list_inventory_filter "$FILTER")
     do
-        ssh $host sudo bash -c '"cat > /home/ssm-user/.config/htop/htoprc"' <~/.config/htop/htoprc &
+        ssh $host sudo bash -c \
+            '"cat > /home/ssm-user/.config/htop/htoprc"' < ~/.config/htop/htoprc &
     done
     wait
 }
