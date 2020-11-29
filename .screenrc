@@ -1,6 +1,7 @@
 startup_message off
 
-# scrollback settings
+# scrollback settings (activates mouse-wheel at xterm level, so merges visible-tty history)
+# alternative technique: "^T[" to enter screen hacker's paradise
 defscrollback 8192
 termcapinfo * ti@:te@
 
