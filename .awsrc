@@ -41,8 +41,10 @@ function aws_list_inventory_filter () {
 }
 
 function aws_push_ssh_public_key () {
+    local FILTER=${1-}
     local pubs="$(cat ~/.ssh/id_*.pub)"
-    for host in "$@"
+
+    for host in $(aws_list_inventory_filter "$FILTER")
     do
         (sleep 2; echo 'mkdir -p ~/.ssh'; sleep 1; \
          echo grep "$USER@" '~/.ssh/authorized_keys' '||' \
