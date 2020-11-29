@@ -36,7 +36,7 @@ function aws_inventory_profile () {
 }
 
 function aws_list_inventory_filter () {
-    (echo "$SHELL" | grep -q "zsh" && echo "${(k)AWS_ID}" || echo "${!AWS_ID[@]}") \
+    (echo $SHELL | grep -q bash && echo "${!AWS_ID[@]}" || echo "${(k)AWS_ID}") \
         | tr ' ' '\n' | sort | grep -Pe "${1-}"
 }
 
