@@ -136,6 +136,7 @@ VirtualBox VMs/
 \#*
 audio/
 bin/emacs*
+bin/isatty
 bin/nproc
 bin/pty*
 bin/publish*

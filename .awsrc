@@ -61,8 +61,13 @@ function aws_batch_filter_exec () {
     local FILTER=${1-}
     shift
 
-    local errstr="$(tput bold)$(tput setaf 1)$(tput setab 0)error$(tput sgr0)"
-    local prefix="$(tput bold)$(tput setaf 2){}$(tput sgr0)"
+    if isatty 1; then
+        local errstr="$(tput bold)$(tput setaf 1)$(tput setab 0)error$(tput sgr0)"
+        local prefix="$(tput bold)$(tput setaf 2){}$(tput sgr0)"
+    else
+        local errstr="error"
+        local prefix="{}"
+    fi
 
     aws_list_inventory_filter "$FILTER" | xargs -P $AWS_BATCH -i ssh {} sudo -u ubuntu \
         bash -c '"cd /var/www/html && ((\"\$@\") 2>&1 \
