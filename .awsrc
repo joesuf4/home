@@ -57,7 +57,38 @@ function aws_push_ssh_public_key () {
     wait
 }
 
-function aws_batch_filter_shell () {
+function aws_terminal_filter_exec () {
+    local FILTER="${1-}"
+    shift
+
+    for host in $(aws_list_inventory_filter "$FILTER"); do ssh -t $host "$@"; done
+}
+
+
+function aws_htop_ship_config_filter_bg () {
+    local FILTER="${1-}"
+    shift
+
+    for host in $(aws_list_inventory_filter "$FILTER")
+    do
+        ssh $host sudo bash -c \
+            '"cat > /home/ssm-user/.config/htop/htoprc"' < ~/.config/htop/htoprc &
+    done
+    wait
+}
+
+function aws_screen_filter_local_shell () {
+    local FILTER="${1-}"
+    shift
+
+    for host in $(aws_list_inventory_filter "$FILTER")
+    do
+        screen -X screen $SHELL -c \
+               "AWS_PROFILE=$AWS_PROFILE; . ~/.$(basename $SHELL)rc; title $host; ssh -t $host \"\$@\"" -- "$@"
+    done
+}
+
+function aws_batch_filter_remote_shell () {
     local FILTER=${1-}
     shift
 
@@ -78,36 +109,6 @@ function aws_batch_filter_shell () {
         bash -c '"cd /var/www/html && (eval \"\$0\" \
         || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 \
         | while read line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
-}
-
-function aws_terminal_filter_exec () {
-    local FILTER="${1-}"
-    shift
-
-    for host in $(aws_list_inventory_filter "$FILTER"); do ssh -t $host "$@"; done
-}
-
-function aws_screen_filter_shell () {
-    local FILTER="${1-}"
-    shift
-
-    for host in $(aws_list_inventory_filter "$FILTER")
-    do
-        screen -X screen $SHELL -c \
-               "AWS_PROFILE=$AWS_PROFILE; . ~/.$(basename $SHELL)rc; title $host; ssh -t $host \"\$@\"" -- "$@"
-    done
-}
-
-function aws_htop_ship_config_filter_bg () {
-    local FILTER="${1-}"
-    shift
-
-    for host in $(aws_list_inventory_filter "$FILTER")
-    do
-        ssh $host sudo bash -c \
-            '"cat > /home/ssm-user/.config/htop/htoprc"' < ~/.config/htop/htoprc &
-    done
-    wait
 }
 
 aws_inventory_profile $AWS_PROFILE
