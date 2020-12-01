@@ -30,13 +30,13 @@ function aws_inventory_profile () {
     AWS_PROFILE=${1-honorlock}
     eval "AWS_ID=($(ssm_honorlock.sh | while read host id
            do
-               echo $SHELL | grep -q bash && echo [$host]=$id || echo $host $id
+               [ "$(basename $SHELL)" = "bash" ] && echo [$host]=$id || echo $host $id
 	   done
 	  ))"
 }
 
 function aws_list_inventory_filter () {
-    (echo $SHELL | grep -q bash && echo "${!AWS_ID[@]}" || echo "${(k)AWS_ID}") \
+    ([ "$(basename $SHELL)" = "bash" ] && echo "${!AWS_ID[@]}" || echo "${(k)AWS_ID}") \
         | tr ' ' '\n' | sort | grep -Pe "${1-}"
 }
 
@@ -94,7 +94,7 @@ function aws_screen_filter_shell () {
     for host in $(aws_list_inventory_filter "$FILTER")
     do
         screen -X screen $SHELL -c \
-               ". ~/.${SHELL##*/}rc; title $host;AWS_PROFILE=$AWS_PROFILE "'ssh -t '"$host"' "$@"' -- "$@"
+               "AWS_PROFILE=$AWS_PROFILE; . ~/.$(basename $SHELL)rc; title $host; ssh -t $host \"\$@\"" -- "$@"
     done
 }
 
