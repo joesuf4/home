@@ -61,7 +61,9 @@ function aws_batch_filter_shell () {
     local FILTER=${1-}
     shift
 
-    if isatty 1; then
+    if isatty 1
+    then
+        # black = 0, red = 1, green = 2
         local errstr="$(tput bold)$(tput setaf 1)$(tput setab 0)error$(tput sgr0)"
         local prefix="$(tput bold)$(tput setaf 2){}$(tput sgr0)"
     else
