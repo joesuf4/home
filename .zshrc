@@ -130,7 +130,7 @@ _ssh_host_completion () {
     fi
 }
 
-_ssh_host_completion
+#_ssh_host_completion
 
 
 # various platform colorized prompts (and basic utils)
