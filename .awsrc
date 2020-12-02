@@ -64,7 +64,6 @@ function aws_terminal_filter_exec () {
     for host in $(aws_list_inventory_filter "$FILTER"); do ssh -t $host "$@"; done
 }
 
-
 function aws_htop_ship_config_filter_bg () {
     local FILTER="${1-}"
     shift
