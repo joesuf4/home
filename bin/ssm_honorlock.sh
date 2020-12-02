@@ -1,7 +1,7 @@
 #!/bin/bash
 # Connect via SSM to honorlock Instances by tag:hostname
 
-: ${AWS_PROFILE:=honorlock}
+: ${AWS_PROFILE:=prod-us-east-1}
 HOSTNAME="${1-list}"
 
 if [ "$HOSTNAME" = "list" ]; then

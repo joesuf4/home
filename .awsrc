@@ -23,11 +23,11 @@
 
 declare -A AWS_ID
 
-: ${AWS_BATCH:=4} ${AWS_PROFILE:=honorlock}
+: ${AWS_BATCH:=4} ${AWS_PROFILE:=prod-us-east-1}
 export AWS_BATCH AWS_PROFILE
 
 function aws_inventory_profile () {
-    AWS_PROFILE=${1-honorlock}
+    AWS_PROFILE=${1-prod-us-east-1}
     eval "AWS_ID=($(ssm_honorlock.sh | while read host id
            do
                [ "$(basename $SHELL)" = "bash" ] && echo [$host]=$id || echo $host $id
