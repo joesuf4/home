@@ -102,7 +102,7 @@ RPROMPT='$vcs_info_msg_0_'
 autoload -U compinit
 compinit
 
-_aws_profile_config=($(grep -P '^\[[a-z0-9- ]+\]$' ~/.aws/config | tr -d '[]' | cut -d' ' -f2))
+_aws_profile_config=($(grep -P '^\[profile [a-z0-9-]+\]$' ~/.aws/config | tr -d '[]' | cut -d' ' -f2))
 
 _aws_inventory_profile () {
     local state
