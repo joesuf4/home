@@ -102,36 +102,19 @@ RPROMPT='$vcs_info_msg_0_'
 autoload -U compinit
 compinit
 
-_ssh_zsh_config_hosts=($(grep '^Host' ~/.ssh/config 2>/dev/null | sed -e 's/^Host//'))
+_aws_profile_config=($(grep -P '^\[[a-z0-9- ]+\]$' ~/.aws/config | tr -d '[]' | cut -d' ' -f2))
 
-_ssh_zsh () {
+_aws_inventory_profile () {
     local state
 
-    _arguments '1: :->ssh_host'
+    _arguments '1: :->aws_profile'
 
     case $state in
-        (ssh_host) _arguments "1:ssh_hosts:($_ssh_zsh_config_hosts)" ;;
+        (aws_profile) _arguments "1:aws_profile:($_aws_profile_config)" ;;
     esac
 }
 
-ssh_zsh () {
-    /usr/bin/ssh -Y -t $@ -- zsh
-}
-
-compdef _ssh_zsh ssh_zsh
-
-_ssh_host_completion () {
-    local h
-    h=($_ssh_zsh_config_hosts $(grep -v '^#' /etc/hosts | awk '{print $2}'))
-    if [[ $#h -gt 0 ]]; then
-        for x in ssh scp sftp rsync; do
-            zstyle ":completion:*:$x:*" hosts $h
-        done
-    fi
-}
-
-#_ssh_host_completion
-
+compdef _aws_inventory_profile aws_inventory_profile
 
 # various platform colorized prompts (and basic utils)
 
