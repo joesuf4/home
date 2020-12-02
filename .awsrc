@@ -111,6 +111,10 @@ function aws_batch_filter_remote_shell () {
         | while read line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
 }
 
+alias aws_apache2_error="AWS_BATCH=30 aws_batch_filter_remote_shell -web- tail -F /var/log/apache2/error.log '|' grep --color=always --line-buffered ':error]'"
+
+alias aws_laravel_warning_error="AWS_BATCH=30 aws_batch_filter_remote_shell -web- tail -F '/var/www/html/storage/logs/laravel-\$(date -Idate).log' '|' grep --color=always --line-buffered -Pe 'WARNING\|ERROR'"
+
 aws_inventory_profile $AWS_PROFILE
 
 true
