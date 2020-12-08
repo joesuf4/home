@@ -164,6 +164,9 @@ alias htop='sudo -E htop'
 
 alias pty_screen='pty -d pty-driver.pl ssh-agent screen'
 
+alias top_10='perl -nale "END{ print \"\$_\\t\" . (\"x\" x \$h{\$_}) . \" \$h{\$_}\" for sort {\$h{\$b} <=> \$h{\$a}} keys %h} \$h{\$F[0]} = \$F[1]" | head'
+
+
 # presumes a running emacs-server
 
 emac () {
