@@ -10,6 +10,7 @@
 .acrobat/
 .adobe/
 .alsaplayer/
+.angular-config.json
 .ansible/
 .apache-test/
 .aptitude/
@@ -54,6 +55,7 @@
 .gtik.conf
 .gtklp/
 .gtkrc*
+.h2cookie
 .history
 .kde/
 .kderc
@@ -100,6 +102,7 @@
 .thumbnails/
 .user60.rdb
 .viminfo
+.vnc/
 .vscode/
 .w3m/
 .wireshark/
@@ -123,6 +126,7 @@ Mail/
 Movies/
 Music/
 News/
+OneDrive/
 Pictures/
 PLAN.md
 Public/
