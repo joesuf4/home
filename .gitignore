@@ -131,6 +131,7 @@ TODO
 VirtualBox VMs/
 \#*
 audio/
+bin/isatty
 bin/nproc
 bin/pty*
 bin/publish*
