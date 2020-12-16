@@ -9,7 +9,7 @@ do
     for id in {1..$ad}
     do
         [[ -z "$slice" || $slice -eq $id ]] || continue
-        ssh $OCI_HOST_PREFIX-$id.$region true
+        ssh $OCI_HOST_PREFIX-$id.$region echo $region ok
     done
 done
 
