@@ -56,12 +56,14 @@ PR_RESET="%{${reset_color}%}";
 # window titles
 
 title () {
+    setopt unset
     # screen title
     [[ "$TERM" == "screen" || "$(uname)" == "SunOS" ]] && print -Pn "\ek$1\e\\"
     # xterm title
     print -Pn "\e]0;%n@%m: "
-    print -rn $1
+    print -rn "$1"
     print -Pn " [%j]\a"
+    unsetopt unset
 }
 
 precmd () {
