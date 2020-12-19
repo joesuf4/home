@@ -150,7 +150,7 @@ else
         FreeBSD|Darwin)
             alias ls='ls -G'
             alias grep='grep --color=auto'
-            PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
+            PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_BRIGHT_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
             ;;
 
         Linux)
