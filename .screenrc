@@ -12,6 +12,6 @@ hardstatus alwayslastline "%w"
 
 bind c screen zsh
 bind ^C screen zsh
-bind z screen zsh -c '. ~/.zshrc; title "ssh zeus"; exec ssh -t zeus ssh-agent zsh'
+bind z screen ssh -A zeus
 bind b screen zsh -c '. ~/.zshrc; title bash; exec bash'
 bind h screen zsh -c '. ~/.zshrc; title htop; exec sudo htop'
