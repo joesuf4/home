@@ -8,9 +8,7 @@ vbell on
 defutf8 on
 defdynamictitle on
 
-hardstatus on
-hardstatus alwayslastline
-hardstatus string "%w"
+hardstatus alwayslastline "%w"
 
 bind c screen zsh
 bind ^C screen zsh
