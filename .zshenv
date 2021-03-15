@@ -1,4 +1,4 @@
-export GIT_COLORS=fn=36
+export GREP_COLORS=fn=36
 export LANG=en_US.UTF-8
 export LESSCHARSET=utf-8
 export PAGER=less
