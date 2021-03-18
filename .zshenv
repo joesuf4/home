@@ -5,7 +5,6 @@ export PAGER=less
 export VISUAL="emacs"
 export MOZILLA=firefox
 export EDITOR="emacs"
-export DISPLAY="$(awk '/nameserver/ {print $2;exit}' /etc/resolv.conf):0.0"
 
 for p in /usr/sbin /sbin /usr/local/bin $HOME/bin
 do
