@@ -212,7 +212,7 @@ emac () {
 
 # aws
 
-. $(which aws_zsh_completer.sh)
+. /usr/share/zsh/vendor-completions/_awscli
 
 . ~/.awsrc
 
