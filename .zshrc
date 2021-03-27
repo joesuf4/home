@@ -1,7 +1,8 @@
 HISTSIZE=1000
 SAVEHIST=1000
 HISTFILE=~/.zsh_history
-setopt share_history extended_history hist_expire_dups_first hist_no_store prompt_subst extendedglob
+setopt share_history extended_history hist_expire_dups_first hist_no_store \
+       prompt_subst extendedglob
 unsetopt unset
 
 
@@ -99,24 +100,31 @@ zstyle ':vcs_info:*' enable svn git
 RPROMPT='$vcs_info_msg_0_'
 
 
-# ssh_zsh() for remote systems that are bash-login based
+# custom tab-completion
 
 autoload -U compinit
 compinit
 
-_aws_profile_config=($(grep -P '^\[profile [a-z0-9-]+\]$' ~/.aws/config | tr -d '[]' | cut -d' ' -f2))
+_bcs_account=($(grep -P '(?!^.*[A-Z$])^.*"\w+"\)$'  ~/.bcsrc | tr -d '"|)'))
+_bcs_role=(bx_root bx_admin bx_user tfe)
 
-_aws_inventory_profile () {
+_bcs_assume_role () {
     local state
 
-    _arguments '1: :->aws_profile'
+    _arguments '1: :->bcs_account' '2: :->bcs_role'
 
     case $state in
-        (aws_profile) _arguments "1:aws_profile:($_aws_profile_config)" ;;
+        (bcs_account)
+            _arguments "1:bcs_account:($_bcs_account)"
+            ;;
+
+        (bcs_role)
+            _arguments "2:bsc_role:($_bcs_role)"
+            ;;
     esac
 }
 
-compdef _aws_inventory_profile aws_inventory_profile
+compdef _bcs_assume_role bcs_assume_role
 
 # various platform colorized prompts (and basic utils)
 
@@ -136,7 +144,7 @@ else
         Linux)
             alias ls='ls --color=auto'
             alias grep='grep --color=auto'
-            PROMPT=$'$PR_GREEN$AWS_PROFILE$PR_RESET:$PR_CYAN%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%#$PR_RESET '
+            PROMPT=$'$PR_GREEN$BCS_PROFILE$PR_RESET:$PR_CYAN%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%#$PR_RESET '
             ;;
 
         SunOS)
@@ -166,7 +174,7 @@ alias htop='sudo -E htop'
 
 alias pty_screen='pty -d pty-driver.pl ssh-agent screen'
 
-alias top_10='perl -nale "END{ print \"\$_\\t\" . (\"x\" x \$h{\$_}) . \" \$h{\$_}\" for sort {\$h{\$b} <=> \$h{\$a}} keys %h} \$h{\$F[0]} = \$F[1]" | head'
+alias top_10='perl -nale "END{ print \"\$_\\t\" . (\"x\" x ${LOG-}(\$h{\$_}/${DIVISOR-1}) . \" \$h{\$_}\" for sort {\$h{\$b} <=> \$h{\$a}} keys %h} \$h{\$F[0]} = \$F[1]" | head'
 
 alias set_date='sudo date -s "$(date.exe)"'
 
@@ -216,6 +224,8 @@ emac () {
 
 . ~/.awsrc
 
+. ~/.bcsrc
+
 # return
 
-true
+:

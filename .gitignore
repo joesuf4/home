@@ -19,6 +19,7 @@
 .bash_profile
 .bashrc
 .bbdb
+.bcsrc
 .bluefish/
 .cache/
 .chess-save
@@ -78,6 +79,7 @@
 .npm/
 .nnmail-cache
 .openoffice.org2/
+.oprc
 .oracle*/
 .plan
 .plugin141_02.trace
@@ -139,6 +141,7 @@ audio/
 bin/emacs*
 bin/isatty
 bin/nproc
+bin/op
 bin/pty*
 bin/publish*
 bin/script.sh
