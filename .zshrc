@@ -105,8 +105,8 @@ RPROMPT='$vcs_info_msg_0_'
 autoload -U compinit
 compinit
 
-_bcs_account=($(grep -P '(?!^.*[A-Z$])^.*"\w+"\)$'  ~/.bcsrc | tr -d '"|)'))
-_bcs_role=(bx_root bx_admin bx_user tfe)
+_bcs_account=($(grep -P '[\w-]+\s*\).*;;'  ~/.bcsrc | tr -dc 'a-z -' | sed -e 's/echo//g'))
+_bcs_role=(bx_root bx_admin bx_readonly tfe)
 
 _bcs_assume_role () {
     local state
