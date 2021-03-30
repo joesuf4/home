@@ -125,17 +125,17 @@ _bcs_assume_role () {
 }
 
 
-function _aws_reload () {
-    _aws_hosts=(${(k)AWS_ID})
+function _ec2_reload () {
+    _ec2_hosts=(${(k)EC2_ID})
 
-    for fcn in aws_list_inventory_filter aws_push_ssh_public_key aws_terminal_filter_exec aws_batch_filter_remote_shell aws_screen_filter_terminal_exec aws_htop_ship_config_filter_bg; do
+    for fcn in ec2_list_inventory_filter ec2_push_ssh_public_key ec2_terminal_filter_exec ec2_batch_filter_remote_shell ec2_screen_filter_terminal_exec ec2_htop_ship_config_filter_bg; do
         eval "
           _$fcn () {
             local state;
-            _arguments '1: :->aws_host'
+            _arguments '1: :->ec2_host'
             case \$state in
-                (aws_host)
-                    _arguments \"1:aws_host:(\$_aws_hosts)\";;
+                (ec2_host)
+                    _arguments \"1:ec2_host:(\$_ec2_hosts)\";;
             esac
          }
          compdef _$fcn $fcn
@@ -241,7 +241,7 @@ emac () {
 
 . /usr/share/zsh/vendor-completions/_awscli
 
-. ~/.awsrc
+. ~/.ec2rc
 
 . ~/.bcsrc
 
