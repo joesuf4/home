@@ -124,6 +124,25 @@ _bcs_assume_role () {
     esac
 }
 
+
+function _aws_reload () {
+    _aws_hosts=(${(k)AWS_ID})
+
+    for fcn in aws_list_inventory_filter aws_push_ssh_public_key aws_terminal_filter_exec aws_batch_filter_remote_shell aws_screen_filter_terminal_exec aws_htop_ship_config_filter_bg; do
+        eval "
+          _$fcn () {
+            local state;
+            _arguments '1: :->aws_host'
+            case \$state in
+                (aws_host)
+                    _arguments \"1:aws_host:(\$_aws_hosts)\";;
+            esac
+         }
+         compdef _$fcn $fcn
+         "
+    done
+}
+
 compdef _bcs_assume_role bcs_assume_role
 
 # various platform colorized prompts (and basic utils)
