@@ -45,6 +45,7 @@
 .gconfd/
 .gimp-*/
 .gitk
+.git-credentials
 .gksu.lock
 .gnome/
 .gnome2/
@@ -115,22 +116,43 @@
 .xvpics/
 .zcompdump
 .zsh_history
+3D\ Objects/
+ACLI/
+AppData/
 Applications/
+Application\ Data
+Contacts/
+Cookies
 Desktop/
 Documents/
 Downloads/
 Dropbox/
+Favorites/
 Google Drive/
+Intel*/
 Library/
+Links/
+Local\ Settings
 Mail/
 Movies/
 Music/
+My\ Documents
+NTUSER*
+NetHood
 News/
 OneDrive/
 Pictures/
 PLAN.md
+PrintHood
 Public/
+Recent
+Saved\ Games/
+Searches/
+SendTo
+Start\ Menu
+Templates
 TODO
+Videos/
 VirtualBox VMs/
 \#*
 audio/
@@ -143,9 +165,11 @@ build/
 console.out
 crons/
 dead.letter
+emacs-*/
 lib/
 libexec/
 node_modules/
+ntuser*
 private/
 public_html/
 share/

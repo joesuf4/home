@@ -143,7 +143,7 @@
 ;--------------------------------------------------
 ;; grep-buffer on pffxg.sh runs
 
-(defvar pffxg-command "pffxg.sh ")
+(defvar pffxg-command "bash pffxg.sh")
 (defun pffxg (command-args)
   (interactive
    (progn

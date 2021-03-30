@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+PATH=/usr/local/bin:/usr/bin
 # SPDX License Identifier: Apache License 2.0
 #
 # Parallel Find Filename Xargs Grep (pffxg).
