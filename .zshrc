@@ -66,7 +66,7 @@ title () {
     # screen title
     echo "$TERM" | grep -q "screen" || [[ "$(uname)" == "SunOS" ]] && print -Pn "\ek$1\e\\"
     # xterm title
-    print -Pn "\e]0;%n@%m: "
+    print -Pn "\e]0;$BCS_PROFILE: "
     print -rn $1
     print -Pn " [%j]\a"
     unsetopt unset
@@ -168,7 +168,7 @@ else
         Linux)
             alias ls='ls --color=auto'
             alias grep='grep --color=auto'
-            PROMPT=$'$PR_GREEN$BCS_PROFILE$PR_RESET:$PR_CYAN%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%#$PR_RESET '
+            PROMPT=$'$PR_CYAN%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%#$PR_RESET '
             ;;
 
         SunOS)
