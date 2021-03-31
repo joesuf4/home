@@ -5,7 +5,6 @@ setopt share_history extended_history hist_expire_dups_first hist_no_store \
        prompt_subst extendedglob
 unsetopt unset
 
-
 # ctrl-(up/down/left/right) bindings
 
 if [[ "$(uname)" == "Darwin" ]]; then
