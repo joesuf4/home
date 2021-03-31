@@ -25,6 +25,32 @@ declare -A EC2_ID
 : ${EC2_BATCH:=4}
 export EC2_BATCH
 
+function _ec2_reload_completions () {
+    [ "$(basename $SHELL)" = "zsh" ] || return 1
+    _ec2_hosts=(${(k)EC2_ID})
+
+    # custom tab-completion
+    autoload -U compinit
+    compinit
+
+    for fcn in list_inventory_filter push_ssh_public_key terminal_filter_exec \
+               batch_filter_remote_shell screen_filter_terminal_exec \
+               htop_ship_config_filter_bg
+    do
+        eval "
+          function _ec2_$fcn () {
+            local state;
+            _arguments '1: :->ec2_host'
+            case \$state in
+                (ec2_host)
+                    _arguments \"1:ec2_host:(\$_ec2_hosts)\";;
+            esac
+          }
+          compdef _ec2_$fcn ec2_$fcn
+          "
+    done
+}
+
 function ec2_load_inventory () {
 
     : ${EC2_ID_SRC:=$(ec2-ssm-helper.sh | while read host id
@@ -113,32 +139,4 @@ function ec2_batch_filter_remote_shell () {
         | while read line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
 }
 
-function _ec2_reload_completions () {
-    [ "$(basename $SHELL)" = "zsh" ] || return 1
-    _ec2_hosts=(${(k)EC2_ID})
-
-    # custom tab-completion
-    autoload -U compinit
-    compinit
-
-    for fcn in list_inventory_filter push_ssh_public_key terminal_filter_exec \
-               batch_filter_remote_shell screen_filter_terminal_exec \
-               htop_ship_config_filter_bg
-    do
-        eval "
-          _ec2_$fcn () {
-            local state;
-            _arguments '1: :->ec2_host'
-            case \$state in
-                (ec2_host)
-                    _arguments \"1:ec2_host:(\$_ec2_hosts)\";;
-            esac
-         }
-         compdef _ec2_$fcn ec2_$fcn
-         "
-    done
-}
-
-ec2_load_inventory >/dev/null 2>&1
-
-:
+ec2_load_inventory

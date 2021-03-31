@@ -195,11 +195,5 @@ emac () {
 # aws
 
 . /usr/share/zsh/vendor-completions/_awscli
-
-. ~/.ec2rc
-
 . ~/.bcsrc
-
-# return
-
-:
+. ~/.ec2rc
