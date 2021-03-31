@@ -27,7 +27,7 @@ export EC2_BATCH
 
 function ec2_load_inventory () {
 
-    : ${EC2_ID_SRC:=$(ssm-helper.sh | while read host id
+    : ${EC2_ID_SRC:=$(ec2-ssm-helper.sh | while read host id
            do
                [ "$(basename $SHELL)" = "bash" ] && echo [$host]=$id || echo $host $id
 	   done
@@ -55,7 +55,7 @@ function ec2_push_ssh_public_key () {
         (sleep 2; echo 'mkdir -p ~/.ssh'; sleep 1; \
          echo grep "$USER@" '~/.ssh/authorized_keys' '||' \
               echo "$pubs" '>> ~/.ssh/authorized_keys'; sleep 2
-        ) | pty ssm-helper.sh $host &
+        ) | pty ec2-ssm-helper.sh $host &
     done
     wait
 }
