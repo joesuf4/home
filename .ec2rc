@@ -33,7 +33,7 @@ function ec2_load_inventory () {
 	   done
 	  )}
     eval "EC2_ID=( $EC2_ID_SRC )"
-    [ "$(basename $SHELL)" = "zsh" ] && _ec2_reload
+    _ec2_reload
 
     export EC2_ID_SRC
 }
@@ -113,12 +113,32 @@ function ec2_batch_filter_remote_shell () {
         | while read line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
 }
 
-alias ec2_apache2_error="EC2_BATCH=30 ec2_batch_filter_remote_shell -web- tail -F /var/log/apache2/error.log '|' grep --color=always --line-buffered ':error]'"
+function _ec2_reload () {
+    [ "$(basename $SHELL)" = "zsh" ] || return 1
+    _ec2_hosts=(${(k)EC2_ID})
 
-alias ec2_laravel_warning_error="EC2_BATCH=30 ec2_batch_filter_remote_shell -web- tail -F '/var/www/html/storage/logs/laravel-\$(date -Idate).log' '|' grep --color=always --line-buffered -Pe 'WARNING\|ERROR'"
+    # custom tab-completion
+    autoload -U compinit
+    compinit
 
-alias ec2_httpd_kids="EC2_BATCH=30 ec2_batch_filter_remote_shell -web- pgrep -u www-data apache2 '|' wc -l"
+    for fcn in list_inventory_filter push_ssh_public_key terminal_filter_exec \
+               batch_filter_remote_shell screen_filter_terminal_exec \
+               htop_ship_config_filter_bg
+    do
+        eval "
+          _ec2_$fcn () {
+            local state;
+            _arguments '1: :->ec2_host'
+            case \$state in
+                (ec2_host)
+                    _arguments \"1:ec2_host:(\$_ec2_hosts)\";;
+            esac
+         }
+         compdef _ec2_$fcn ec2_$fcn
+         "
+    done
+}
 
-[ -n "${BCS_PROFILE-}" ] && ec2_load_inventory >/dev/null 2>&1
+ec2_load_inventory >/dev/null 2>&1
 
 :

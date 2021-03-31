@@ -100,56 +100,6 @@ zstyle ':vcs_info:*' enable svn git
 RPROMPT='$vcs_info_msg_0_'
 
 
-# custom tab-completion
-
-autoload -U compinit
-compinit
-
-_bcs_account=($(grep -P '[\w-]+\s*\).*;;'  ~/.bcsrc | tr -dc 'a-z -' | sed -e 's/echo//g'))
-_bcs_role=(bx_root bx_super bx_admin bx_readonly tfe)
-_bcs_region=(us-east-1 us-east-2)
-
-_bcs_assume_role () {
-    local state
-
-    _arguments '1: :->bcs_account' '2: :->bcs_role' '3: :->bcs_region'
-
-    case $state in
-        (bcs_account)
-            _arguments "1:bcs_account:($_bcs_account)"
-            ;;
-
-        (bcs_role)
-            _arguments "2:bsc_role:($_bcs_role)"
-            ;;
-
-        (bcs_region)
-            _arguments "3:bsc_region:($_bcs_region)"
-            ;;
-    esac
-}
-
-
-function _ec2_reload () {
-    _ec2_hosts=(${(k)EC2_ID})
-
-    for fcn in ec2_list_inventory_filter ec2_push_ssh_public_key ec2_terminal_filter_exec ec2_batch_filter_remote_shell ec2_screen_filter_terminal_exec ec2_htop_ship_config_filter_bg; do
-        eval "
-          _$fcn () {
-            local state;
-            _arguments '1: :->ec2_host'
-            case \$state in
-                (ec2_host)
-                    _arguments \"1:ec2_host:(\$_ec2_hosts)\";;
-            esac
-         }
-         compdef _$fcn $fcn
-         "
-    done
-}
-
-compdef _bcs_assume_role bcs_assume_role
-
 # various platform colorized prompts (and basic utils)
 
 if [[ ${EMACS+} == t ]]; then
