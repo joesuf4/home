@@ -145,8 +145,6 @@ alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
 alias htop='sudo -E htop'
 
-alias pty_screen='pty -d pty-driver.pl ssh-agent screen'
-
 alias top_10='perl -nale "END{ print \"\$_\\t\" . (\"x\" x ${FCN-}(\$h{\$_}/${DIVISOR-1}) . \" \$h{\$_}\" for sort {\$h{\$b} <=> \$h{\$a}} keys %h} \$h{\$F[0]} = \$F[1]" | head'
 
 alias set_date='sudo date -s "$(date.exe)"'
@@ -196,3 +194,15 @@ emac () {
 . /usr/share/zsh/vendor-completions/_awscli
 . ~/.bcsrc
 . ~/.ec2rc
+
+# pty
+
+function bcs_pty_screen () {
+    pty -d pty-driver.pl -- ssh-agent zsh -c "
+     autoload -U compinit;
+     compinit;
+     . ~/.bcsrc;
+     . ~/.ec2rc
+     bcs_assume_role ${1-apps-test} ${2-bx_admin} ${3-us-east-2} && screen
+"
+}
