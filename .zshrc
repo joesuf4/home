@@ -194,15 +194,3 @@ emac () {
 . /usr/share/zsh/vendor-completions/_awscli
 . ~/.bcsrc
 . ~/.ec2rc
-
-# pty
-
-function bcs_pty_screen () {
-    pty -d pty-driver.pl -- ssh-agent zsh -c "
-     autoload -U compinit;
-     compinit;
-     . ~/.bcsrc;
-     . ~/.ec2rc
-     bcs_assume_role ${1-apps-test} ${2-bx_admin} ${3-us-east-2} && screen
-"
-}
