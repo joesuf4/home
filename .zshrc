@@ -107,11 +107,12 @@ compinit
 
 _bcs_account=($(grep -P '[\w-]+\s*\).*;;'  ~/.bcsrc | tr -dc 'a-z -' | sed -e 's/echo//g'))
 _bcs_role=(bx_root bx_super bx_admin bx_readonly tfe)
+_bcs_region=(us-east-1 us-east-2)
 
 _bcs_assume_role () {
     local state
 
-    _arguments '1: :->bcs_account' '2: :->bcs_role'
+    _arguments '1: :->bcs_account' '2: :->bcs_role' '3: :->bcs_region'
 
     case $state in
         (bcs_account)
@@ -120,6 +121,10 @@ _bcs_assume_role () {
 
         (bcs_role)
             _arguments "2:bsc_role:($_bcs_role)"
+            ;;
+
+        (bcs_region)
+            _arguments "3:bsc_region:($_bcs_region)"
             ;;
     esac
 }
