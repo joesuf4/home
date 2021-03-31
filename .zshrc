@@ -1,5 +1,5 @@
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=10000
+SAVEHIST=10000
 HISTFILE=~/.zsh_history
 setopt share_history extended_history hist_expire_dups_first hist_no_store \
        prompt_subst extendedglob
@@ -147,7 +147,7 @@ alias htop='sudo -E htop'
 
 alias pty_screen='pty -d pty-driver.pl ssh-agent screen'
 
-alias top_10='perl -nale "END{ print \"\$_\\t\" . (\"x\" x ${LOG-}(\$h{\$_}/${DIVISOR-1}) . \" \$h{\$_}\" for sort {\$h{\$b} <=> \$h{\$a}} keys %h} \$h{\$F[0]} = \$F[1]" | head'
+alias top_10='perl -nale "END{ print \"\$_\\t\" . (\"x\" x ${FCN-}(\$h{\$_}/${DIVISOR-1}) . \" \$h{\$_}\" for sort {\$h{\$b} <=> \$h{\$a}} keys %h} \$h{\$F[0]} = \$F[1]" | head'
 
 alias set_date='sudo date -s "$(date.exe)"'
 
