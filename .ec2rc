@@ -33,7 +33,7 @@ function ec2_load_inventory () {
 	   done
 	  )}
     eval "EC2_ID=( $EC2_ID_SRC )"
-    _ec2_reload
+    _ec2_reload_completions
 
     export EC2_ID_SRC
 }
@@ -113,7 +113,7 @@ function ec2_batch_filter_remote_shell () {
         | while read line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
 }
 
-function _ec2_reload () {
+function _ec2_reload_completions () {
     [ "$(basename $SHELL)" = "zsh" ] || return 1
     _ec2_hosts=(${(k)EC2_ID})
 
