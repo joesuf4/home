@@ -191,6 +191,8 @@ emac () {
 
 # aws
 
-. /usr/share/zsh/vendor-completions/_awscli
+autocomplete -Uz bashcompinit
+bashcompinit -i
 . ~/.bcsrc
 . ~/.ec2rc
+complete -C aws_completer aws
