@@ -191,7 +191,7 @@ emac () {
 
 # aws
 
-autocomplete -Uz bashcompinit
+autoload -Uz bashcompinit
 bashcompinit -i
 . ~/.bcsrc
 . ~/.ec2rc
