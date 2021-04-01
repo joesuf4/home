@@ -74,10 +74,10 @@ function ec2_push_ssh_public_key () {
 
     for host in $(ec2_list_inventory_filter "$FILTER")
     do
-        (sleep 2; echo 'mkdir -p ~/.ssh'; sleep 1; \
+        (sleep 20; echo 'mkdir -p ~/.ssh'; sleep 1; \
          echo grep "$USER@" '~/.ssh/authorized_keys' '||' \
               echo "$pubs" '>> ~/.ssh/authorized_keys'; sleep 2
-        ) | pty ec2-ssm-helper.sh $host &
+        ) | pty -n -- ec2-ssm-helper.sh $host &
     done
     wait
 }
