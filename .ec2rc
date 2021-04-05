@@ -108,7 +108,7 @@ function ec2_screen_filter_terminal_exec () {
     for host in $(ec2_list_inventory_filter "$FILTER")
     do
         screen -X screen $SHELL -c \
-               ". ~/.$(basename $SHELL)rc; title $host; ssh -t $host \"\$@\"" -- "$@"
+               ". ~/.$(basename $SHELL)rc; title :$host:; ssh -t $host \"\$@\"" -- "$@"
     done
 }
 
@@ -129,8 +129,8 @@ function ec2_batch_filter_remote_shell () {
         local prefix="{}"
     fi
 
-    ec2_list_inventory_filter "$FILTER" | xargs -P $EC2_BATCH -i ssh {} sudo -u ubuntu \
-        bash -c '"cd /var/www/html && (eval \"\$0\" \
+    ec2_list_inventory_filter "$FILTER" | xargs -P $EC2_BATCH -i ssh {} \
+        bash -c '"(eval \"\$0\" \
         || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 \
         | while read line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
 }
