@@ -20,7 +20,3 @@ hardstatus on
 hardstatus alwayslastline
 hardstatus string "%w"
 defdynamictitle on
-
-bind c screen zsh
-bind ^C screen zsh
-bind b screen zsh -c 'SHELL=bash exec bash'

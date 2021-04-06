@@ -105,7 +105,7 @@ function ec2_screen_filter_terminal_exec () {
     for host in $(ec2_list_inventory_filter "$FILTER")
     do
         screen -X screen $SHELL -c \
-               ". ~/.$(basename $SHELL)rc; title :$host:; ssh -t $host \"\$@\"" -- "$@"
+               ". ~/.bcsrc; _bcs_title :$host:; ssh -t $host \"\$@\"" -- "$@"
     done
 }
 
