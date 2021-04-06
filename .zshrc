@@ -1,6 +1,7 @@
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
+
 setopt share_history extended_history hist_expire_dups_first hist_no_store \
        prompt_subst extendedglob
 unsetopt unset
@@ -61,19 +62,9 @@ eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 
 # window titles
 
-title () {
-    setopt unset
-    # screen title
-    echo "$TERM" | grep -q "screen" || [[ "$(uname)" == "SunOS" ]] && print -Pn "\ek$1\e\\"
-    # xterm title
-    print -Pn "\e]0;$BCS_PROFILE: "
-    print -rn $1
-    print -Pn " [%j]\a"
-    unsetopt unset
-}
 
 precmd () {
-    title "zsh"
+    bcs_title "zsh"
 
     if [[ -z $(git ls-files --other --exclude-standard 2> /dev/null) ]] {
         zstyle ':vcs_info:*' formats "[${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_RESET}]"
@@ -84,7 +75,7 @@ precmd () {
     vcs_info 2>/dev/null
 }
 
-preexec () { title $2 }
+preexec () { bcs_title $2 }
 
 
 # VCS status RPROMPT
@@ -191,10 +182,10 @@ emac () {
 }
 
 # aws
-if [ $(basename $SHELL) = "zsh" ]; then
-   autoload -Uz bashcompinit
-   bashcompinit -i
-   complete -C aws_completer aws
-fi
+
+autoload -Uz bashcompinit
+bashcompinit -i
+complete -C aws_completer aws
+
 . ~/.bcsrc
 . ~/.ec2rc
