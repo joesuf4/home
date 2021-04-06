@@ -577,9 +577,9 @@ function single_quote () {
 
 # bash exports
 
-export refresh cache_compression_extension \
+export refresh cache_compression_extension PFFXG_EXCLUSIONS \
        PFFXG_EXTENSIONS PFFXG_CACHE PFFXG_COMPRESS PFFXG_COMPRESSOR PFFXG_LEVEL
-export -f unzip_prefix filter_extensions process_cache compress_cache
+export -f unzip_prefix filter_exclusions filter_extensions process_cache compress_cache
 
 
 # In this program, $PFFXG_WORKERS caps the concurrency of the xargs -P targets.
@@ -608,8 +608,7 @@ find_args="$(ls -A | filter_exclusions | wc -l | awk "{printf \"%d\", \$1 / $PFF
 
 ls -A | filter_exclusions | xargs -r -d '\n' -P $PFFXG_WORKERS -n $find_args bash -c \
     'find "$@" -type f '$not' -name '"$(single_quote "$filename")"' \
-    | grep -vE "/('"$(echo $my_exclusions | tr ' ' '|')"')/" \
-    | filter_extensions \
+    | filter_exclusions | filter_extensions \
     '" switched from single to double quotes in outer bash script \
     | xargs -r -d '\\n' -P $PFFXG_WORKERS -n $PFFXG_ARGS bash -c \
     '
