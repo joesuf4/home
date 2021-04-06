@@ -190,9 +190,10 @@ emac () {
 }
 
 # aws
-
-autoload -Uz bashcompinit
-bashcompinit -i
+if [ $(basename $SHELL) = "zsh" ]; then
+   autoload -Uz bashcompinit
+   bashcompinit -i
+   complete -C aws_completer aws
+fi
 . ~/.bcsrc
 . ~/.ec2rc
-complete -C aws_completer aws

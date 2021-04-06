@@ -26,7 +26,7 @@ declare -A EC2_ID
 export EC2_BATCH EC2_ID_SRC
 
 
-if [ $(basename $SHELL) = "zsh" ]; then
+if [[ $(basename $SHELL) == "zsh" ]]; then
     declare -a _ec2_hosts
     function _ec2_inventory_hosts () {
         local state;
@@ -49,7 +49,7 @@ function _ec2_load_inventory () {
 
     : ${EC2_ID_SRC:=$(ec2-ssm-helper.sh | while read host id
            do
-               [ "$(basename $SHELL)" = "bash" ] && echo [$host]=$id || echo $host $id
+               [[ "$(basename $SHELL)" == "bash" ]] && echo [$host]=$id || echo $host $id
 	   done
 	  )}
     eval "EC2_ID=( $EC2_ID_SRC )"
@@ -57,7 +57,7 @@ function _ec2_load_inventory () {
 }
 
 function ec2_list_inventory_filter () {
-    ([ "$(basename $SHELL)" = "bash" ] && echo "${!EC2_ID[@]}" || echo "${(k)EC2_ID}") \
+    ([[ "$(basename $SHELL)" == "bash" ]] && echo "${!EC2_ID[@]}" || echo "${(k)EC2_ID}") \
         | tr ' ' '\n' | sort | grep -Pe "${1-}"
 }
 
@@ -112,7 +112,7 @@ function ec2_batch_filter_remote_shell () {
     local FILTER="${1-}"
     shift
 
-    if isatty 1
+    if [[ -t 1 ]]
     then
         # ANSI color indexes: black = 0, red = 1, green = 2
         # setaf = Set ANSI foreground
