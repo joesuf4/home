@@ -65,7 +65,7 @@ eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 # window/screen title hooks
 
 precmd () {
-    bcs_title "zsh"
+    _bcs_title "zsh"
 
     if [[ -z $(git ls-files --other --exclude-standard 2> /dev/null) ]] {
         zstyle ':vcs_info:*' formats "[${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_RESET}]"
@@ -76,7 +76,7 @@ precmd () {
     vcs_info 2>/dev/null
 }
 
-preexec () { bcs_title $2 }
+preexec () { _bcs_title $2 }
 
 
 # VCS status RPROMPT
