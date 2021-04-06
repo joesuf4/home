@@ -23,4 +23,4 @@ defdynamictitle on
 
 bind c screen zsh
 bind ^C screen zsh
-bind b screen bash
+bind b screen zsh -c 'SHELL=bash exec bash'

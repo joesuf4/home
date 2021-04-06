@@ -6,6 +6,7 @@ setopt share_history extended_history hist_expire_dups_first hist_no_store \
        prompt_subst extendedglob
 unsetopt unset
 
+
 # ctrl-(up/down/left/right) bindings
 
 if [[ "$(uname)" == "Darwin" ]]; then
@@ -60,8 +61,8 @@ PR_RESET="%{${reset_color}%}";
 
 eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 
-# window titles
 
+# window/screen title hooks
 
 precmd () {
     bcs_title "zsh"
