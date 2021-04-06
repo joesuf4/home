@@ -54,6 +54,7 @@ function _ec2_load_inventory () {
 	  )}
     eval "EC2_ID=( $EC2_ID_SRC )"
     [ $(basename $SHELL) = "zsh" ] && _ec2_hosts=(${(k)EC2_ID})
+    return 0
 }
 
 function ec2_list_inventory_filter () {

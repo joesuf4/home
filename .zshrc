@@ -57,6 +57,7 @@ for COLOR in RED GREEN YELLOW WHITE BLACK CYAN BLUE MAGENTA; do
 done
 PR_RESET="%{${reset_color}%}";
 
+eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 
 # window titles
 
