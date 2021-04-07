@@ -26,24 +26,35 @@ declare -A EC2_ID
 export EC2_BATCH EC2_ID_SRC
 
 
-if [[ $(basename $SHELL) == "zsh" ]]; then
-    declare -a _ec2_hosts
-    function _ec2_inventory_hosts () {
-        local state;
-        _arguments '1: :->ec2_host'
-        case $state in
-            (ec2_host)
-                _arguments "1:ec2_host:($_ec2_hosts)";;
-        esac
-    }
+declare -a _ec2_hosts
+
+function _ec2_inventory_hosts () {
+    local state;
+    _arguments '1: :->ec2_host'
+    case $state in
+        (ec2_host)
+            _arguments "1:ec2_host:($_ec2_hosts)";;
+    esac
+}
+
+function _ec2_host_completion () {
+    if [[ $(basename $SHELL) = "zsh" ]]; then
+        _ec2_hosts=(${(k)EC2_ID})
+    else
+        _ec2_hosts=(${!EC2_ID[@]})
+    fi
 
     for fcn in list_inventory_filter push_ssh_public_key terminal_filter_exec \
                batch_filter_remote_shell screen_filter_terminal_exec \
                htop_ship_config_filter_bg
     do
-        compdef _ec2_inventory_hosts ec2_$fcn
+        if [[ $(basename $SHELL) == "zsh" ]]; then
+            compdef _ec2_inventory_hosts ec2_$fcn
+        else
+            complete -W '${_ec2_hosts[@]}' ec2_$fcn
+        fi
     done
-fi
+}
 
 function _ec2_load_inventory () {
 
@@ -53,8 +64,7 @@ function _ec2_load_inventory () {
 	   done
 	  )}
     eval "EC2_ID=( $EC2_ID_SRC )"
-    [ $(basename $SHELL) = "zsh" ] && _ec2_hosts=(${(k)EC2_ID})
-    return 0
+    _ec2_host_completion
 }
 
 function ec2_list_inventory_filter () {
