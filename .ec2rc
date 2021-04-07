@@ -40,8 +40,10 @@ function _ec2_inventory_hosts () {
 function _ec2_host_completion () {
     if [[ $(basename $SHELL) = "zsh" ]]; then
         _ec2_hosts=(${(k)EC2_ID})
+        compdef _ec2_inventory_hosts ec2-ssm-helper.sh
     else
         _ec2_hosts=(${!EC2_ID[@]})
+        complete -W '${_ec2_hosts[@]}' ec2-ssm-helper.sh
     fi
 
     for fcn in list_inventory_filter push_ssh_public_key terminal_filter_exec \
@@ -54,6 +56,7 @@ function _ec2_host_completion () {
             complete -W '${_ec2_hosts[@]}' ec2_$fcn
         fi
     done
+    return 0
 }
 
 function _ec2_load_inventory () {
@@ -81,7 +84,7 @@ function ec2_push_ssh_public_key () {
 
     for host in $(ec2_list_inventory_filter "$FILTER")
     do
-        (sleep 20; echo 'mkdir -p ~/.ssh'; sleep 1; \
+        (sleep ${DELAY-20}; echo 'mkdir -p ~/.ssh'; sleep 1; \
          echo grep "$USER@" '~/.ssh/authorized_keys' '||' \
               echo "$pubs" '>> ~/.ssh/authorized_keys'; sleep 2
         ) | pty -n -- ec2-ssm-helper.sh $host &
