@@ -25,7 +25,7 @@ bindkey '5D' emacs-backward-word
 
 # directory stuff
 
-nd () { export $1=$PWD; : ~$1 }
+nd () { eval "$1='$PWD'"; ~$1 }
 DIRSTACKSIZE=8
 setopt autocd autopushd pushdminus pushdsilent pushdtohome
 alias dh='dirs -v'
