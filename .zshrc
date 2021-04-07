@@ -30,6 +30,7 @@ DIRSTACKSIZE=8
 setopt autocd autopushd pushdminus pushdsilent pushdtohome
 alias dh='dirs -v'
 
+winhome=/mnt/c/Users/$USER
 
 # typescript file walker
 
