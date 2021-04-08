@@ -29,119 +29,120 @@ export EC2_BATCH EC2_ID_SRC
 declare -a _ec2_hosts
 
 function _ec2_inventory_hosts () {
-    local state;
-    _arguments '1: :->ec2_host'
-    case $state in
-        (ec2_host)
-            _arguments "1:ec2_host:($_ec2_hosts)";;
-    esac
+  local state;
+  _arguments '1: :->ec2_host'
+  case $state in
+    (ec2_host)
+       _arguments "1:ec2_host:($_ec2_hosts)";;
+  esac
 }
 
 function _ec2_host_completion () {
-    if [[ $(basename $SHELL) = "zsh" ]]; then
-        _ec2_hosts=(${(k)EC2_ID})
-        compdef _ec2_inventory_hosts ec2-ssm-helper.sh
-    else
-        _ec2_hosts=(${!EC2_ID[@]})
-        complete -W '${_ec2_hosts[@]}' ec2-ssm-helper.sh
-    fi
+  if [[ $(basename "$SHELL") = "zsh" ]]; then
+    _ec2_hosts=(${(k)EC2_ID})
+    compdef _ec2_inventory_hosts ec2-ssm-helper.sh
+  else
+    _ec2_hosts=(${!EC2_ID[@]})
+    complete -W '${_ec2_hosts[@]}' ec2-ssm-helper.sh
+  fi
 
-    for fcn in list_inventory_filter push_ssh_public_key terminal_filter_exec \
-               batch_filter_remote_shell screen_filter_terminal_exec \
-               htop_ship_config_filter_bg
-    do
-        if [[ $(basename $SHELL) == "zsh" ]]; then
-            compdef _ec2_inventory_hosts ec2_$fcn
-        else
-            complete -W '${_ec2_hosts[@]}' ec2_$fcn
-        fi
-    done
-    return 0
+  for fcn in list_inventory_filter push_ssh_public_key terminal_filter_exec \
+             batch_filter_remote_shell screen_filter_terminal_exec \
+             htop_ship_config_filter_bg
+  do
+    if [[ $(basename "$SHELL") == "zsh" ]]; then
+      compdef _ec2_inventory_hosts ec2_$fcn
+    else
+      complete -W '${_ec2_hosts[@]}' ec2_$fcn
+    fi
+  done
+
+  return 0
 }
 
 function _ec2_load_inventory () {
 
-    : ${EC2_ID_SRC:=$(ec2-ssm-helper.sh | while read host id
-           do
-               [[ "$(basename $SHELL)" == "bash" ]] && echo [$host]=$id || echo $host $id
-	   done
-	  )}
-    eval "EC2_ID=( $EC2_ID_SRC )"
-    _ec2_host_completion
+  : ${EC2_ID_SRC:=$(ec2-ssm-helper.sh | while read host id
+    do
+      [[ "$(basename "$SHELL")" == "bash" ]] && echo [$host]="$id" || echo "$host" "$id"
+    done
+  )}
+  eval "EC2_ID=( $EC2_ID_SRC )"
+  _ec2_host_completion
 }
 
 function ec2_list_inventory_filter () {
-    ([[ "$(basename $SHELL)" == "bash" ]] && echo "${!EC2_ID[@]}" || echo "${(k)EC2_ID}") \
-        | tr ' ' '\n' | sort | grep -Pe "${1-}"
+  ([[ "$(basename "$SHELL")" == "bash" ]] && echo "${!EC2_ID[@]}" || echo "${(k)EC2_ID}") \
+    | tr ' ' '\n' | sort | grep -Pe "${1-}"
 }
 
 function ec2_push_ssh_public_key () {
-    local FILTER=${1-}
-    local pubs="$(cat ~/.ssh/id_*.pub)"
+  local FILTER=${1-}
+  local pubs="$(cat ~/.ssh/id_*.pub)"
 
-    echo $pubs | grep -q "$USER@" || (
-        echo "Invalid Public Key: $USER@ not found in : '$pubs'" >&2 && return 1)
+  echo "$pubs" | grep -q "$USER@" || (
+    echo "Invalid Public Key: $USER@ not found in : '$pubs'" >&2 && return 1)
 
-    for host in $(ec2_list_inventory_filter "$FILTER")
-    do
-        (sleep ${DELAY-20}; echo 'mkdir -p ~/.ssh'; sleep 1; \
-         echo grep "$USER@" '~/.ssh/authorized_keys' '||' \
-              echo "$pubs" '>> ~/.ssh/authorized_keys'; sleep 2
-        ) | pty -n -- ec2-ssm-helper.sh $host &
-    done
-    wait
+  for host in $(ec2_list_inventory_filter "$FILTER")
+  do
+    ( sleep "${DELAY-20}"; echo 'mkdir -p ~/.ssh'; sleep 1; \
+      echo grep "$USER@" '~/.ssh/authorized_keys' '||' \
+        echo "$pubs" '>> ~/.ssh/authorized_keys'; sleep 2
+     ) | pty -n -- ec2-ssm-helper.sh "$host" &
+  done
+  wait
 }
 
 function ec2_terminal_filter_exec () {
-    local FILTER="${1-}"
-    shift
+  local FILTER="${1-}"
+  shift
 
-    for host in $(ec2_list_inventory_filter "$FILTER"); do ssh -t $host "$@"; done
+  for host in $(ec2_list_inventory_filter "$FILTER"); do ssh -t "$host" "$@"; done
 }
 
 function ec2_htop_ship_config_filter_bg () {
-    local FILTER="${1-}"
-    shift
+  local FILTER="${1-}"
+  shift
 
-    for host in $(ec2_list_inventory_filter "$FILTER")
-    do
-        ssh $host sudo bash -c \
-            '"cat > /home/ssm-user/.config/htop/htoprc"' < ~/.config/htop/htoprc &
-    done
-    wait
+  for host in $(ec2_list_inventory_filter "$FILTER")
+  do
+    ssh "$host" sudo bash -c \
+        '"cat > /home/ssm-user/.config/htop/htoprc"' < ~/.config/htop/htoprc &
+  done
+  wait
 }
 
 function ec2_screen_filter_terminal_exec () {
-    local FILTER="${1-}"
-    shift
+  local FILTER="${1-}"
+  shift
 
-    for host in $(ec2_list_inventory_filter "$FILTER")
-    do
-        screen -X screen $SHELL -c \
-               ". ~/.bcsrc; _bcs_title :$host:; ssh -t $host \"\$@\"" -- "$@"
-    done
+  for host in $(ec2_list_inventory_filter "$FILTER")
+  do
+    screen -X screen "$SHELL" -c \
+           ". ~/.bcsrc; _bcs_title :$host:; ssh -t $host \"\$@\"" -- "$@"
+  done
 }
 
 function ec2_batch_filter_remote_shell () {
-    local FILTER="${1-}"
-    shift
+  local FILTER="${1-}"
+  shift
 
-    if [[ -t 1 ]]
-    then
-        # ANSI color indexes: black = 0, red = 1, green = 2
-        # setaf = Set ANSI foreground
-        # setab =  "   "   background
-        # sgr0  = reset local color adjustments back to default terminal settings
-        local errstr="$(tput bold)$(tput setaf 1)$(tput setab 0)error$(tput sgr0)"
-        local prefix="$(tput bold)$(tput setaf 2){}$(tput sgr0)"
-    else
-        local errstr="error"
-        local prefix="{}"
-    fi
+  if [[ -t 1 ]]
+  then
+    # ANSI color indexes: black = 0, red = 1, green = 2
+    # setaf = Set ANSI foreground
+    # setab =  "   "   background
+    # sgr0  = reset local color adjustments back to default terminal settings
+    local errstr="$(tput bold)$(tput setaf 1)$(tput setab 0)error$(tput sgr0)"
+    local prefix="$(tput bold)$(tput setaf 2){}$(tput sgr0)"
+  else
+    local errstr="error"
+    local prefix="{}"
+  fi
 
-    ec2_list_inventory_filter "$FILTER" | xargs -P $EC2_BATCH -i ssh {} \
-        bash -c '"(eval \"\$0\" \
-        || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 \
+  ec2_list_inventory_filter "$FILTER" | xargs -P $EC2_BATCH -i ssh {} \
+    bash -c '"(eval \"\$0\" \
+      || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 \
         | while read line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
 }
 

@@ -9,5 +9,5 @@ else
   INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$NAME" --query 'Reservations[*].Instances[*].[InstanceId]' --output=text)
 
   echo "Connecting to $NAME via $INSTANCE_ID"
-  aws ssm start-session --target $INSTANCE_ID
+  aws ssm start-session --target "$INSTANCE_ID"
 fi
