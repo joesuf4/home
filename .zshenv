@@ -6,9 +6,9 @@ export VISUAL="emacs"
 export MOZILLA=firefox
 export EDITOR="emacs"
 
-for p in /usr/sbin /sbin /usr/local/bin $HOME/bin
+for p in /usr/sbin /sbin /usr/local/bin $HOME/.local/bin $HOME/bin
 do
-    PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
+    [ -d "$p" ] && PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
 done
 
 : ${TERM:=xterm}
