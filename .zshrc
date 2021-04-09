@@ -144,6 +144,8 @@ alias top_10='perl -nale "END{ print \"\$_\\t\" . (\"x\" x ${FCN-}(\$h{\$_}/${DI
 
 alias set_date='sudo date -s "$(date.exe)"'
 
+alias pty_reconnect='pty -d pty-driver.pl -- screen -r'
+
 
 # presumes a running emacs-server
 
