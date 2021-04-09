@@ -185,10 +185,23 @@ emac () {
     fi
 }
 
-# aws
+# initialize (bash+zsh)completion engine
 
 autoload -Uz bashcompinit
 bashcompinit -i
+
+
+# asdf
+
+setopt unset
+. ~/.asdf/asdf.sh
+. ~/.asdf/completions/asdf.bash
+. ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
+unsetopt unset
+
+
+# aws
+
 complete -C aws_completer aws
 
 . ~/.bcsrc

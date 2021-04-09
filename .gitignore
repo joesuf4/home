@@ -13,6 +13,7 @@
 .ansible/
 .apache-test/
 .aptitude/
+.asdf/
 .authinfo
 .aws/
 .bash_history
@@ -106,6 +107,7 @@
 .sversionrc
 .tarsnap.key
 .thumbnails/
+.tool-versions
 .user60.rdb
 .viminfo
 .vscode/

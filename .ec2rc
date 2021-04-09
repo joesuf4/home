@@ -16,7 +16,7 @@
 # 3. to introduce the basic "batch processing techniques" of ansible with errors (logging),
 # 4. to farm out all the profile switching details to ssm_honorlock.sh (as an assoc array),
 # 5. to farm out all the AWS ssm session txn management to a small (advanced) ~/.ssh/config,
-# 6. introdude conceptual idempotency into the CLI mix.
+# 6. introduce conceptual idempotency into the CLI mix.
 
 # All of these principles will factor into the ansible orchestration work to come next.
 
@@ -27,7 +27,7 @@ export EC2_BATCH EC2_ID_SRC
 
 declare -a _ec2_hosts
 
-function _ec2_inventory_hosts() {
+function _ec2_inventory_hosts_zsh() {
   local state
   _arguments '1: :->ec2_host'
   case $state in
@@ -42,7 +42,7 @@ for fcn in ec2_list_inventory_filter ec2_push_ssh_public_key ec2_terminal_filter
   ec2_htop_ship_config_filter_bg ec2-ssm-helper.sh; do
 
   if [[ $(basename "$SHELL") == "zsh" ]]; then
-    compdef _ec2_inventory_hosts $fcn
+    compdef _ec2_inventory_hosts_zsh $fcn
   else
     complete -W '${_ec2_hosts[@]}' $fcn
   fi
