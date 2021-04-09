@@ -25,12 +25,12 @@ bindkey '5D' emacs-backward-word
 
 # directory stuff
 
-nd () { eval "$1='$PWD'"; ~$1 }
+nd () { eval "$1='${2-$PWD}'"; : ~$1 }
 DIRSTACKSIZE=8
 setopt autocd autopushd pushdminus pushdsilent pushdtohome
 alias dh='dirs -v'
 
-winhome=/mnt/c/Users/$USER && : ~winhome
+nd winhome /mnt/c/Users/$USER
 
 
 # typescript file walker
