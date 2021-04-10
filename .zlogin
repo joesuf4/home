@@ -1,7 +1,7 @@
 # -*- sh -*-
 cd
-[ -d /run/screen ] || sudo mkdir -m 0777 /run/screen
-pgrep -fu $USER pty-agent >/dev/null || pty-agent
-pty -d pty-driver.pl -- sudo gitlab-runner start
+pkill ssh-agent
 eval "$( (ssh-agent &) )"
+pgrep -fu $USER pty-agent >/dev/null || pty-agent
+pty -d pty-driver.pl -- sudo zsh -c 'mkdir -m 0777 -p /run/screen; pgrep gitlab-runner >/dev/null 2>&1 || gitlab-runner start'
 pty -d pty-driver.pl ssh-add

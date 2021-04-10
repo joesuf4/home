@@ -49,6 +49,7 @@ for fcn in ec2_list_inventory_filter ec2_push_ssh_public_key ec2_terminal_filter
 done
 
 function _ec2_load_inventory() {
+  [[ -n "${BCS_PROFILE-}" ]] || return 0;
 
   : "${EC2_ID_SRC:=$(
     ec2-ssm-helper.sh | while read -r host id; do
