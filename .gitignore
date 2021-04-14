@@ -33,6 +33,7 @@
 .dbus*
 .dia/
 .dmrc
+.dotnet/
 .dropbox
 .dropbox-master
 .emacs.d/
@@ -79,6 +80,7 @@
 .node_repl_history
 .npm/
 .nnmail-cache
+.nuget/
 .openoffice.org2/
 .oprc
 .oracle*/
