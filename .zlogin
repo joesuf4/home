@@ -10,5 +10,3 @@ else
 fi
 
 pty -d pty-driver.pl -- sudo $SHELL -c 'hwclock -s; mkdir -m 0777 -p /run/screen; pgrep gitlab-runner >/dev/null 2>&1 || gitlab-runner start'
-
-bcs_mfa_session
