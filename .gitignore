@@ -142,6 +142,7 @@ TODO
 VirtualBox VMs/
 \#*
 audio/
+bin/OmniSharp
 bin/emacs*
 bin/isatty
 bin/nproc
