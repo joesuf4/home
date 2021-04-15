@@ -87,7 +87,6 @@
 
 (setq c-tab-always-indent nil) ; allows normal <TAB> behavior in the middle of a line
 (setq show-trailing-whitespace t)
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;;--------------------------------------------------
 ;; Perl -> cperl mode
@@ -206,20 +205,21 @@
  ;; If there is more than one, they won't work right.
  '(dired-use-ls-dired nil)
  '(diredfl-global-mode t nil (diredfl))
+ '(exec-suffixes '(".exe" ".com" ".bat" ".cmd" ".btm" ".ps1" ""))
  '(flycheck-c/c++-clang-executable "clang-10")
  '(flycheck-clang-analyzer-executable "clang-10")
+ '(lsp-csharp-server-path "~/bin/OmniSharp.bat")
  '(lsp-enable-file-watchers nil)
  '(lsp-file-watch-threshold nil)
+ '(lsp-log-io t)
  '(message-send-mail-partially-limit 100000000)
  '(message-sendmail-f-is-evil t)
  '(package-archives
-   (quote
-    (("gnu" . "https://elpa.gnu.org/packages/")
+   '(("gnu" . "https://elpa.gnu.org/packages/")
      ("melpa" . "https://melpa.org/packages/")
-     ("melpa-stable" . "https://stable.melpa.org/packages/"))))
+     ("melpa-stable" . "https://stable.melpa.org/packages/")))
  '(package-selected-packages
-   (quote
-    (auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))))
+   '(csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -330,3 +330,12 @@
 (setq outline-minor-mode-prefix "\C-c\C-o") ; outlining rebind
 (setq tab-stop-list '(2 4 8 12 16 24 32 40 48 56 64 72 80 88 96 104 112 120))
 (setq-default indent-tabs-mode nil)
+
+; WSL fu
+(defun delete-if-file ()
+  (if (not (file-symlink-p buffer-file-name))
+      (delete-file buffer-file-name)
+    ))
+
+(add-hook 'before-save-hook #'delete-if-file)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
