@@ -87,7 +87,6 @@
 
 (setq c-tab-always-indent nil) ; allows normal <TAB> behavior in the middle of a line
 (setq show-trailing-whitespace t)
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;;--------------------------------------------------
 ;; Perl -> cperl mode
@@ -143,7 +142,7 @@
 ;--------------------------------------------------
 ;; grep-buffer on pffxg.sh runs
 
-(defvar pffxg-command "pffxg.sh ")
+(defvar pffxg-command "bash pffxg.sh")
 (defun pffxg (command-args)
   (interactive
    (progn
@@ -204,21 +203,23 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(dired-use-ls-dired nil)
  '(diredfl-global-mode t nil (diredfl))
+ '(exec-suffixes '(".exe" ".com" ".bat" ".cmd" ".btm" ".ps1" ""))
  '(flycheck-c/c++-clang-executable "clang-10")
  '(flycheck-clang-analyzer-executable "clang-10")
+ '(lsp-csharp-server-path "~/bin/OmniSharp.bat")
  '(lsp-enable-file-watchers nil)
  '(lsp-file-watch-threshold nil)
+ '(lsp-log-io t)
  '(message-send-mail-partially-limit 100000000)
  '(message-sendmail-f-is-evil t)
  '(package-archives
-   (quote
-    (("gnu" . "https://elpa.gnu.org/packages/")
+   '(("gnu" . "https://elpa.gnu.org/packages/")
      ("melpa" . "https://melpa.org/packages/")
-     ("melpa-stable" . "https://stable.melpa.org/packages/"))))
+     ("melpa-stable" . "https://stable.melpa.org/packages/")))
  '(package-selected-packages
-   (quote
-    (poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))))
+   '(csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -234,6 +235,8 @@
 (use-package lsp-mode
   :hook (c-mode-common . lsp)
   :commands lsp)
+
+(global-auto-complete-mode t)
 
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package company-lsp :commands company-lsp)
@@ -326,3 +329,12 @@
 (setq-default indent-tabs-mode nil)
 
 (ignore-errors (color-theme-initialize) (color-theme-pok-wog))
+
+; WSL fu
+(defun delete-if-file ()
+  (if (not (file-symlink-p buffer-file-name))
+      (delete-file buffer-file-name)
+    ))
+
+(add-hook 'before-save-hook #'delete-if-file)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
