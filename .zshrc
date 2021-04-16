@@ -149,6 +149,9 @@ alias wingit_pull='(~winhome && git pull)'
 
 alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
+alias pd='pty -d pty-driver.pl --'
+
+
 # presumes a running emacs-server
 
 emac () {
