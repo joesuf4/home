@@ -14,11 +14,14 @@
 .ansible/
 .apache-test/
 .aptitude/
+.asdf/
 .authinfo
+.aws/
 .bash_history
 .bash_profile
 .bashrc
 .bbdb
+.bcsrc
 .bluefish/
 .cache/
 .chess-save
@@ -31,6 +34,7 @@
 .dbus*
 .dia/
 .dmrc
+.dotnet/
 .dropbox
 .dropbox-master
 .emacs.d/
@@ -78,7 +82,9 @@
 .node_repl_history
 .npm/
 .nnmail-cache
+.nuget/
 .openoffice.org2/
+.oprc
 .oracle*/
 .plan
 .plugin141_02.trace
@@ -97,10 +103,12 @@
 .sqlite_history
 .ssh/
 .subversion/
+.sudo_as_admin_successful
 .sunw/
 .sversionrc
 .tarsnap.key
 .thumbnails/
+.tool-versions
 .user60.rdb
 .viminfo
 .vnc/
@@ -156,7 +164,11 @@ Videos/
 VirtualBox VMs/
 \#*
 audio/
+bin/OmniSharp
+bin/emacs*
+bin/isatty
 bin/nproc
+bin/op
 bin/pty*
 bin/publish*
 bin/script.sh
