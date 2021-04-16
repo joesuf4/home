@@ -142,7 +142,7 @@
 ;--------------------------------------------------
 ;; grep-buffer on pffxg.sh runs
 
-(defvar pffxg-command "pffxg.sh")
+(defvar pffxg-command "bash pffxg.sh")
 (defun pffxg (command-args)
   (interactive
    (progn
@@ -354,3 +354,7 @@
 ;; Start LSP Mode and YASnippet mode
 (add-hook 'go-mode-hook #'lsp-deferred)
 (add-hook 'go-mode-hook #'yas-minor-mode)
+
+
+;; make args
+(setq compile-command "powershell wsl make -kj ")
