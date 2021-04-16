@@ -15,7 +15,5 @@ do
     [ -d "$p" ] && PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
 done
 
-PATH="$(go env GOPATH)/bin:$PATH"
-
 : ${TERM:=xterm}
 export TERM
