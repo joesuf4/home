@@ -1,2 +1,2 @@
 @echo off
-powershell wsl zsh "-c" "'. ~/.zshenv && gopls $@'" -- %*
+powershell wsl zsh "-c" "'. ~/.zshenv && exec gopls $@'" -- %*
