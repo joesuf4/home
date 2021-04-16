@@ -146,6 +146,7 @@ alias set_date='sudo date -s "$(date.exe)"'
 
 alias wingit_pull='(~winhome && git pull)'
 
+alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
 # presumes a running emacs-server
 
