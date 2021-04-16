@@ -31,6 +31,7 @@ setopt autocd autopushd pushdminus pushdsilent pushdtohome
 alias dh='dirs -v'
 
 nd winhome /mnt/c/Users/$USER
+nd src ~winhome/src
 
 
 # typescript file walker

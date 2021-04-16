@@ -243,10 +243,9 @@
   (lsp-enable-completion-at-point nil)
 
   :config
+  (add-hook 'csharp-mode-hook #'lsp)
   (add-hook 'go-mode-hook #'lsp)
   (add-hook 'python-mode-hook #'lsp)
-  (add-hook 'c++-mode-hook #'lsp)
-  (add-hook 'c-mode-hook #'lsp)
   (add-hook 'rust-mode-hook #'lsp)
   (add-hook 'html-mode-hook #'lsp)
   (add-hook 'js-mode-hook #'lsp)
@@ -257,9 +256,9 @@
   (add-hook 'shell-mode-hook #'lsp)
   (add-hook 'css-mode-hook #'lsp)
 
+
   (setq company-minimum-prefix-length 1
         company-idle-delay 0.500) ;; default is 0.2
-  (require 'lsp-clients)
   :commands lsp)
 
 (global-auto-complete-mode t)
