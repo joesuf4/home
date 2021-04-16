@@ -333,8 +333,9 @@
 ; WSL fu
 (defun delete-if-file ()
   (if (not (file-symlink-p buffer-file-name))
-      (delete-file buffer-file-name)
-    ))
+      (if (not (file-executable-p buffer-file-name))
+          (delete-file buffer-file-name)
+    )))
 
 (add-hook 'before-save-hook #'delete-if-file)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
