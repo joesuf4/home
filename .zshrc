@@ -144,7 +144,8 @@ alias top_10='perl -nale "END{ print \"\$_\\t\" . (\"x\" x ${FCN-}(\$h{\$_}/${DI
 
 alias set_date='sudo date -s "$(date.exe)"'
 
-alias make='TERM=xterm-256color make -j'
+alias wingit_pull='(~winhome && git pull)'
+
 
 # presumes a running emacs-server
 
