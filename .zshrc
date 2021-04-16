@@ -195,9 +195,7 @@ bashcompinit -i
 # asdf
 
 setopt unset
-. ~/.asdf/asdf.sh
 . ~/.asdf/completions/asdf.bash
-. ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
 unsetopt unset
 
 

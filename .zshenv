@@ -7,10 +7,15 @@ export MOZILLA=chrome.exe
 export EDITOR=emacs
 export DOCKER_COMPOSE_VERSION=1.25.4
 
-for p in /usr/sbin /sbin /usr/local/bin $HOME/.local/bin $HOME/bin
+. ~/.asdf/asdf.sh
+. ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
+
+for p in /sbin /usr/sbin /usr/local/bin "$(go env GOPATH)/bin" $HOME/.local/bin $HOME/bin
 do
     [ -d "$p" ] && PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
 done
+
+PATH="$(go env GOPATH)/bin:$PATH"
 
 : ${TERM:=xterm}
 export TERM
