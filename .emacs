@@ -233,7 +233,37 @@
 ;; packaged LSP stuff
 
 (use-package lsp-mode
+  :ensure t
   :hook (c-mode-common . lsp)
+  :custom
+  (lsp-enable-snippet t)
+  (lsp-keep-workspace-alive t)
+  (lsp-enable-xref t)
+  (lsp-enable-imenu t)
+  (lsp-enable-completion-at-point nil)
+
+  :config
+  (add-hook 'go-mode-hook #'lsp)
+  (add-hook 'python-mode-hook #'lsp)
+  (add-hook 'c++-mode-hook #'lsp)
+  (add-hook 'c-mode-hook #'lsp)
+  (add-hook 'rust-mode-hook #'lsp)
+  (add-hook 'html-mode-hook #'lsp)
+  (add-hook 'js-mode-hook #'lsp)
+  (add-hook 'typescript-mode-hook #'lsp)
+  (add-hook 'json-mode-hook #'lsp)
+  (add-hook 'yaml-mode-hook #'lsp)
+  (add-hook 'dockerfile-mode-hook #'lsp)
+  (add-hook 'shell-mode-hook #'lsp)
+  (add-hook 'css-mode-hook #'lsp)
+
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection "pyls")
+                    :major-modes '(python-mode)
+                    :server-id 'pyls))
+  (setq company-minimum-prefix-length 1
+        company-idle-delay 0.500) ;; default is 0.2
+  (require 'lsp-clients)
   :commands lsp)
 
 (global-auto-complete-mode t)
@@ -264,15 +294,17 @@
 
 ;;--------------------------------------------------
 ;; ccls: nice LSP app for emacs integration
-(require 'ccls)
-(setq ccls-executable "ccls")
-(setq ccls-initialization-options
+(use-package ccls
+  :ensure t
+  :config
+  (setq ccls-executable "ccls")
+  (setq ccls-initialization-options
       '(;:compilationDatabaseDirectory "out"
         ;:cache (:directory "out/.ccls-cache")
         :include (:maxPathSize 10000 :maxNum 1000000)
         :workspaceSymbol (:maxNum 1000000)
         :xref (:maxNum 2000000)
-        ))
+        )))
 
 ;;--------------------------------------------------
 ;; dired-git-info mode - too lazy to deal with fancy git-mode packages
@@ -364,4 +396,4 @@
   :init (setq lsp-python-ms-auto-install-server t)
   :hook (python-mode . (lambda ()
                           (require 'lsp-python-ms)
-                          (lsp))))  ; or lsp-deferred
+                          (lsp-deferred))))
