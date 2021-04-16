@@ -355,6 +355,5 @@
 (add-hook 'go-mode-hook #'lsp-deferred)
 (add-hook 'go-mode-hook #'yas-minor-mode)
 
-
-;; make args
+;; make fun
 (setq compile-command "powershell wsl make -kj ")
