@@ -10,17 +10,15 @@
 .acrobat/
 .adobe/
 .alsaplayer/
+.angular-config.json
 .ansible/
 .apache-test/
 .aptitude/
-.asdf/
 .authinfo
-.aws/
 .bash_history
 .bash_profile
 .bashrc
 .bbdb
-.bcsrc
 .bluefish/
 .cache/
 .chess-save
@@ -33,7 +31,6 @@
 .dbus*
 .dia/
 .dmrc
-.dotnet/
 .dropbox
 .dropbox-master
 .emacs.d/
@@ -47,8 +44,8 @@
 .gconf/
 .gconfd/
 .gimp-*/
-.git-credentials
 .gitk
+.git-credentials
 .gksu.lock
 .gnome/
 .gnome2/
@@ -59,6 +56,7 @@
 .gtik.conf
 .gtklp/
 .gtkrc*
+.h2cookie
 .history
 .kde/
 .kderc
@@ -80,9 +78,7 @@
 .node_repl_history
 .npm/
 .nnmail-cache
-.nuget/
 .openoffice.org2/
-.oprc
 .oracle*/
 .plan
 .plugin141_02.trace
@@ -99,19 +95,15 @@
 .serverauth.*
 .signature
 .sqlite_history
-.ssh/authorized_keys*
-.ssh/id_*
-.ssh/known_hosts*
-.ssh/sockets/
+.ssh/
 .subversion/
-.sudo_as_admin_successful
 .sunw/
 .sversionrc
 .tarsnap.key
 .thumbnails/
-.tool-versions
 .user60.rdb
 .viminfo
+.vnc/
 .vscode/
 .w3m/
 .wireshark/
@@ -124,29 +116,47 @@
 .xvpics/
 .zcompdump
 .zsh_history
+3D\ Objects/
+ACLI/
+AppData/
 Applications/
+Application\ Data
+Contacts/
+Cookies
 Desktop/
 Documents/
 Downloads/
 Dropbox/
+Favorites/
 Google Drive/
+Intel*/
 Library/
+Links/
+Local\ Settings
 Mail/
 Movies/
 Music/
+My\ Documents
+NTUSER*
+NetHood
 News/
+OneDrive/
 Pictures/
 PLAN.md
+PrintHood
 Public/
+Recent
+Saved\ Games/
+Searches/
+SendTo
+Start\ Menu
+Templates
 TODO
+Videos/
 VirtualBox VMs/
 \#*
 audio/
-bin/OmniSharp
-bin/emacs*
-bin/isatty
 bin/nproc
-bin/op
 bin/pty*
 bin/publish*
 bin/script.sh
@@ -155,9 +165,11 @@ build/
 console.out
 crons/
 dead.letter
+emacs-*/
 lib/
 libexec/
 node_modules/
+ntuser*
 private/
 public_html/
 share/
