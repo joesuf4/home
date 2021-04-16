@@ -257,10 +257,6 @@
   (add-hook 'shell-mode-hook #'lsp)
   (add-hook 'css-mode-hook #'lsp)
 
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection "pyls")
-                    :major-modes '(python-mode)
-                    :server-id 'pyls))
   (setq company-minimum-prefix-length 1
         company-idle-delay 0.500) ;; default is 0.2
   (require 'lsp-clients)
