@@ -17,6 +17,7 @@
 .asdf/
 .authinfo
 .aws/
+.azure
 .bash_history
 .bash_profile
 .bashrc
@@ -34,6 +35,7 @@
 .dbus*
 .dia/
 .dmrc
+.docker/
 .dotnet/
 .dropbox
 .dropbox-master
@@ -64,6 +66,7 @@
 .history
 .kde/
 .kderc
+.kube/
 .landscape/
 .lesshst
 .local/
@@ -186,6 +189,6 @@ private/
 public_html/
 share/
 specs/
-src/
+src
 tmp/
 zeus/
