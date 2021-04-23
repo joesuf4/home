@@ -12,6 +12,8 @@ unsetopt unset
 if [[ "$(uname)" == "Darwin" ]]; then
     bindkey '^[[A' history-search-backward
     bindkey '^[[B' history-search-forward
+    bindkey '^[[C' emacs-forward-word
+    bindkey '^[[D' emacs-backward-word
 fi
 bindkey ';5A' history-search-backward
 bindkey ';5B' history-search-forward
