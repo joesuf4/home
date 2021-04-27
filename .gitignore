@@ -110,6 +110,7 @@
 .sunw/
 .sversionrc
 .tarsnap.key
+.terraform.d/
 .thumbnails/
 .tool-versions
 .user60.rdb

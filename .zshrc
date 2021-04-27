@@ -207,9 +207,10 @@ setopt unset
 unsetopt unset
 
 
-# aws
+# aws/k8s/tfe
 
 complete -C aws_completer aws
+complete -o nospace -C terraform terraform
 
 . ~/.bcsrc
 . ~/.ec2rc
