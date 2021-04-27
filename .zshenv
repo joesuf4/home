@@ -2,9 +2,9 @@ export GREP_COLORS=fn=36
 export LANG=en_US.UTF-8
 export LESSCHARSET=utf-8
 export PAGER=less
-export VISUAL=emacs
+export VISUAL=emacsclient
 export MOZILLA=chrome.exe
-export EDITOR=emacs
+export EDITOR=emacsclient
 export DOCKER_COMPOSE_VERSION=1.25.4
 
 . ~/.asdf/asdf.sh

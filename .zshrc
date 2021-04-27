@@ -213,3 +213,4 @@ complete -C aws_completer aws
 
 . ~/.bcsrc
 . ~/.ec2rc
+. ~/.eksrc

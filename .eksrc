@@ -1,0 +1,67 @@
+# -*- sh -*-
+
+export EKS_CLUSTERS_SRC
+declare -a _eks_clusters
+
+eks_list_clusters_filter() {
+  local FILTER="${1-}"
+  for c in "${_eks_clusters[@]}"; do echo $c; done | grep -Pe "$FILTER"
+}
+
+_eks_load_clusters() {
+  [ -n "$BCS_PROFILE" ] || return 0
+  : "${EKS_CLUSTERS_SRC:=$(aws eks list-clusters --output text | awk '{print $2}')}"
+  eval "_eks_clusters=($EKS_CLUSTERS_SRC)"
+  return 0
+}
+
+_eks_unload_clusters() {
+  local role="$(echo "$BCS_PROFILE" | cut -d@ -f1)"
+  local account_identifier="$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f1)"
+  local region="$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f2)"
+  for c in $(eks_list_clusters_filter "$@"); do
+    kubectl config delete-cluster arn:aws:eks:$region:$(bcs_get_account_number "$account_identifier")/cluster/$c
+    kubectl config delete-context arn:aws:eks:$region:$(bcs_get_account_number "$account_identifier")/cluster/$c
+  done
+}
+
+eks_set_current_context() {
+  local role="$(echo "$BCS_PROFILE" | cut -d@ -f1)"
+  local account_identifier="$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f1)"
+  local region="$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f2)"
+
+  for c in $(eks_list_clusters_filter "$@"); do
+    aws eks update-kubeconfig --name $c --role-arn arn:aws:iam::"$(bcs_get_account_number "$account_identifier")":role/"$role"
+  done
+}
+
+eks_reload_clusters() {
+  _eks_unload_clusters
+  EKS_CLUSTERS_SRC=
+  _eks_load_clusters
+}
+
+
+_eks_cluster_completion_zsh() {
+  local state
+
+  _arguments '1: :->eks_cluster'
+
+  case $state in
+    eks_cluster)
+      _arguments "1:eks_cluster:($_eks_clusters)"
+      ;;
+  esac
+}
+
+if [[ "$(basename $SHELL)" == "zsh" ]]; then
+  compdef _eks_cluster_completion_zsh eks_list_clusters_filter
+  compdef _eks_cluster_completion_zsh eks_set_current_context
+else
+  complete -W '${_eks_clusters[@]}' eks_list_clusters_filter
+  complete -W '${_eks_clusters[@]}' eks_set_current_context
+fi
+
+_eks_load_clusters >/dev/null 2>&1
+
+. <(kubectl completion $(basename $SHELL))
