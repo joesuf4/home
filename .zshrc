@@ -212,7 +212,7 @@ unsetopt unset
 complete -C aws_completer aws
 complete -o nospace -C terraform terraform
 
-. ~/.bcsrc
+. <(kubectl completion $(basename "$SHELL"))
 . ~/.ec2rc
 . ~/.eksrc
-. <(kubectl completion $(basename "$SHELL"))
+. ~/.bcsrc
