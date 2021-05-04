@@ -1,3 +1,4 @@
+# history settings
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
@@ -7,7 +8,7 @@ setopt share_history extended_history hist_expire_dups_first hist_no_store \
 unsetopt unset
 
 
-# ctrl-(up/down/left/right) bindings
+# ctrl-arrow (up/down/left/right) key bindings
 
 if [[ "$(uname)" == "Darwin" ]]; then
     bindkey '^[[A' history-search-backward
@@ -64,6 +65,7 @@ for COLOR in RED GREEN YELLOW WHITE BLACK CYAN BLUE MAGENTA; do
 done
 PR_RESET="%{${reset_color}%}";
 
+# translate deep blue (which PowerShell obfuscates by default) to cyan
 eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 
 
@@ -145,6 +147,8 @@ alias htop='sudo -E htop'
 
 alias bpftrace='sudo -E bpftrace'
 
+alias apt='sudo -E apt'
+
 alias top_10='perl -nale "END{ print \"\$_\\t\" . (\"x\" x ${FCN-}(\$h{\$_}/${DIV-1}) . \" \$h{\$_}\" for sort {\$h{\$b} <=> \$h{\$a}} keys %h} \$h{\$F[0]} = \$F[1]" | head'
 
 alias set_date='sudo hwclock -s'
@@ -209,7 +213,7 @@ setopt unset
 unsetopt unset
 
 
-# aws/k8s/tfe
+# aws/bcs/ec2/k8s/tfe
 
 complete -C aws_completer aws
 complete -o nospace -C terraform terraform
