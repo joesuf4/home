@@ -1,2 +1,2 @@
 . /etc/profile
-. ~/.oprc
+#. ~/.oprc
