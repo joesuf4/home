@@ -159,7 +159,7 @@ alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
 alias pd='pty -d pty-driver.pl --'
 
-alias make='make -kj$(nproc)'
+alias make='TERM=xterm-256color make -kj$(nproc)'
 
 # presumes a running emacs-server
 
