@@ -1,0 +1,42 @@
+#!/usr/bin/sudo bpftrace
+
+BEGIN
+{
+
+
+}
+
+uprobe:/usr/lib32/libc.so.6:malloc
+{
+  @size[tid] = arg1;
+}
+
+uprobe:/usr/lib32/libc.so.6:calloc
+{
+  @size[tid] = arg1 * arg2;
+}
+
+uprobe:/usr/lib32/libc.so.6:mmap
+{
+  @size[tid] = arg2
+}
+
+uretprobe:/usr/lib32/libc.so.6:malloc, uretprobe:/usr/lib32/libc.so.6:calloc, uretprobe:/usr/lib32/libc.so.6:mmap
+     / @size[tid] /
+{
+  @ptr[retval] = @size[tid];
+  delete(@size[tid]);
+}
+
+uprobe:/usr/lib32/libc.so.6:free, uprobe:/usr/lib32/libc.so.6:munmap
+     / @ptr[arg1] /
+{
+  delete(@ptr[arg1]);
+}
+
+
+
+END
+{
+
+}
