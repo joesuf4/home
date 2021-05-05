@@ -6,6 +6,8 @@ export VISUAL=emacsclient
 export MOZILLA=chrome.exe
 export EDITOR=emacsclient
 export DOCKER_COMPOSE_VERSION=1.25.4
+export COMPOSE_DOCKET_CLI_BUILD=0
+export DOCKER_BUILDKIT=0
 
 . ~/.asdf/asdf.sh
 . ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
