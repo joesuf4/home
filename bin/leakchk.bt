@@ -6,39 +6,46 @@ BEGIN
 }
 
 uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:malloc
+/arg1 > 0/
 {
-  @size[tid, func] = arg1;
+  @size[pid, tid, usym(reg("ip"))] = arg1;
+  @func[pid, tid] = func;
 }
 
 uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:calloc
+/arg1 > 0 && arg2 > 0/
 {
-  @size[tid, func] = arg1 * arg2;
+  @size[pid, tid, usym(reg("ip"))] = arg1 * arg2;
+  @func[pid, tid] = func;
 }
 
 uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:realloc,
      uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
+     /arg2 > 0/
 {
-  @size[tid, func] = arg2;
+  @size[pid, tid, func] = arg2;
+  @func[pid, tid] = func;
 }
 
 uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:malloc,
      uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:calloc,
      uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:realloc,
      uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
-     / @size[tid, func] /
+     /@size[pid, tid, @func[pid, tid]] > 0/
 {
-  @[comm, retval] = @size[tid, func];
-  delete(@size[tid, func]);
+  @[comm, pid, tid, retval] = @size[pid, tid, @func[pid, tid]];
+  delete(@size[pid, tid, @func[pid, tid]]);
+  delete(@func[pid, tid]);
 }
 
 uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:free,
      uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:munmap
 {
-  delete(@[comm, arg1]);
+  delete(@[comm, pid, tid, arg1]);
 }
 
 END
 {
   clear(@size);
-  print(@);
+  clear(@func);
 }

@@ -8,6 +8,8 @@ export EDITOR=emacsclient
 export DOCKER_COMPOSE_VERSION=1.25.4
 export COMPOSE_DOCKET_CLI_BUILD=0
 export DOCKER_BUILDKIT=0
+export BPFTRACE_NO_USER_SYMBOLS=0
+export BPFTRACE_CACHE_USER_SYMBOLS=1
 
 . ~/.asdf/asdf.sh
 . ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
