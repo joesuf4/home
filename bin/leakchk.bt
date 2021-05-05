@@ -1,42 +1,39 @@
-#!/usr/bin/sudo bpftrace
+#!/usr/bin/env -S sudo -E bpftrace
 
 BEGIN
 {
-
-
+  printf("Hit Ctrl-C to generate the report\n");
 }
 
 uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:malloc
 {
-  @size[tid] = arg1;
+  @size[tid, func] = arg1;
 }
 
 uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:calloc
 {
-  @size[tid] = arg1 * arg2;
+  @size[tid, func] = arg1 * arg2;
 }
 
-uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
+uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:realloc, uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
 {
-  @size[tid] = arg2
+  @size[tid, func] = arg2;
 }
 
-uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:malloc, uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:calloc, uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
-     / @size[tid] /
+uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:malloc, uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:calloc, uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:realloc, uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
+     / @size[tid, func] /
 {
-  @ptr[retval] = @size[tid];
-  delete(@size[tid]);
+  @[comm, retval] = @size[tid, func];
+  delete(@size[tid, func]);
 }
 
 uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:free, uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:munmap
-     / @ptr[arg1] /
 {
-  delete(@ptr[arg1]);
+  delete(@[comm, arg1]);
 }
-
-
 
 END
 {
-
+  clear(@size);
+  print(@);
 }
