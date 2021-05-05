@@ -55,7 +55,6 @@ eks_send_pod_container_headers() {
 
 }
 
-
 eks_bpftrace_pod_container_stdin() {
   local pod="$1"
   local container="$2"
