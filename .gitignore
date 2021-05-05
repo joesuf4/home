@@ -169,8 +169,11 @@ VirtualBox VMs/
 \#*
 audio/
 bin/OmniSharp
+bin/bpftrace
+bin/curl
 bin/emacs*
 bin/isatty
+bin/htop
 bin/nproc
 bin/op
 bin/pty*
