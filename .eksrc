@@ -31,6 +31,20 @@ eks_update_kubeconfig() {
   done
 }
 
+declare -ar _eks_tools=(bpftrace curl htop strace)
+
+eks_ship_pod_container_tools() {
+  local pod="$1"
+  local container="${2-}"
+
+  [ -n "$container" ] && pod+=" -c"
+
+  for t in "${_eks_tools[@]}"; do
+    time kubectl exec -i $pod $container -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t
+  done
+  kubectl exec $pod $container -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile'
+}
+
 _eks_cluster_completion_zsh() {
   local state
 
