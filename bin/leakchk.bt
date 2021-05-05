@@ -8,14 +8,14 @@ BEGIN
 uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:malloc
 /arg1 > 0/
 {
-  @size[pid, tid, usym(reg("ip"))] = arg1;
+  @size[pid, tid, func] = arg1;
   @func[pid, tid] = func;
 }
 
 uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:calloc
 /arg1 > 0 && arg2 > 0/
 {
-  @size[pid, tid, usym(reg("ip"))] = arg1 * arg2;
+  @size[pid, tid, func] = arg1 * arg2;
   @func[pid, tid] = func;
 }
 
