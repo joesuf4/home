@@ -176,7 +176,6 @@ bin/op
 bin/pty*
 bin/publish*
 bin/script.sh
-bin/strace
 build/
 console.out
 crons/
