@@ -15,19 +15,24 @@ uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:calloc
   @size[tid, func] = arg1 * arg2;
 }
 
-uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:realloc, uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
+uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:realloc,
+     uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
 {
   @size[tid, func] = arg2;
 }
 
-uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:malloc, uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:calloc, uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:realloc, uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
+uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:malloc,
+     uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:calloc,
+     uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:realloc,
+     uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
      / @size[tid, func] /
 {
   @[comm, retval] = @size[tid, func];
   delete(@size[tid, func]);
 }
 
-uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:free, uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:munmap
+uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:free,
+     uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:munmap
 {
   delete(@[comm, arg1]);
 }
