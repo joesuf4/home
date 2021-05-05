@@ -42,8 +42,35 @@ eks_ship_pod_container_tools() {
   for t in "${_eks_tools[@]}"; do
     time kubectl exec -i $pod $container -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t
   done
+
   kubectl exec $pod $container -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile'
 }
+
+eks_send_pod_container_headers() {
+  local pod="$1"
+  local container="${2-}"
+
+  [ -n "$container" ] && pod+=" -c"
+  kubectl exec -i $pod $container -- sh -c 'mkdir -p /tmp/kheaders-$(uname -r) && cd /tmp/kheaders-$(uname -r) && tar -xJf -' </sys/kernel/kheaders.tar.xz
+
+}
+
+
+eks_bpftrace_pod_container_stdin() {
+  local pod="$1"
+  local container="$2"
+  shift
+  shift
+  [ -n "$container" ] && pod+=" -c"
+  local e="sed";
+  while [[ $# > 1 ]]; do
+    e+=" -e 's!$1!$2!g'"
+    shift
+    shift
+  done
+  eval "$e" | kubectl exec -ti $pod $container -- /tmp/bin/bpftrace -
+}
+
 
 _eks_cluster_completion_zsh() {
   local state

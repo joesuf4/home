@@ -5,32 +5,32 @@ BEGIN
   printf("Hit Ctrl-C to generate the report\n");
 }
 
-uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:malloc
+uprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc
 /arg1 > 0/
 {
   @size[pid, tid, func] = arg1;
   @func[pid, tid] = func;
 }
 
-uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:calloc
+uprobe:/lib/x86_64-linux-gnu/libc.so.6:calloc
 /arg1 > 0 && arg2 > 0/
 {
   @size[pid, tid, func] = arg1 * arg2;
   @func[pid, tid] = func;
 }
 
-uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:realloc,
-     uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
+uprobe:/lib/x86_64-linux-gnu/libc.so.6:realloc,
+     uprobe:/lib/x86_64-linux-gnu/libc.so.6:mmap
      /arg2 > 0/
 {
   @size[pid, tid, func] = arg2;
   @func[pid, tid] = func;
 }
 
-uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:malloc,
-     uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:calloc,
-     uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:realloc,
-     uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:mmap
+uretprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc,
+     uretprobe:/lib/x86_64-linux-gnu/libc.so.6:calloc,
+     uretprobe:/lib/x86_64-linux-gnu/libc.so.6:realloc,
+     uretprobe:/lib/x86_64-linux-gnu/libc.so.6:mmap
      /@size[pid, tid, @func[pid, tid]] > 0/
 {
   @[comm, pid, tid, retval] = @size[pid, tid, @func[pid, tid]];
@@ -38,8 +38,8 @@ uretprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:malloc,
   delete(@func[pid, tid]);
 }
 
-uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:free,
-     uprobe:/usr/lib/x86_64-linux-gnu/libc.so.6:munmap
+uprobe:/lib/x86_64-linux-gnu/libc.so.6:free,
+     uprobe:/lib/x86_64-linux-gnu/libc.so.6:munmap
 {
   delete(@[comm, pid, tid, arg1]);
 }
