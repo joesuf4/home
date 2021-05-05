@@ -61,15 +61,15 @@ eks_bpftrace_pod_container_stdin() {
   shift
   shift
   [ -n "$container" ] && pod+=" -c"
-  local e="sed";
-  while [[ $# > 1 ]]; do
+  local e="sed"
+  while [[ $# -gt 1 ]]; do
     e+=" -e 's!$1!$2!g'"
     shift
     shift
   done
+
   eval "$e" | kubectl exec -ti $pod $container -- /tmp/bin/bpftrace -
 }
-
 
 _eks_cluster_completion_zsh() {
   local state
