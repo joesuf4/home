@@ -21,12 +21,9 @@
 # All of these principles will factor into the ansible orchestration work to come next.
 
 declare -A EC2_ID
-
-: "${EC2_BATCH:=4}"
+declare -a _ec2_hosts _bcs_tools
 export EC2_BATCH EC2_ID_SRC
-
-declare -a _ec2_hosts
-declare -ar _ec2_tools=(htop lsof strace curl)
+: "${EC2_BATCH:=4}"
 
 _ec2_inventory_hosts_zsh() {
   local state
@@ -117,7 +114,7 @@ ec2_screen_exec_filter() {
 
   for host in $(ec2_list_inventory_filter "$FILTER"); do
     screen -X screen "$SHELL" -c \
-      ". ~/.eksrc; . ~/.bcsrc; _bcs_title :$host:; ssh -t $host \"\$@\"" -- "$@"
+      ". ~/.eksrc; . ~/.bc2rc; _bcs_title :$host:; ssh -t $host \"\$@\"" -- "$@"
   done
 }
 
@@ -147,7 +144,7 @@ ec2_ship_tools_filter_bg() {
   local FILTER="${1-}"
 
   for host in $(ec2_list_inventory_filter "$FILTER"); do
-    for t in "${_ec2_tools[@]}"; do
+    for t in "${_bcs_tools[@]}"; do
       ssh $host -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
     done
     ssh $host -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile' &
