@@ -1,7 +1,8 @@
 # -*- sh -*-
 
-export EKS_CLUSTERS_SRC EKS_PODS_SRC
+export EKS_CLUSTERS_SRC EKS_PODS_SRC EKS_BATCH=4
 declare -a _eks_clusters _eks_pods
+declare -ar _eks_tools=(htop lsof strace curl)
 
 eks_list_clusters_filter() {
   local FILTER="${1-}"
@@ -22,6 +23,7 @@ _eks_load_clusters() {
 }
 
 _eks_load_pods() {
+  [ -n "$BCS_PROFILE" ] || return 0
   : "${EKS_PODS_SRC:=$(kubectl get pods | (
     read -r _
     awk '{print $1}'
@@ -30,25 +32,13 @@ _eks_load_pods() {
   return 0
 }
 
-_eks_unload_clusters() {
-  local role="$(echo "$BCS_PROFILE" | cut -d@ -f1)"
-  local account_identifier="$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f1)"
-  local region="$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f2)"
-  for c in $(eks_list_clusters_filter "$@"); do
-    kubectl config "delete-cluster arn:aws:eks:$region:$(bcs_get_account_number "$account_identifier")/cluster/$c"
-    kubectl config delete-context "arn:aws:eks:$region:$(bcs_get_account_number "$account_identifier")/cluster/$c"
-  done
-}
-
 eks_update_kubeconfig() {
   aws eks update-kubeconfig --name "$1"
   EKS_PODS_SRC=
   _eks_load_pods
 }
 
-declare -ar _eks_tools=(curl htop strace lsof)
-
-eks_ship_pod_container_tools_filter() {
+eks_ship_tools_filter_bg() {
   local FILTER="${1-}"
   local container="${2---}"
   [[ "$container" == "--" ]] && container=""
@@ -64,7 +54,7 @@ eks_ship_pod_container_tools_filter() {
   wait
 }
 
-eks_send_pod_container_bpftrace_kheaders_filter() {
+eks_send_bpftrace_kheaders_filter_bg() {
   local FILTER="${1-}"
   local container="${2---}"
 
@@ -80,42 +70,19 @@ eks_send_pod_container_bpftrace_kheaders_filter() {
   wait
 }
 
-eks_curl_pod_container() {
+eks_run_terminal_shell() {
   local pod="$1"
   local container="${2---}"
   shift
   [[ $# -gt 0 ]] && shift
+
   [[ "$container" == "--" ]] && container=""
   [[ -n "$container" ]] && pod+=" -c"
 
-  kubectl exec -ti $pod $container -- /tmp/bin/curl "$@"
+  kubectl exec -ti $pod $container -- sh -lc '$@' -- "$@"
 }
 
-eks_htop_pod_container() {
-  local pod="$1"
-  local container="${2---}"
-  shift
-  [[ $# -gt 0 ]] && shift
-  [[ "$container" == "--" ]] && container=""
-  [[ -n "$container" ]] && pod+=" -c"
-
-  kubectl exec -ti $pod $container -- sh -lc 'htop "$@"' -- "$@"
-}
-
-eks_strace_pod_container() {
-  local pod="$1"
-  local container="${2---}"
-  shift
-  [[ $# -gt 0 ]] && shift
-  [[ "$container" == "--" ]] && container=""
-  [[ -n "$container" ]] && pod+=" -c"
-
-  [[ $# -eq 0 ]] && set -- -p 1
-
-  kubectl exec -ti $pod $container -- /tmp/bin/strace "$@"
-}
-
-eks_bpftrace_pod_container_ship_stdin() {
+eks_bpftrace_stdin_script() {
   local pod="$1"
   local container="${2---}"
   shift
@@ -133,19 +100,7 @@ eks_bpftrace_pod_container_ship_stdin() {
   eval "$e" | kubectl exec -ti $pod $container -- /tmp/bin/bpftrace -
 }
 
-eks_bpftrace_pod_container_cli() {
-  local pod="$1"
-  local container="${2---}"
-  shift
-  [[ $# -gt 0 ]] && shift
-  [[ "$container" == "--" ]] && container=""
-  [[ -n "$container" ]] && pod+=" -c"
-
-  kubectl exec -ti $pod $container -- /tmp/bin/bpftrace "$@"
-}
-
-
-function eks_screen_filter_terminal_shell() {
+eks_screen_shell_filter() {
   local FILTER="$1"
   local container="${2---}"
   shift
@@ -153,10 +108,35 @@ function eks_screen_filter_terminal_shell() {
   [[ "$container" == "--" ]] && container=""
 
   for pod in $(eks_list_pods_filter "$FILTER"); do
-  [[ -n "$container" ]] && pod+=" -c"
+    [[ -n "$container" ]] && pod+=" -c"
     screen -X screen "$SHELL" -c \
       ". ~/.eksrc; . ~/.bcsrc; _bcs_title $pod $container; kubectl exec -ti $pod $container -- sh -lc '\"\$@\"'" -- "$@"
   done
+}
+
+function eks_batch_shell_filter() {
+  local FILTER="${1-}"
+  shift
+  local container="${2---}"
+  [[ $# -gt 0 ]] && shift
+  [[ "$container" == "--" ]] && container="" || container="-c $container"
+
+  if [[ -t 1 ]]; then
+    # ANSI color indexes: black = 0, red = 1, green = 2
+    # setaf = Set ANSI foreground
+    # setab =  "   "   background
+    # sgr0  = reset local color adjustments back to default terminal settings
+    local errstr="$(tput bold)$(tput setaf 1)$(tput setab 0)error$(tput sgr0)"
+    local prefix="$(tput bold)$(tput setaf 2){}$(tput sgr0)"
+  else
+    local errstr="error"
+    local prefix="{}"
+  fi
+
+  eks_list_pods_filter "$FILTER" | xargs -P $EKS_BATCH -i kubectl exec -i {} $container \
+    sh -lc '"(eval \"\$0\" \
+      || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 \
+        | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
 }
 
 _eks_cluster_completion_zsh() {
@@ -188,24 +168,22 @@ if [[ "$(basename "$SHELL")" == "zsh" ]]; then
   compdef _eks_cluster_completion_zsh eks_list_clusters_filter
   compdef _eks_cluster_completion_zsh eks_update_kubeconfig
   compdef _eks_pod_completion_zsh eks_list_pods_filter
-  compdef _eks_pod_completion_zsh eks_ship_pod_container_tools_filter
-  compdef _eks_pod_completion_zsh eks_send_pod_container_bpftrace_kheaders_filter
-  compdef _eks_pod_completion_zsh eks_strace_pod_container
-  compdef _eks_pod_completion_zsh eks_bpftrace_pod_container_ship_stdin
-  compdef _eks_pod_completion_zsh eks_bpftrace_pod_container_cli
-  compdef _eks_pod_completion_zsh eks_curl_pod_container
-  compdef _eks_pod_completion_zsh eks_screen_filter_terminal_exec
+  compdef _eks_pod_completion_zsh eks_ship_tools_filter_bg
+  compdef _eks_pod_completion_zsh eks_send_bpftrace_kheaders_filter_bg
+  compdef _eks_pod_completion_zsh eks_bpftrace_stdin_script
+  compdef _eks_pod_completion_zsh eks_run_terminal_shell
+  compdef _eks_pod_completion_zsh eks_screen_shell_filter
+  compdef _eks_pod_completion_zsh eks_batch_shell_filter
 else
   complete -W '${_eks_clusters[@]}' eks_list_clusters_filter
   complete -W '${_eks_clusters[@]}' eks_update_kubeconfig
   complete -W '${_eks_pods[@]}' eks_list_pods_filter
-  complete -W '${_eks_pods[@]}' eks_ship_pod_container_tools_filter
-  complete -W '${_eks_pods[@]}' eks_send_pod_container_bpftrace_kheaders_filter
-  complete -W '${_eks_pods[@]}' eks_strace_pod_container
-  complete -W '${_eks_pods[@]}' eks_bpftrace_pod_container_ship_stdin
-  complete -W '${_eks_pods[@]}' eks_bpftrace_pod_container_cli
-  complete -W '${_eks_pods[@]}' eks_curl_pod_container
-  complete -W '${_eks_pods[@]}' eks_screen_filter_terminal_exec
+  complete -W '${_eks_pods[@]}' eks_ship_tools_filter_bg
+  complete -W '${_eks_pods[@]}' eks_send_bpftrace_kheaders_filter_bg
+  complete -W '${_eks_pods[@]}' eks_bpftrace_stdin_script
+  complete -W '${_eks_pods[@]}' eks_run_terminal_shell
+  complete -W '${_eks_pods[@]}' eks_screen_shell_filter
+  complete -W '${_eks_pods[@]}' eks_batch_shell_filter
 fi
 
 _eks_load_clusters >/dev/null 2>&1

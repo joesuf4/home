@@ -26,6 +26,7 @@ declare -A EC2_ID
 export EC2_BATCH EC2_ID_SRC
 
 declare -a _ec2_hosts
+declare -ar _ec2_tools=(htop lsof strace curl)
 
 function _ec2_inventory_hosts_zsh() {
   local state
@@ -37,9 +38,9 @@ function _ec2_inventory_hosts_zsh() {
   esac
 }
 
-for fcn in ec2_list_inventory_filter ec2_push_ssh_public_key ec2_terminal_filter_exec \
-  ec2_batch_filter_remote_shell ec2_screen_filter_terminal_exec \
-  ec2_htop_ship_config_filter_bg ec2-ssm-helper.sh; do
+for fcn in ec2_list_inventory_filter ec2_push_ssh_public_key ec2_exec_terminal_filter \
+  ec2_batch_shell_filter ec2_screen_exec_filter \
+  ec2_htop_ship_config_filter_bg ec2_tools_ship_filter_bg ec2-ssm-helper.sh; do
 
   if [[ $(basename "$SHELL") == "zsh" ]]; then
     compdef _ec2_inventory_hosts_zsh $fcn
@@ -92,7 +93,7 @@ function ec2_push_ssh_public_key() {
   wait
 }
 
-function ec2_terminal_filter_exec() {
+function ec2_exec_terminal_filter() {
   local FILTER="${1-}"
   shift
 
@@ -110,17 +111,17 @@ function ec2_htop_ship_config_filter_bg() {
   wait
 }
 
-function ec2_screen_filter_terminal_exec() {
+function ec2_screen_exec_filter() {
   local FILTER="${1-}"
   shift
 
   for host in $(ec2_list_inventory_filter "$FILTER"); do
     screen -X screen "$SHELL" -c \
-      ". ~/.bcsrc; _bcs_title :$host:; ssh -t $host \"\$@\"" -- "$@"
+      ". ~/.eksrc; . ~/.bcsrc; _bcs_title :$host:; ssh -t $host \"\$@\"" -- "$@"
   done
 }
 
-function ec2_batch_filter_remote_shell() {
+function ec2_batch_shell_filter() {
   local FILTER="${1-}"
   shift
 
@@ -140,6 +141,19 @@ function ec2_batch_filter_remote_shell() {
     bash -c '"(eval \"\$0\" \
       || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 \
         | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
+}
+
+function ec2_ship_tools_filter_bg() {
+  local FILTER="${1-}"
+
+  for host in $(ec2_list_inventory_filter "$FILTER"); do
+    for t in "${_ec2_tools[@]}"; do
+      ssh $host -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
+    done
+    ssh $host -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile' &
+  done
+
+  wait
 }
 
 _ec2_load_inventory >/dev/null 2>&1
