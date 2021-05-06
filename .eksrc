@@ -144,6 +144,21 @@ eks_bpftrace_pod_container_cli() {
   kubectl exec -ti $pod $container -- /tmp/bin/bpftrace "$@"
 }
 
+
+function eks_screen_filter_terminal_shell() {
+  local FILTER="$1"
+  local container="${2---}"
+  shift
+  [[ $# -gt 0 ]] && shift
+  [[ "$container" == "--" ]] && container=""
+
+  for pod in $(eks_list_pods_filter "$FILTER"); do
+  [[ -n "$container" ]] && pod+=" -c"
+    screen -X screen "$SHELL" -c \
+      ". ~/.eksrc; . ~/.bcsrc; _bcs_title $pod $container; kubectl exec -ti $pod $container -- sh -lc '\"\$@\"'" -- "$@"
+  done
+}
+
 _eks_cluster_completion_zsh() {
   local state
 
@@ -179,7 +194,7 @@ if [[ "$(basename "$SHELL")" == "zsh" ]]; then
   compdef _eks_pod_completion_zsh eks_bpftrace_pod_container_ship_stdin
   compdef _eks_pod_completion_zsh eks_bpftrace_pod_container_cli
   compdef _eks_pod_completion_zsh eks_curl_pod_container
-
+  compdef _eks_pod_completion_zsh eks_screen_filter_terminal_exec
 else
   complete -W '${_eks_clusters[@]}' eks_list_clusters_filter
   complete -W '${_eks_clusters[@]}' eks_update_kubeconfig
@@ -190,6 +205,7 @@ else
   complete -W '${_eks_pods[@]}' eks_bpftrace_pod_container_ship_stdin
   complete -W '${_eks_pods[@]}' eks_bpftrace_pod_container_cli
   complete -W '${_eks_pods[@]}' eks_curl_pod_container
+  complete -W '${_eks_pods[@]}' eks_screen_filter_terminal_exec
 fi
 
 _eks_load_clusters >/dev/null 2>&1
