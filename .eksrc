@@ -85,16 +85,39 @@ eks_run_terminal_shell_filter() {
   done
 }
 
-declare -A eks_libs
+declare -A _eks_libs
+
 if [[ "$(basename $SHELL)" == zsh ]]; then
-  _eks_libs=$(eval '(
+  eval '_eks_libs=(
     x86_64-linux-gnu/libc.so.6 libc.musl-x86_86.so.1
-  )')
+  )'
 else
-  _eks_libs=$(eval '(
+  eval '_eks_libs=(
     [x86_64-linux-gnu/libc.so.6]=libc.musl-x86_86.so.1
-  )')
+  )'
 fi
+
+eks_build_sed() {
+  local e="sed"
+
+  if [[ "$(basename $SHELL)" == zsh ]]; then
+    set -- "$@" $(eval 'echo "${(kv)_eks_libs}"')
+  else
+    local kv=""
+    for k in "${!_eks_libs[@]}"; do
+      kv+=" $k ${_eks_libs[$k]}"
+    done
+    set -- "$@" $kv
+  fi
+
+  while [[ $# -gt 1 ]]; do
+    e+=" -e 's!$1!$2!g'"
+    shift
+    shift
+  done
+
+  eval "$e"
+}
 
 eks_bpftrace_stdin_script() {
   local pod="$1"
@@ -104,24 +127,7 @@ eks_bpftrace_stdin_script() {
   [[ "$container" == "--" ]] && container=""
   [[ -n "$container" ]] && container="-c $container"
 
-  local e="sed"
-  while [[ $# -gt 1 ]]; do
-    e+=" -e 's!$1!$2!g'"
-    shift
-    shift
-  done
-
-  if [[ "$(basename $SHELL)" == zsh ]]; then
-    for k in eval 'echo ${(k)_eks_libs}'; do
-      e+=" -e s!$k!${_eks_libs[$k]}!"
-    done
-  else
-    for k in "${!_eks_libs[@]}"; do
-      e+=" -e s!$k!${_eks_libs[$k]}!"
-    done
-  fi
-
-  eval "$e" | kubectl exec -ti $pod $container -- /tmp/bin/bpftrace -
+  eks_build_sed "$@" | kubectl exec -ti $pod $container -- /tmp/bin/bpftrace -
 }
 
 eks_htop_ship_config_filter_bg() {
