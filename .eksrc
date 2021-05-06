@@ -1,6 +1,8 @@
 # -*- sh -*-
 
-export EKS_CLUSTERS_SRC EKS_PODS_SRC EKS_BATCH=4
+: "${EKS_BATCH:=4}"
+export EKS_CLUSTERS_SRC EKS_PODS_SRC EKS_BATCH
+
 declare -a _eks_clusters _eks_pods
 declare -ar _eks_tools=(htop lsof strace curl)
 
@@ -42,16 +44,16 @@ eks_ship_tools_filter_bg() {
   local FILTER="${1-}"
   local container="${2---}"
   [[ "$container" == "--" ]] && container=""
+  [[ -n "$container" ]] && container="-c $container"
 
   for pod in $(eks_list_pods_filter "$FILTER"); do
-    [ -n "$container" ] && pod+=" -c"
     for t in "${_eks_tools[@]}"; do
       time kubectl exec -i $pod $container -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
     done
     kubectl exec --logtostderr $pod $container -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile' &
+    wait
+    echo "Shipped to $pod $container."
   done
-
-  wait
 }
 
 eks_send_bpftrace_kheaders_filter_bg() {
@@ -59,28 +61,40 @@ eks_send_bpftrace_kheaders_filter_bg() {
   local container="${2---}"
 
   [[ "$container" == "--" ]] && container=""
+  [[ -n "$container" ]] && container="-c $container"
 
   for pod in $(eks_list_pods_filter "$FILTER"); do
-    [[ -n "$container" ]] && pod+=" -c"
-
     time kubectl exec -i $pod $container -- sh -c 'mkdir -p /tmp/kheaders-$(uname -r) && cd /tmp/kheaders-$(uname -r) && tar -xJf -' </sys/kernel/kheaders.tar.xz &
     time kubectl exec -i $pod $container -- sh -c 'mkdir -p /tmp/bin && cat >/tmp/bin/bpftrace && chmod +x /tmp/bin/bpftrace' <~/bin/bpftrace &
+    wait
+    echo "Sent to $pod $container."
   done
-
-  wait
 }
 
-eks_run_terminal_shell() {
-  local pod="$1"
+eks_run_terminal_shell_filter() {
+  local FILTER="$1"
   local container="${2---}"
   shift
   [[ $# -gt 0 ]] && shift
 
   [[ "$container" == "--" ]] && container=""
-  [[ -n "$container" ]] && pod+=" -c"
+  [[ -n "$container" ]] && container="-c $container"
 
-  kubectl exec -ti $pod $container -- sh -lc '$@' -- "$@"
+  for pod in $(eks_list_pods_filter "$FILTER"); do
+    kubectl exec -ti $pod $container -- sh -c '. ~/.profile; $@' -- "$@"
+  done
 }
+
+declare -A eks_libs
+if [[ "$(basename $SHELL)" == zsh ]]; then
+  _eks_libs=$(eval '(
+    x86_64-linux-gnu/libc.so.6 libc.musl-x86_86.so.1
+  )')
+else
+  _eks_libs=$(eval '(
+    [x86_64-linux-gnu/libc.so.6]=libc.musl-x86_86.so.1
+  )')
+fi
 
 eks_bpftrace_stdin_script() {
   local pod="$1"
@@ -88,7 +102,7 @@ eks_bpftrace_stdin_script() {
   shift
   [[ $# -gt 0 ]] && shift
   [[ "$container" == "--" ]] && container=""
-  [[ -n "$container" ]] && pod+=" -c"
+  [[ -n "$container" ]] && container="-c $container"
 
   local e="sed"
   while [[ $# -gt 1 ]]; do
@@ -97,7 +111,32 @@ eks_bpftrace_stdin_script() {
     shift
   done
 
+  if [[ "$(basename $SHELL)" == zsh ]]; then
+    for k in eval 'echo ${(k)_eks_libs}'; do
+      e+=" -e s!$k!${_eks_libs[$k]}!"
+    done
+  else
+    for k in "${!_eks_libs[@]}"; do
+      e+=" -e s!$k!${_eks_libs[$k]}!"
+    done
+  fi
+
   eval "$e" | kubectl exec -ti $pod $container -- /tmp/bin/bpftrace -
+}
+
+eks_htop_ship_config_filter_bg() {
+  local FILTER="$1"
+  local container="${2---}"
+  shift
+  [[ $# -gt 0 ]] && shift
+  [[ "$container" == "--" ]] && container=""
+  [[ -n "$container" ]] && container="-c $container"
+
+  for pod in $(eks_list_pods_filter "$FILTER"); do
+    kubectl -i $pod $container -- sh -c \
+      '"mkdir -p ~/.config/htop && cat > ~/.config/htop/htoprc"' <~/.config/htop/htoprc &
+  done
+  wait
 }
 
 eks_screen_shell_filter() {
@@ -106,20 +145,22 @@ eks_screen_shell_filter() {
   shift
   [[ $# -gt 0 ]] && shift
   [[ "$container" == "--" ]] && container=""
+  [[ -n "$container" ]] && container="-c $container"
 
   for pod in $(eks_list_pods_filter "$FILTER"); do
-    [[ -n "$container" ]] && pod+=" -c"
     screen -X screen "$SHELL" -c \
-      ". ~/.eksrc; . ~/.bcsrc; _bcs_title $pod $container; kubectl exec -ti $pod $container -- sh -lc '\"\$@\"'" -- "$@"
+      ". ~/.eksrc; . ~/.bcsrc; _bcs_title $pod $container; kubectl exec -ti $pod $container -- sh -c '. ~/.profile; \"\$@\"'" -- "$@"
   done
 }
 
 function eks_batch_shell_filter() {
-  local FILTER="${1-}"
+  local FILTER="$1"
+  local container="$2"
   shift
-  local container="${2---}"
-  [[ $# -gt 0 ]] && shift
-  [[ "$container" == "--" ]] && container="" || container="-c $container"
+  shift
+
+  [[ "$container" == "--" ]] && container=""
+  [[ -n "$container" ]] && container="-c $container"
 
   if [[ -t 1 ]]; then
     # ANSI color indexes: black = 0, red = 1, green = 2
@@ -133,10 +174,9 @@ function eks_batch_shell_filter() {
     local prefix="{}"
   fi
 
-  eks_list_pods_filter "$FILTER" | xargs -P $EKS_BATCH -i kubectl exec -i {} $container \
-    sh -lc '"(eval \"\$0\" \
-      || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 \
-        | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
+  eks_list_pods_filter "$FILTER" | xargs -i echo kubectl exec {} $container -- \
+    sh -c '"(. ~/.profile; eval \"\$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\" |
+    xargs -d '\n' -P $EKS_BATCH -i sh -c '{}'
 }
 
 _eks_cluster_completion_zsh() {
@@ -171,9 +211,10 @@ if [[ "$(basename "$SHELL")" == "zsh" ]]; then
   compdef _eks_pod_completion_zsh eks_ship_tools_filter_bg
   compdef _eks_pod_completion_zsh eks_send_bpftrace_kheaders_filter_bg
   compdef _eks_pod_completion_zsh eks_bpftrace_stdin_script
-  compdef _eks_pod_completion_zsh eks_run_terminal_shell
+  compdef _eks_pod_completion_zsh eks_run_terminal_shell_filter
   compdef _eks_pod_completion_zsh eks_screen_shell_filter
   compdef _eks_pod_completion_zsh eks_batch_shell_filter
+  compdef _eks_pod_completion_zsh eks_htop_ship_config_filter_bg
 else
   complete -W '${_eks_clusters[@]}' eks_list_clusters_filter
   complete -W '${_eks_clusters[@]}' eks_update_kubeconfig
@@ -181,9 +222,10 @@ else
   complete -W '${_eks_pods[@]}' eks_ship_tools_filter_bg
   complete -W '${_eks_pods[@]}' eks_send_bpftrace_kheaders_filter_bg
   complete -W '${_eks_pods[@]}' eks_bpftrace_stdin_script
-  complete -W '${_eks_pods[@]}' eks_run_terminal_shell
+  complete -W '${_eks_pods[@]}' eks_run_terminal_shell_filter
   complete -W '${_eks_pods[@]}' eks_screen_shell_filter
   complete -W '${_eks_pods[@]}' eks_batch_shell_filter
+  complete -W '${_eks_pods[@]}' eks_htop_ship_config_filter_bg
 fi
 
 _eks_load_clusters >/dev/null 2>&1

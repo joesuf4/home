@@ -28,7 +28,7 @@ export EC2_BATCH EC2_ID_SRC
 declare -a _ec2_hosts
 declare -ar _ec2_tools=(htop lsof strace curl)
 
-function _ec2_inventory_hosts_zsh() {
+_ec2_inventory_hosts_zsh() {
   local state
   _arguments '1: :->ec2_host'
   case $state in
@@ -49,7 +49,7 @@ for fcn in ec2_list_inventory_filter ec2_push_ssh_public_key ec2_exec_terminal_f
   fi
 done
 
-function _ec2_load_inventory() {
+_ec2_load_inventory() {
   [[ -n "${BCS_PROFILE-}" ]] || return 0
 
   : "${EC2_ID_SRC:=$(
@@ -67,12 +67,12 @@ function _ec2_load_inventory() {
   return 0
 }
 
-function ec2_list_inventory_filter() {
+ec2_list_inventory_filter() {
   ([[ "$(basename "$SHELL")" == "bash" ]] && echo "${!EC2_ID[@]}" || eval 'echo "${(k)EC2_ID}"') |
     tr ' ' '\n' | sort | grep -Pe "${1-}"
 }
 
-function ec2_push_ssh_public_key() {
+ec2_push_ssh_public_key() {
   local FILTER=${1-}
   local pubs="$(cat ~/.ssh/id_*.pub)"
 
@@ -93,14 +93,14 @@ function ec2_push_ssh_public_key() {
   wait
 }
 
-function ec2_exec_terminal_filter() {
+ec2_exec_terminal_filter() {
   local FILTER="${1-}"
   shift
 
   for host in $(ec2_list_inventory_filter "$FILTER"); do ssh -t "$host" "$@"; done
 }
 
-function ec2_htop_ship_config_filter_bg() {
+ec2_htop_ship_config_filter_bg() {
   local FILTER="${1-}"
   shift
 
@@ -111,7 +111,7 @@ function ec2_htop_ship_config_filter_bg() {
   wait
 }
 
-function ec2_screen_exec_filter() {
+ec2_screen_exec_filter() {
   local FILTER="${1-}"
   shift
 
@@ -121,7 +121,7 @@ function ec2_screen_exec_filter() {
   done
 }
 
-function ec2_batch_shell_filter() {
+ec2_batch_shell_filter() {
   local FILTER="${1-}"
   shift
 
@@ -143,7 +143,7 @@ function ec2_batch_shell_filter() {
         | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
 }
 
-function ec2_ship_tools_filter_bg() {
+ec2_ship_tools_filter_bg() {
   local FILTER="${1-}"
 
   for host in $(ec2_list_inventory_filter "$FILTER"); do
