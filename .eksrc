@@ -2,8 +2,8 @@
 
 declare -a _eks_clusters _eks_pods _bcs_tools
 declare -A _eks_libs
-export EKS_CLUSTERS_SRC EKS_PODS_SRC EKS_BATCH
-: "${EKS_BATCH:=4}"
+export EKS_CLUSTERS_SRC EKS_PODS_SRC
+: "${BCS_BATCH:=4}"
 
 eks_list_clusters_filter() {
   local FILTER="${1-}"
@@ -179,7 +179,7 @@ function eks_batch_shell_filter() {
 
   eks_list_pods_filter "$FILTER" | xargs -i echo kubectl exec {} $container -- \
     sh -c '"(. ~/.profile; eval \"\$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\" |
-    xargs -d '\n' -P $EKS_BATCH -i sh -c '{}'
+    xargs -d '\n' -P $BCS_BATCH -i sh -c '{}'
 }
 
 _eks_cluster_completion_zsh() {
