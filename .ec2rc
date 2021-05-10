@@ -26,8 +26,6 @@ declare -ax _ec2_cmds=(list-inventory ssh-ship-public-key ssm-helper)
 
 export EC2_ID_SRC
 
-: "${BCS_BATCH:=4}"
-
 _ec2_usage() {
   cat <<EOF
 list-inventory             List current ec2 inventory for this AWS role
@@ -94,7 +92,7 @@ _ec2_load_inventory() {
       [[ "$(basename "$SHELL")" == "bash" ]] && echo [$host]="$id" || echo "$host" "$id"
     done
   )}"
-  eval "EC2_ID=( $EC2_ID_SRC )"
+  EC2_ID=( $EC2_ID_SRC )
 
   if [[ $(basename "$SHELL") = "zsh" ]]; then
     eval '_ec2_hosts=("${(k)EC2_ID}")'

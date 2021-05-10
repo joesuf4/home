@@ -8,7 +8,7 @@ declare -ax _eks_pods_flags=("--selector=")
 
 export EKS_CLUSTERS_SRC EKS_PODS_SRC EKS_POD_SEARCH_LIMIT
 
-: "${BCS_BATCH:=4}" "${EKS_POD_SEARCH_LIMIT:=4}"
+: "${EKS_POD_SEARCH_LIMIT:=4}"
 
 _eks_usage() {
   cat <<EOF
