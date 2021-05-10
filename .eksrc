@@ -12,19 +12,32 @@ export EKS_CLUSTERS_SRC EKS_PODS_SRC EKS_POD_SEARCH_LIMIT
 
 _eks_usage() {
   cat <<EOF
-list-clusters
+list-clusters              Show available AWS kubernetes clusters for the
+                           current AWS role
+
                            ===
 
+update-kubeconfig          Select current kubernetes cluster/context.
+                           [<args>]
+                             1. Name of cluster
+                           Notes: Defaults to currently selected cluster
+                           (shown in your xterm window), which effectively
+                           reloads the AWS eks config and its pod inventory.
 
-update-kubeconfig
                            ===
 
+list-pods                  List the available pods for this current kubernetes
+                           context.
+                           [<args>]
+                             1. PCRE pod name filter
 
-list-pods
                            ===
 
-list-pod-containers
-
+list-pod-containers        List the available containers for the given pod
+                           filter.
+                           [<args>]
+                             1. PCRE pod name filter
+                             2. PCRE container name filter
 
 EOF
 }
@@ -148,6 +161,7 @@ _eks_load_pods() {
 }
 
 eks_update_kubeconfig() {
+  [[ $# -gt 0 ]] || set "$(kubectl config get-contexts | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
   aws eks update-kubeconfig --name "$1"
   EKS_PODS_SRC=
   _eks_load_pods

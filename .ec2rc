@@ -30,16 +30,25 @@ export EC2_ID_SRC
 
 _ec2_usage() {
   cat <<EOF
-list-inventory
+list-inventory             List current ec2 inventory for this AWS role
+                           [<args>]
+                             1. PCRE ec2 Name (label) filter.
 
                            ===
 
-ssh-ship-public-key
+ssh-ship-public-key        Ship public key to selected ec2 inventory
+                           [<args>]
+                             1. PCRE ec2 Name (label) filter.
 
                            ===
 
-ssm-helper
-
+ssm-helper                 Execute installed ~/bin/ssm-helper.sh script
+                           [<args>]
+                             1. PCRE ec2 Name (label) (optional).
+                           Notes: If executed with no arguments, this will
+                           cause ~/bin/ssm-helper.sh to list the ec2 inventory.
+                           Otherwise will launch an ssm terminal (shell)
+                           session for the selected ec2 instance.
 EOF
 }
 
@@ -96,7 +105,7 @@ _ec2_load_inventory() {
 }
 
 ec2_list_inventory() {
-  ([[ "$(basename "$SHELL")" == zsh ]] && eval 'echo "${(k)EC2_ID}"' || echo "${!EC2_ID[@]}" ) |
+  ([[ "$(basename "$SHELL")" == zsh ]] && eval 'echo "${(k)EC2_ID}"' || echo "${!EC2_ID[@]}") |
     tr ' ' '\n' | sort | grep -Pe "${1-}"
 }
 
