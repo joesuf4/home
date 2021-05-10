@@ -30,13 +30,19 @@ list-pods                  List the available pods for this current kubernetes
                            context.
                            [<args>]
                              1. PCRE pod name filter
+                           Notes:
+                           The pod name filter argument will also accept the
+                           following long-flag prefixes (that you can complete
+                           yourself):
+
+                               ${_eks_pods_flags[@]}
 
                            ===
 
 list-pod-containers        List the available containers for the given pod
                            filter.
                            [<args>]
-                             1. PCRE pod name filter
+                             1. PCRE pod name filter (see "list-pods" note)
                              2. PCRE container name filter
 
 EOF
