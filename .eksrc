@@ -150,7 +150,7 @@ eks_list_pod_containers() {
 
 _eks_load_clusters() {
   [ -n "$BCS_PROFILE" ] || return 0
-  : "${EKS_CLUSTERS_SRC:=$(aws eks list-clusters --output text | awk '{print $2}')}"
+  : "${EKS_CLUSTERS_SRC:=$(aws eks list-clusters --output text | awk '{print $2}' | tr -dc "$BCS_ADMISSIBLE_CHARS")}"
   eval "_eks_clusters=($EKS_CLUSTERS_SRC)"
   EKS_PODS_SRC=
   return 0
@@ -160,7 +160,7 @@ _eks_load_pods() {
   [ -n "$BCS_PROFILE" ] || return 0
   : "${EKS_PODS_SRC:=$(kubectl get pods "$@" --field-selector=status.phase=Running | (
     read -r _
-    awk '{print $1}'
+    awk '{print $1}' | tr -dc "$BCS_ADMISSIBLE_CHARS"
   )) ${_eks_pods_flags[@]}}"
   eval "_eks_pods=($EKS_PODS_SRC)"
   return 0
