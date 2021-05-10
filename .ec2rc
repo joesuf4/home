@@ -21,11 +21,29 @@
 # All of these principles will factor into the ansible orchestration work to come next.
 
 declare -A EC2_ID
-declare -a _ec2_hosts _bcs_tools
+declare -ax _ec2_hosts _bcs_cmds _bcs_tools
+declare -ax _ec2_cmds=(list-inventory ssh-ship-public-key ssm-helper)
+
 export EC2_ID_SRC
+
 : "${BCS_BATCH:=4}"
 
-_ec2_inventory_hosts_zsh() {
+_ec2_usage() {
+  cat <<EOF
+list-inventory
+
+                           ===
+
+ssh-ship-public-key
+
+                           ===
+
+ssm-helper
+
+EOF
+}
+
+_ec2_zsh_inventory_hosts_completion() {
   local state
   _arguments '1: :->ec2_host'
   case $state in
@@ -35,14 +53,27 @@ _ec2_inventory_hosts_zsh() {
   esac
 }
 
-for fcn in ec2_list_inventory_filter ec2_push_ssh_public_key ec2_exec_terminal_filter \
-  ec2_batch_shell_filter ec2_screen_exec_filter \
-  ec2_htop_ship_config_filter_bg ec2_tools_ship_filter_bg ec2-ssm-helper.sh; do
+_ec2_zsh_completion() {
+  local state
+  _arguments '1: :->ec2_cmd' '2: :->ec2_host'
 
-  if [[ $(basename "$SHELL") == "zsh" ]]; then
-    compdef _ec2_inventory_hosts_zsh $fcn
+  case $state in
+    ec2_cmd)
+      _arguments "1:ec2_cmd:($_ec2_cmds $_bcs_cli_cmds)"
+      ;;
+    ec2_host)
+      _arguments "2:ec2_host:($_ec2_hosts)"
+      ;;
+  esac
+}
+
+for fcn in "${_bcs_cmds[@]//-/_}" "${_ec2_cmds[@]//-/_}"; do
+  if [[ $(basename "$SHELL") == zsh ]]; then
+    compdef _ec2_zsh_inventory_hosts_completion ec2_$fcn
+    compdef _ec2_zsh_inventory_hosts_completion ec2-${fcn//_/-}.sh
   else
-    complete -W '${_ec2_hosts[@]}' $fcn
+    complete -W '${_ec2_hosts[@]}' ec2_$fcn
+    complete -W '${_ec2_hosts[@]}' ec2-${fcn//_/-}.sh
   fi
 done
 
@@ -64,12 +95,12 @@ _ec2_load_inventory() {
   return 0
 }
 
-ec2_list_inventory_filter() {
-  ([[ "$(basename "$SHELL")" == "bash" ]] && echo "${!EC2_ID[@]}" || eval 'echo "${(k)EC2_ID}"') |
+ec2_list_inventory() {
+  ([[ "$(basename "$SHELL")" == zsh ]] && eval 'echo "${(k)EC2_ID}"' || echo "${!EC2_ID[@]}" ) |
     tr ' ' '\n' | sort | grep -Pe "${1-}"
 }
 
-ec2_push_ssh_public_key() {
+ec2_ssh_ship_public_key() {
   local FILTER=${1-}
   local pubs="$(cat ~/.ssh/id_*.pub)"
 
@@ -77,7 +108,7 @@ ec2_push_ssh_public_key() {
     echo "Invalid Public Key: $USER@ not found in : '$pubs'" >&2 && return 1
   )
 
-  for host in $(ec2_list_inventory_filter "$FILTER"); do
+  for host in $(ec2_list_inventory "$FILTER"); do
     (
       sleep "${DELAY-20}"
       echo 'mkdir -p ~/.ssh'
@@ -90,35 +121,92 @@ ec2_push_ssh_public_key() {
   wait
 }
 
-ec2_exec_terminal_filter() {
+ec2_shell() {
   local FILTER="${1-}"
   shift
 
-  for host in $(ec2_list_inventory_filter "$FILTER"); do ssh -t "$host" "$@"; done
+  local TMP
+  if ! [[ -t 0 ]]; then
+    TMP="$(mktemp /tmp/ec2-XXXX)"
+    cat >$TMP
+  fi
+
+  for host in $(ec2_list_inventory "$FILTER"); do
+    if [[ -t 0 ]]; then
+      ssh -t "$host" sh -c '. ~/.profile 2>/dev/null; eval sudo -E "$@"' -- "$@"
+    else
+      bcs_sed_uprobe_shared_libs ssh -t "$host" <$TMP |
+        ssh "$host" sh -c '. ~/.profile 2>/dev/null; eval sudo -E "$@"' -- "$@"
+    fi
+  done
+
+  [[ -f "$TMP" ]] && rm -f $TMP
 }
 
-ec2_htop_ship_config_filter_bg() {
+ec2_scripts_ship_bg() {
+  local FILTER="$1"
+  shift
+  for script; do
+    local s="$(basename "$script")"
+    ec2_batch "$FILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$s && chmod +x /tmp/bin/$s" <"$script" &
+  done
+  wait
+}
+
+ec2_htop_ship_config_bg() {
   local FILTER="${1-}"
   shift
 
-  for host in $(ec2_list_inventory_filter "$FILTER"); do
+  for host in $(ec2_list_inventory "$FILTER"); do
     ssh "$host" sudo bash -c \
       '"cat > /home/ssm-user/.config/htop/htoprc"' <~/.config/htop/htoprc &
   done
   wait
 }
 
-ec2_screen_exec_filter() {
+ec2_bpftrace_ship_kheaders_bg() {
   local FILTER="${1-}"
-  shift
-
-  for host in $(ec2_list_inventory_filter "$FILTER"); do
-    screen -X screen "$SHELL" -c \
-      ". ~/.eksrc; . ~/.bc2rc; _bcs_title :$host:; ssh -t $host \"\$@\"" -- "$@"
+  local wsl_kernel_version_major="$(uname -r)"
+  wsl_kernel_version_major="${wsl_kernel_version_major%.**}"
+  for host in $(ec2_list_inventory "$FILTER"); do
+    local host_kernel_version_major="$(ssh "$host" uname -r)"
+    host_kernel_version_major="${host_kernel_version_major%.**}"
+    if [[ ! "$wsl_kernel_version_major" == "$host_kernel_version_major" ]]; then
+      echo "Kernel major version mismatch: $(ssh $host -- uname -r) on $host, aborting!" >&2
+      continue
+    fi
+    time ssh $host -- sh -c 'mkdir -p /tmp/kheaders-$(uname -r) && cd /tmp/kheaders-$(uname -r) && tar -xJf -' </sys/kernel/kheaders.tar.xz &
+    time ssh host -- sh -c 'mkdir -p /tmp/bin && cat >/tmp/bin/bpftrace && chmod +x /tmp/bin/bpftrace' <~/bin/bpftrace &
+    time ssh $host -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile 2>/dev/null' &
+    wait
+    echo "Sent to $host."
   done
 }
 
-ec2_batch_shell_filter() {
+ec2_screen() {
+  local FILTER="${1-}"
+  shift
+
+  local TMP
+  if [[ ! -t 0 ]]; then
+    TMP="$(mktemp /tmp/ec2-XXXX)"
+    cat >$TMP
+  fi
+
+  for host in $(ec2_list_inventory "$FILTER"); do
+    if [[ -t 0 ]]; then
+      screen "$SHELL" -ic \
+        ". ~/.$(basename "$SHELL")rc 2>/dev/null; _bcs_title :$host: \"\$@\"; ssh -t $host sh -c '. ~/.profile 2>/dev/null; eval sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
+    else
+      screen "$SHELL" -ic \
+        ". ~/.$(basename "$SHELL")rc 2>/dev/null; _bcs_title :$host: \"\$@\"; bcs_sed_uprobe_shared_libs ssh $host <$TMP | ssh -t $host sh -c '. ~/.profile 2>/dev/null; eval sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
+    fi
+  done
+
+  [[ -f "$TMP" ]] && (sleep 5 && rm -f $TMP &)
+}
+
+ec2_batch() {
   local FILTER="${1-}"
   shift
 
@@ -134,20 +222,32 @@ ec2_batch_shell_filter() {
     local prefix="{}"
   fi
 
-  ec2_list_inventory_filter "$FILTER" | xargs -P $BCS_BATCH -i ssh {} \
-    bash -c '"(eval \"\$0\" \
-      || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 \
-        | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
+  local TMP
+  if [[ ! -t 0 ]]; then
+    TMP="$(mktemp /tmp/ec2-XXXX)"
+    cat >$TMP
+  fi
+
+  if [[ -t 0 ]]; then
+    ec2_list_inventory "$FILTER" | xargs -d '\n' -i echo ssh {} \
+      bash -c '". ~/.profile 2>/dev/null; (eval sudo -E \"\$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
+  else
+    ec2_list_inventory "$FILTER" xargs -d '\n' -i echo bcs_sed_uprobe_shared_libs \
+      ssh {} '|' ssh {} bash -c '". ~/.profile 2>/dev/null; (eval sudo -E \"\$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
+  fi |
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.eksrc 2>/dev/null; . ~/.bcsrc 2>/dev/null; {} <&2'
+
+  [ -f "$TMP" ] && rm -f $TMP
 }
 
-ec2_ship_tools_filter_bg() {
+ec2_ship_tools_bg() {
   local FILTER="${1-}"
 
-  for host in $(ec2_list_inventory_filter "$FILTER"); do
+  for host in $(ec2_list_inventory "$FILTER"); do
     for t in "${_bcs_tools[@]}"; do
       ssh $host -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
     done
-    ssh $host -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile' &
+    ssh $host -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile 2>/dev/null' &
   done
 
   wait
