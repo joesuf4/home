@@ -316,7 +316,7 @@ function eks_batch() {
       fi
     done
   done |
-    xargs -d '\n' -P $BCS_BATCH -i $SHELL -ic '{}'
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}'
 
   [[ -f "$TMP" ]] && rm -f $TMP
 }
