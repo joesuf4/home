@@ -123,6 +123,7 @@ eks_list_pods() {
     local EKS_PODS_SRC
     local _eks_pods
     _eks_load_pods "$FILTER"
+    FILTER=""
   fi
   for c in "${_eks_pods[@]}"; do
     [[ "$c" == "${c#--}" ]] && echo "$c"
