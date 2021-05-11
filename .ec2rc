@@ -139,6 +139,7 @@ ec2_shell() {
   fi
 
   for host in $(ec2_list_inventory "$FILTER"); do
+    _bcs_title :$host: "$@"
     if [[ -t 0 ]]; then
       ssh -t "$host" sh -c '. ~/.profile 2>/dev/null; eval sudo -E "$@"' -- "$@"
     else
@@ -186,7 +187,7 @@ ec2_bpftrace_ship_kheaders_bg() {
     fi
     time ssh $host -- sh -c 'mkdir -p /tmp/kheaders-$(uname -r) && cd /tmp/kheaders-$(uname -r) && tar -xJf -' </sys/kernel/kheaders.tar.xz &
     time ssh host -- sh -c 'mkdir -p /tmp/bin && cat >/tmp/bin/bpftrace && chmod +x /tmp/bin/bpftrace' <~/bin/bpftrace &
-    time ssh $host -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile 2>/dev/null' &
+    time ssh $host -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
     wait
     echo "Sent to $host."
   done
@@ -197,13 +198,8 @@ ec2_screen() {
   shift
 
   for host in $(ec2_list_inventory "$FILTER"); do
-    if [[ -t 0 ]]; then
-      screen "$SHELL" -ic \
-        ". ~/.$(basename "$SHELL")rc 2>/dev/null; _bcs_title :$host: \"\$@\"; ssh -t $host sh -lc 'eval sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
-    else
-      screen "$SHELL" -ic \
-        ". ~/.$(basename "$SHELL")rc 2>/dev/null; _bcs_title :$host: \"\$@\"; bcs_sed_uprobe_shared_libs ssh $host <$TMP | ssh -t $host sh -lc 'eval sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
-    fi
+    screen "$SHELL" -ic \
+      "_bcs_title :$host: \"\$@\"; ssh -t $host sh -lc 'eval sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
   done
 }
 
@@ -250,7 +246,7 @@ ec2_ship_tools_bg() {
     for t in "${_bcs_tools[@]}"; do
       ssh $host -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
     done
-    ssh $host -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile 2>/dev/null' &
+    ssh $host -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
   done
 
   wait

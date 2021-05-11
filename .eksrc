@@ -184,7 +184,7 @@ eks_tools_ship_bg() {
       for t in "${_bcs_tools[@]}"; do
         time kubectl exec -i $pod -c $c -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
       done
-      kubectl exec $pod -c $c -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile 2>/dev/null' &
+      kubectl exec $pod -c $c -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
       wait
       echo "Shipped ${stype-tools} to $pod/$c."
     done
@@ -198,9 +198,8 @@ eks_scripts_ship_bg() {
   shift
   for script; do
     local s="$(basename "$script")"
-    eks_batch "$PFILTER" "$CFILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$s && chmod +x /tmp/bin/$s" <"$script" &
+    eks_batch "$PFILTER" "$CFILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$s && chmod +x /tmp/bin/$s" <"$script"
   done
-  wait
 }
 
 eks_bpftrace_ship_kheaders_bg() {
@@ -218,7 +217,7 @@ eks_bpftrace_ship_kheaders_bg() {
       fi
       time kubectl exec -i $pod -c $c -- sh -c 'mkdir -p /tmp/kheaders-$(uname -r) && cd /tmp/kheaders-$(uname -r) && tar -xJf -' </sys/kernel/kheaders.tar.xz &
       time kubectl exec -i $pod -c $c -- sh -c 'mkdir -p /tmp/bin && cat >/tmp/bin/bpftrace && chmod +x /tmp/bin/bpftrace' <~/bin/bpftrace &
-      kubectl exec $pod -c $c -- sh -c 'echo PATH="$PATH:/tmp/bin" > ~/.profile 2>/dev/null' &
+      kubectl exec $pod -c $c -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
       wait
     done
   done
@@ -239,6 +238,7 @@ eks_shell() {
 
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
+      _bcs_title :$pod/$c: "$@"
       if [[ -t 0 ]]; then
         kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo ="sudo -E"; eval $sudo "$@"' -- "$@"
       else

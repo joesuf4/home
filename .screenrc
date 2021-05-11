@@ -5,9 +5,6 @@ startup_message off
 defscrollback 8192
 termcapinfo * ti@:te@
 
-# xterm window title
-termcapinfo * hs:ts=\E]0;:fs=\007:ds=\E]0;screen\007
-
 # ^Aa (screen's default) is too important (on the command line) to sacrifice
 escape ^Tt
 defobuflimit 4096
