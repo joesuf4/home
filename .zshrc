@@ -136,7 +136,11 @@ alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $
 
 alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
+alias wsl_clock='sudo hwclock -s'
+
 alias htop='sudo -E htop'
+
+alias lsof='sudo -E lsof'
 
 alias bpftrace='sudo -E bpftrace'
 
@@ -144,7 +148,6 @@ alias apt='sudo -E apt'
 
 alias top_10='perl -nale "END{ print \"\$_\\t\" . (\"x\" x ${FCN-}(\$h{\$_}/${DIV-1}) . \" \$h{\$_}\" for sort {\$h{\$b} <=> \$h{\$a}} keys %h} \$h{\$F[0]} = \$F[1]" | head'
 
-alias wsl_clock='sudo hwclock -s'
 
 alias wingit_pull='(~winhome && git pull)'
 

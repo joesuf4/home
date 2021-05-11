@@ -77,7 +77,7 @@ _eks_zsh_pod_container_completion() {
 
 _eks_zsh_completion() {
   local state
-  _arguments '1: :->eks_cmd' '2: :->eks_pod' '3: :->eks_container'
+  _arguments '1: :->eks_cmd' '2: :->eks_pod' '3: :->eks_container' '*: :->*'
 
   case $state in
     eks_cmd)
@@ -92,6 +92,9 @@ _eks_zsh_completion() {
       ;;
     eks_container)
       compadd "$@" $(eks_list_pod_containers "${words[3]}")
+      ;;
+    *)
+      _arguments "*:bin:($(ls ~/bin))"
       ;;
   esac
 }
@@ -191,14 +194,13 @@ eks_tools_ship_bg() {
   done
 }
 
-eks_scripts_ship_bg() {
+eks_scripts_ship_batch() {
   local PFILTER="$1"
   local CFILTER="$2"
   shift
   shift
   for script; do
-    local s="$(basename "$script")"
-    eks_batch "$PFILTER" "$CFILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$s && chmod +x /tmp/bin/$s" <"$script"
+    eks_batch "$PFILTER" "$CFILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script" <~/bin/"$script"
   done
 }
 
