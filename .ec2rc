@@ -147,7 +147,9 @@ ec2_shell() {
     fi
   done
 
+  local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
+  return $rv
 }
 
 ec2_scripts_ship_bg() {
@@ -194,12 +196,6 @@ ec2_screen() {
   local FILTER="${1-}"
   shift
 
-  local TMP
-  if [[ ! -t 0 ]]; then
-    TMP="$(mktemp /tmp/ec2-XXXX)"
-    cat >$TMP
-  fi
-
   for host in $(ec2_list_inventory "$FILTER"); do
     if [[ -t 0 ]]; then
       screen "$SHELL" -ic \
@@ -209,8 +205,6 @@ ec2_screen() {
         ". ~/.$(basename "$SHELL")rc 2>/dev/null; _bcs_title :$host: \"\$@\"; bcs_sed_uprobe_shared_libs ssh $host <$TMP | ssh -t $host sh -lc 'eval sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
     fi
   done
-
-  [[ -f "$TMP" ]] && (sleep 5 && rm -f $TMP &)
 }
 
 ec2_batch() {
@@ -244,7 +238,9 @@ ec2_batch() {
   fi |
     xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}'
 
+  local rv=$?
   [ -f "$TMP" ] && rm -f $TMP
+  return $rv
 }
 
 ec2_ship_tools_bg() {

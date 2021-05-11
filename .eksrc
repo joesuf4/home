@@ -247,7 +247,9 @@ eks_shell() {
     done
   done
 
+  local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
+  return $rv
 }
 
 eks_htop_ship_config_bg() {
@@ -319,7 +321,9 @@ function eks_batch() {
   done |
     xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}'
 
+  local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
+  return $rv
 }
 
 _eks_load_clusters >/dev/null 2>&1
