@@ -165,7 +165,7 @@ ec2_htop_ship_config_bg() {
   shift
 
   for host in $(ec2_list_inventory "$FILTER"); do
-    ssh "$host" sudo bash -c \
+    ssh "$host" sudo sh -c \
       '"cat > /home/ssm-user/.config/htop/htoprc"' <~/.config/htop/htoprc &
   done
   wait
@@ -203,10 +203,10 @@ ec2_screen() {
   for host in $(ec2_list_inventory "$FILTER"); do
     if [[ -t 0 ]]; then
       screen "$SHELL" -ic \
-        ". ~/.$(basename "$SHELL")rc 2>/dev/null; _bcs_title :$host: \"\$@\"; ssh -t $host sh -c '. ~/.profile 2>/dev/null; eval sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
+        ". ~/.$(basename "$SHELL")rc 2>/dev/null; _bcs_title :$host: \"\$@\"; ssh -t $host sh -lc 'eval sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
     else
       screen "$SHELL" -ic \
-        ". ~/.$(basename "$SHELL")rc 2>/dev/null; _bcs_title :$host: \"\$@\"; bcs_sed_uprobe_shared_libs ssh $host <$TMP | ssh -t $host sh -c '. ~/.profile 2>/dev/null; eval sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
+        ". ~/.$(basename "$SHELL")rc 2>/dev/null; _bcs_title :$host: \"\$@\"; bcs_sed_uprobe_shared_libs ssh $host <$TMP | ssh -t $host sh -lc 'eval sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
     fi
   done
 
@@ -237,12 +237,12 @@ ec2_batch() {
 
   if [[ -t 0 ]]; then
     ec2_list_inventory "$FILTER" | xargs -d '\n' -i echo ssh {} \
-      bash -c '". ~/.profile 2>/dev/null; (eval sudo -E \"\$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
+      sh -lc '"(eval sudo -E \"\$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \'"$@"\'
   else
     ec2_list_inventory "$FILTER" xargs -d '\n' -i echo bcs_sed_uprobe_shared_libs \
-      ssh {} '|' ssh {} bash -c '". ~/.profile 2>/dev/null; (eval sudo -E \"\$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \""$@"\"
+      ssh {} '|' ssh {} sh -lc '"(eval sudo -E \"\$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \'"$@"\'
   fi |
-    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.eksrc 2>/dev/null; . ~/.bcsrc 2>/dev/null; {} <&2'
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -ic '{}'
 
   [ -f "$TMP" ] && rm -f $TMP
 }

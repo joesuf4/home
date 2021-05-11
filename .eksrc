@@ -239,9 +239,9 @@ eks_shell() {
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
       if [[ -t 0 ]]; then
-        kubectl exec -ti $pod -c $c -- sh -c '. ~/.profile 2>/dev/null; [ -x /usr/bin/sudo ] && sudo ="sudo -E"; eval $sudo "$@"' -- "$@"
+        kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo ="sudo -E"; eval $sudo "$@"' -- "$@"
       else
-        bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- <$TMP | kubectl exec -i $pod -c $c -- sh -c '. ~/.profile 2>/dev/null; [ -x /usr/bin/sudo ] && sudo="sudo -E"; eval $sudo "$@"' -- "$@"
+        bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- <$TMP | kubectl exec -i $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo="sudo -E"; eval $sudo "$@"' -- "$@"
       fi
     done
   done
@@ -275,7 +275,7 @@ eks_screen() {
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
       screen "$SHELL" -ic \
-        ". ~/.$(basename "$SHELL")rc; _bcs_title :$pod/$c: \"\$@\"; kubectl exec -ti $pod -c $c -- sh -c '. ~/.profile 2>/dev/null; [ -x /usr/bin/sudo ] && sudo =\"sudo -E\"; eval \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+        "_bcs_title :$pod/$c: \"\$@\"; kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -E\"; eval \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
     done
   done
 }
@@ -308,15 +308,15 @@ function eks_batch() {
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
       if [[ -t 0 ]]; then
-        echo kubectl exec $pod -c $c -ti -- \
-          sh -c '"(. ~/.profile 2>/dev/null; [ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \"\$sudo \$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' \""$@"\"
+        echo kubectl exec $pod -c $c -i -- \
+          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \"\$sudo \$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' \'"$@"\'
       else
         echo bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- "<$TMP" '|' kubectl exec -i $pod -c $c -- \
-          sh -c '"(. ~/.profile 2>/dev/null; [ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \"\$sudo \$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' \""$@"\"
+          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \"\$sudo \$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' \'"$@"\'
       fi
     done
   done |
-    xargs -d '\n' -P $BCS_BATCH -i $SHELL -ic '. ~/.$(basename "$SHELL")rc; {}'
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -ic '{}'
 
   [[ -f "$TMP" ]] && rm -f $TMP
 }

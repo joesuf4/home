@@ -5,8 +5,6 @@ HISTFILE=~/.zsh_history
 
 setopt share_history extended_history hist_expire_dups_first hist_no_store \
        prompt_subst extendedglob
-unsetopt unset
-
 
 # ctrl-arrow (up/down/left/right) key bindings
 
@@ -25,7 +23,6 @@ bindkey ';5D' emacs-backward-word
 bindkey '5C' emacs-forward-word
 bindkey '5D' emacs-backward-word
 
-
 # directory stuff
 
 nd () { eval "$1='${2-$PWD}'"; : ~$1 }
@@ -35,7 +32,6 @@ alias dh='dirs -v'
 
 nd winhome /mnt/c/Users/$USER
 nd src ~winhome/src
-
 
 # typescript file walker
 
@@ -68,7 +64,6 @@ PR_RESET="%{${reset_color}%}";
 # translate deep blue (which PowerShell obfuscates by default) to cyan
 eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 
-
 # window/screen title hooks
 
 precmd () {
@@ -85,7 +80,6 @@ precmd () {
 
 preexec () { _bcs_title $2 }
 
-
 # VCS status RPROMPT
 
 autoload -Uz vcs_info
@@ -97,7 +91,6 @@ zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{1}:%F{11}%r'
 zstyle ':vcs_info:*' enable svn git
 
 RPROMPT='$vcs_info_msg_0_'
-
 
 # various platform colorized prompts (and basic utils)
 
@@ -131,7 +124,6 @@ else
     esac
 fi
 
-
 # utilities
 
 # translate between big-endian and little-endian objdumps.
@@ -143,15 +135,15 @@ alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $
 
 alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
-alias htop='sudo -E ~/bin/htop'
+alias htop='sudo -E htop'
 
-alias bpftrace='sudo -E ~/bin/bpftrace'
+alias bpftrace='sudo -E bpftrace'
 
 alias apt='sudo -E apt'
 
 alias top_10='perl -nale "END{ print \"\$_\\t\" . (\"x\" x ${FCN-}(\$h{\$_}/${DIV-1}) . \" \$h{\$_}\" for sort {\$h{\$b} <=> \$h{\$a}} keys %h} \$h{\$F[0]} = \$F[1]" | head'
 
-alias set_date='sudo hwclock -s'
+alias wsl_clock='sudo hwclock -s'
 
 alias wingit_pull='(~winhome && git pull)'
 
@@ -160,7 +152,6 @@ alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 alias pd='pty -d pty-driver.pl --'
 
 alias make='TERM=xterm-256color make -kj$(nproc)'
-
 
 # presumes a running emacs-server
 
@@ -207,13 +198,9 @@ emac () {
 autoload -Uz bashcompinit
 bashcompinit -i
 
-
 # asdf
 
-setopt unset
 . ~/.asdf/completions/asdf.bash
-unsetopt unset
-
 
 # aws/bcs/ec2/k8s/tfe
 
