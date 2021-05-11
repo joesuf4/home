@@ -1,10 +1,11 @@
+setopt prompt_subst extendedglob
+
 # history settings
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
 
-setopt share_history extended_history hist_expire_dups_first hist_no_store \
-       prompt_subst extendedglob
+setopt share_history extended_history hist_expire_dups_first hist_no_store
 
 # ctrl-arrow (up/down/left/right) key bindings
 
@@ -67,7 +68,7 @@ eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 # window/screen title hooks
 
 precmd () {
-    _bcs_title "zsh"
+    _bcs_title
 
     if [[ -z $(git ls-files --other --exclude-standard 2> /dev/null) ]] {
         zstyle ':vcs_info:*' formats "[${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_RESET}]"
