@@ -194,6 +194,8 @@ emac () {
     fi
 }
 
+unsetopt unset
+
 # initialize (bash+zsh)completion engine
 
 autoload -Uz bashcompinit
