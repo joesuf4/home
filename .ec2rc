@@ -144,10 +144,10 @@ ec2_shell() {
   for host in $(ec2_list_inventory "$FILTER"); do
     _bcs_title :$host: "$@"
     if [[ -t 0 ]]; then
-      ssh -t "$host" sh -c '. ~/.profile 2>/dev/null; eval sudo -E "$@"' -- "$@"
+      ssh -t "$host" sh -c '. ~/.profile 2>/dev/null; eval script.sh -qa /tmp/typescript sudo -E "$@"' -- "$@"
     else
       bcs_sed_uprobe_shared_libs ssh -t "$host" <$TMP |
-        ssh "$host" sh -c '. ~/.profile 2>/dev/null; eval sudo -E "$@"' -- "$@"
+        ssh "$host" sh -c '. ~/.profile 2>/dev/null; eval script.sh -qa /tmp/typescript sudo -E "$@"' -- "$@"
     fi
   done
 
@@ -200,7 +200,7 @@ ec2_screen() {
 
   for host in $(ec2_list_inventory "$FILTER"); do
     screen "$SHELL" -ic \
-      "_bcs_title :$host: \"\$@\"; ssh -t $host sh -lc 'eval sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
+      "_bcs_title :$host: \"\$@\"; ssh -t $host sh -lc 'eval script.sh -qa /tmp/typescript sudo -E \"\$@\"' -- \"\$@\"" -- "$@"
   done
 }
 

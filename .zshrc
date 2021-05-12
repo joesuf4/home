@@ -39,14 +39,18 @@ nd src ~winhome/src
 tplay () {
     perl -MPOSIX=ctermid -MTerm::ReadKey -e '
         open my $t, "+<", ctermid;
+        my $opt_s = grep /s/, @ARGV;
+        my $opt_c = grep /c/, @ARGV;
         ReadMode raw => $t;
-        my $opt = shift eq "-s";
-        while ($opt or ($_=ReadKey(0, $t)) ne "q") {
-            if ($opt or $_ eq "s") { while(<>) { print and last if /[#%\$] / }}
-            else { print scalar <> }
-            last if eof
+        while ($opt_s or $opt_c or ($_=ReadKey(0,$t)) ne "q") {
+            if ($opt_s or $_ eq "s") { while(<STDIN>) { s/\e\[\d+;?\d{0,2}[A-Zn]//g,
+            print and last if /[#%\$] / }}
+            elsif ($opt_c or $_ eq "c") { while(<STDIN>) {s/\e\[\d+;?\d{0,2}[A-Zn]//g,
+            print and last if index($_, "command: ") >= 0 }}
+            else { s/\e\[\d+;?\d{0,2}[A-Zn]//g, print for scalar <STDIN> }
+            last if eof(STDIN)
         }
-        ReadMode restore => $t
+        ReadMode restore => $t;
     ' -- "$@"
 }
 

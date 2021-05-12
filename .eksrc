@@ -91,7 +91,7 @@ _eks_zsh_completion() {
       fi
       ;;
     eks_container)
-      compadd "$@" $(eks_list_pod_containers "${words[3]}")
+      _arguments "3:eks_container:($(eks_list_pod_containers "${words[3]}"))"
       ;;
     *)
       _arguments "*:bin:($(ls ~/bin))"
@@ -242,9 +242,9 @@ eks_shell() {
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
       _bcs_title :$pod/$c: "$@"
       if [[ -t 0 ]]; then
-        kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo ="sudo -E"; eval $sudo "$@"' -- "$@"
+        kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo ="sudo -E"; eval script.sh -qa /tmp/typescript $sudo "$@"' -- "$@"
       else
-        bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- <$TMP | kubectl exec -i $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo="sudo -E"; eval $sudo "$@"' -- "$@"
+        bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- <$TMP | kubectl exec -i $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo="sudo -E"; eval script.sh -qa /tmp/typescript $sudo "$@"' -- "$@"
       fi
     done
   done
@@ -280,7 +280,7 @@ eks_screen() {
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
       screen "$SHELL" -ic \
-        "_bcs_title :$pod/$c: \"\$@\"; kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -E\"; eval \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+        "_bcs_title :$pod/$c: \"\$@\"; kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -E\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
     done
   done
 }
