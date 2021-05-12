@@ -43,10 +43,13 @@ tplay () {
         my $opt_c = grep /c/, @ARGV;
         ReadMode raw => $t;
         while ($opt_s or $opt_c or ($_=ReadKey(0,$t)) ne "q") {
-            if ($opt_s or $_ eq "s") { while(<STDIN>) { s/\e\[\d+;?\d{0,2}[A-Zn]//g,
-            print and last if /[#%\$] / }}
-            elsif ($opt_c or $_ eq "c") { while(<STDIN>) {s/\e\[\d+;?\d{0,2}[A-Zn]//g,
-            print and last if index($_, "command: ") >= 0 }}
+            if ($opt_s or $_ eq "s" or $opt_c or $_ eq "c") {
+            while(<STDIN>) {
+              s/\e\[\d+;?\d{0,2}[A-Zn]//g;
+              print and last if (($opt_s or $_ eq "s") and /[#%\$] /)
+                or (($opt_c or $_ eq "c") and index($_, "command: ") >= 0)
+            }
+            }
             else { s/\e\[\d+;?\d{0,2}[A-Zn]//g, print for scalar <STDIN> }
             last if eof(STDIN)
         }
