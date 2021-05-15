@@ -46,11 +46,12 @@ tplay () {
             if ($opt_s or $_ eq "s" or $opt_c or $_ eq "c") {
             while(<STDIN>) {
               s/\e\[\d+;?\d{0,2}[A-Zn]//g;
+              tr/\r//d;
               print and last if (($opt_s or $_ eq "s") and /[#\$] /)
                 or (($opt_c or $_ eq "c") and /\bcommand: /)
             }
             }
-            else { s/\e\[\d+;?\d{0,2}[A-Zn]//g, print for scalar <STDIN> }
+            else { s/\e\[\d+;?\d{0,2}[A-Zn]//g, tr/\r//d, print for scalar <STDIN> }
             last if eof(STDIN)
         }
         ReadMode restore => $t;
