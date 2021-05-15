@@ -46,8 +46,8 @@ tplay () {
             if ($opt_s or $_ eq "s" or $opt_c or $_ eq "c") {
             while(<STDIN>) {
               s/\e\[\d+;?\d{0,2}[A-Zn]//g;
-              print and last if (($opt_s or $_ eq "s") and /[#%\$] /)
-                or (($opt_c or $_ eq "c") and index($_, "command: ") >= 0)
+              print and last if (($opt_s or $_ eq "s") and /[#\$] /)
+                or (($opt_c or $_ eq "c") and /\bcommand: /)
             }
             }
             else { s/\e\[\d+;?\d{0,2}[A-Zn]//g, print for scalar <STDIN> }

@@ -228,12 +228,12 @@ ec2_batch() {
 
   if [[ -t 0 ]]; then
     ec2_list_inventory "$FILTER" | xargs -d '\n' -i echo ssh {} \
-      sh -lc '"(eval sudo -E \"\$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \'"$@"\'
+      sh -lc '"(eval sudo -E \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' -- '"$@"'
   else
-    ec2_list_inventory "$FILTER" xargs -d '\n' -i echo bcs_sed_uprobe_shared_libs \
-      ssh {} '|' ssh {} sh -lc '"(eval sudo -E \"\$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' \'"$@"\'
+    ec2_list_inventory "$FILTER" | xargs -d '\n' -i echo bcs_sed_uprobe_shared_libs \
+      ssh {} '|' ssh {} sh -lc '"(eval sudo -E \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$prefix"':\" \$line; done"' -- '"$@"'
   fi |
-    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}'
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}' -- "$@"
 
   local rv=$?
   [ -f "$TMP" ] && rm -f $TMP

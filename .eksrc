@@ -316,14 +316,14 @@ function eks_batch() {
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
       if [[ -t 0 ]]; then
         echo kubectl exec $pod -c $c -i -- \
-          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \"\$sudo \$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' \'"$@"\'
+          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
       else
         echo bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- "<$TMP" '|' kubectl exec -i $pod -c $c -- \
-          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \"\$sudo \$0\" || echo \"'"$errstr"':\" \"(\"\$0\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' \'"$@"\'
+          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
       fi
     done
   done |
-    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}'
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}' -- "$@"
 
   local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
