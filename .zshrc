@@ -59,7 +59,6 @@ tplay () {
   ' -- "$@"
 }
 
-
 # color vars
 
 autoload colors
@@ -168,42 +167,44 @@ alias make='TERM=xterm-256color make -kj$(nproc)'
 # presumes a running emacs-server
 
 emac () {
-    local args; args=()
-    local nw=false
-    local running=false
-    # check if emacsclient is already running
-    pgrep -U $(id -u) emacsclient > /dev/null && running=true
+  local args; args=()
+  local nw=false
+  local running=false
+  # check if emacsclient is already running
+  pgrep -U $(id -u) emacsclient > /dev/null && running=true
 
-    # check if the user wants TUI mode
-    local arg;
-    for arg; do
-    	if [ "$arg" = "-nw" ] || [ "$arg" = "-t" ] || [ "$arg" = "--tty" ]
-        then
-            nw=true
-    	fi
-    done
-
-    # if called without arguments - open a new gui instance
-    if [ "$#" -eq "0" ] || [ "$running" != true ]; then
-        args+=(-c) # open emacsclient in a new frame
+  # check if the user wants TUI mode
+  local arg;
+  for arg; do
+    if [[ "$arg" == "-nw" || "$arg" == "-t" || "$arg" == "--tty" ]]
+    then
+      nw=true
     fi
-    if [ "$#" -gt "0" ]; then
-        # if 'emac -' open standard input (e.g. pipe)
-        if [[ "$1" == "-" ]]; then
-    	    local TMP="$(mktemp /tmp/$0-stdin-XXXX)"
-    	    cat >$TMP
-	    args+=(--eval '(let ((b (generate-new-buffer "*stdin*"))) (switch-to-buffer b) (insert-file-contents "'${TMP}'") (delete-file "'${TMP}'"))')
-        else
-            args+=("$@")
-        fi
-    fi
+  done
 
-    if $nw; then
-	emacsclient "${args[@]}"
+  # if called without arguments - open a new gui instance
+  if [[ "$#" -eq "0" ]] || [[ "$running" != true ]]; then
+    args+=(-c) # open emacsclient in a new frame
+  fi
+  if [[ "$#" -gt "0" ]]; then
+    # if 'emac -' open standard input (e.g. pipe)
+    if [[ "$1" == "-" ]]; then
+      local TMP="$(mktemp /tmp/$0-stdin-XXXX)"
+      cat >$TMP
+      args+=(--eval '(let ((b (generate-new-buffer "*stdin*"))) (switch-to-buffer b) (insert-file-contents "'${TMP}'") (delete-file "'${TMP}'"))')
     else
-	(nohup emacsclient "${args[@]}" </dev/null >/dev/null 2>&1 &) > /dev/null 2>&1
+      args+=("$@")
     fi
+  fi
+
+  if $nw; then
+    emacsclient "${args[@]}"
+  else
+    (nohup emacsclient "${args[@]}" </dev/null >/dev/null 2>&1 &) > /dev/null 2>&1
+  fi
 }
+
+# reject any use of unset variable "evaluation"
 
 unsetopt unset
 
@@ -212,11 +213,9 @@ unsetopt unset
 autoload -Uz bashcompinit
 bashcompinit -i
 
-# asdf
-
 . ~/.asdf/completions/asdf.bash
 
-# aws/bcs/ec2/k8s/tfe
+# aws/tfe/k8s/ec2/eks/ec2
 
 complete -C aws_completer aws
 complete -o nospace -C terraform terraform
