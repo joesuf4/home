@@ -82,9 +82,9 @@ precmd() {
     zstyle ':vcs_info:*' formats "[${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_RESET}]"
   } else {
     zstyle ':vcs_info:*' formats "[${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_RED}?${PR_RESET}]"
- }
+  }
 
- vcs_info 2>/dev/null
+  vcs_info 2>/dev/null
 }
 
 preexec() { _bcs_title $2 }
