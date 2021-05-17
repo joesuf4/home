@@ -37,26 +37,26 @@ nd src ~winhome/src
 # typescript file walker
 
 tplay () {
-    perl -MPOSIX=ctermid -MTerm::ReadKey -e '
-        open my $t, "+<", ctermid;
-        my $opt_s = grep /s/, @ARGV;
-        my $opt_c = grep /c/, @ARGV;
-        ReadMode raw => $t;
-        while ($opt_s or $opt_c or ($_=ReadKey(0,$t)) ne "q") {
-            if ($opt_s or $_ eq "s" or $opt_c or $_ eq "c") {
-            while(<STDIN>) {
-              s/\e\[\d+;?\d{0,2}[A-Zn]//g;
-              tr/\r//d;
-              print if /\bScript /;
-              print and last if (($opt_s or $_ eq "s") and /[#\$] /)
-                or (($opt_c or $_ eq "c") and /\bcommand: /)
-            }
-            }
-            else { s/\e\[\d+;?\d{0,2}[A-Zn]//g, tr/\r//d, print for scalar <STDIN> }
-            last if eof(STDIN)
+  perl -MPOSIX=ctermid -MTerm::ReadKey -e '
+    open my $t, "+<", ctermid;
+    my $opt_s = grep /s/, @ARGV;
+    my $opt_c = grep /c/, @ARGV;
+    ReadMode raw => $t;
+    while ($opt_s or $opt_c or ($_=ReadKey(0,$t)) ne "q") {
+      if ($opt_s or $_ eq "s" or $opt_c or $_ eq "c") {
+        while (<STDIN>) {
+          s/\e\[\d+;?\d{0,2}[A-Zn]//g;
+          tr/\r//d;
+          print if /\bScript /;
+          print and last if (($opt_s or $_ eq "s") and /[#\$] /)
+            or (($opt_c or $_ eq "c") and /\bcommand: /)
         }
-        ReadMode restore => $t;
-    ' -- "$@"
+      }
+      else { s/\e\[\d+;?\d{0,2}[A-Zn]//g, tr/\r//d, print for scalar <STDIN> }
+      last if eof(STDIN)
+    }
+    ReadMode restore => $t;
+  ' -- "$@"
 }
 
 
