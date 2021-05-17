@@ -189,6 +189,8 @@ ec2_bpftrace_ship_kheaders_bg() {
     time ssh $host -- sh -c 'mkdir -p /tmp/kheaders-$(uname -r) && cd /tmp/kheaders-$(uname -r) && tar -xJf -' </sys/kernel/kheaders.tar.xz &
     time ssh host -- sh -c 'mkdir -p /tmp/bin && cat >/tmp/bin/bpftrace && chmod +x /tmp/bin/bpftrace' <~/bin/bpftrace &
     time ssh $host -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
+    time ssh $host -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color &
+    time ssh $host -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color &
     wait
     echo "Sent to $host."
   done
@@ -248,6 +250,9 @@ ec2_ship_tools_bg() {
       ssh $host -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
     done
     ssh $host -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
+    ssh $host -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color &
+    ssh $host -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color &
+
   done
 
   wait
