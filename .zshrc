@@ -36,7 +36,7 @@ nd src ~winhome/src
 
 # typescript file walker
 
-tplay () {
+tplay() {
   perl -MPOSIX=ctermid -MTerm::ReadKey -e '
     open my $t, "+<", ctermid;
     my $opt_s = grep /s/, @ARGV;
@@ -75,7 +75,7 @@ eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 
 # window/screen title hooks
 
-precmd () {
+precmd() {
   _bcs_title
 
   if [[ -z $(git ls-files --other --exclude-standard 2> /dev/null) ]] {
@@ -87,7 +87,7 @@ precmd () {
  vcs_info 2>/dev/null
 }
 
-preexec () { _bcs_title $2 }
+preexec() { _bcs_title $2 }
 
 # VCS status RPROMPT
 
@@ -167,7 +167,7 @@ alias make='TERM=xterm-256color make -kj$(nproc)'
 
 # presumes a running emacs-server
 
-emac () {
+emac() {
   local args; args=()
   local nw=false
   local running=false
