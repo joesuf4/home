@@ -10,10 +10,10 @@ setopt share_history extended_history hist_expire_dups_first hist_no_store
 # ctrl-arrow (up/down/left/right) key bindings
 
 if [[ "$(uname)" == "Darwin" ]]; then
-    bindkey '^[[A' history-search-backward
-    bindkey '^[[B' history-search-forward
-    bindkey '^[[C' emacs-forward-word
-    bindkey '^[[D' emacs-backward-word
+  bindkey '^[[A' history-search-backward
+  bindkey '^[[B' history-search-forward
+  bindkey '^[[C' emacs-forward-word
+  bindkey '^[[D' emacs-backward-word
 fi
 bindkey ';5A' history-search-backward
 bindkey ';5B' history-search-forward
@@ -76,15 +76,15 @@ eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 # window/screen title hooks
 
 precmd () {
-    _bcs_title
+  _bcs_title
 
-    if [[ -z $(git ls-files --other --exclude-standard 2> /dev/null) ]] {
-        zstyle ':vcs_info:*' formats "[${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_RESET}]"
-    } else {
-        zstyle ':vcs_info:*' formats "[${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_RED}?${PR_RESET}]"
-    }
+  if [[ -z $(git ls-files --other --exclude-standard 2> /dev/null) ]] {
+    zstyle ':vcs_info:*' formats "[${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_RESET}]"
+  } else {
+    zstyle ':vcs_info:*' formats "[${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_RED}?${PR_RESET}]"
+ }
 
-    vcs_info 2>/dev/null
+ vcs_info 2>/dev/null
 }
 
 preexec () { _bcs_title $2 }
@@ -104,33 +104,34 @@ RPROMPT='$vcs_info_msg_0_'
 # various platform colorized prompts (and basic utils)
 
 if [[ ${EMACS+} == t ]]; then
-    unsetopt zle
-    PROMPT=$'%n@%m:%~%(?..(%?%))%# '
-    unset RPROMPT
+  unsetopt zle
+  PROMPT=$'%n@%m:%~%(?..(%?%))%# '
+  unset RPROMPT
 else
-    case "$(uname)" in
+  case "$(uname)" in
 
-        FreeBSD|Darwin)
-            alias ls='ls -G'
-            alias grep='grep --color=auto'
-            PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
-            ;;
+    FreeBSD|Darwin)
+      alias ls='ls -G'
+      alias grep='grep --color=auto'
+      PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
+      ;;
 
-        Linux)
-            alias ls='ls --color=auto'
-            alias grep='grep --color=auto'
-            PROMPT=$'$PR_CYAN%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%#$PR_RESET '
-            ;;
+    Linux)
+      alias ls='ls --color=auto'
+      alias grep='grep --color=auto'
+      PROMPT=$'$PR_CYAN%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))%#$PR_RESET '
+      ;;
 
-        SunOS)
-            alias ls='ls -F'
-            alias grep='ggrep --color=auto'
-            PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
-            ;;
-        *)
-            PROMPT=$'%n@%m:%~%(?..(%?%))%# '
-            ;;
-    esac
+    SunOS)
+      alias ls='ls -F'
+      alias grep='ggrep --color=auto'
+      PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
+      ;;
+
+    *)
+      PROMPT=$'%n@%m:%~%(?..(%?%))%# '
+      ;;
+  esac
 fi
 
 # utilities
@@ -183,7 +184,7 @@ emac () {
   done
 
   # if called without arguments - open a new gui instance
-  if [[ "$#" -eq "0" ]] || [[ "$running" != true ]]; then
+  if [[ "$#" -eq "0" || "$running" != true ]]; then
     args+=(-c) # open emacsclient in a new frame
   fi
   if [[ "$#" -gt "0" ]]; then
