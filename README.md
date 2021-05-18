@@ -20,9 +20,9 @@ The reusable scripts are over in the bin/ dir.  I have an "strace" drop-in
 for my MBP for `sudo htop` to use for tracing processes. The only nontrivial
 script is `bin/pffxg.sh` - a parallelized recursive grep - targeting *very*
 large source trees typical for embedded development work.  I've included some
-primitive documentation for it below.
+primitive documentation for it below the next section.
 
-# WSL-specific setup
+# WSL Specs
 
 I have python, emacs, mingw+git, and Docker Desktop locally installed in Windows
 itself.  No Windows IDE/compiler whatsoever.  All of my emacs-related LSP daemons
@@ -134,13 +134,10 @@ To search `pwd` for `foo`:
     PFFXG_EXCLUSIONS='[.]ccls-cache [.]*[.]min[.][a-z]*'
 ```
 
-These customizations are for my 4-core (+HyperThreading) MacBook Pro.  The
-settings are straightforward: I don't want `grep` to `--ignore-case`, so I
-disable that option in `PFFXG_CMD`.  I don't have enough RAM (8 GB) to take
-advantage of a (compressed) cache, so caching isn't enabled here (`lzop` is
-available from `brew install lzop`, which is the only non-trivial dependency
-for `pffxg.sh`).
-
+My employer has me on a top-of-the-line Dell Precision 5550 i9 w/8 cores.
+Only WSL kernel builds and broad pffxg.sh searches light up the fans
+(for 2-3 min tops).  I've had it with "*.min.{js,css} as text-file" greps,
+so pffxg.conf excludes them all.
 
 ### Emacs Interface
 
