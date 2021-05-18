@@ -16,18 +16,21 @@ The configs are messy and not really aimed at public distribution, but
 I'd be happy to consider appropriate patches if there's something you'd
 like to see me make use of.
 
-The reusable scripts are over in the bin/ dir.  I have an "strace" drop-in
-for my MBP for `sudo htop` to use for tracing processes. The only nontrivial
-script is `bin/pffxg.sh` - a parallelized recursive grep - targeting *very*
-large source trees typical for embedded development work.  I've included some
-primitive documentation for it below the next section.
+The reusable (static) binaries and scripts are over in the bin/ dir. The
+`screen` binary should be suid root for session reattachment to have any hope
+of working. The only nontrivial script is `bin/pffxg.sh` - a parallelized
+recursive grep - targeting *very* large source trees typical for embedded
+development work.  I've included some primitive documentation for it below
+the next section.
 
 # WSL Specs
 
 I have python, emacs, mingw+git, and Docker Desktop locally installed in Windows
-itself.  No Windows IDE/compiler whatsoever.  All of my emacs-related LSP daemons
-run via Ubuntu-based custom software builds through *.bat shims in
-~winhome/bin.
+itself.  No Windows IDE/compiler whatsoever.  I launch an emacs daemon at
+Windows Login Start Up, which I realistically only ever interact with via
+the Ubuntu emacsclient symlink in ~/bin. All of my emacs-related LSP daemons
+run within WSL itself, (via Ubuntu-clang-based custom software builds,) through
+*.bat shims in ~winhome/bin.
 
 I have no emacs install on Ubuntu; or any X11 client/server support for that
 matter. I want modern, DRM/4K+HDR enabled secure, professional graphics/font
