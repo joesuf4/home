@@ -28,7 +28,7 @@ I have python, emacs, mingw+git, and Docker Desktop locally installed in Windows
 itself.  No Windows IDE/compiler whatsoever.  All of my emacs-related LSP daemons
 run via Ubuntu-based custom software builds through *.bat shims in
 ~winhome/bin. I have no emacs install on Ubuntu; or any X11 client/server
-support for that matter.  I want professional graphics engines, and insist
+support for that matter.  I want professional graphics/font engines, and insist
 on paying Microsoft (or Apple, once up on time) for the privilege.  X11 ain't that.
 
 
