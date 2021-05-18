@@ -41,7 +41,8 @@ get it done.  Fuck Apple, **this** is the cat's meow.
 I have static builds of my Linux observability toolchain living in ~/bin along
 with a lot of other interesting things.  These are stand-alone tools that will
 execute on any reasonably current Linux bare-metal host, or running Linux-based
-container, or WSL (on a 5.x kernel) itself.
+container, or WSL (on a 5.x kernel built w/ CONFIG_IKHEADERS=yes in the config)
+itself.
 
 
 ## Parallel Find Filename Xargs Grep (~/bin/pffxg.sh)
