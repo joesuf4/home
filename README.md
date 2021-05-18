@@ -22,6 +22,28 @@ script is `bin/pffxg.sh` - a parallelized recursive grep - targeting *very*
 large source trees typical for embedded development work.  I've included some
 primitive documentation for it below.
 
+# WSL-specific setup
+
+I have python, emacs, mingw+git, and Docker Desktop locally installed in Windows
+itself.  No Windows IDE/compiler whatsoever.  All of my emacs-related LSP daemons
+run via Ubuntu-based custom software builds through *.bat shims in
+~winhome/bin.
+
+I keep ~winhome under this git repo, as well as Ubuntu's ~ dir.  I have .zshrc
+aliases to make synchronization via git push/pull trivial.  I rely on
+Powershell for CLI Terminal sessions, and drop into my Ubuntu install via the
+`wsl` command.
+
+This is my preferred business environment to work within, and my employer gives
+me amazing hardware and software support, so I don't need Windows admin privs to
+get it done.  Fuck Apple, **this** is the cat's meow.
+
+I have static builds of my Linux observability toolchain living in ~/bin along
+with a lot of other interesting things.  These are stand-alone tools that will
+execute on any reasonably current Linux bare-metal host, or running Linux-based
+container.
+
+
 ## Parallel Find Filename Xargs Grep (~/bin/pffxg.sh)
 
 ### TLDR; 4x faster than any other parallelized-recursive-grep solution.
