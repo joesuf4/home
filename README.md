@@ -131,10 +131,7 @@ To search `pwd` for `foo`:
 
 ```
     % cat .pffxg.conf
-    PFFXG_WORKERS=3
-    PFFXG_EXCLUSIONS=.ccls-cache
-    PFFXG_ARGS=1000
-    PFFXG_CMD="grep --color=always --with-filename --line-number"
+    PFFXG_EXCLUSIONS='[.]ccls-cache [.]*[.]min[.][a-z]*'
 ```
 
 These customizations are for my 4-core (+HyperThreading) MacBook Pro.  The
