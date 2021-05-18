@@ -137,10 +137,10 @@ To search `pwd` for `foo`:
     PFFXG_EXCLUSIONS='[.]ccls-cache [.]*[.]min[.][a-z]*'
 ```
 
-My employer has me on a top-of-the-line Dell Precision 5550 i9 w/8 cores.
-Only WSL kernel builds and broad pffxg.sh searches light up the fans
-(for 2-3 min tops).  I've had it with "*.min.{js,css} as text-file" greps,
-so pffxg.conf excludes them all.
+My employer has me on a top-of-the-line Dell Precision 5550 i9 w/8 cores,
+which presents as 16 CPU to WSL/Linux. Only WSL kernel builds, and broad
+pffxg.sh searches, light up the fans (for 2-3 min tops).  I've had it with
+"*.min.{js,css} as text-file" greps, so pffxg.conf excludes them all.
 
 ### Emacs Interface
 
