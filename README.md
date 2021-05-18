@@ -27,7 +27,10 @@ primitive documentation for it below.
 I have python, emacs, mingw+git, and Docker Desktop locally installed in Windows
 itself.  No Windows IDE/compiler whatsoever.  All of my emacs-related LSP daemons
 run via Ubuntu-based custom software builds through *.bat shims in
-~winhome/bin.
+~winhome/bin. I have no emacs install on Ubuntu; or any X11 client/server
+support for that matter.  I want professional graphics engines, and insist
+on paying Microsoft (or Apple, once up on time) for the privilege.  X11 ain't that.
+
 
 I keep ~winhome under this git repo, as well as Ubuntu's ~ dir.  I have .zshrc
 aliases to make synchronization via git push/pull trivial.  I rely on
