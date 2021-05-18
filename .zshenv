@@ -10,7 +10,7 @@ export COMPOSE_DOCKER_CLI_BUILD=0
 export DOCKER_BUILDKIT=0
 export BPFTRACE_NO_USER_SYMBOLS=0
 export BPFTRACE_CACHE_USER_SYMBOLS=1
-export MANPATH=:/usr/share/man:/usr/local/share/man
+export MANPATH=/usr/share/man:/usr/local/share/man
 
 . ~/.asdf/asdf.sh
 . ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
