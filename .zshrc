@@ -209,7 +209,7 @@ emac() {
 
 unsetopt unset
 
-# initialize (bash+zsh)completion engine
+# initialize (bash+zsh)completion (extension) engines
 
 autoload -Uz bashcompinit
 bashcompinit -i
