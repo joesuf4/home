@@ -144,7 +144,7 @@ for `pffxg.sh`).
 Copy and paste into `~/.emacs` to install the `pffxg` elisp function into emacs:
 
 ```
-    (defvar pffxg-command "pffxg.sh ")
+    (defvar pffxg-command "bash pffxg.sh ")
     (defun pffxg (command-args)
       (interactive
        (progn
