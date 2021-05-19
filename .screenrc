@@ -13,7 +13,5 @@ defobuflimit 4096
 nethack on
 vbell on
 defutf8 on
-hardstatus on
-hardstatus alwayslastline
-hardstatus string "%w"
+hardstatus alwayslastline "%w"
 defdynamictitle on
