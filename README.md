@@ -33,9 +33,9 @@ run within WSL itself, (via Ubuntu-clang-based custom software builds,) through
 *.bat shims in ~winhome/bin.
 
 I have no emacs install on Ubuntu; or any X11 client/server support for that
-matter. I want modern, DRM/4K+HDR enabled, secure, professional graphics/font
-engines that are *promised* work with modern hardware, backed up by a support
-contract; and I insist on paying, or having my employer pay, Microsoft (or Apple,
+matter. I want a modern, DRM/4K+HDR enabled, secure, professional graphics/font
+engines that are *promised* to work with modern hardware and backed up by a support
+contract.  I insist on paying, or having my employer pay, Microsoft (or Apple,
 once up on time) for the privilege.  X11 ain't that.  Not even close.
 
 I keep ~winhome under this git repo, as well as Ubuntu's ~ dir.  I have .zshrc

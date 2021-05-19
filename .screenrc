@@ -10,7 +10,6 @@ escape ^Tt
 defobuflimit 4096
 
 # UI essentials
-nethack on
 vbell on
 defutf8 on
 hardstatus alwayslastline "%w"
