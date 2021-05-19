@@ -17,7 +17,7 @@ export MANPATH=/usr/share/man:/usr/local/share/man
 
 for p in /sbin /usr/sbin /usr/local/bin "$(go env GOPATH)/bin" $HOME/.local/bin $HOME/bin
 do
-    [ -d "$p" ] && PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
+  [ -d "$p" ] && PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
 done
 
 : ${TERM:=xterm}
