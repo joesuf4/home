@@ -8,8 +8,6 @@ export EDITOR=emacsclient
 export DOCKER_COMPOSE_VERSION=1.25.4
 export COMPOSE_DOCKER_CLI_BUILD=0
 export DOCKER_BUILDKIT=0
-export BPFTRACE_NO_USER_SYMBOLS=0
-export BPFTRACE_CACHE_USER_SYMBOLS=1
 export MANPATH=/usr/local/share/man:/usr/share/man
 
 . ~/.asdf/asdf.sh

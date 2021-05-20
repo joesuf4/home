@@ -1,51 +1,54 @@
-#!/usr/bin/env -S sudo -E bpftrace
+#!/usr/bin/env -S sudo -Es bpftrace
 
 BEGIN
 {
-  printf("Hit Ctrl-C to generate the report\n");
+  printf("Hit Ctrl-C to generate the Leak Check report\n");
 }
 
 uprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc
 /arg1 > 0/
 {
-  @size[pid, tid, func] = arg1;
-  @func[pid, tid] = func;
+  @stack[pid, tid] = ustack(perf);
+  @size[pid, tid, @stack[pid, tid]] = arg1;
 }
 
 uprobe:/lib/x86_64-linux-gnu/libc.so.6:calloc
 /arg1 > 0 && arg2 > 0/
 {
-  @size[pid, tid, func] = arg1 * arg2;
-  @func[pid, tid] = func;
+  @stack[pid, tid] = ustack(perf);
+  @size[pid, tid, @stack[pid, tid]] = arg1 * arg2;
 }
 
 uprobe:/lib/x86_64-linux-gnu/libc.so.6:realloc,
      uprobe:/lib/x86_64-linux-gnu/libc.so.6:mmap
      /arg2 > 0/
 {
-  @size[pid, tid, func] = arg2;
-  @func[pid, tid] = func;
+  @stack[pid, tid] = ustack(perf);
+  @size[pid, tid, @stack[pid, tid]] = arg2;
 }
 
 uretprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc,
      uretprobe:/lib/x86_64-linux-gnu/libc.so.6:calloc,
      uretprobe:/lib/x86_64-linux-gnu/libc.so.6:realloc,
      uretprobe:/lib/x86_64-linux-gnu/libc.so.6:mmap
-     /@size[pid, tid, @func[pid, tid]] > 0/
+     /@size[pid, tid, @stack[pid, tid]] > 0/
 {
-  @[comm, pid, tid, retval] = @size[pid, tid, @func[pid, tid]];
-  delete(@size[pid, tid, @func[pid, tid]]);
-  delete(@func[pid, tid]);
+  @st[comm, pid, tid, retval] = @stack[pid, tid];
+  @[comm, pid, tid, @stack[pid, tid], retval] = @size[pid, tid, @stack[pid, tid]];
+  delete(@size[pid, tid, @stack[pid, tid]]);
+  delete(@stack[pid, tid]);
 }
 
 uprobe:/lib/x86_64-linux-gnu/libc.so.6:free,
      uprobe:/lib/x86_64-linux-gnu/libc.so.6:munmap
 {
-  delete(@[comm, pid, tid, arg1]);
+  delete(@[comm, pid, tid, @st[comm, pid, tid, arg1], arg1]);
+  delete(@st[comm, pid, tid, arg1]);
 }
 
 END
 {
   clear(@size);
-  clear(@func);
+  clear(@stack);
+  clear(@st);
 }

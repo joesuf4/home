@@ -145,13 +145,11 @@ alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $
 
 alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
-alias wsl_clock='sudo hwclock -s'
+alias htop='sudo -Es htop'
 
-alias htop='sudo -E htop'
+alias lsof='sudo -Es lsof'
 
-alias lsof='sudo -E lsof'
-
-alias bpftrace='sudo -E bpftrace'
+alias bpftrace='sudo -Es bpftrace'
 
 alias apt='sudo -E apt'
 
