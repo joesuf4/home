@@ -9,4 +9,4 @@ else
   pd ssh-add
 fi
 
-pd sudo $SHELL -c 'hwclock -s; mkdir -p /run/screen; pgrep gitlab-runner >/dev/null 2>&1 || gitlab-runner start'
+pd sudo $SHELL -c 'mkdir -m 0777 -p /run/screen; pgrep gitlab-runner >/dev/null 2>&1 || gitlab-runner start'
