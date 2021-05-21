@@ -246,9 +246,9 @@ eks_shell() {
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
       _bcs_title :$pod/$c: "$@"
       if [[ -t 0 ]]; then
-        kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo ="sudo -E"; eval script.sh -qa /tmp/typescript $sudo "$@"' -- "$@"
+        kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo ="sudo -Es"; eval script.sh -qa /tmp/typescript $sudo "$@"' -- "$@"
       else
-        bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- <$TMP | kubectl exec -i $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo="sudo -E"; eval script.sh -qa /tmp/typescript $sudo "$@"' -- "$@"
+        bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- <$TMP | kubectl exec -i $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo="sudo -Es"; eval script.sh -qa /tmp/typescript $sudo "$@"' -- "$@"
       fi
     done
   done
@@ -268,7 +268,7 @@ eks_htop_ship_config_bg() {
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
       kubectl -i $pod -c $c -- sh -c \
-        '[ -x /usr/bin/sudo ] && sudo="sudo -E"; $sudo sh -c "mkdir -p ~/.config/htop && cat > ~/.config/htop/htoprc"' <~/.config/htop/htoprc &
+        '[ -x /usr/bin/sudo ] && sudo="sudo -Es"; $sudo sh -c "mkdir -p ~/.config/htop && cat > ~/.config/htop/htoprc"' <~/.config/htop/htoprc &
     done
   done
   wait
@@ -284,7 +284,7 @@ eks_screen() {
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
       screen "$SHELL" -ic \
-        "_bcs_title :$pod/$c: \"\$@\"; kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -E\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+        "_bcs_title :$pod/$c: \"\$@\"; kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
     done
   done
 }
@@ -318,10 +318,10 @@ function eks_batch() {
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
       if [[ -t 0 ]]; then
         echo kubectl exec $pod -c $c -i -- \
-          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
+          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
       else
         echo bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- "<$TMP" '|' kubectl exec -i $pod -c $c -- \
-          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
+          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
       fi
     done
   done |
