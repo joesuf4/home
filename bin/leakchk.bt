@@ -1,4 +1,15 @@
-#!/usr/bin/env -S sudo -Es nsenter -F -t30025 -C -u -p -i -m bpftrace
+#!/usr/bin/env -S sudo -Es bpftrace
+
+   /*  Within WSL2, the pid/tid numbers produced here won't match
+    *  the external process PID (in ps -ef output, say), because
+    *  of the way the HyperV "containerizes" your Ubuntu runtime(s).
+    *  You're seeing the kernel's (global namespace) pid/tid in here.
+    *
+    *  Further, if you don't see "symbolized" output (from ustack),
+    *  that's because your binaries were compiled with frame pointers
+    *  omitted (FPO: the -fomit-frame-pointer compiler flag). Don't
+    *  do that for code under active development.
+    */
 
 BEGIN
 {
