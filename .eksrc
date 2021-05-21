@@ -1,12 +1,13 @@
 # -*- sh -*-
 
-declare -ax _eks_clusters _eks_pods _bcs_tools _bcs_cmds words
+declare -ax _eks_clusters _eks_namespaces _eks_pods _bcs_tools _bcs_cmds words
 declare -ax _eks_pod_cmds=(list-pods list-pod-containers)
+declare -ax _eks_namespace_cmds=(list-namespaces set-namespace)
 declare -ax _eks_cluster_cmds=(list-clusters update-kubeconfig)
-declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_cluster_cmds[@]}")
+declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_namespace_cmds[@]}" "${_eks_cluster_cmds[@]}")
 declare -ax _eks_pods_flags=("--selector=")
 
-export EKS_CLUSTERS_SRC EKS_PODS_SRC EKS_POD_SEARCH_LIMIT
+export EKS_CLUSTERS_SRC EKS_NS_SRC EKS_PODS_SRC EKS_POD_SEARCH_LIMIT
 
 : "${EKS_POD_SEARCH_LIMIT:=4}"
 
@@ -23,6 +24,19 @@ update-kubeconfig          Select current kubernetes cluster/context.
                            Notes: Defaults to currently selected cluster
                            (shown in your xterm window), which effectively
                            reloads the AWS eks config and its pod inventory.
+
+                           ===
+
+list-namespaces            List the available namespaces for this current
+                           kubernetes context.
+                           [<args>]
+                             1. PCRE namespace filter
+
+
+set-namespace              Set the current context's namespace (updating
+                           dependent pod/cluster data)
+                           [<args>]
+                             1. New namespace
 
                            ===
 
@@ -86,6 +100,8 @@ _eks_zsh_completion() {
     eks_pod)
       if [[ "${words[2]}" == list-clusters || "${words[2]}" == update-kubeconfig ]]; then
         _arguments "2:eks_cluster:($_eks_clusters)"
+      elif [[ "${words[2]}" == list-namespaces || "${words[2]}" == set-namespace ]]; then
+        _arguments "2:eks_namespace:($_eks_namespaces)"
       else
         _arguments "2:eks_pod:($_eks_pods)"
       fi
@@ -120,6 +136,12 @@ eks_list_clusters() {
   for c in "${_eks_clusters[@]}"; do echo "$c"; done | grep -Pe "$FILTER"
 }
 
+eks_list_namespaces() {
+  local FILTER="${1-}"
+  for c in "${_eks_namespaces[@]}"; do echo "$c"; done | grep -Pe "$FILTER"
+}
+
+
 eks_list_pods() {
   local FILTER="${1-}"
   if [[ ! "${FILTER}" == "${FILTER#--}" ]]; then
@@ -153,15 +175,26 @@ eks_list_pod_containers() {
 }
 
 _eks_load_clusters() {
-  [ -n "$BCS_PROFILE" ] || return 0
+  [[ -n "$BCS_PROFILE" ]] || return 0
   : "${EKS_CLUSTERS_SRC:=$(aws eks list-clusters --output text | awk '{print $2}' | tr -dc "$BCS_ADMISSIBLE_CHARS")}"
   eval "_eks_clusters=($EKS_CLUSTERS_SRC)"
+  EKS_NS_SRC=
   EKS_PODS_SRC=
   return 0
 }
 
+_eks_load_namespaces() {
+  [[ -n "$BCS_PROFILE" ]] || return 0
+  : "${EKS_NS_SRC:=$(kubectl get namespaces --field-selector=status.phase=Active | (
+    read -r _
+    awk '{print $1}' | tr -dc "$BCS_ADMISSIBLE_CHARS"
+  ))}"
+  eval "_eks_namespaces=($EKS_NS_SRC)"
+  return 0
+}
+
 _eks_load_pods() {
-  [ -n "$BCS_PROFILE" ] || return 0
+  [[ -n "$BCS_PROFILE" ]] || return 0
   : "${EKS_PODS_SRC:=$(kubectl get pods "$@" --field-selector=status.phase=Running | (
     read -r _
     awk '{print $1}' | tr -dc "$BCS_ADMISSIBLE_CHARS"
@@ -173,6 +206,15 @@ _eks_load_pods() {
 eks_update_kubeconfig() {
   [[ $# -gt 0 ]] || set "$(kubectl config get-contexts | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
   aws eks update-kubeconfig --name "$1"
+  EKS_PODS_SRC=
+  EKS_NS_SRC=
+  _eks_load_namespaces
+  _eks_load_pods
+}
+
+eks_set_namespace() {
+  [[ $# -gt 0 ]] || set "$(kubectl config --current-context get-namespaces | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
+  kubectl config set-context --current --namespace="${1-default}"
   EKS_PODS_SRC=
   _eks_load_pods
 }
@@ -333,4 +375,5 @@ function eks_batch() {
 }
 
 _eks_load_clusters >/dev/null 2>&1
+_eks_load_namespaces >/dev/null 2>&1
 _eks_load_pods >/dev/null 2>&1
