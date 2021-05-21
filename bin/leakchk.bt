@@ -1,4 +1,4 @@
-#!/usr/bin/env -S sudo -Es bpftrace
+#!/usr/bin/env -S sudo -Es nsenter -F -t30025 -C -u -p -i -m bpftrace
 
 BEGIN
 {

@@ -9,6 +9,7 @@ export DOCKER_COMPOSE_VERSION=1.25.4
 export COMPOSE_DOCKER_CLI_BUILD=0
 export DOCKER_BUILDKIT=0
 export MANPATH=/usr/local/share/man:/usr/share/man
+export BPFTRACE_VMLINUX=~/src/bcscli/WSL2-Linux-Kernel/vmlinux
 
 . ~/.asdf/asdf.sh
 . ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
