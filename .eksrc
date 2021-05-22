@@ -1,16 +1,17 @@
 # -*- sh -*-
 
-declare -ax _eks_clusters _eks_nodes _eks_namespaces _eks_pods _bcs_tools _bcs_cmds words
+declare -ax _eks_clusters _eks_trace_objects _eks_nodes _eks_namespaces _eks_pods _bcs_tools _bcs_cmds words
 declare -ax _eks_pod_cmds=(list-pods list-pod-containers)
 declare -ax _eks_node_cmds=(list-nodes "${_bcs_cli_cmds[@]//#/node-}")
+declare -ax _eks_trace_cmds=(list-trace-objects "${_bcs_cli_cmds[@]//#/trace-}")
 declare -ax _eks_namespace_cmds=(list-namespaces set-namespace)
 declare -ax _eks_cluster_cmds=(list-clusters update-kubeconfig)
-declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_node_cmds[@]}" "${_eks_namespace_cmds[@]}" "${_eks_cluster_cmds[@]}")
+declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_trace_cmds[@]}" "${_eks_node_cmds[@]}" "${_eks_namespace_cmds[@]}" "${_eks_cluster_cmds[@]}")
 declare -ax _eks_pods_flags=("--selector=")
 
-export EKS_CLUSTERS_SRC EKS_NODES_SRC EKS_NS_SRC EKS_PODS_SRC EKS_POD_SEARCH_LIMIT
+export EKS_CLUSTERS_SRC EKS_NODES_SRC EKS_NS_SRC EKS_PODS_SRC EKS_POD_SEARCH_LIMIT EKS_CFILTER
 
-: "${EKS_POD_SEARCH_LIMIT:=4}"
+: "${EKS_POD_SEARCH_LIMIT:=4}" "${EKS_CFILTER:=.}"
 
 _eks_usage() {
   cat <<EOF
@@ -60,6 +61,22 @@ list-pod-containers        List the available containers for the given pod
                              1. PCRE pod name filter (see "list-pods" note)
                              2. PCRE container name filter
 
+                           ===
+
+list-nodes                 List the k8s cluster's nodes.
+                           [<args>]
+                             1. PCRE hostname filter
+
+                           ===
+
+node-*                     "COMMON CLI" node-prefixed commands.
+                           Notes:  For admin use only: requires elevated privs.
+
+                           ===
+
+trace-*                    "COMMON CLI" trace-prefixed commands.
+                           Notes:  For admin use only: requires elevated privs.
+
 EOF
 }
 
@@ -92,28 +109,23 @@ _eks_zsh_pod_container_completion() {
 
 _eks_zsh_completion() {
   local state
-  _arguments '1: :->eks_cmd' '2: :->eks_pod' '3: :->eks_container' '*: :->*'
+  _arguments '1: :->eks_cmd' '2: :->eks_filter' '*: :->*'
 
   case $state in
     eks_cmd)
       _arguments "1:eks_cmd:($_eks_cmds $_bcs_cli_cmds)"
       ;;
-    eks_pod)
+    eks_filter)
       if [[ "${words[2]}" == list-clusters || "${words[2]}" == update-kubeconfig ]]; then
         _arguments "2:eks_cluster:($_eks_clusters)"
       elif [[ "${words[2]}" == list-namespaces || "${words[2]}" == set-namespace ]]; then
         _arguments "2:eks_namespace:($_eks_namespaces)"
-      elif [[ "${words[2]}" != "${words[2]#node-}" ]]; then
+      elif [[ "${words[2]}" != "${words[2]#node-}" || "${words[2]}" == list-nodes ]]; then
         _arguments "2:eks_node:($_eks_nodes)"
+      elif [[ "${words[2]}" != "${words[2]#trace-}" || "${words[2]}" == list-trace-objects ]]; then
+        _arguments "2:eks_trace:($_eks_trace_objects)"
       else
         _arguments "2:eks_pod:($_eks_pods)"
-      fi
-      ;;
-    eks_container)
-      if [[ "${words[2]}" != "${words[2]#node-}" ]]; then
-        _arguments "3:bin:($(ls ~/bin))"
-      else
-        _arguments "3:eks_container:($(eks_list_pod_containers "${words[3]}"))"
       fi
       ;;
     *)
@@ -135,6 +147,22 @@ for fcn in "${_bcs_cmds[@]//-/_}" "${_eks_pod_cmds[@]//-/_}"; do
     compdef _eks_zsh_pod_container_completion eks_$fcn
   else
     complete -W '${_eks_pods[@]}' eks_$fcn
+  fi
+done
+
+for fcn in "${_eks_node_cmds[@]//-/_}"; do
+  if [[ "$(basename "$SHELL")" == zsh ]]; then
+    compdef _eks_zsh_node_completion eks_$fcn
+  else
+    complete -W '${_eks_nodes[@]}' eks_$fcn
+  fi
+done
+
+for fcn in "${_eks_trace_cmds[@]//-/_}"; do
+  if [[ "$(basename "$SHELL")" == zsh ]]; then
+    compdef _eks_zsh_trace_completion eks_$fcn
+  else
+    complete -W '${_eks_trace_objects[@]}' eks_$fcn
   fi
 done
 
@@ -166,9 +194,13 @@ eks_list_nodes() {
   for c in "${_eks_nodes[@]}"; do echo "$c"; done | grep -Pe "$FILTER"
 }
 
+eks_list_trace_objects() {
+  local FILTER="${1-}"
+  for c in "${_eks_trace_objects[@]}"; do echo "$c"; done | grep -Pe "$FILTER"
+}
+
 eks_list_pod_containers() {
   local PFILTER="${1-}"
-  local CFILTER="${2-}"
 
   set $(eks_list_pods "$PFILTER")
   if [[ $# -le $EKS_POD_SEARCH_LIMIT ]]; then
@@ -182,7 +214,7 @@ eks_list_pod_containers() {
       echo "$c"
     done
   fi |
-    grep -Pe "$CFILTER" | sort | uniq
+    grep -Pe "$EKS_CFILTER" | sort | uniq
 }
 
 _eks_load_clusters() {
@@ -215,6 +247,15 @@ _eks_load_namespaces() {
   return 0
 }
 
+_eks_load_trace_objects() {
+  [[ -n "$BCS_PROFILE" ]] || return 0
+  local _eks_pods
+  eval "_eks_pods=($EKS_PODS_SRC)"
+  eval "_eks_pods=(${_eks_pods[@]//--*=/})"
+  eval '_eks_trace_objects=(${_eks_nodes[@]} ${_eks_pods[@]//#/pod/})'
+  return 0
+}
+
 _eks_load_pods() {
   [[ -n "$BCS_PROFILE" ]] || return 0
   : "${EKS_PODS_SRC:=$(kubectl get pods "$@" --field-selector=status.phase=Running | (
@@ -234,6 +275,7 @@ eks_update_kubeconfig() {
   _eks_load_nodes
   _eks_load_namespaces
   _eks_load_pods
+  _eks_load_trace_objects
 }
 
 eks_set_namespace() {
@@ -245,11 +287,9 @@ eks_set_namespace() {
 
 eks_tools_ship_bg() {
   local FILTER="${1-}"
-  local container="${2-}"
-  [[ "$container" == "--" ]] && container=""
 
   for pod in $(eks_list_pods "$FILTER"); do
-    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
+    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       for t in "${_bcs_tools[@]}"; do
         time kubectl exec -i $pod -c $c -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
       done
@@ -267,22 +307,25 @@ eks_node_tools_ship_bg() {
 
   for node in $(eks_list_nodes "$NFILTER"); do
     for t in "${_bcs_tools[@]}"; do
-      time kubectl node-shell $node -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t
+      time kubectl node-shell $node -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
+      sleep 1
     done
-    kubectl node-shell $node -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT"
-    kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color
-    kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color
+    kubectl node-shell $node -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
+    sleep 1
+    kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color &
+    sleep 1
+    kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color &
+    wait
     echo "Shipped ${stype-tools} to $node."
   done
 }
 
 eks_scripts_ship_batch() {
   local PFILTER="$1"
-  local CFILTER="$2"
   shift
-  shift
+
   for script; do
-    eks_batch "$PFILTER" "$CFILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script" <~/bin/"$script"
+    eks_batch "$PFILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script" <~/bin/"$script"
   done
 }
 
@@ -290,28 +333,26 @@ eks_node_scripts_ship_batch() {
   local NFILTER="$1"
   shift
   for script; do
-    BCS_BATCH=1 eks_node_batch "$NFILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script" <~/bin/"$script"
+    eks_node_batch "$NFILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script" <~/bin/"$script"
   done
 }
 
 eks_bpftrace_ship_kheaders_bg() {
   local FILTER="${1-}"
-  local container="${2-}"
-  [[ "$container" == "--" ]] && container=""
   local wsl_kernel_version_major="$(uname -r)"
   wsl_kernel_version_major="${wsl_kernel_version_major%.**}"
 
   for pod in $(eks_list_pods "$FILTER"); do
-    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
+    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       if ! kubectl exec $pod -c $c -- sh -c 'uname -r | grep -E "^$wsl_kernel_version_major[.]" \
       || (echo "Kernel major version mismatch $(uname -r): on $pod/$c, aborting!">&2 && false)'; then
         continue
       fi
       time kubectl exec -i $pod -c $c -- sh -c 'mkdir -p /tmp/kheaders-$(uname -r) && cd /tmp/kheaders-$(uname -r) && tar -xJf -' </sys/kernel/kheaders.tar.xz &
       time kubectl exec -i $pod -c $c -- sh -c 'mkdir -p /tmp/bin && cat >/tmp/bin/bpftrace && chmod +x /tmp/bin/bpftrace' <~/bin/bpftrace &
-      kubectl exec $pod -c $c -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
-      kubectl exec $pod -c $c -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color &
-      kubectl exec $pod -c $c -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color &
+      time kubectl exec $pod -c $c -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
+      time kubectl exec $pod -c $c -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color &
+      time kubectl exec $pod -c $c -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color &
       wait
     done
   done
@@ -327,20 +368,23 @@ eks_node_bpftrace_ship_kheaders_bg() {
       || (echo "Kernel major version mismatch $(uname -r): on $node, aborting!">&2 && false)'; then
       continue
     fi
-    time kubectl node-shell -i $node -- sh -c 'mkdir -p /tmp/kheaders-$(uname -r) && cd /tmp/kheaders-$(uname -r) && tar -xJf -' </sys/kernel/kheaders.tar.xz
-    time kubectl node-shell $node -- sh -c 'mkdir -p /tmp/bin && cat >/tmp/bin/bpftrace && chmod +x /tmp/bin/bpftrace' <~/bin/bpftrace
-      kubectl node-shell $node -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT"
-      kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color
-      kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color
+    time kubectl node-shell -i $node -- sh -c 'mkdir -p /tmp/kheaders-$(uname -r) && cd /tmp/kheaders-$(uname -r) && tar -xJf -' </sys/kernel/kheaders.tar.xz &
+    sleep 1
+    time kubectl node-shell $node -- sh -c 'mkdir -p /tmp/bin && cat >/tmp/bin/bpftrace && chmod +x /tmp/bin/bpftrace' <~/bin/bpftrace &
+    sleep 1
+    time kubectl node-shell $node -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
+    sleep 1
+    time kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color &
+    sleep 1
+    time kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color &
+    sleep 1
+    wait
   done
 }
 
 eks_shell() {
   local FILTER="$1"
-  local container="${2-}"
   shift
-  [[ $# -gt 0 ]] && shift
-  [[ "$container" == "--" ]] && container=""
 
   local TMP
   if [[ ! -t 0 ]]; then
@@ -349,7 +393,7 @@ eks_shell() {
   fi
 
   for pod in $(eks_list_pods "$FILTER"); do
-    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
+    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       _bcs_title :$pod/$c: "$@"
       if [[ -t 0 ]]; then
         kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo ="sudo -Es"; eval script.sh -qa /tmp/typescript $sudo "$@"' -- "$@"
@@ -390,13 +434,10 @@ eks_node_shell() {
 
 eks_htop_ship_config_bg() {
   local FILTER="$1"
-  local container="${2-}"
   shift
-  [[ $# -gt 0 ]] && shift
-  [[ "$container" == "--" ]] && container=""
 
   for pod in $(eks_list_pods "$FILTER"); do
-    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
+    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       kubectl exec -i $pod -c $c -- sh -c \
         '[ -x /usr/bin/sudo ] && sudo="sudo -Es"; $sudo sh -c "mkdir -p ~/.config/htop && cat > ~/.config/htop/htoprc"' <~/.config/htop/htoprc &
     done
@@ -409,20 +450,18 @@ eks_node_htop_ship_config_bg() {
 
   for node in $(eks_list_nodes "$NFILTER"); do
     kubectl node-shell $node -- sh -c \
-        '[ -x /usr/bin/sudo ] && sudo="sudo -Es"; $sudo sh -c "mkdir -p ~/.config/htop && cat > ~/.config/htop/htoprc"' <~/.config/htop/htoprc
+      '[ -x /usr/bin/sudo ] && sudo="sudo -Es"; $sudo sh -c "mkdir -p ~/.config/htop && cat > ~/.config/htop/htoprc"' <~/.config/htop/htoprc &
+    sleep 1
   done
   wait
 }
 
 eks_screen() {
   local FILTER="$1"
-  local container="${2-}"
   shift
-  [[ $# -gt 0 ]] && shift
-  [[ "$container" == "--" ]] && container=""
 
   for pod in $(eks_list_pods "$FILTER"); do
-    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$" "$container"); do
+    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       screen "$SHELL" -ic \
         "_bcs_title :$pod/$c: \"\$@\"; kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
     done
@@ -435,13 +474,13 @@ eks_node_screen() {
 
   for node in $(eks_list_nodes "$NFILTER"); do
     screen "$SHELL" -ic \
-        "_bcs_title :$node: \"\$@\"; kubectl node-shell $node -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
-    sleep 5
+      "_bcs_title :$node: \"\$@\"; kubectl node-shell $node -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+    sleep 1
   done
 }
 
-function eks_node_batch() {
-  local NFILTER="$1"
+eks_batch() {
+  local FILTER="$1"
   shift
 
   if [[ -t 1 ]]; then
@@ -462,16 +501,56 @@ function eks_node_batch() {
     cat >$TMP
   fi
 
+  for pod in $(eks_list_pods "$FILTER"); do
+    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
+      if [[ -t 0 ]]; then
+        echo kubectl exec $pod -c $c -i -- \
+          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
+      else
+        echo bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- "<$TMP" '|' kubectl exec -i $pod -c $c -- \
+          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
+      fi
+    done
+  done |
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}' -- "$@"
+
+  local rv=$?
+  [[ -f "$TMP" ]] && rm -f $TMP
+  return $rv
+}
+
+eks_node_batch() {
+  local NFILTER="$1"
+  shift
+
+  if [[ -t 1 ]]; then
+    # ANSI color indexes: black = 0, red = 1, green = 2, cyan = 6
+    # setaf = Set ANSI foreground
+    # setab =  "   "   background
+    # sgr0  = reset local color adjustments back to default terminal settings
+    local errstr="$(tput bold)$(tput setaf 1)$(tput setab 0)error$(tput sgr0)"
+    local prefix='$(tput bold)$(tput setaf 2)$node$(tput sgr0)'
+  else
+    local errstr="error"
+    local prefix='$node'
+  fi
+
+  local TMP
+  if [[ ! -t 0 ]]; then
+    TMP="$(mktemp /tmp/eks-XXXX)"
+    cat >$TMP
+  fi
+
   for nodes in $(eks_list_nodes "$NFILTER"); do
     if [[ -t 0 ]]; then
       echo kubectl node-shell $node -- \
-          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
+        sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
     else
       echo bcs_sed_uprobe_shared_libs kubectl node-shell $node -- "<$TMP" '|' kubectl node-shell $node -- \
-          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
+        sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
     fi
   done |
-    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}' -- "$@"
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; sleep 1; {}' -- "$@"
 
   local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
@@ -482,3 +561,4 @@ _eks_load_clusters >/dev/null 2>&1
 _eks_load_nodes >/dev/null 2>&1
 _eks_load_namespaces >/dev/null 2>&1
 _eks_load_pods >/dev/null 2>&1
+_eks_load_trace_objects >/dev/null 2>&1

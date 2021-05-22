@@ -220,7 +220,6 @@ complete -C aws_completer aws
 complete -o nospace -C terraform terraform
 
 . <(kubectl completion $(basename "$SHELL"))
-. ~/.ec2rc
 . ~/.bcsrc
-. ~/.bcsrcec2rc
+. ~/.ec2rc
 . ~/.eksrc
