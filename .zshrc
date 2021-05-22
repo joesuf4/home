@@ -221,5 +221,6 @@ complete -o nospace -C terraform terraform
 
 . <(kubectl completion $(basename "$SHELL"))
 . ~/.ec2rc
-. ~/.eksrc
 . ~/.bcsrc
+. ~/.bcsrcec2rc
+. ~/.eksrc
