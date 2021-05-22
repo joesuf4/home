@@ -59,7 +59,11 @@ list-pod-containers        List the available containers for the given pod
                            filter.
                            [<args>]
                              1. PCRE pod name filter (see "list-pods" note)
-                             2. PCRE container name filter
+                           Notes: Filtering on the container name is available
+                           through the EKS_CFILTER environment variable.  It's
+                           current value is:
+
+                           ==> $EKS_CFILTER <==
 
                            ===
 
@@ -71,6 +75,12 @@ list-nodes                 List the k8s cluster's nodes.
 
 node-*                     "COMMON CLI" node-prefixed commands.
                            Notes:  For admin use only: requires elevated privs.
+
+                           ===
+
+list-trace-objects         List the strings admissible for the eks trace-* cmds.
+                           [<args>]
+                             1. PCRE filter (optional)
 
                            ===
 

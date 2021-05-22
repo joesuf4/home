@@ -77,7 +77,7 @@ _ec2_zsh_completion() {
   esac
 }
 
-for fcn in "${_bcs_cmds[@]//-/_}" "${_ec2_cmds[@]//-/_}"; do
+for fcn in "${_bcs_cli_cmds[@]//-/_}" "${_ec2_cmds[@]//-/_}"; do
   if [[ $(basename "$SHELL") == zsh ]]; then
     compdef _ec2_zsh_inventory_hosts_completion ec2_$fcn
     compdef _ec2_zsh_inventory_hosts_completion ec2-${fcn//_/-}.sh
