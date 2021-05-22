@@ -9,7 +9,7 @@ declare -ax _eks_cluster_cmds=(list-clusters update-kubeconfig)
 declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_trace_cmds[@]}" "${_eks_node_cmds[@]}" "${_eks_namespace_cmds[@]}" "${_eks_cluster_cmds[@]}")
 declare -ax _eks_pods_flags=("--selector=")
 
-export EKS_CLUSTERS_SRC EKS_NODES_SRC EKS_NS_SRC EKS_PODS_SRC EKS_POD_SEARCH_LIMIT EKS_CFILTER
+export EKS_CLUSTERS_SRC EKS_NODES_SRC EKS_NS_SRC EKS_PODS_SRC EKS_POD_SEARCH_LIMIT EKS_CFILTER EKS_CLUSTER EKS_NAMESPACE
 
 : "${EKS_POD_SEARCH_LIMIT:=4}" "${EKS_CFILTER:=.}"
 
@@ -286,6 +286,7 @@ eks_update_kubeconfig() {
   _eks_load_namespaces
   _eks_load_pods
   _eks_load_trace_objects
+  _bcs_title
 }
 
 eks_set_namespace() {
@@ -293,6 +294,7 @@ eks_set_namespace() {
   kubectl config set-context --current --namespace="${1-default}"
   EKS_PODS_SRC=
   _eks_load_pods
+  _bcs_title
 }
 
 eks_tools_ship_bg() {
@@ -313,18 +315,18 @@ eks_tools_ship_bg() {
 }
 
 eks_node_tools_ship_bg() {
-  local NFILTER="${1-}"
+  local FILTER="${1-}"
 
-  for node in $(eks_list_nodes "$NFILTER"); do
+  for node in $(eks_list_nodes "$FILTER"); do
     for t in "${_bcs_tools[@]}"; do
       time kubectl node-shell $node -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
       sleep 1
     done
-    kubectl node-shell $node -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
+    time kubectl node-shell $node -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
     sleep 1
-    kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color &
+    time kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color &
     sleep 1
-    kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color &
+    time kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color &
     wait
     echo "Shipped ${stype-tools} to $node."
   done
@@ -340,10 +342,10 @@ eks_scripts_ship_batch() {
 }
 
 eks_node_scripts_ship_batch() {
-  local NFILTER="$1"
+  local FILTER="$1"
   shift
   for script; do
-    eks_node_batch "$NFILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script" <~/bin/"$script"
+    eks_node_batch "$FILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script" <~/bin/"$script"
   done
 }
 
@@ -419,7 +421,7 @@ eks_shell() {
 }
 
 eks_node_shell() {
-  local NFILTER="${1-}"
+  local FILTER="${1-}"
   shift
   [[ $# -eq 0 ]] && set bash
   local TMP
@@ -428,12 +430,40 @@ eks_node_shell() {
     cat >$TMP
   fi
 
-  for node in $(eks_list_nodes "$NFILTER"); do
+  for node in $(eks_list_nodes "$FILTER"); do
     _bcs_title :$node: "$@"
     if [[ -t 0 ]]; then
-      kubectl node-shell $node -- sh -lc '[ -x /usr/bin/sudo ] && sudo ="sudo -Es"; eval script.sh -qa /tmp/typescript $sudo "$@"' -- "$@"
+      kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript "$@"' -- "$@"
     else
-      bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl exec node-shell $node -- sh -lc '[ -x /usr/bin/sudo ] && sudo="sudo -Es"; eval script.sh -qa /tmp/typescript $sudo "$@"' -- "$@"
+      bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript "$@"' -- "$@"
+    fi
+  done
+
+  local rv=$?
+  [[ -f "$TMP" ]] && rm -f $TMP
+  return $rv
+}
+
+eks_trace_shell() {
+  local FILTER="$1"
+  shift
+  local TMP
+  if [[ ! -t 0 ]]; then
+    TMP="$(mktemp /tmp/eks-XXXX)"
+    cat >$TMP
+  fi
+
+  for obj in $(eks_list_node_objects "$FILTER"); do
+    _bcs_title :$node: "$@"
+    if [[ -t 0 ]]; then
+      kubectl trace $node "$@"
+    else
+      local pod="${node#pod/}"
+      if [[ "$pod" == "$node" ]]; then
+        kubectl trace $node "$@" -f <(bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP)
+      else
+        kubectl trace $node "$@" -f <(bcs_sed_uprobe_shared_libs kubectl exec -i $pod -- <$TMP)
+      fi
     fi
   done
 
@@ -482,11 +512,56 @@ eks_node_screen() {
   local NFILTER="${1-}"
   shift
 
+  local TMP
+  if [[ ! -t 0 ]]; then
+    TMP="$(mktemp /tmp/eks-XXXX)"
+    cat >$TMP
+  fi
+
   for node in $(eks_list_nodes "$NFILTER"); do
-    screen "$SHELL" -ic \
-      "_bcs_title :$node: \"\$@\"; kubectl node-shell $node -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+    if [[ -t 0 ]]; then
+      screen "$SHELL" -ic \
+        "_bcs_title :$node: \"\$@\"; kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
+    else
+      screen "$SHELL" -ic \
+        "_bcs_title :$node: \"\$@\"; bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
+    fi
     sleep 1
   done
+
+  local rv=$?
+  [[ -f "$TMP" ]] && sleep 1 && rm -f "$TMP"
+  return $rv
+}
+
+eks_trace_screen() {
+  local FILTER="${1-}"
+  shift
+  local TMP
+  if [[ ! -t 0 ]]; then
+    TMP="$(mktemp /tmp/eks-XXXX)"
+    cat >$TMP
+  fi
+
+  for node in $(eks_list_trace_objects "$FILTER"); do
+    if [[ -t 0 ]]; then
+      screen "$SHELL" -ic \
+        "_bcs_title :$node: \"\$@\"; kubectl trace $node \"\$@\" | less" -- "$@"
+    else
+      local pod="${node#pod/}"
+      if [[ "$pod" == "$node" ]]; then
+        screen "$SHELL" -ic "kubectl trace $node \"\$@\" -f <(bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP) | less" -- "$@"
+      else
+        # hopefully any underlying node hosting the pod will do, so we just grab the first
+        screen "$SHELL" -ic "kubectl trace $node \"\$@\" -f <(bcs_sed_uprobe_shared_libs kubectl exec -i $pod -- <$TMP) | less" -- "$@"
+      fi
+    fi
+    sleep 1
+  done
+
+  local rv=$?
+  [[ -f "$TMP" ]] && sleep 1 && rm -f "$TMP"
+  return $rv
 }
 
 eks_batch() {
@@ -561,6 +636,48 @@ eks_node_batch() {
     fi
   done |
     xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; sleep 1; {}' -- "$@"
+
+  local rv=$?
+  [[ -f "$TMP" ]] && rm -f $TMP
+  return $rv
+}
+
+eks_trace_batch() {
+  local TFILTER="$1"
+  shift
+
+  if [[ -t 1 ]]; then
+    # ANSI color indexes: black = 0, red = 1, green = 2, cyan = 6
+    # setaf = Set ANSI foreground
+    # setab =  "   "   background
+    # sgr0  = reset local color adjustments back to default terminal settings
+    local errstr="$(tput bold)$(tput setaf 1)$(tput setab 0)error$(tput sgr0)"
+    local prefix='$(tput bold)$(tput setaf 2)$node$(tput sgr0)'
+  else
+    local errstr="error"
+    local prefix='$node'
+  fi
+
+  local TMP
+  if [[ ! -t 0 ]]; then
+    TMP="$(mktemp /tmp/eks-XXXX)"
+    cat >$TMP
+  fi
+
+  for nodes in $(eks_list_trace_objects "$TFILTER"); do
+    if [[ -t 0 ]]; then
+      echo '(' kubectl trace $node \"\$@\" '||' echo \""$errstr"\": "(eks trace $node \"\$@\") failed with status code \$?" ')' '2>&1' '|' 'while IFS=\";\" read -r line; do echo '\"$prefix\"': \$line; done"'
+    else
+      local pod="${node#pod/}"
+      if [[ "$pod" == "$node" ]]; then
+        echo '(' kubectl trace $node \"\$@\" -f "<(bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP)" '||' echo \""$errstr"\": "(eks trace $node \"\$@\") failed with status code \$?" ')' '2>&1' '|' 'while IFS=\";\" read -r line; do echo '\"$prefix\"': \$line; done"'
+      else
+        echo '(' kubectl trace $node \"\$@\" -f "<(bcs_sed_uprobe_shared_libs kubectl exec -i $pod -- <$TMP)" '||' echo \""$errstr"\": "(eks trace $node \"\$@\") failed with status code \$?" ')' '2>&1' '|' 'while IFS=\";\" read -r line; do echo '\"$prefix\"': \$line; done"'
+
+      fi
+    fi
+  done |
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; sleep 1; {}'
 
   local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
