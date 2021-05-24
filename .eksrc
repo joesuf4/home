@@ -635,7 +635,7 @@ eks_node_batch() {
         sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
     fi
   done |
-    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; sleep 1; {}' -- "$@"
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}' -- "$@"
 
   local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
@@ -677,7 +677,7 @@ eks_trace_batch() {
       fi
     fi
   done |
-    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; sleep 1; {}'
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}'
 
   local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
