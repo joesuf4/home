@@ -7,9 +7,11 @@ declare -ax _eks_trace_cmds=(list-trace-objects "${_bcs_cli_cmds[@]//#/trace-}")
 declare -ax _eks_namespace_cmds=(list-namespaces set-namespace)
 declare -ax _eks_cluster_cmds=(list-clusters update-kubeconfig)
 declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_trace_cmds[@]}" "${_eks_node_cmds[@]}" "${_eks_namespace_cmds[@]}" "${_eks_cluster_cmds[@]}")
-declare -ax _eks_pods_flags=("--selector=")
+declare -ax _eks_pods_flags=("--selector=") _eks_trace_actions=(attach delete get run logs)
 
-export EKS_CLUSTERS_SRC EKS_NODES_SRC EKS_NS_SRC EKS_PODS_SRC EKS_POD_SEARCH_LIMIT EKS_CFILTER EKS_CLUSTER EKS_NAMESPACE
+declare -A EKS_TRACE_ID
+
+export EKS_CLUSTERS_SRC EKS_NODES_SRC EKS_NS_SRC EKS_PODS_SRC EKS_POD_SEARCH_LIMIT EKS_CFILTER EKS_CLUSTER EKS_NAMESPACE EKS_TRACE_ID_SRC
 
 : "${EKS_POD_SEARCH_LIMIT:=4}" "${EKS_CFILTER:=.}"
 
@@ -119,7 +121,7 @@ _eks_zsh_pod_container_completion() {
 
 _eks_zsh_completion() {
   local state
-  _arguments '1: :->eks_cmd' '2: :->eks_filter' '*: :->*'
+  _arguments '1: :->eks_cmd' '2: :->eks_filter' '3: :->eks_action' '*: :->*'
 
   case $state in
     eks_cmd)
@@ -132,10 +134,23 @@ _eks_zsh_completion() {
         _arguments "2:eks_namespace:($_eks_namespaces)"
       elif [[ "${words[2]}" != "${words[2]#node-}" || "${words[2]}" == list-nodes ]]; then
         _arguments "2:eks_node:($_eks_nodes)"
-      elif [[ "${words[2]}" != "${words[2]#trace-}" || "${words[2]}" == list-trace-objects ]]; then
-        _arguments "2:eks_trace:($_eks_trace_objects)"
+      elif [[ "${words[2]}" != "${words[2]#trace-}" ]]; then
+        _arguments "2:eks_trace_action:($_eks_trace_actions)"
+      elif [[ "${words[2]}" == list-trace-objects ]]; then
+        _arguments "2:eks_trace_objects:($_eks_trace_objects)"
       else
         _arguments "2:eks_pod:($_eks_pods)"
+      fi
+      ;;
+    eks_action)
+      if [[ "{$words[2]}" != "${words[2]#trace-}" ]]; then
+        if [[ "${words[3]}" == run ]]; then
+          _arguments "3:eks_trace_objects:($_eks_trace_objects)"
+        else
+          _arguments "3:eks_trace_id_keys:($(eks_list_trace_ids "" 1))"
+        fi
+      else
+        _arguments "3:bin:($(ls ~/bin))"
       fi
       ;;
     *)
@@ -184,6 +199,17 @@ eks_list_clusters() {
 eks_list_namespaces() {
   local FILTER="${1-}"
   for c in "${_eks_namespaces[@]}"; do echo "$c"; done | grep -Pe "$FILTER"
+}
+
+eks_list_trace_ids() {
+  local FILTER="${1-}"
+  local field="${2-2}"
+  if [[ "$(basename $SHELL)" == zsh ]]; then
+    for k v in "${(kv)EKS_TRACE_ID}"; do echo "$k:$v"; done
+  else
+    for k in "${!EKS_TRACE_ID[@]}"; do echo "$k:${EKS_TRACE_ID[$k]}"; done
+  fi |
+    grep -Pe "$FILTER" | cut -f$field -d: | tr -d [[:space:]] '\n' | sort | uniq
 }
 
 eks_list_pods() {
@@ -276,24 +302,44 @@ _eks_load_pods() {
   return 0
 }
 
+_eks_load_trace_ids() {
+  [[ -n "$BCS_PROFILE" ]] || return 0
+  : "${EKS_TRACE_ID_SRC:=$(kubectl trace get -n ${EKS_NAMESPACE-default} "$@" | tr -dc "$BCS_ADMISSIBLE_CHARS" | (read -r _; while read -r ns node name status age; do [[ $(basename "$SHELL") == zsh ]] && echo $node $name || echo "[$node]=$name"; done
+  ))}"
+  local _eks_trace_pod_id
+  declare -A _eks_trace_pod_id
+  for key in $(eval '[[ "$(basename "$SHELL")" == zsh ]] && echo "${(k)EKS_TRACE_ID}" || echo "${!EKS_TRACE_ID[@]}"'); do
+   [[ "$key" == "${key#pod/}" ]] && continue
+    [[ -z "$(eks_list_trace_objects $key)" ]] && continue
+    : "${_eks_trace_pod_id[$key]=${EKS_TRACE_ID[$key]}}"
+  done
+  eval "EKS_TRACE_ID=($EKS_TRACE_ID_SRC)"
+  for key in $(eval '[[ "$(basename "$SHELL") == zsh ]] && echo ${(k)_eks_trace_id} || echo ${!_eks_trace_id[@]})"'); do
+    : "${EKS_TRACE_ID[$key]:=${_eks_trace_id[$key]}}"
+  done
+  return 0
+}
+
 eks_update_kubeconfig() {
   [[ $# -gt 0 ]] || set "$(kubectl config get-contexts | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
   aws eks update-kubeconfig --name "$1"
-  EKS_NODES_SRC=
-  EKS_PODS_SRC=
+  shift
   EKS_NS_SRC=
-  _eks_load_nodes
+  EKS_NODES_SRC=
   _eks_load_namespaces
-  _eks_load_pods
-  _eks_load_trace_objects
-  _bcs_title
+  _eks_load_nodes
+  eks_set_namespace $@
 }
 
 eks_set_namespace() {
   [[ $# -gt 0 ]] || set "$(kubectl config --current-context get-namespaces | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
   kubectl config set-context --current --namespace="${1-default}"
+  EKS_NAMESPACE="${1-default}"
   EKS_PODS_SRC=
+  EKS_TRACE_ID_SRC=
   _eks_load_pods
+  _eks_load_trace_objects
+  _eks_load_trace_ids
   _bcs_title
 }
 
@@ -446,6 +492,8 @@ eks_node_shell() {
 
 eks_trace_shell() {
   local FILTER="$1"
+  local ACTION="$2"
+  shift
   shift
   local TMP
   if [[ ! -t 0 ]]; then
@@ -453,19 +501,34 @@ eks_trace_shell() {
     cat >$TMP
   fi
 
-  for obj in $(eks_list_node_objects "$FILTER"); do
-    _bcs_title :$node: "$@"
-    if [[ -t 0 ]]; then
-      kubectl trace $node "$@"
-    else
-      local pod="${node#pod/}"
-      if [[ "$pod" == "$node" ]]; then
-        kubectl trace $node "$@" -f <(bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP)
-      else
-        kubectl trace $node "$@" -f <(bcs_sed_uprobe_shared_libs kubectl exec -i $pod -- <$TMP)
-      fi
-    fi
-  done
+  case "$ACTION" in
+    run)
+      for obj in $(eks_list_trace_objects "$FILTER"); do
+        _bcs_title :$obj: trace $ACTION "$@"
+        : "${EKS_TRACE_ID[$obj]+= $(
+        if [[ -t 0 ]]; then
+          kubectl trace $ACTION $obj "$@"
+        else
+          local pod="${obj#pod/}"
+          if [[ "$pod" == "$obj" ]]; then
+            kubectl trace $ACTION $obj "$@" -f <(bcs_sed_uprobe_shared_libs kubectl node-shell $obj -- <$TMP)
+          else
+            kubectl trace $ACTION $obj "$@" -f <(bcs_sed_uprobe_shared_libs kubectl exec -i $pod -- <$TMP)
+          fi
+        fi | awk '$3 == "created" {print $2}')}"
+
+      done
+      ;;
+    *)
+      for key in $(eks_list_trace_ids "$FILTER" 1); do
+        _bcs_title :$key: trace $ACTION "$@"
+        for id in ${EKS_TRACE_ID[$key]}; do
+          kubectl trace $ACTION $id "$@"
+        done
+        [[ $ACTION == delete ]] && unset EKS_TRACE_ID[$key]
+      done
+      ;;
+  esac
 
   local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
@@ -536,28 +599,23 @@ eks_node_screen() {
 
 eks_trace_screen() {
   local FILTER="${1-}"
+  local ACTION="$2"
   shift
-  local TMP
-  if [[ ! -t 0 ]]; then
-    TMP="$(mktemp /tmp/eks-XXXX)"
-    cat >$TMP
-  fi
+  shift
 
-  for node in $(eks_list_trace_objects "$FILTER"); do
-    if [[ -t 0 ]]; then
-      screen "$SHELL" -ic \
-        "_bcs_title :$node: \"\$@\"; kubectl trace $node \"\$@\" | less" -- "$@"
-    else
-      local pod="${node#pod/}"
-      if [[ "$pod" == "$node" ]]; then
-        screen "$SHELL" -ic "kubectl trace $node \"\$@\" -f <(bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP) | less" -- "$@"
-      else
-        # hopefully any underlying node hosting the pod will do, so we just grab the first
-        screen "$SHELL" -ic "kubectl trace $node \"\$@\" -f <(bcs_sed_uprobe_shared_libs kubectl exec -i $pod -- <$TMP) | less" -- "$@"
-      fi
-    fi
-    sleep 1
-  done
+  case "$ACTION" in
+    get|run|delete)
+      eks_trace_shell $FILTER $ACTION "$@"
+      ;;
+    *)
+      for key in $(eks_list_trace_ids "$FILTER" 1); do
+        for id in ${EKS_TRACE_ID[$key]}; do
+          screen "$SHELL" -ic \
+        "_bcs_title :$id: trace $ACTION \"\$@\"; kubectl trace $ACTION $node \"\$@\" | less" -- "$@"
+        done
+      done
+      ;;
+  esac
 
   local rv=$?
   [[ -f "$TMP" ]] && sleep 1 && rm -f "$TMP"
@@ -643,7 +701,9 @@ eks_node_batch() {
 }
 
 eks_trace_batch() {
-  local TFILTER="$1"
+  local FILTER="$1"
+  local ACTION="$2"
+  shift
   shift
 
   if [[ -t 1 ]]; then
@@ -652,36 +712,25 @@ eks_trace_batch() {
     # setab =  "   "   background
     # sgr0  = reset local color adjustments back to default terminal settings
     local errstr="$(tput bold)$(tput setaf 1)$(tput setab 0)error$(tput sgr0)"
-    local prefix='$(tput bold)$(tput setaf 2)$node$(tput sgr0)'
+    local prefix='$(tput bold)$(tput setaf 2)$key$(tput sgr0)>$(tput setaf 6)$id(tput sgr0)'
   else
     local errstr="error"
-    local prefix='$node'
+    local prefix='$key>$id'
   fi
 
-  local TMP
-  if [[ ! -t 0 ]]; then
-    TMP="$(mktemp /tmp/eks-XXXX)"
-    cat >$TMP
-  fi
-
-  for nodes in $(eks_list_trace_objects "$TFILTER"); do
-    if [[ -t 0 ]]; then
-      echo '(' kubectl trace $node \"\$@\" '||' echo \""$errstr"\": "(eks trace $node \"\$@\") failed with status code \$?" ')' '2>&1' '|' 'while IFS=\";\" read -r line; do echo '\"$prefix\"': \$line; done"'
-    else
-      local pod="${node#pod/}"
-      if [[ "$pod" == "$node" ]]; then
-        echo '(' kubectl trace $node \"\$@\" -f "<(bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP)" '||' echo \""$errstr"\": "(eks trace $node \"\$@\") failed with status code \$?" ')' '2>&1' '|' 'while IFS=\";\" read -r line; do echo '\"$prefix\"': \$line; done"'
-      else
-        echo '(' kubectl trace $node \"\$@\" -f "<(bcs_sed_uprobe_shared_libs kubectl exec -i $pod -- <$TMP)" '||' echo \""$errstr"\": "(eks trace $node \"\$@\") failed with status code \$?" ')' '2>&1' '|' 'while IFS=\";\" read -r line; do echo '\"$prefix\"': \$line; done"'
-
-      fi
-    fi
-  done |
-    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}'
-
-  local rv=$?
-  [[ -f "$TMP" ]] && rm -f $TMP
-  return $rv
+  case "$ACTION" in
+    run|delete)
+      eks_trace_shell "$FILTER" "$ACTION" "$@"
+      ;;
+    *)
+      for key in $(eks_list_trace_ids "$FILTER" 1); do
+        for id in ${EKS_TRACE_ID[$key]}; do
+          echo '(' kubectl trace $ACTION $id "$@" '||' echo \""$errstr"\": "(trace $ACTION \"\$@\") failed with status code \$?" ')' '2>&1' '|' 'while IFS=";" read -r line; do echo '\"$prefix\"': $line; done'
+        done |
+          xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}'
+      done
+      ;;
+  esac
 }
 
 _eks_load_clusters >/dev/null 2>&1
@@ -689,3 +738,4 @@ _eks_load_nodes >/dev/null 2>&1
 _eks_load_namespaces >/dev/null 2>&1
 _eks_load_pods >/dev/null 2>&1
 _eks_load_trace_objects >/dev/null 2>&1
+_eks_load_trace_ids >/dev/null 2>&1
