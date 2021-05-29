@@ -3,7 +3,7 @@
 declare -ax _eks_clusters _eks_trace_objects _eks_nodes _eks_namespaces _eks_pods _bcs_tools _bcs_cmds words
 declare -ax _eks_pod_cmds=(list-pods list-pod-containers)
 declare -ax _eks_node_cmds=(list-nodes "${_bcs_cli_cmds[@]//#/node-}")
-declare -ax _eks_trace_cmds=(list-trace-objects "${_bcs_cli_cmds[@]//#/trace-}")
+declare -ax _eks_trace_cmds=(list-trace-objects list-trace-ids "${_bcs_cli_cmds[@]//#/trace-}")
 declare -ax _eks_namespace_cmds=(list-namespaces set-namespace)
 declare -ax _eks_cluster_cmds=(list-clusters update-kubeconfig)
 declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_trace_cmds[@]}" "${_eks_node_cmds[@]}" "${_eks_namespace_cmds[@]}" "${_eks_cluster_cmds[@]}")
@@ -77,6 +77,9 @@ list-nodes                 List the k8s cluster's nodes.
 
 node-*                     "COMMON CLI" node-prefixed commands.
                            Notes:  For admin use only: requires elevated privs.
+                           Embedded single-quotes within any arguments will be
+                           translated into double-quotes en masse (for internal
+                           kubectl-node_shell specific jsonfication steps). YHBW.
 
                            ===
 
@@ -143,7 +146,7 @@ _eks_zsh_completion() {
       fi
       ;;
     eks_action)
-      if [[ "{$words[2]}" != "${words[2]#trace-}" ]]; then
+      if [[ "${words[2]}" != "${words[2]#trace-}" ]]; then
         if [[ "${words[3]}" == run ]]; then
           _arguments "3:eks_trace_objects:($_eks_trace_objects)"
         else
@@ -204,12 +207,12 @@ eks_list_namespaces() {
 eks_list_trace_ids() {
   local FILTER="${1-}"
   local field="${2-2}"
-  if [[ "$(basename $SHELL)" == zsh ]]; then
-    for k v in "${(kv)EKS_TRACE_ID}"; do echo "$k:$v"; done
+  if [[ "$(basename "$SHELL")" == zsh ]]; then
+    eval 'for k v in "${(kv)EKS_TRACE_ID}"; do echo "$k:$v"; done'
   else
     for k in "${!EKS_TRACE_ID[@]}"; do echo "$k:${EKS_TRACE_ID[$k]}"; done
   fi |
-    grep -Pe "$FILTER" | cut -f$field -d: | tr -d [[:space:]] '\n' | sort | uniq
+    grep -Pe "$FILTER" | cut -f$field -d: | tr '[:space:]' '\n' | sort | uniq
 }
 
 eks_list_pods() {
@@ -304,18 +307,22 @@ _eks_load_pods() {
 
 _eks_load_trace_ids() {
   [[ -n "$BCS_PROFILE" ]] || return 0
-  : "${EKS_TRACE_ID_SRC:=$(kubectl trace get -n ${EKS_NAMESPACE-default} "$@" | tr -dc "$BCS_ADMISSIBLE_CHARS" | (read -r _; while read -r ns node name status age; do [[ $(basename "$SHELL") == zsh ]] && echo $node $name || echo "[$node]=$name"; done
+  : "${EKS_TRACE_ID_SRC:=$(kubectl trace get -n ${EKS_NAMESPACE:-default} "$@" | tr -dc "$BCS_ADMISSIBLE_CHARS" | (
+    read -r _
+    while read -r ns node name st age; do
+      [[ $(basename "$SHELL") == zsh ]] && echo "$node $name" || echo "[$node]=$name"
+    done
   ))}"
   local _eks_trace_pod_id
   declare -A _eks_trace_pod_id
   for key in $(eval '[[ "$(basename "$SHELL")" == zsh ]] && echo "${(k)EKS_TRACE_ID}" || echo "${!EKS_TRACE_ID[@]}"'); do
-   [[ "$key" == "${key#pod/}" ]] && continue
+    [[ "$key" == "${key#pod/}" ]] && continue
     [[ -z "$(eks_list_trace_objects $key)" ]] && continue
     : "${_eks_trace_pod_id[$key]=${EKS_TRACE_ID[$key]}}"
   done
   eval "EKS_TRACE_ID=($EKS_TRACE_ID_SRC)"
-  for key in $(eval '[[ "$(basename "$SHELL") == zsh ]] && echo ${(k)_eks_trace_id} || echo ${!_eks_trace_id[@]})"'); do
-    : "${EKS_TRACE_ID[$key]:=${_eks_trace_id[$key]}}"
+  for key in $(eval '[[ "$(basename "$SHELL")" == zsh ]] && echo ${(k)_eks_trace_pod_id} || echo ${!_eks_trace_pod_id[@]}'); do
+    : "${EKS_TRACE_ID[$key]:=${_eks_trace_pod_id[$key]}}"
   done
   return 0
 }
@@ -328,7 +335,7 @@ eks_update_kubeconfig() {
   EKS_NODES_SRC=
   _eks_load_namespaces
   _eks_load_nodes
-  eks_set_namespace $@
+  eks_set_namespace "$@"
 }
 
 eks_set_namespace() {
@@ -395,25 +402,17 @@ eks_node_scripts_ship_batch() {
   done
 }
 
-eks_bpftrace_ship_kheaders_bg() {
-  local FILTER="${1-}"
-  local wsl_kernel_version_major="$(uname -r)"
-  wsl_kernel_version_major="${wsl_kernel_version_major%.**}"
-
-  for pod in $(eks_list_pods "$FILTER"); do
-    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
-      if ! kubectl exec $pod -c $c -- sh -c 'uname -r | grep -E "^$wsl_kernel_version_major[.]" \
-      || (echo "Kernel major version mismatch $(uname -r): on $pod/$c, aborting!">&2 && false)'; then
-        continue
-      fi
-      time kubectl exec -i $pod -c $c -- sh -c 'mkdir -p /tmp/kheaders-$(uname -r) && cd /tmp/kheaders-$(uname -r) && tar -xJf -' </sys/kernel/kheaders.tar.xz &
-      time kubectl exec -i $pod -c $c -- sh -c 'mkdir -p /tmp/bin && cat >/tmp/bin/bpftrace && chmod +x /tmp/bin/bpftrace' <~/bin/bpftrace &
-      time kubectl exec $pod -c $c -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
-      time kubectl exec $pod -c $c -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color &
-      time kubectl exec $pod -c $c -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color &
-      wait
-    done
-  done
+_eks_trace_ship_kheaders() {
+  local obj="$1"
+  local pod="${obj#pod/}"
+  local action="$([[ "$pod" == "$obj" ]] && echo node-shell $obj '2>/dev/null' || echo exec -i $pod)"
+  local remote_kernel="$(eval "kubectl $action -- sh -c '[ -d /tmp/kheaders-\$(uname -r) ] || uname -r' | tr -d '\r'")"
+  [ -z "$remote_kernel" ] && return 0
+  local major_version="${remote_kernel%%.*}"
+  local minor_version=${remote_kernel#$major_version.}
+  minor_version="${minor_version%%.*}"
+  _bcs_title $action ... "<shipping kheaders>"
+  eval "kubectl $action -- sh -c 'mkdir -p /tmp/kheaders-\$(uname -r) && cd /tmp/kheaders-\$(uname -r) && tar -xJf -' <~/.kheaders-$major_version.$minor_version.*.tar.xz"
 }
 
 eks_node_bpftrace_ship_kheaders_bg() {
@@ -504,19 +503,20 @@ eks_trace_shell() {
   case "$ACTION" in
     run)
       for obj in $(eks_list_trace_objects "$FILTER"); do
+        _eks_ship_trace_kheaders $obj
         _bcs_title :$obj: trace $ACTION "$@"
         : "${EKS_TRACE_ID[$obj]+= $(
-        if [[ -t 0 ]]; then
-          kubectl trace $ACTION $obj "$@"
-        else
-          local pod="${obj#pod/}"
-          if [[ "$pod" == "$obj" ]]; then
-            kubectl trace $ACTION $obj "$@" -f <(bcs_sed_uprobe_shared_libs kubectl node-shell $obj -- <$TMP)
+          if [[ -t 0 ]]; then
+            kubectl trace $ACTION $obj "$@"
           else
-            kubectl trace $ACTION $obj "$@" -f <(bcs_sed_uprobe_shared_libs kubectl exec -i $pod -- <$TMP)
-          fi
-        fi | awk '$3 == "created" {print $2}')}"
-
+            local pod="${obj#pod/}"
+            if [[ "$pod" == "$obj" ]]; then
+              kubectl trace $ACTION $obj "$@" -f <(bcs_sed_uprobe_shared_libs kubectl node-shell $obj -- <$TMP)
+            else
+              kubectl trace $ACTION $obj "$@" -f <(bcs_sed_uprobe_shared_libs kubectl exec -i $pod -- <$TMP)
+            fi
+          fi | awk '$3 == "created" {print $2}'
+        )}"
       done
       ;;
     *)
@@ -525,7 +525,7 @@ eks_trace_shell() {
         for id in ${EKS_TRACE_ID[$key]}; do
           kubectl trace $ACTION $id "$@"
         done
-        [[ $ACTION == delete ]] && unset EKS_TRACE_ID[$key]
+        [[ $ACTION == delete ]] && unset "EKS_TRACE_ID[$key]"
       done
       ;;
   esac
@@ -604,14 +604,14 @@ eks_trace_screen() {
   shift
 
   case "$ACTION" in
-    get|run|delete)
+    get | run | delete)
       eks_trace_shell $FILTER $ACTION "$@"
       ;;
     *)
       for key in $(eks_list_trace_ids "$FILTER" 1); do
         for id in ${EKS_TRACE_ID[$key]}; do
           screen "$SHELL" -ic \
-        "_bcs_title :$id: trace $ACTION \"\$@\"; kubectl trace $ACTION $node \"\$@\" | less" -- "$@"
+            "_bcs_title :$id: trace $ACTION \"\$@\"; kubectl trace $ACTION $id \"\$@\" | less" -- "$@"
         done
       done
       ;;
@@ -719,7 +719,7 @@ eks_trace_batch() {
   fi
 
   case "$ACTION" in
-    run|delete)
+    run | delete)
       eks_trace_shell "$FILTER" "$ACTION" "$@"
       ;;
     *)
