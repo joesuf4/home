@@ -39,8 +39,12 @@ nd src ~winhome/src
 tplay() {
   perl -MPOSIX=ctermid -MTerm::ReadKey -e '
     open my $t, "+<", ctermid;
-    my $opt_s = grep /s/, @ARGV;
-    my $opt_c = grep /c/, @ARGV;
+    my $opt_s = grep /^-\w*s/ @ARGV;
+    my $opt_c = grep /^-\w*c/, grep @ARGV;
+    while (scalar @ARGV) {
+      shift @ARGV and next if $ARGV[0] =~/^-/;
+      last;
+    }
     ReadMode raw => $t;
     while ($opt_s or $opt_c or ($_=ReadKey(0,$t)) ne "q") {
       if ($opt_s or $_ eq "s" or $opt_c or $_ eq "c") {
