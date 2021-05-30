@@ -44,7 +44,7 @@ tplay() {
     ReadMode raw => $t;
     while ($opt_s or $opt_c or ($_=ReadKey(0,$t)) ne "q") {
       if ($opt_s or $_ eq "s" or $opt_c or $_ eq "c") {
-        while (<STDIN>) {
+        while (<>) {
           s/\e\[\d+;?\d{0,2}[A-Zn]//g;
           tr/\r//d;
           print if /\bScript /;
@@ -52,8 +52,8 @@ tplay() {
             or (($opt_c or $_ eq "c") and /\bcommand: /)
         }
       }
-      else { s/\e\[\d+;?\d{0,2}[A-Zn]//g, tr/\r//d, print for scalar <STDIN> }
-      last if eof(STDIN)
+      else { s/\e\[\d+;?\d{0,2}[A-Zn]//g, tr/\r//d, print for scalar <> }
+      last if eof()
     }
     ReadMode restore => $t;
   ' -- "$@"
@@ -214,7 +214,7 @@ bashcompinit -i
 
 . ~/.asdf/completions/asdf.bash
 
-# aws/tfe/k8s/ec2/eks/ec2
+# aws/tfe/k8s/bcs/eks/ec2
 
 complete -C aws_completer aws
 complete -o nospace -C terraform terraform
