@@ -39,8 +39,8 @@ nd src ~winhome/src
 tplay() {
   perl -MPOSIX=ctermid -MTerm::ReadKey -e '
     open my $t, "+<", ctermid;
-    my $opt_s = grep /^-\w*s/ @ARGV;
-    my $opt_c = grep /^-\w*c/, grep @ARGV;
+    my $opt_s = grep /^-\w*s/, @ARGV;
+    my $opt_c = grep /^-\w*c/, @ARGV;
     while (scalar @ARGV) {
       shift @ARGV and next if $ARGV[0] =~/^-/;
       last;
