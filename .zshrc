@@ -209,7 +209,7 @@ emac() {
 
 # reject any use of unset variable "evaluation"
 
-unsetopt unset
+#unsetopt unset
 
 # initialize (bash+zsh)completion (extension) engines
 
