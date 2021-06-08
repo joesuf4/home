@@ -92,7 +92,7 @@ _ec2_load_inventory() {
 
   : "${EC2_ID_SRC:=$(
     ec2-ssm-helper.sh | tr -dc "$BCS_ADMISSIBLE_CHARS" | while IFS='	' read -r host id; do
-      [[ "$(basename "$SHELL")" == zsh ]] && echo "$host" "$id" || echo [$host]="$id"
+      [[ "$(basename "$SHELL")" == zsh ]] && echo \"$host\" "$id" || echo [$host]="$id"
     done
   )}"
   eval "EC2_ID=( $EC2_ID_SRC )"
