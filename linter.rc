@@ -15,4 +15,5 @@ case "$LINTER" in
   tidy)
     PCRE_PAT='\.html?$'
     LINTER+=' -utf8'
+    ;;
 esac
