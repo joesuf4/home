@@ -23,6 +23,7 @@ args:
 
 prerequisites:
   yamllint install
+  basename "$0" must match *.sh
 
 examples:
   $0 run                          # searches $PWD for YAML files and lints them
