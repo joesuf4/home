@@ -39,7 +39,7 @@ fi
 # load associated rcfile (if present)
 
 rcfile="$(realpath "$0" | sed 's/\.sh$/.rc/')"
-[[ -f "$rcfile" ]] && eval ". \"$rcfile\""
+[[ -f "$rcfile" ]] && . "$rcfile"
 
 # set defaults
 
