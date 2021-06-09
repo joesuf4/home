@@ -1,11 +1,11 @@
 # -*- sh -*-
 case "$LINTER" in
   shellcheck)
-    PCRE_PAT='(\.sh|^\w+\.?rc)$'
-    LINTER+=" -s bash -e SC1004,SC2016,SC2034,SC2046,SC2128,SC2155,SC2181,SC2207,SC2145,SC2088,SC2015,SC2086,SC2154,SC2199,SC2120,SC2119"
+    PCRE_PAT='(\.sh|^\.?\w+\.?rc)$'
+    LINTER+=" -s bash -e SC1004,SC2016,SC2034,SC2046,SC2128,SC2155,SC2181,SC2207,SC2145,SC2088,SC2015,SC2086,SC2154,SC2199,SC2120,SC2119,SC2142,SC1090,SC2206"
     ;;
   shfmt)
-    PCRE_PAT='(\.sh|^\w+\.?rc)$'
+    PCRE_PAT='(\.sh|^\.?\w+\.?rc)$'
     LINTER+=" -d -i 2 -ci"
     ;;
   pylint)

@@ -15,6 +15,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
   bindkey '^[[C' emacs-forward-word
   bindkey '^[[D' emacs-backward-word
 fi
+
 bindkey ';5A' history-search-backward
 bindkey ';5B' history-search-forward
 bindkey '5A' history-search-backward
@@ -26,7 +27,11 @@ bindkey '5D' emacs-backward-word
 
 # directory stuff
 
-nd() { eval "$1='${2-$PWD}'"; : ~$1 }
+nd() {
+  eval "$1='${2-$PWD}'"
+  : ~$1
+}
+
 DIRSTACKSIZE=8
 setopt autocd autopushd pushdminus pushdsilent pushdtohome
 alias dh='dirs -v'
@@ -91,7 +96,9 @@ precmd() {
   vcs_info 2>/dev/null
 }
 
-preexec() { _bcs_title $2 }
+preexec() {
+  _bcs_title $2
+}
 
 # VCS status RPROMPT
 
