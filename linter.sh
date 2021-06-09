@@ -97,7 +97,7 @@ if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
   fi
 else
   # using (installed ".git/hooks/pre-commit" suffix) path,
-  # thus "git diff" inputs
+  # thus "git diff" pipeline inputs
   git diff --name-only "${@:---cached}"
 fi | grep -Pe "$PCRE_PAT" |
   eval "xargs -rd'\n' -P${XARGS_WORKERS:-$(nproc)} -n${XARGS_MAX_FILES:-64} $LINTER"
