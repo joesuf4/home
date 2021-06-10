@@ -7,6 +7,7 @@ if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
         sed -i -Ee 's|^(\#!/bin/bash)|\1; C:/Windows/System32/bash.exe|' .git/hooks/pre-commit &&
         echo "pre-commit hook installed. Happy hacking!"
     else
+      # UNIX shell environment
       ln -s -f ../../$(basename "$0") .git/hooks/pre-commit &&
         echo "pre-commit hook installed. Happy hacking!"
     fi
