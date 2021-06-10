@@ -45,7 +45,7 @@ fi
 # load associated rcfile (if present)
 
 rcfile="$(realpath "$0" | sed 's/\.sh$/.rc/')"
-[[ $? -ne 0 && -f "$rcfile" ]] && . "$rcfile" ||
+[[ $? -eq 0 && -f "$rcfile" ]] && . "$rcfile" ||
   [[ -f linter.rc ]] && . ./linter.rc
 
 # set defaults
