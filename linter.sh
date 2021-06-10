@@ -2,12 +2,9 @@
 if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
   if [[ "$1" == install ]]; then
     if [[ -z "$OLDPWD" ]]; then
-      rm .git/hooks/pre-commit.*
-      cat <<"EOF" | sed -e 's/$/\r/' >.git/hooks/pre-commit.bat
-@echo off
-powershell bash -c '. ./linter.sh' .git/hooks/pre-commit %*
-EOF
-      [[ $? -eq 0 ]] && echo "pre-commit hook installed. Happy hacking!"
+      ln -f $(basename "$0") .git/hooks/pre-commit &&
+        sed -i -Ee 's|^(\#!/bin/bash)|\1; C:/Windows/System32/bash.exe|' .git/hooks/pre-commit &&
+        echo "pre-commit hook installed. Happy hacking!"
     else
       ln -s ../../$(basename "$0") .git/hooks/pre-commit &&
         echo "pre-commit hook installed. Happy hacking!"
@@ -48,7 +45,7 @@ fi
 # load associated rcfile (if present)
 
 rcfile="$(realpath "$0" | sed 's/\.sh$/.rc/')"
-[[ -f "$rcfile" ]] && . "$rcfile"
+[[ $? -ne 0 ]] && [[ -f "$rcfile" ]] && . "$rcfile" || [[ -f ../../linter.rc ]] && . ../../linter.rc
 
 # set defaults
 
