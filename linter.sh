@@ -2,14 +2,14 @@
 if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
   if [[ "$1" == install ]]; then
     if [[ -z "$OLDPWD" ]]; then
-      cat <<"EOF" | sed -e 's/$/\r/' > .git/hooks/pre-commit.bat
+      cat <<"EOF" | sed -e 's/$/\r/' >.git/hooks/pre-commit.bat
 @echo off
 powershell bash -c '. ./linter.sh' .git/hooks/pre-commit %*
 EOF
       [[ $? -eq 0 ]] && echo "pre-commit hook installed. Happy hacking!"
     else
       ln -s ../../$(basename "$0") .git/hooks/pre-commit &&
-      echo "pre-commit hook installed. Happy hacking!"
+        echo "pre-commit hook installed. Happy hacking!"
     fi
     exit $?
   elif [[ "$1" == uninstall ]]; then
