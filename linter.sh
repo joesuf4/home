@@ -2,6 +2,7 @@
 if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
   if [[ "$1" == install ]]; then
     if [[ -z "$OLDPWD" ]]; then
+      rm .git/hooks/pre-commit.*
       cat <<"EOF" | sed -e 's/$/\r/' >.git/hooks/pre-commit.bat
 @echo off
 powershell bash -c '. ./linter.sh' .git/hooks/pre-commit %*
