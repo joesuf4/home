@@ -174,7 +174,6 @@ alias sps='screen pty -d pty-driver.pl $SHELL'
 
 alias make='TERM=xterm-256color make -kj$(nproc)'
 
-
 top_10() {
   perl "$@" -nale "END{ for (sort {\$h{\$b} <=> \$h{\$a}} keys %h){print \"\$_\\t\",\"x\" x eval{${FCN-}(\$h{\$_}/${DIV-1})},\" \$h{\$_}\"} }
                    \$h{\$F[0]} += \$F[1]" | head
