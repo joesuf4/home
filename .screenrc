@@ -14,3 +14,6 @@ vbell on
 defutf8 on
 hardstatus alwayslastline "%w"
 defdynamictitle on
+
+bind ^c screen pty -d pty-driver.pl $SHELL
+bind c screen pty -d pty-driver.pl $SHELL

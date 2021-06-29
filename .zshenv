@@ -11,6 +11,7 @@ export DOCKER_BUILDKIT=0
 export MANPATH=/usr/local/share/man:/usr/share/man
 export BPFTRACE_VMLINUX=~/src/bcscli/WSL2-Linux-Kernel/vmlinux
 export KUBECONFIG=~/.kube/config
+export NODE_PATH=/usr/local/lib/node_modules
 
 . ~/.asdf/asdf.sh
 . ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh

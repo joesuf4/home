@@ -347,7 +347,7 @@ eks_update_kubeconfig() {
 }
 
 eks_set_namespace() {
-  [[ $# -gt 0 ]] || set "$(kubectl config --current-context get-namespaces | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
+  [[ $# -gt 0 ]] || set "$(kubectl config get-namespaces | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
   kubectl config set-context --current --namespace="${1-default}"
   EKS_NAMESPACE="${1-default}"
   EKS_PODS_SRC=
@@ -367,8 +367,8 @@ eks_tools_ship_bg() {
         time kubectl exec -i $pod -c $c -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
       done
       kubectl exec $pod -c $c -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
-      kubectl exec $pod -c $c -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color &
-      kubectl exec $pod -c $c -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color &
+      kubectl exec $pod -c $c -- sh -c "mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color" </lib/terminfo/x/xterm-256color &
+      kubectl exec $pod -c $c -- sh -c "mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color" </lib/terminfo/s/screen.xterm-256color &
       wait
       echo "Shipped ${stype-tools} to $pod/$c."
     done
@@ -380,14 +380,14 @@ eks_node_tools_ship_bg() {
 
   for node in $(eks_list_nodes "$FILTER"); do
     for t in "${_bcs_tools[@]}"; do
-      time kubectl node-shell $node -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
+      time kubectl node-shell $node -- sh -c "'mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t'" <~/bin/$t &
       sleep 1
     done
-    time kubectl node-shell $node -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
+    time kubectl node-shell $node -- sh -c "'$BCS_REMOTE_PROFILE_CREATION_SCRIPT'" &
     sleep 1
-    time kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color' </lib/terminfo/x/xterm-256color &
+    time kubectl node-shell $node -- sh -c "'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color'" </lib/terminfo/x/xterm-256color &
     sleep 1
-    time kubectl node-shell $node -- sh -c 'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color' </lib/terminfo/s/screen.xterm-256color &
+    time kubectl node-shell $node -- sh -c "'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color'" </lib/terminfo/s/screen.xterm-256color &
     wait
     echo "Shipped ${stype-tools} to $node."
   done
@@ -398,7 +398,7 @@ eks_scripts_ship_batch() {
   shift
 
   for script; do
-    eks_batch "$PFILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script" <~/bin/"$script"
+    eks_batch "$PFILTER" "'mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script'" <~/bin/"$script"
   done
 }
 
@@ -406,7 +406,7 @@ eks_node_scripts_ship_batch() {
   local FILTER="$1"
   shift
   for script; do
-    eks_node_batch "$FILTER" "mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script" <~/bin/"$script"
+    eks_node_batch "$FILTER" "'mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script'" <~/bin/"$script"
   done
 }
 
@@ -632,10 +632,10 @@ eks_batch() {
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       if [[ -t 0 ]]; then
         echo kubectl exec $pod -c $c -i -- \
-          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
+          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
       else
         echo bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- "<$TMP" '|' kubectl exec -i $pod -c $c -- \
-          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -E\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
+          sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
       fi
     done
   done |
