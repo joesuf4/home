@@ -186,6 +186,7 @@ lib/
 libexec/
 node_modules/
 ntuser*
+perl5-*/
 private/
 public_html/
 share/
