@@ -33,7 +33,6 @@ $rv = ($F[-2] eq "=") ? $F[-1] : undef;
 shift @F;
 
 if ($call eq "socket" or $call eq "open") {
-    # never entered!
     parse $rv;
     $tinfo[$rv] = [[@F]];
 }

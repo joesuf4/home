@@ -347,7 +347,7 @@ eks_update_kubeconfig() {
 }
 
 eks_set_namespace() {
-  [[ $# -gt 0 ]] || set "$(kubectl config get-namespaces | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
+  [[ $# -gt 0 ]] || set "$(kubectl config get-contexts | awk '/^\*/ { print $5 }')"
   kubectl config set-context --current --namespace="${1-default}"
   EKS_NAMESPACE="${1-default}"
   EKS_PODS_SRC=
