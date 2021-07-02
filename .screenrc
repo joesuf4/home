@@ -15,5 +15,5 @@ defutf8 on
 hardstatus alwayslastline "%w"
 defdynamictitle on
 
-bind ^Cc screen pty -d pty-driver.pl $SHELL
-bind  Cc screen pty -d pty-driver.pl $SHELL
+bind ^c screen pty -d pty-driver.pl $SHELL
+bind  c screen pty -d pty-driver.pl $SHELL
