@@ -1,2 +1,3 @@
 [wsl2]
 kernel=C:\\Users\\schaefj\\tmp\\bzImage
+memory=16GB
