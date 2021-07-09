@@ -1,6 +1,5 @@
 export GREP_COLORS=fn=36
 export LANG=en_US.UTF-8
-export LC_ALL=$LANG
 export LESSCHARSET=utf-8
 export PAGER=less
 export VISUAL=emacsclient

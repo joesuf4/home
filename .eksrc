@@ -380,14 +380,14 @@ eks_node_tools_ship_bg() {
 
   for node in $(eks_list_nodes "$FILTER"); do
     for t in "${_bcs_tools[@]}"; do
-      time kubectl node-shell $node -- sh -c "'mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t'" <~/bin/$t &
+      time kubectl node-shell $node -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
       sleep 1
     done
-    time kubectl node-shell $node -- sh -c "'$BCS_REMOTE_PROFILE_CREATION_SCRIPT'" &
+    time kubectl node-shell $node -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
     sleep 1
-    time kubectl node-shell $node -- sh -c "'mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color'" </lib/terminfo/x/xterm-256color &
+    time kubectl node-shell $node -- sh -c "mkdir -p /tmp/terminfo/x; cat - >/tmp/terminfo/x/xterm-256color" </lib/terminfo/x/xterm-256color &
     sleep 1
-    time kubectl node-shell $node -- sh -c "'mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color'" </lib/terminfo/s/screen.xterm-256color &
+    time kubectl node-shell $node -- sh -c "mkdir -p /tmp/terminfo/s; cat - >/tmp/terminfo/s/screen.xterm-256color" </lib/terminfo/s/screen.xterm-256color &
     wait
     echo "Shipped ${stype-tools} to $node."
   done
@@ -482,6 +482,7 @@ eks_trace_shell() {
   if [[ ! -t 0 ]]; then
     TMP="$(mktemp /tmp/eks-XXXX)"
     cat >$TMP
+    exec 0>&2
   fi
 
   case "$ACTION" in
@@ -490,7 +491,7 @@ eks_trace_shell() {
         _bcs_title :$obj: trace $ACTION "$@"
         : "${EKS_TRACE_ID[$obj]:=}"
         EKS_TRACE_ID[$obj]+=" $(
-          if [[ -t 0 ]]; then
+          if [[ ! -f "$TMP" ]]; then
             kubectl trace $ACTION $obj --fetch-headers "$@"
           else
             local pod="${obj#pod/}"
@@ -499,17 +500,17 @@ eks_trace_shell() {
             else
               kubectl trace $ACTION $obj --fetch-headers "$@" -f <(bcs_sed_uprobe_shared_libs kubectl exec $pod -- <$TMP)
             fi
-          fi | awk '$3 == "created" {print $2}'
+          fi | tee -a /proc/self/fd/2 | awk '$3 == "created" {print $2}'
         )"
       done
       ;;
     *)
       for key in $(eks_list_trace_ids "$FILTER" 1); do
-        _bcs_title :$key: trace $ACTION "$@"
+        _bcs_title :$key: trace $ACTION $FILTER "$@"
         for id in ${EKS_TRACE_ID[$key]}; do
           kubectl trace $ACTION $id "$@"
         done
-        [[ $ACTION == delete ]] && unset "EKS_TRACE_ID[$key]"
+        [[ $ACTION == delete ]] && unset "EKS_TRACE_ID[$key]" || :
       done
       ;;
   esac
