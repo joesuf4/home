@@ -357,7 +357,7 @@
 (setq tab-stop-list '(2 4 8 12 16 24 32 40 48 56 64 72 80 88 96 104 112 120))
 (setq-default indent-tabs-mode nil)
 
-(ignore-errors (color-theme-initialize) (color-theme-pok-wog))
+;;(ignore-errors (color-theme-initialize) (color-theme-pok-wog))
 
 ; WSL fu
 (defun delete-if-file ()
