@@ -179,10 +179,11 @@ alias make='TERM=xterm-256color make -kj$(nproc)'
 alias k=kubectl
 
 top_10() {
-  # takes SCALE (histogram scale) and DIV (-isor) and COL (-umn width) env vars; if it's always blowing up your RAM I suggest running with SCALE=log
+  # takes SCALE (histogram scale) and DIV (-isor) COL (-umn width) and KB (iplier) env vars;
+  # if it's always blowing up your RAM I suggest running with SCALE=log
 
   perl -nale "END{ for (sort {\$h{\$b} <=> \$h{\$a}} keys %h){printf \"%${COL-40}s %s %s\n\",\$_,\"x\" x eval{${SCALE-}(\$h{\$_}/${DIV-1})},\$h{\$_}/${DIV-1}} }
-                   eval{s/G/*(1024**3)/i, s/M/*(1024**2)/i, s/K/*1024/i, tr/0-9*().+-//dc, \$_=eval} for \$F[1];
+                   eval{s/G/*(${KB-1024}**3)/i, s/M/*(${KB-1024}**2)/i, s/K/*${KB-1024}/i, tr/0-9*().+-//dc, \$_=eval} for \$F[1];
                    \$h{\$F[0]} += \$F[1]" | head "$@"
 }
 
