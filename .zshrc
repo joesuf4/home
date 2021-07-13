@@ -182,7 +182,7 @@ top_10() {
   # takes HIST (-ogram scale) and DIV (-isor) env vars; if it's always blowing up your RAM I suggest running with HIST=log
 
   perl -nale "END{ for (sort {\$h{\$b} <=> \$h{\$a}} keys %h){printf \"%80s %s %s\n\",\$_,\"x\" x eval{${HIST-}(\$h{\$_}/${DIV-1})},\$h{\$_}/${DIV-1}} }
-                   eval{s/G/*(1024**3)/i, s/M/*(1024**2)/i, s/K/*1024/i, tr/0-9*().-//dc, \$_=eval} for \$F[1];
+                   eval{s/G/*(1024**3)/i, s/M/*(1024**2)/i, s/K/*1024/i, tr/0-9*().+-//dc, \$_=eval} for \$F[1];
                    \$h{\$F[0]} += \$F[1]" | head "$@"
 }
 
