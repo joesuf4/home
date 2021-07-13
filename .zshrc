@@ -180,7 +180,7 @@ alias k=kubectl
 
 top_10() {
   perl -nale "END{ for (sort {\$h{\$b} <=> \$h{\$a}} keys %h){printf \"%80s %s %s\n\",\$_,\"x\" x eval{${FCN-}(\$h{\$_}/${DIV-1})},\$h{\$_}/${DIV-1}} }
-                   eval{s/G/*(1024**3)/i, s/M/*(1024**2)/i, s/K/*1024/i, tr/0-9*()//dc, \$_=eval} for \$F[1];
+                   eval{s/G/*(1024**3)/i, s/M/*(1024**2)/i, s/K/*1024/i, tr/0-9*()-//dc, \$_=eval} for \$F[1];
                    \$h{\$F[0]} += \$F[1]" | head "$@"
 }
 
