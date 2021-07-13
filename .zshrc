@@ -179,9 +179,9 @@ alias make='TERM=xterm-256color make -kj$(nproc)'
 alias k=kubectl
 
 top_10() {
-  perl "$@" -nale "END{ for (sort {\$h{\$b} <=> \$h{\$a}} keys %h){print \"\$_\\t\",\"x\" x eval{${FCN-}(\$h{\$_}/${DIV-1})},\" \$h{\$_}\"} }
+  perl -nale "END{ for (sort {\$h{\$b} <=> \$h{\$a}} keys %h){print \"\$_\\t\",\"x\" x eval{${FCN-}(\$h{\$_}/${DIV-1})},' ',\$h{\$_}/${DIV-1}} }
                    eval{s/G/*(1024**3)/i, s/M/*(1024**2)/i, s/K/*1024/i, tr/0-9*()//dc, \$_=eval} for \$F[1];
-                   \$h{\$F[0]} += \$F[1]" | head
+                   \$h{\$F[0]} += \$F[1]" | head "$@"
 }
 
 # presumes a running emacs-server
