@@ -187,8 +187,8 @@ top_10() {
   # if it's always blowing up your RAM I suggest running with SCALE=log or SCALE=sqrt
 
   perl -nale "END{ for (sort {\$h{\$b} <=> \$h{\$a}} keys %h){printf \"%${COL-40}s %s %s\n\",\$_,\"x\" x eval{${SCALE-}(\$h{\$_}/${DIV-1})},\$h{\$_}/${DIV-1}} }
-              eval{s/G/*(${KB-1024}**3)/i, s/M/*(${KB-1024}**2)/i, s/K/*${KB-1024}/i, tr/0-9*().+-//dc, \$_=eval} for \$F[1];
-              \$h{\$F[0]} += \$F[1]" | head "$@"
+              eval{s/G/*(${KB-1024}**3)/i, s/M/*(${KB-1024}**2)/, s/K/*${KB-1024}/i, s!m!/${KB-1000}!, tr!0-9*/().+-!!dc, \$_=eval} for \$F[-1];
+              \$h{\$F[0]} += \$F[-1]" | head "$@"
 }
 
 # presumes a running emacs-server
