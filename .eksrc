@@ -106,11 +106,14 @@ EOF
 _eks_zsh_clusters_completion() {
   local state
 
-  _arguments '1: :->eks_cluster'
+  _arguments '1: :->eks_cluster' '2: :->eks_namespace'
 
   case $state in
     eks_cluster)
       _arguments "1:eks_cluster:($_eks_clusters)"
+      ;;
+    eks_namespace)
+      _arguments "1:eks_namespace:$(_eks_namespaces)"
       ;;
   esac
 }
@@ -160,6 +163,8 @@ _eks_zsh_completion() {
         else
           _arguments "3:eks_trace_id_keys:($(eks_list_trace_ids "" 1))"
         fi
+      elif [[ "${words[2]}" == update-kubeconfig ]]; then
+        _arguments "3:eks_namespace:($_eks_namespaces)"
       else
         _arguments "3:bin:($(ls ~/bin))"
       fi
