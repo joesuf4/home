@@ -186,7 +186,7 @@ top_10() {
   #   KB (SI Kilo multiplier) env vars;
   # if it's always blowing up your RAM I suggest running with SCALE=log or SCALE=sqrt
 
-  perl -nale "END{ for (sort {\$h{\$b} <=> \$h{\$a}} keys %h){printf \"%${COL-40}s %s %s\n\",\$_,\"x\" x eval{${SCALE-}(\$h{\$_}/${DIV-1})},\$h{\$_}/${DIV-1}} }
+  perl -nale "END{ for (sort {\$h{\$b} <=> \$h{\$a}} keys %h){printf \"%${COL-40}s %s %s\n\",\$_,\"$(tput setaf 1)x$(tput sgr0)\" x eval{${SCALE-}(\$h{\$_}/${DIV-1})},\$h{\$_}/${DIV-1}} }
               eval{s/G/*(${KB-1024}**3)/i, s/M/*(${KB-1024}**2)/, s/K/*${KB-1024}/i, s!m!/${KB-1000}!, tr!0-9*/().+-!!dc, \$_=eval} for \$F[-1];
               \$h{+join ' ',@F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
 }
