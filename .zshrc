@@ -180,15 +180,36 @@ alias k=kubectl
 
 top_10() {
   # accepts:
-  #   SCALE (histogram scale),
   #   COL (-umn width), and
   #   KB (SI Kilo multiplier) env vars;
-  # if it's always blowing up your RAM I suggest running with SCALE=log or SCALE=sqrt
 
-  perl -nale "BEGIN{\$KB=${KB-1024};\$UNIT=-1} END{ \$DIV=\$KB**(\$UNIT); for (sort {\$h{\$b} <=> \$h{\$a}} keys %h){printf \"%${COL-40}s %s %s %s\\n\",\$_,\"$(tput bold)$(tput setaf 1)x$(tput sgr0)\" x eval{${SCALE-}(\$h{\$_}/\$DIV)},(\$h{\$_}/\$DIV),('', qw/KB MB GB ms/)[\$UNIT]} }
+  perl -nale "BEGIN { \$KB=${KB-1024};\$UNIT=-1 }
+              END {
+                \$DIV=\$KB**(\$UNIT);
+                for (sort {\$h{\$b} <=> \$h{\$a}} keys %h) {
+                  \$SCALE//=do {
+                       if (\$h{\$_}/\$DIV > 100_000){ \"log\" }
+                    elsif (\$h{\$_}/\$DIV > 100)    { \"sqrt\" }
+                    else                            {\"\"}
+                  };
+                  printf \"%${COL-40}s %s %s %s\\n\",
+                    \$_,
+                    \"$(tput bold)$(tput setaf 1)x$(tput sgr0)\" x
+                      eval \"\$SCALE(\$h{\$_}/\$DIV)\",
+                    (\$h{\$_}/\$DIV),
+                    ('', qw/KB MB GB ms/)[\$UNIT]}
+              }
+
               my \$unit=0;
-              eval{(s/G/*(\$KB**3)/i and \$unit=3), (s/M/*(\$KB**2)/ and \$unit=2), (s/K/*\$KB/i and \$unit=1), (s!m!/1000! and \$unit=-1 and \$KB=1000), tr!0-9*/().+-!!dc, \$_=eval} for \$F[-1];
-              \$UNIT=\$unit if \$unit > 0 and \$unit > \$UNIT;
+              eval {
+               (s/G/*(\$KB**3)/i and \$unit=3),
+               (s/M/*(\$KB**2)/ and \$unit=2),
+               (s/K/*\$KB/i and \$unit=1),
+               (s!m!/1000! and \$unit=-1 and \$KB=1000),
+               tr!0-9*/().+-!!dc,
+               \$_=eval
+              } for \$F[-1];
+              \$UNIT=\$unit if \$unit > \$UNIT;
               \$h{+join ' ',@F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
 }
 
