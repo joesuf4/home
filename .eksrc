@@ -4,9 +4,15 @@ declare -ax _eks_clusters _eks_trace_objects _eks_nodes _eks_namespaces _eks_pod
 declare -ax _eks_pod_cmds=(list-pods list-pod-containers)
 declare -ax _eks_node_cmds=(list-nodes "${_bcs_cli_cmds[@]//#/node-}")
 declare -ax _eks_trace_cmds=(list-trace-objects list-trace-ids "${_bcs_cli_cmds[@]//#/trace-}")
+declare -ax _eks_report_cmds=(list-reports list-reports-by-subtype report)
+declare -ax _eks_cluster_report_cmds=(actual-mem actual-cpu provisioned-mem provisioned-cpu)
+declare -ax _eks_pod_report_cmds=(actual-memory actual-cpu)
+declare -ax _eks_node_report_cmds=(actual-mem actual-cpu provisioned-mem provisioned-cpu)
+declare -ax _eks_namespace_report_cmds=(actual-mem actual-cpu provisioned-mem provisioned-cpu)
+declare -ax _eks_reports=(cluster namespace node pod)
 declare -ax _eks_namespace_cmds=(list-namespaces set-namespace)
 declare -ax _eks_cluster_cmds=(list-clusters update-kubeconfig)
-declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_trace_cmds[@]}" "${_eks_node_cmds[@]}" "${_eks_namespace_cmds[@]}" "${_eks_cluster_cmds[@]}")
+declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_trace_cmds[@]}" "${_eks_node_cmds[@]}" "${_eks_namespace_cmds[@]}" "${_eks_cluster_cmds[@]}" "${_eks_report_cmds[@]}")
 declare -ax _eks_pods_flags=("--selector=") _eks_trace_actions=(attach delete get run logs)
 
 declare -A EKS_TRACE_ID
@@ -97,9 +103,28 @@ list-trace-ids             List the active trace ids.
 
                            ===
 
+list-reports               List available report types.
+                           [<args>]
+                             1. PCRE filter (optional)
+
+                           ===
+
+list-reports-by-subtype    List available report subtypes.
+                           [<args>]
+                             1. Type of report.
+                             2. PCRE filter (optional)
+
+                           ===
+
 trace-*                    "COMMON CLI" trace-prefixed commands.
                            Notes:  For admin use only: requires elevated privs.
 
+                           ===
+
+report                     Run reports
+                           [<args>]
+                             1. report type
+                             2. report name
 EOF
 }
 
@@ -152,6 +177,8 @@ _eks_zsh_completion() {
         _arguments "2:eks_trace_action:($_eks_trace_actions)"
       elif [[ "${words[2]}" == list-trace-objects ]]; then
         _arguments "2:eks_trace_objects:($_eks_trace_objects)"
+      elif [[ "${words[2]}" == report ]]; then
+        _arguments "2:eks_report:($_eks_reports)"
       else
         _arguments "2:eks_pod:($_eks_pods)"
       fi
@@ -165,6 +192,8 @@ _eks_zsh_completion() {
         fi
       elif [[ "${words[2]}" == update-kubeconfig ]]; then
         _arguments "3:eks_namespace:($_eks_namespaces)"
+      elif [[ "${words[2]}" == report ]]; then
+        _arguments "3:eks_report_type:($(eks list-reports-by-subtype "${words[3]}"))"
       else
         _arguments "3:bin:($(ls ~/bin))"
       fi
@@ -267,6 +296,21 @@ eks_list_pod_containers() {
     done
   fi |
     grep -Pe "$EKS_CFILTER" | sort | uniq
+}
+
+eks_list_reports() {
+  local NFILTER="${1-}"
+  for n in "${_eks_reports[@]}"; do
+    echo "$n"
+  done | grep -Pe "$NFILTER"
+}
+
+eks_list_reports_by_subtype() {
+  local name="$1"
+  local NFILTER="${2-}"
+  for n in $(eval echo "\"\${_eks_${name}_report_cmds[@]}\""); do
+    echo "$n"
+  done | grep -Pe "$NFILTER"
 }
 
 _eks_load_clusters() {
@@ -722,6 +766,30 @@ eks_trace_batch() {
       ;;
   esac
 }
+
+eks_report() {
+  local RTYPE="${1-}"
+  local STYPE="${2-}"
+  [ $# -gt 0 ] && shift
+  [ $# -gt 0 ] && shift
+
+  local _eks_cluster=$EKS_CLUSTER
+  local _eks_ns=$EKS_NAMESPACE
+
+  for r in $(eks list-reports "$RTYPE"); do
+    for s in $(eks list-reports-by-subtype "$r" "$STYPE"); do
+      echo -e "\nRunning $r $s report...\n"
+      eval "_eks_report_${r}_${s//-/_} $@"
+    done
+  done
+
+  eks update-kubeconfig $_eks_cluster $_eks_ns >/dev/null 2>&1
+}
+
+alias _eks_report_cluster_provisioned_cpu='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && eks node-batch . nproc 2>/dev/null | awk "{print \"$c Provisioned CPU Total\", \$2}"; done | top_10'
+alias _eks_report_cluster_provisioned_mem='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && eks node-batch . cat /proc/meminfo "|" awk "\"/^MemTotal/ { print \\\$1, \\\$2 \\\$3 }\"" 2>/dev/null | awk "{ print \"$c Provisioned RAM Total\", \$3 }"; done | top_10'
+alias _eks_report_cluster_actual_cpu='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && k top pod --all-namespaces | (read _; awk "{ print \"$c Actual CPU Total\", \$3 }"); done | top_10'
+alias _eks_report_cluster_actual_mem='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && k top pod --all-namespaces | (read _; awk "{ print \"$c Actual RAM Total\", \$4 }"); done | top_10'
 
 _eks_load_clusters >/dev/null 2>&1
 _eks_load_nodes >/dev/null 2>&1
