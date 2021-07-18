@@ -183,36 +183,36 @@ top_10() {
   #   COL (-umn width), and
   #   KB (SI Kilo multiplier) env vars;
 
-  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024};\$UNIT=-3 }
+  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-3 }
               END {
-                \$DIV=\$KB**(\$UNIT);
+                \$DIV = \$KB**(\$UNIT);
                 for (sort {\$h{\$b} <=> \$h{\$a}} keys %h) {
-                  \$SCALE//= do {
-                       if (\$h{\$_}/\$DIV > 2500)  { \"log\" }
-                    elsif (\$h{\$_}/\$DIV > 50)    { \"sqrt\" }
-                    else                            {\"\"}
+                  \$SCALE //= do {
+                       if (\$h{\$_}/\$DIV > ${COL-40}**2) {\"log\"}
+                    elsif (\$h{\$_}/\$DIV > ${COL-40})    {\"sqrt\"}
+                    else                                  {\"\"}
                   };
                   printf \"%${COL-40}s %s %s %s\\n\",
                     \$_,
                     \"$(tput bold)$(tput setaf 1)x$(tput sgr0)\" x
                       eval \"\$SCALE(\$h{\$_}/\$DIV)\",
-                    (\$h{\$_}/\$DIV),
+                    (eval          \"\$h{\$_}/\$DIV\"),
                     ('', map(\$_ . (\$KB==1024 && 'i') . 'B', qw/K M G T/), 'ns', 'μs', 'ms')[\$UNIT]}
               }
 
-              my \$unit=0;
+              my \$unit = 0;
               eval {
-               (s/T/*(\$KB**4)/i and \$unit=4),
-               (s/G/*(\$KB**3)/i and \$unit=3),
-               (s/M/*(\$KB**2)/ and \$unit=2),
-               (s/K/*\$KB/i and \$unit=1),
-               (s!m!/1000! and \$unit=-1 and \$KB=1000),
-               (s![μu]!/(1000**2)! and \$unit=-2 and \$KB=1000),
-               (s!n!/(1000**3)! and \$unit=-3 and \$KB=1000),
+               (s/T/*(\$KB**4)/i   and \$unit = 4),
+               (s/G/*(\$KB**3)/i   and \$unit = 3),
+               (s/M/*(\$KB**2)/    and \$unit = 2),
+               (s/K/*\$KB/i        and \$unit = 1),
+               (s!m!/1000!         and \$unit =-1 and \$KB=1000),
+               (s![μu]!/(1000**2)! and \$unit =-2 and \$KB=1000),
+               (s!n!/(1000**3)!    and \$unit =-3 and \$KB=1000),
                tr!0-9*/().+-!!dc,
-               \$_=eval
+               \$_ = eval
               } for \$F[-1];
-              \$UNIT=\$unit if \$unit > \$UNIT;
+              \$UNIT = \$unit if \$unit > \$UNIT;
               \$h{+join ' ',@F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
 }
 
