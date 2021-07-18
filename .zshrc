@@ -188,8 +188,8 @@ top_10() {
                 \$DIV=\$KB**(\$UNIT);
                 for (sort {\$h{\$b} <=> \$h{\$a}} keys %h) {
                   \$SCALE//= do {
-                       if (\$h{\$_}/\$DIV > 4_000)  { \"log\" }
-                    elsif (\$h{\$_}/\$DIV > 40)    { \"sqrt\" }
+                       if (\$h{\$_}/\$DIV > 2500)  { \"log\" }
+                    elsif (\$h{\$_}/\$DIV > 50)    { \"sqrt\" }
                     else                            {\"\"}
                   };
                   printf \"%${COL-40}s %s %s %s\\n\",
