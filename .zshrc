@@ -178,8 +178,8 @@ alias make='TERM=xterm-256color make -kj$(nproc)'
 
 alias k=kubectl
 
-for name in all percent provisioned load actual -cpu -mem; do
-  eval "alias report_$name='while true; do bcs assume-role; _bcs_title \"$name reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..10}; date && eks report . ${name//all/.} -n 5 && sleep 30 && clear; done'"
+for name in all percent provisioned load actual cpu mem; do
+  eval "alias report_$name='while true; do bcs assume-role; _bcs_title \"$name reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..10}; date && eks report . ${name//all/.} -n 5 && sleep 10 && clear; done'"
 done
 
 top_10() {
