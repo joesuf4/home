@@ -11,7 +11,7 @@ BEGIN {
     sub parse {
         for my $fd (grep $_ > 0, @_) {
             my @pid;
-            for (@{$tinfo[$fd]}) {
+            for (@{$tinfo{$name}[$fd]}) {
                 push @{$pid[$_->[0]]}, $_;
                 shift @$_;
             }
@@ -27,23 +27,26 @@ BEGIN {
         }
     }
 }
-tr /0-9//dc for $fd = $F[3], $F[1];
-tr /a-z//dc for $call = $F[3];
+tr /0-9//dc for $fd = $F[4], $F[2];
+tr /a-z//dc for $call = $F[4];
 $rv = ($F[-2] eq "=") ? $F[-1] : undef;
+$name = shift @F;
 shift @F;
 
 if ($call eq "socket" or $call eq "open") {
     parse $rv;
-    $tinfo[$rv] = [[@F]];
+    $tinfo{$name}[$rv] = [[@F]];
 }
 elsif ($call eq "connect") {
     parse $fd;
-    $tinfo[$fd] = (/\Qhtons($ENV{PORT})/ && /\Q$ENV{IP}/) ? [[@F]] : undef;
+    $tinfo{$name}[$fd] = (/\Qhtons($ENV{PORT})/ && /\Q$ENV{IP}/) ? [[@F]] : undef;
 }
-if (defined $tinfo[$fd]) {
-    push @{$tinfo[$fd]}, [@F];
+if (defined $tinfo{$name}[$fd]) {
+    push @{$tinfo{$name}[$fd]}, [@F];
 }
 
 END {
-    parse grep defined $tinfo[$_], 0..$#tinfo;
+    for my $n (keys %tinfo) {
+      parse grep defined $tinfo{$n}[$_], 0..$#{$tinfo{$n}};
+    }
 }
