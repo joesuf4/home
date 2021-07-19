@@ -7,7 +7,7 @@ declare -ax _eks_trace_cmds=(list-trace-objects list-trace-ids "${_bcs_cli_cmds[
 declare -ax _eks_report_cmds=(list-reports list-reports-by-subtype report)
 declare -ax _eks_cluster_report_cmds=(actual-mem actual-cpu provisioned-mem provisioned-cpu)
 declare -ax _eks_pod_report_cmds=(actual-mem actual-cpu)
-declare -ax _eks_node_report_cmds=(actual-mem actual-cpu provisioned-mem provisioned-cpu)
+declare -ax _eks_node_report_cmds=(actual-mem actual-cpu percent-mem percent-cpu provisioned-mem provisioned-cpu load-cpu load-mem)
 declare -ax _eks_namespace_report_cmds=(actual-mem actual-cpu)
 declare -ax _eks_reports=(cluster node namespace pod)
 declare -ax _eks_namespace_cmds=(list-namespaces set-namespace)
@@ -123,8 +123,8 @@ trace-*                    "COMMON CLI" trace-prefixed commands.
 
 report                     Run reports
                            [<args>]
-                             1. report type
-                             2. report name
+                             1. report type PCRE filter (optional)
+                             2. report subtype PCRE filter (optional)
 EOF
 }
 
@@ -786,23 +786,32 @@ eks_report() {
     [[ "$r" == cluster ]] && eks update-kubeconfig $_eks_cluster $_eks_ns >/dev/null 2>&1
   done
 
+  return 0
 }
 
 alias _eks_report_cluster_provisioned_cpu='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && eks node-batch . nproc 2>/dev/null | awk "{print \"$c CPU Total\", \$2}"; done | top_10'
 
 alias _eks_report_cluster_provisioned_mem='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && eks node-batch . cat /proc/meminfo "|" awk "\"/^MemTotal/ { print \\\$1, \\\$2 \\\$3 }\"" 2>/dev/null | awk "{ print \"$c RAM Total\", \$3 }"; done | top_10'
 
-alias _eks_report_cluster_actual_cpu='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && _eks_load_metrics_server_pod >/dev/null 2>&1 && k top pod --all-namespaces | (read _; awk "{ print \"$c CPU Total\", \$3 }"); done | top_10'
+alias _eks_report_cluster_actual_cpu='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && _eks_load_metrics_server_pod >/dev/null 2>&1; k top pod --all-namespaces | (read _; awk "{ print \"$c CPU Total\", \$3 }"); done | top_10'
 
-alias _eks_report_cluster_actual_mem='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && _eks_load_metrics_server_pod >/dev/null 2>&1 && k top pod --all-namespaces | (read _; awk "{ print \"$c RAM Total\", \$4 }"); done | top_10'
+alias _eks_report_cluster_actual_mem='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && _eks_load_metrics_server_pod >/dev/null 2>&1; k top pod --all-namespaces | (read _; awk "{ print \"$c RAM Total\", \$4 }"); done | top_10'
 
 alias _eks_report_node_provisioned_cpu='eks node-batch . nproc 2>/dev/null | top_10'
 
-alias _eks_report_node_provisioned_mem='eks node-batch . cat /proc/meminfo "|" awk "\"/^MemTotal/ { print \\\$1, \\\$2 \\\$3 }\"" 2>/dev/null | top_10'
+alias _eks_report_node_provisioned_mem='eks node-batch . cat /proc/meminfo "|" awk "\"/^MemTotal/ { print \\\$2 \\\$3 }\"" 2>/dev/null | top_10'
+
+alias _eks_report_node_load_cpu='eks node-batch . uptime "|" awk -F \", \" "\"{print \\\$4}\"" 2>/dev/null | top_10'
+
+alias _eks_report_node_load_mem='eks node-batch . free -m "|" awk "\"/^Mem:/ { print \\\$3 }\"" 2>/dev/null | top_10'
 
 alias _eks_report_node_actual_cpu='k top node | (read _; awk "{ print \$1, \$2 }") | top_10'
 
 alias _eks_report_node_actual_mem='k top node | (read _; awk "{ print \$1, \$4 }") | top_10'
+
+alias _eks_report_node_percent_cpu='k top node | (read _; awk "{ print \$1, \$3 }") | top_10'
+
+alias _eks_report_node_percent_mem='k top node | (read _; awk "{ print \$1, \$5 }") | top_10'
 
 alias _eks_report_namespace_actual_cpu='k top pod --all-namespaces | (read _; awk "{ print \$1, \$3 }") | top_10'
 
