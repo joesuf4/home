@@ -190,7 +190,7 @@ top_10() {
   #   COL (-umn width), and
   #   KB (SI Kilo multiplier) env vars;
 
-  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-3 }
+  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4 }
               END {
                 \$DIV = \$KB**(\$UNIT);
                 for (sort {\$h{\$b} <=> \$h{\$a}} keys %h) {
@@ -204,7 +204,7 @@ top_10() {
                     \"$(tput bold)$(tput setaf 1)x$(tput sgr0)\" x
                       eval \"\$SCALE(\$h{\$_}/\$DIV)\",
                     (eval          \"\$h{\$_}/\$DIV\"),
-                    ('', map(\$_ . (\$KB==1024 && 'i') . 'B', qw/K M G T/), 'ns', 'μs', 'ms')[\$UNIT]}
+                    ('', map(\$_ . (\$KB==1024 && 'i') . 'B', qw/K M G T/), 'ns', 'μs', 'ms', 'ps')[\$UNIT]}
               }
 
               my \$unit = 0;
@@ -216,6 +216,7 @@ top_10() {
                (s!m!/1000!         and \$unit =-1 and \$KB=1000),
                (s![μu]!/(1000**2)! and \$unit =-2 and \$KB=1000),
                (s!n!/(1000**3)!    and \$unit =-3 and \$KB=1000),
+               (s!p!/(1000**3)!    and \$unit =-4 and \$KB=1000),
                tr!0-9*/().+-!!dc,
                \$_ = eval
               } for \$F[-1];
