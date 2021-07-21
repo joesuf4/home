@@ -204,7 +204,7 @@ top_10() {
                     \"$(tput bold)$(tput setaf 1)x$(tput sgr0)\" x
                       eval \"\$SCALE(\$h{\$_}/\$DIV)\",
                     (eval          \"\$h{\$_}/\$DIV\"),
-                    ('', map(\$_ . (\$KB==1024 && 'i') . 'B', qw/K M G T/), 'ns', 'μs', 'ms', 'ps')[\$UNIT]}
+                    ('', map(\$_.(\$KB==1024 && 'i').'B', qw/K M G T/),'ps','ns','μs','ms')[\$UNIT]}
               }
 
               my \$unit = 0;
