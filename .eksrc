@@ -815,7 +815,7 @@ alias _eks_report_node_provisioned_cpu=': "${_k_describe_node:=$(k describe node
 
 alias _eks_report_node_load_cpu='eks node-batch . uptime "|" awk -F \", \" "\"{print \\\$4}\"" 2>/dev/null | top_10'
 
-alias _eks_report_node_load_mem='eks node-batch . free -m "|" awk "\"/^Mem:/ { print \\\$3 }\"" 2>/dev/null | top_10'
+alias _eks_report_node_load_mem='eks node-batch . free -m "|" awk "\"/^Mem:/ { print \\\$3\\\"M\\\" }\"" 2>/dev/null | top_10'
 
 alias _eks_report_node_requests_cpu=': "${_k_describe_node:=$(k describe node 2>/dev/null)}" && echo "$_k_describe_node" | perl -nl -0777 -e "print \"\$1 \$2\" while /^Name:\\s+(\\S+).*?^Allocated resources:.*?cpu\\s+(\\d+\\w)/msg" 2>/dev/null | top_10'
 
