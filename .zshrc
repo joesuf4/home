@@ -223,7 +223,7 @@ top_10() {
                (s!m!/1000!         and \$unit =-1 and \$KB=1000),
                (s![μu]!/(1000**2)! and \$unit =-2 and \$KB=1000),
                (s!n!/(1000**3)!    and \$unit =-3 and \$KB=1000),
-               (s!p!/(1000**3)!    and \$unit =-4 and \$KB=1000),
+               (s!p!/(1000**4)!    and \$unit =-4 and \$KB=1000),
                tr!0-9*/().+-!!dc,
                \$_ = eval
               } for \$F[-1];
