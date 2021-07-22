@@ -186,7 +186,7 @@ for t in all cluster node namespace pod; do
 done
 
 alias report_bxti_clusters_all='bcs mfa-session && mkdir -p /tmp/k8s-reports /tmp/k8s-configs && for org in ${_bcs_accounts}; do \
-  [[ "$org" =~ ^[0-9]{12}$ ]] || echo $org; done | xargs -P${WORKERS:-2} -i zsh -ic \
+  [[ "$org" =~ ^[0-9]{12}$ ]] || echo $org; done | xargs -P$(nproc) -i zsh -ic \
   "KUBECONFIG=/tmp/k8s-configs/{}; touch \$KUBECONFIG; COL=53; \
    bcs assume-role {} engineer >/dev/null 2>&1 && for c in \$(eks list-clusters); do \
    eks update-kubeconfig \$c >/dev/null 2>&1 && eks report cluster; done | \
