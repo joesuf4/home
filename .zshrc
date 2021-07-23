@@ -188,7 +188,7 @@ done
 alias report_bxti_clusters_all='bcs mfa-session && \
   for r in "${_bcs_regions[@]}"; do eval "mkdir -p /tmp/k8s/{reports,configs}/$r"; \
   for org in ${_bcs_accounts}; do \
-  [[ "$org" =~ ^[0-9]{12}$ ]] || echo $org; done | xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
+  [[ "$org" =~ ^[0-9]{12}$ ]] || echo $org; done | time xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
   "KUBECONFIG=/tmp/k8s/configs/$r/{}; touch \$KUBECONFIG; \
    bcs assume-role {} engineer $r >/dev/null 2>&1 && for c in \$(eks list-clusters); do \
    eks update-kubeconfig \$c >/dev/null 2>&1 && eks report cluster; done | \
