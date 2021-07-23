@@ -253,7 +253,7 @@ emac() {
 
   # if called without arguments - open a new gui instance
   if [[ "$#" -eq "0" || "$running" != true ]]; then
-    args+=(-c) k# open emacsclient in a new frame
+    args+=(-c) # open emacsclient in a new frame
   fi
   if [[ "$#" -gt "0" ]]; then
     # if 'emac -' open standard input (e.g. pipe)
