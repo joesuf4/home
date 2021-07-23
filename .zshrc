@@ -185,14 +185,42 @@ for t in all cluster node namespace pod; do
   done
 done
 
-alias report_bxti_clusters_all='bcs mfa-session && \
-  for r in "${_bcs_regions[@]}"; do eval "mkdir -p /tmp/k8s/{reports,configs}/$r"; \
-  for org in ${_bcs_accounts}; do \
-  [[ "$org" =~ ^[0-9]{12}$ ]] || echo $org; done | time xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
-  "KUBECONFIG=/tmp/k8s/configs/$r/{}; touch \$KUBECONFIG; \
-   bcs assume-role {} engineer $r >/dev/null 2>&1 && for c in \$(eks list-clusters); do \
-   eks update-kubeconfig \$c >/dev/null 2>&1 && eks report cluster; done | \
-   tee /tmp/k8s/reports/$r/{}"; done'
+report_bxti_clusters_all() {
+  bcs mfa-session &&
+    for r in "${_bcs_regions[@]}"; do
+      eval "mkdir -p /tmp/k8s/{/reports/clusters,configs}/$r";
+      for org in ${_bcs_accounts}; do
+        [[ "$org" =~ ^[0-9]{12}$ ]] || echo $org;
+      done | time xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
+                  "KUBECONFIG=/tmp/k8s/configs/$r/{}; touch \$KUBECONFIG; \
+                  bcs assume-role {} engineer $r >/dev/null 2>&1 && eks report cluster | \
+                  tee /tmp/k8s/reports/clusters/$r/{}"
+    done
+  head -n 7 /tmp/k8s/reports/*/* |
+    awk "\$3 ~ /^[0-9]+\$/ { print \"TOTAL RAM\", \$3 \$4 }" | top_10
+  cat /tmp/k8s/reports/*/* |
+    perl -nale "\$F[-1] =~ /^\\d+\$/ and print \"TOTAL CPU \$F[-1]\"" | top_10
+}
+
+report_bxti_nodes_all() {
+  bcs mfa-session &&
+    for r in "${_bcs_regions[@]}"; do
+      eval "mkdir -p /tmp/k8s/{reports/nodes,configs}/$r";
+        for org in ${_bcs_accounts}; do \
+          [[ "$org" =~ ^[0-9]{12}$ ]] || echo $org
+        done | time xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
+                    "KUBECONFIG=/tmp/k8s/configs/$r/{}; touch \$KUBECONFIG; \
+                     bcs assume-role {} engineer $r >/dev/null 2>&1 && \
+                     for c in \$(eks list-clusters); do \
+                       eks update-kubeconfig \$c >/dev/null 2>&1 && eks report node | \
+                       tee /tmp/k8s/reports/nodes/$r/{}:\$c; \
+                     done"
+    done
+  head -n 7 /tmp/k8s/reports/*/* |
+    awk "\$3 ~ /^[0-9]+\$/ { print \"TOTAL RAM\", \$3 \$4 }" | top_10
+  cat /tmp/k8s/reports/*/* |
+    perl -nale "\$F[-1] =~ /^\\d+\$/ and print \"TOTAL CPU \$F[-1]\"" | top_10
+}
 
 top_10() {
   # accepts:

@@ -6,8 +6,8 @@ declare -ax _eks_node_cmds=(list-nodes "${_bcs_cli_cmds[@]//#/node-}")
 declare -ax _eks_trace_cmds=(list-trace-objects list-trace-ids "${_bcs_cli_cmds[@]//#/trace-}")
 declare -ax _eks_report_cmds=(list-reports list-reports-by-subtype report)
 declare -ax _eks_cluster_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu actual-mem actual-cpu)
-declare -ax _eks_pod_report_cmds=(actual-mem actual-cpu)
-declare -ax _eks_node_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu load-mem load-cpu actual-mem actual-cpu percent-mem percent-cpu)
+declare -ax _eks_pod_report_cmds=(actual-mem actual-cpu age)
+declare -ax _eks_node_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu load-mem load-cpu actual-mem actual-cpu percent-mem percent-cpu age)
 declare -ax _eks_namespace_report_cmds=(actual-mem actual-cpu)
 declare -ax _eks_reports=(cluster node namespace pod)
 declare -ax _eks_namespace_cmds=(list-namespaces set-namespace)
@@ -816,6 +816,8 @@ alias _eks_report_node_provisioned_cpu=': "${_k_describe_node:=$(k describe node
 alias _eks_report_node_load_cpu='eks node-batch . uptime "|" awk -F \", \" "\"{print \\\$4}\"" 2>/dev/null | top_10'
 
 alias _eks_report_node_load_mem='eks node-batch . free -m "|" awk "\"/^Mem:/ { print \\\$3\\\"M\\\" }\"" 2>/dev/null | top_10'
+
+alias _eks_report_node_age='eks node-batch . uptime -s "|" sed -e "\"s/^.*up //\"" -e "\"s/,.*\$//\"" "|" xargs -I%j sh -c "\"echo \\\$(((\\\$(date +%s) - \\\$(date -d \\\"%j\\\" +%s))/86400))\"" 2>/dev/null | top_10'
 
 alias _eks_report_node_requests_cpu=': "${_k_describe_node:=$(k describe node 2>/dev/null)}" && echo "$_k_describe_node" | perl -nl -0777 -e "print \"\$1 \$2\" while /^Name:\\s+(\\S+).*?^Allocated resources:.*?cpu\\s+(\\d+\\w)/msg" 2>/dev/null | top_10'
 
