@@ -185,13 +185,14 @@ for t in all cluster node namespace pod; do
   done
 done
 
-alias report_bxti_clusters_all='bcs mfa-session && mkdir -p /tmp/k8s/reports/us-east-{1,2} /tmp/k8s/configs/us-east-{1,2} &&
-  for r in us-east-1 us-east-2; do for org in ${_bcs_accounts}; do \
-  [[ "$org" =~ ^[0-9]{12}$ ]] || echo $org; done | xargs -P$(nproc) -i zsh -c "timeout 300 zsh -ic \
-  \"KUBECONFIG=/tmp/k8s-configs/$r/{}; touch \\\$KUBECONFIG; COL=53; \
-   bcs assume-role {} engineer $r >/dev/null 2>&1 && for c in \\\$(eks list-clusters); do \
-   eks update-kubeconfig \\\$c >/dev/null 2>&1 && eks report cluster; done | \
-   tee /tmp/k8s/reports/$r/{}\"" 2>/dev/null'
+alias report_bxti_clusters_all='bcs mfa-session && \
+  for r in "${_bcs_regions[@]}"; do eval "mkdir -p /tmp/k8s/{reports,configs}/$r"; \
+  for org in ${_bcs_accounts}; do \
+  [[ "$org" =~ ^[0-9]{12}$ ]] || echo $org; done | xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
+  "KUBECONFIG=/tmp/k8s/configs/$r/{}; touch \$KUBECONFIG; \
+   bcs assume-role {} engineer $r >/dev/null 2>&1 && for c in \$(eks list-clusters); do \
+   eks update-kubeconfig \$c >/dev/null 2>&1 && eks report cluster; done | \
+   tee /tmp/k8s/reports/$r/{}"; done'
 
 top_10() {
   # accepts:
