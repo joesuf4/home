@@ -216,10 +216,6 @@ report_bxti_nodes_all() {
                        tee /tmp/k8s/reports/nodes/$r/{}:\$c; \
                      done"
     done
-  head -n 7 /tmp/k8s/reports/*/* |
-    awk "\$3 ~ /^[0-9]+\$/ { print \"TOTAL RAM\", \$3 \$4 }" | top_10
-  cat /tmp/k8s/reports/*/* |
-    perl -nale "\$F[-1] =~ /^\\d+\$/ and print \"TOTAL CPU \$F[-1]\"" | top_10
 }
 
 top_10() {
