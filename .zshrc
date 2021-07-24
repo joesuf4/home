@@ -192,8 +192,8 @@ report_bxti_clusters_all() {
     for org in ${_bcs_accounts}; do
       [[ "$org" =~ ^[0-9]{12}$ || "$org" =~ sandbox || "$org" =~ security ]] || echo $org
     done | time xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
-      "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG; \
-       bcs assume-role {} engineer $r >/dev/null 2>&1 && eks report cluster | \
+      "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG;
+       bcs assume-role {} engineer $r; eks report cluster |
        tee /tmp/k8s/reports/clusters/$r/{}"
     done
   head -n 7 /tmp/k8s/reports/*/* |
@@ -209,11 +209,11 @@ report_bxti_nodes_all() {
     for org in ${_bcs_accounts}; do
       [[ "$org" =~ ^[0-9]{12}$ || "$org" =~ sandbox || "$org" =~ security ]] || echo $org
     done | time xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
-      "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG; \
-       bcs assume-role {} engineer $r >/dev/null 2>&1 && \
-       for c in \$(eks list-clusters); do \
-         eks update-kubeconfig \$c >/dev/null 2>&1 && eks report node | \
-           tee /tmp/k8s/reports/nodes/$r/{}:\$c; \
+      "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG;
+       bcs assume-role {} engineer $r
+       for c in \$(eks list-clusters); do
+         eks update-kubeconfig \$c >/dev/null 2>&1 && eks report node |
+           tee /tmp/k8s/reports/nodes/$r/{}:\$c
        done"
     done
 }
@@ -225,11 +225,11 @@ report_bxti_namespaces_all() {
     for org in ${_bcs_accounts}; do \
       [[ "$org" =~ ^[0-9]{12}$ || "$org" =~ sandbox || "$org" =~ security ]] || echo $org
     done | time xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
-      "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG; \
-       bcs assume-role {} engineer $r >/dev/null 2>&1 && \
-       for c in \$(eks list-clusters); do \
-         eks update-kubeconfig \$c >/dev/null 2>&1 && eks report namespace | \
-           tee /tmp/k8s/reports/namespaces/$r/{}:\$c; \
+      "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG;
+       bcs assume-role {} engineer $r
+       for c in \$(eks list-clusters); do
+         eks update-kubeconfig \$c >/dev/null 2>&1 && eks report namespace |
+           tee /tmp/k8s/reports/namespaces/$r/{}:\$c
        done"
     done
 }
