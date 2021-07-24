@@ -191,7 +191,7 @@ report_bxti_clusters_all() {
     eval "mkdir -p /tmp/k8s/{/reports/clusters,configs}/$r";
     for org in ${_bcs_accounts}; do
       [[ "$org" =~ ^[0-9]{12}$ || "$org" =~ sandbox || "$org" =~ security ]] || echo $org
-    done | time xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
+    done | time xargs -P${WORKERS:-$(nproc)} -i timeout --foreground --signal KILL 300 zsh -ic \
       "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG;
        bcs assume-role {} engineer $r; eks report cluster |
        tee /tmp/k8s/reports/clusters/$r/{}"
@@ -208,7 +208,7 @@ report_bxti_nodes_all() {
     eval "mkdir -p /tmp/k8s/{reports/nodes,configs}/$r";
     for org in ${_bcs_accounts}; do
       [[ "$org" =~ ^[0-9]{12}$ || "$org" =~ sandbox || "$org" =~ security ]] || echo $org
-    done | time xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
+    done | time xargs -P${WORKERS:-$(nproc)} -i timeout --foreground --signal KILL 300 zsh -ic \
       "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG;
        bcs assume-role {} engineer $r
        for c in \$(eks list-clusters); do
@@ -224,7 +224,7 @@ report_bxti_namespaces_all() {
     eval "mkdir -p /tmp/k8s/{reports/namespaces,configs}/$r";
     for org in ${_bcs_accounts}; do \
       [[ "$org" =~ ^[0-9]{12}$ || "$org" =~ sandbox || "$org" =~ security ]] || echo $org
-    done | time xargs -P$(nproc) -i timeout --foreground --signal KILL 300 zsh -ic \
+    done | time xargs -P${WORKERS:-$(nproc)} -i timeout --foreground --signal KILL 300 zsh -ic \
       "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG;
        bcs assume-role {} engineer $r
        for c in \$(eks list-clusters); do
