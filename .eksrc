@@ -5,11 +5,12 @@ declare -ax _eks_pod_cmds=(list-pods list-pod-containers)
 declare -ax _eks_node_cmds=(list-nodes "${_bcs_cli_cmds[@]//#/node-}")
 declare -ax _eks_trace_cmds=(list-trace-objects list-trace-ids "${_bcs_cli_cmds[@]//#/trace-}")
 declare -ax _eks_report_cmds=(list-reports list-reports-by-subtype report)
+declare -ax _eks_global_report_cmds=(clusters nodes namespaces)
 declare -ax _eks_cluster_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu actual-mem actual-cpu)
 declare -ax _eks_pod_report_cmds=(actual-mem actual-cpu age)
 declare -ax _eks_node_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu load-mem load-cpu actual-mem actual-cpu percent-mem percent-cpu age)
 declare -ax _eks_namespace_report_cmds=(actual-mem actual-cpu)
-declare -ax _eks_reports=(cluster node namespace pod)
+declare -ax _eks_reports=(global cluster node namespace pod)
 declare -ax _eks_namespace_cmds=(list-namespaces set-namespace)
 declare -ax _eks_cluster_cmds=(list-clusters update-kubeconfig)
 declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_trace_cmds[@]}" "${_eks_node_cmds[@]}" "${_eks_namespace_cmds[@]}" "${_eks_cluster_cmds[@]}" "${_eks_report_cmds[@]}")
@@ -387,12 +388,14 @@ _eks_load_trace_ids() {
 eks_update_kubeconfig() {
   [[ $# -gt 0 ]] || set "$(kubectl config get-contexts | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
   aws eks update-kubeconfig --name "$1"
+  local rv=$?
   shift
   EKS_NS_SRC=
   EKS_NODES_SRC=
   _eks_load_namespaces
   _eks_load_nodes
   eks_set_namespace "$@"
+  return $rv
 }
 
 eks_set_namespace() {
@@ -785,13 +788,54 @@ eks_report() {
     [[ "$r" == cluster ]] && declare -A _k_describe_node _k_top_node _k_top_pod
     for s in $(eks list-reports-by-subtype "$r" "$STYPE"); do
       echo -e "\nRunning $r $s report...\n"
-      eval "_eks_report_${r}_${s//-/_} $@"
+      eval _eks_report_${r}_${s//-/_} "$@"
     done
     [[ "$r" == cluster ]] && eks update-kubeconfig $_eks_cluster $_eks_ns >/dev/null 2>&1
   done
 
   return 0
 }
+
+_eks_report_global() {
+  local context="$1"
+  local timestamp="$(date -Iseconds)"
+  local r org
+  shift
+  for r in "${_bcs_regions[@]}"; do
+    bcs clear-envs
+    bcs mfa-session
+    local lastrun
+    declare -a lastrun=($(cd /tmp/k8s/reports/${context}s/$r && ls | cut -f1 -d.|uniq))
+    rm -rf /tmp/k8s/reports/${context}s/$r
+    mkdir -p /tmp/k8s/{reports/${context}s,configs}/$r
+    cd /tmp/k8s/reports
+    [[ ${#lastrun} == 0 ]] &&
+      lastrun=($(
+        for org in "$_bcs_accounts[@]"; do
+          [[ "$org" =~ ^[0-9]{12}$ || "$org" =~ sandbox || "$org" =~ security || "$org" =~ platform ]] || echo $org
+        done))
+    for org in "${lastrun[@]}"; do
+      echo "$org"
+    done | time xargs -P${WORKERS:-$(nproc)} -i timeout --foreground --signal KILL 100 $SHELL -ic \
+      "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=4; touch \$KUBECONFIG;
+       bcs assume-role {} engineer $r
+       if [[ $context != cluster ]]; then
+         for c in \$(eks list-clusters); do eks update-kubeconfig \$c >/dev/null 2>&1
+           eks report $context . $@ | tee ${context}s/$r/{}.\$c
+         done
+       else
+         eks report $context . $@ | tee ${context}s/$r/{}
+       fi"
+  done
+  (sleep 300; for f in ${context}s/*/*; do [[ "$(stat -c %s $f)" -lt 1000 ]] && rm $f; done;
+   tar -czO ${context}s > ${context}s-$timestamp.tar.gz )&
+}
+
+alias _eks_report_global_clusters='_eks_report_global cluster $@; perl -nale "/provisioned-mem/ ... /Running/ and \$F[2] =~ /^\\d+\$/ and print \"TOTAL RAM \", @F[2,3]" clusters/*/* | top_10 $@;perl -nale "/provisioned-cpu/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"TOTAL CPU \", \$F[-1]" clusters/*/* | top_10'
+
+alias _eks_report_global_nodes='_eks_report_global node $@; echo percent-mem report;perl -nale "/percent-mem/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/* | top_10 $@; echo percent-cpu report; perl -nale "/percent-cpu/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/* | top_10 $@; echo age report;perl -nale "/ age / ... /Running/ and \$F[-1] =~ /^\\d+$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/* | top_10'
+
+alias _eks_report_global_namespaces='_eks_report_global namespace $@; echo actual-mem report; perl -nale "/actual-mem/ ... /Running/ and \$F[2] =~ /^[\\d.]+\$/ and print \"\$ARGV \$F[0] \",@F[2,3]" namespaces/*/* | top_10 $@; echo actual-cpu report; perl -nale "/actual-cpu/ ... /Running/ and \$F[2] =~ /^[\\d.]+\$/ and print \"\$ARGV \$F[0] \",@F[2,3]" namespaces/*/* | top_10'
 
 alias _eks_report_cluster_provisioned_mem='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && : "${_k_describe_node[$c]:=$(k describe node 2>/dev/null)}" && echo "${_k_describe_node[$c]}" | perl -nl -0777 -e "print \"$c \$2\" while /^Name:\\s+(\\S+).*?^Capacity:.*?memory:\\s+(\\d+\\w)/msg"; done | top_10'
 

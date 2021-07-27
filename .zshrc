@@ -152,6 +152,8 @@ alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"
 
 alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
 
+alias git_diff_branch='git diff $(git show-branch --merge-base --current)'
+
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
 alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
@@ -185,55 +187,6 @@ for t in all cluster node namespace pod; do
   done
 done
 
-report_bxti_clusters_all() {
-  bcs mfa-session
-  for r in "${_bcs_regions[@]}"; do
-    eval "mkdir -p /tmp/k8s/{/reports/clusters,configs}/$r";
-    for org in ${_bcs_accounts}; do
-      [[ "$org" =~ ^[0-9]{12}$ || "$org" =~ sandbox || "$org" =~ security ]] || echo $org
-    done | time xargs -P${WORKERS:-$(nproc)} -i timeout --foreground --signal KILL 300 zsh -ic \
-      "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG;
-       bcs assume-role {} engineer $r; eks report cluster |
-       tee /tmp/k8s/reports/clusters/$r/{}"
-    done
-  head -n 7 /tmp/k8s/reports/*/* |
-    awk "\$3 ~ /^[0-9]+\$/ { print \"TOTAL RAM\", \$3 \$4 }" | top_10
-  cat /tmp/k8s/reports/*/* |
-    perl -nale "\$F[-1] =~ /^\\d+\$/ and print \"TOTAL CPU \$F[-1]\"" | top_10
-}
-
-report_bxti_nodes_all() {
-  bcs mfa-session
-  for r in "${_bcs_regions[@]}"; do
-    eval "mkdir -p /tmp/k8s/{reports/nodes,configs}/$r";
-    for org in ${_bcs_accounts}; do
-      [[ "$org" =~ ^[0-9]{12}$ || "$org" =~ sandbox || "$org" =~ security ]] || echo $org
-    done | time xargs -P${WORKERS:-$(nproc)} -i timeout --foreground --signal KILL 300 zsh -ic \
-      "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG;
-       bcs assume-role {} engineer $r
-       for c in \$(eks list-clusters); do
-         eks update-kubeconfig \$c >/dev/null 2>&1 && eks report node |
-           tee /tmp/k8s/reports/nodes/$r/{}:\$c
-       done"
-    done
-}
-
-report_bxti_namespaces_all() {
-  bcs mfa-session
-  for r in "${_bcs_regions[@]}"; do
-    eval "mkdir -p /tmp/k8s/{reports/namespaces,configs}/$r";
-    for org in ${_bcs_accounts}; do \
-      [[ "$org" =~ ^[0-9]{12}$ || "$org" =~ sandbox || "$org" =~ security ]] || echo $org
-    done | time xargs -P${WORKERS:-$(nproc)} -i timeout --foreground --signal KILL 300 zsh -ic \
-      "KUBECONFIG=/tmp/k8s/configs/$r/{}; BCS_BATCH=1; touch \$KUBECONFIG;
-       bcs assume-role {} engineer $r
-       for c in \$(eks list-clusters); do
-         eks update-kubeconfig \$c >/dev/null 2>&1 && eks report namespace |
-           tee /tmp/k8s/reports/namespaces/$r/{}:\$c
-       done"
-    done
-}
-
 top_10() {
   # accepts:
   #   COL (-umn width), and
@@ -248,12 +201,14 @@ top_10() {
                     elsif (\$h{\$_}/\$DIV > ${COL-40})    {\"sqrt\"}
                     else                                  {\"\"}
                   };
-                  printf \"%${COL-40}s %s %s %s\\n\",
+                  printf \"%${COL-40}s %s %s%s\\n\",
                     \$_,
                     \"$(tput bold)$(tput setaf 1)x$(tput sgr0)\" x
                       eval \"\$SCALE(\$h{\$_}/\$DIV)\",
                     (eval          \"\$h{\$_}/\$DIV\"),
-                    ('', map(\$_.(\$KB==1024 && 'i').'B', qw/K M G T/),'ps','ns','μs','ms')[\$UNIT]}
+                    ('', map \" \$_\".(\$KB==1024 && 'i').('', 'B', 's')[\$UNIT<=>0],
+                             qw/K M G T p n μ m/)[\$UNIT]
+                }
               }
               next unless length;
               my \$unit = 0;
