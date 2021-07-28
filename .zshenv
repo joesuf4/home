@@ -24,7 +24,7 @@ done
 
 [[ -z "$KUBECONFIG" ]] && for f in ~/.kube/*
 do
-  [ -f "$f" ] && KUBECONFIG="$f$(echo ":$KUBECONFIG" | /usr/bin/sed -e "s|:$f||g")"
+  [ -f "$f" ] && KUBECONFIG="$f$(echo "${KUBECONFIG:+:$KUBECONFIG}" | /usr/bin/sed -e "s|:$f||g")"
 done
 
 : "${TERM:=xterm}"
