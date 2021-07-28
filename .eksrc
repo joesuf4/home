@@ -816,16 +816,17 @@ _eks_report_global() {
       ))
     for org in "${lastrun[@]}"; do
       echo "$org"
-    done | time xargs -P${WORKERS:-$(nproc)} -i timeout --foreground --signal KILL 100 $SHELL -ic \
-      "KUBECONFIG=/tmp/k8s/configs/$r/{}; touch \$KUBECONFIG;
+    done | time xargs -P${WORKERS:-$(nproc)} -i zsh -c "KUBECONFIG=/tmp/k8s/configs/$r/{} timeout --foreground --signal KILL 100 $SHELL -ic \
+      'touch \${KUBECONFIG%:**};
        bcs assume-role {} engineer $r
        if [[ $context != cluster ]]; then
-         for c in \$(eks list-clusters); do eks update-kubeconfig \$c >/dev/null 2>&1
+         for c in \$(eks list-clusters); do
+           eks update-kubeconfig \$c >/dev/null 2>&1
            eks report $context . $@ | tee ${context}s/$r/{}.\$c
          done
        else
          eks report $context . $@ | tee ${context}s/$r/{}
-       fi"
+       fi'"
   done
   (
     sleep 300

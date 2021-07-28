@@ -10,8 +10,8 @@ export COMPOSE_DOCKER_CLI_BUILD=0
 export DOCKER_BUILDKIT=0
 export MANPATH=/usr/local/share/man:/usr/share/man
 export BPFTRACE_VMLINUX=~/src/bcscli/WSL2-Linux-Kernel/vmlinux
-export KUBECONFIG=~/.kube/config
 export NODE_PATH=/usr/local/lib/node_modules
+export KUBECONFIG
 
 . ~/.asdf/asdf.sh
 . ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
@@ -22,7 +22,7 @@ do
   [ -d "$p" ] && PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
 done
 
-for f in ~/.kube/*
+[[ -z "$KUBECONFIG" ]] && for f in ~/.kube/*
 do
   [ -f "$f" ] && KUBECONFIG="$f$(echo ":$KUBECONFIG" | /usr/bin/sed -e "s|:$f||g")"
 done
