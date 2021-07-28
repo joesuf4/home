@@ -181,9 +181,9 @@ alias make='TERM=xterm-256color make -kj$(nproc)'
 alias k=kubectl
 
 for t in all cluster node namespace pod; do
-  for n in all percent provisioned load actual requests limits cpu mem; do
-    eval "alias report_${t}_${n}_10='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..10}; date && eks report ${t//all/.}  ${n//all/.} -n 5 && sleep 10 && clear'"
-    eval "alias report_${t}_${n}_forever='while true; do bcs_assume_role && report_${t}_${n}_10; done'"
+  for n in all percent provisioned load actual requests limits cpu mem age; do
+    eval "alias report_${t}_${n}='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..10}; date && eks report ${t//all/\[cnp\]}  ${n//all/.} -n 5 && sleep 10 && clear'"
+    eval "alias report_${t}_${n}_forever='while true; do bcs_assume_role && report_${t}_${n}; done'"
   done
 done
 
