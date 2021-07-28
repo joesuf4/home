@@ -152,7 +152,7 @@ alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"
 
 alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
 
-alias git_diff_branch='git diff $(git show-branch --merge-base --current)'
+alias git_diff_branch='git diff $(git show-branch --merge-base $(git branch --show-current)~1)'
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
@@ -182,8 +182,8 @@ alias k=kubectl
 
 for t in all cluster node namespace pod; do
   for n in all percent provisioned load actual requests limits cpu mem; do
-    eval "alias report_${t}_${n}='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..10}; date && eks report ${t//all/.}  ${n//all/.} -n 5 && sleep 10 && clear'"
-    eval "alias report_${t}_${n}_forever='while true; do bcs_assume_role && report_${t}_${n}; done'"
+    eval "alias report_${t}_${n}_10='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..10}; date && eks report ${t//all/.}  ${n//all/.} -n 5 && sleep 10 && clear'"
+    eval "alias report_${t}_${n}_forever='while true; do bcs_assume_role && report_${t}_${n}_10; done'"
   done
 done
 
