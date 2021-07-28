@@ -22,7 +22,7 @@ do
   [ -d "$p" ] && PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
 done
 
-[[ -z "$KUBECONFIG" ]] && for f in ~/.kube/*
+[[ -z "$KUBECONFIG" ]] && for f in ~/.kube/* ~/.kube/config
 do
   [ -f "$f" ] && KUBECONFIG="$f$(echo "${KUBECONFIG:+:$KUBECONFIG}" | /usr/bin/sed -e "s|:$f||g")"
 done
