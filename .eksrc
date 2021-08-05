@@ -788,7 +788,7 @@ eks_report() {
     [[ "$r" == cluster ]] && declare -A _k_describe_node _k_top_node _k_top_pod
     for s in $(eks list-reports-by-subtype "$r" "$STYPE"); do
       echo -e "\nRunning $r $s report...\n"
-      eval _eks_report_${r}_${s//-/_} "$@"
+      eval "_eks_report_${r}_${s//-/_} $@"
     done
     [[ "$r" == cluster ]] && unset _k_describe_node _k_top_node _k_top_pod && eks update-kubeconfig $_eks_cluster $_eks_ns >/dev/null 2>&1
   done
@@ -822,11 +822,11 @@ _eks_report_global() {
        if [[ $context != cluster ]]; then
          for c in \$(eks list-clusters); do
            eks update-kubeconfig \$c >/dev/null 2>&1
-           eks report $context . $@ | tee ${context}s/$r/{}.\$c
+           eks report $context . \$@ | tee ${context}s/$r/{}.\$c
          done
        else
-         eks report $context . $@ | tee ${context}s/$r/{}
-       fi'"
+         eks report $context . \$@ | tee ${context}s/$r/{}
+       fi' -- \$@" -- $@
   done
   (
     sleep 300
@@ -837,11 +837,11 @@ _eks_report_global() {
   ) &
 }
 
-alias _eks_report_global_clusters='_eks_report_global cluster $@; perl -nale "/provisioned-mem/ ... /Running/ and \$F[2] =~ /^\\d+\$/ and print \"TOTAL RAM \", @F[2,3]" clusters/*/* | top_10 $@;perl -nale "/provisioned-cpu/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"TOTAL CPU \", \$F[-1]" clusters/*/* | top_10'
+alias _eks_report_global_clusters='_eks_report_global cluster "$@"; perl -nale "/provisioned-mem/ ... /Running/ and \$F[2] =~ /^\\d+\$/ and print \"TOTAL RAM \", @F[2,3]" clusters/*/* | top_10 "$@"; perl -nale "/provisioned-cpu/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"TOTAL CPU \", \$F[-1]" clusters/*/* | top_10'
 
-alias _eks_report_global_nodes='_eks_report_global node $@; echo percent-mem report;perl -nale "/percent-mem/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/* | top_10 $@; echo percent-cpu report; perl -nale "/percent-cpu/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/* | top_10 $@; echo age report;perl -nale "/ age / ... /Running/ and \$F[-1] =~ /^\\d+$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/* | top_10'
+alias _eks_report_global_nodes='_eks_report_global node "$@"; echo percent-mem report; perl -nale "/percent-mem/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/* | top_10 "$@"; echo percent-cpu report; perl -nale "/percent-cpu/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/* | top_10 "$@"; echo age report;perl -nale "/ age / ... /Running/ and \$F[-1] =~ /^\\d+$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/* | top_10'
 
-alias _eks_report_global_namespaces='_eks_report_global namespace $@; echo actual-mem report; perl -nale "/actual-mem/ ... /Running/ and \$F[2] =~ /^[\\d.]+\$/ and print \"\$ARGV \$F[0] \",@F[2,3]" namespaces/*/* | top_10 $@; echo actual-cpu report; perl -nale "/actual-cpu/ ... /Running/ and \$F[2] =~ /^[\\d.]+\$/ and print \"\$ARGV \$F[0] \",@F[2,3]" namespaces/*/* | top_10'
+alias _eks_report_global_namespaces='_eks_report_global namespace "$@"; echo actual-mem report; perl -nale "/actual-mem/ ... /Running/ and \$F[2] =~ /^[\\d.]+\$/ and print \"\$ARGV \$F[0] \",@F[2,3]" namespaces/*/* | top_10 "$@"; echo actual-cpu report; perl -nale "/actual-cpu/ ... /Running/ and \$F[2] =~ /^[\\d.]+\$/ and print \"\$ARGV \$F[0] \",@F[2,3]" namespaces/*/* | top_10'
 
 alias _eks_report_cluster_provisioned_mem='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && : "${_k_describe_node[$c]:=$(k describe node 2>/dev/null)}" && echo "${_k_describe_node[$c]}" | perl -nl -0777 -e "print \"$c \$2\" while /^Name:\\s+(\\S+).*?^Capacity:.*?memory:\\s+(\\d+\\w)/msg"; done | top_10'
 

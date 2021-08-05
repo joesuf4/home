@@ -192,12 +192,12 @@ top_10() {
   #   COL (-umn width), and
   #   KB (SI Kilo multiplier) env vars;
 
-  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4 }
+  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4; sub log_2 ($) {log(shift)/log(2)}}
               END {
                 \$DIV = \$KB**(\$UNIT);
                 for (sort {\$h{\$b} <=> \$h{\$a}} keys %h) {
                   \$SCALE //= do {
-                       if (\$h{\$_}/\$DIV > ${COL-40}**2) {\"log\"}
+                       if (\$h{\$_}/\$DIV > ${COL-40}**2) {\"log_2\"}
                     elsif (\$h{\$_}/\$DIV > ${COL-40})    {\"sqrt\"}
                     else                                  {\"\"}
                   };
