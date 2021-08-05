@@ -182,10 +182,20 @@ alias k=kubectl
 
 for t in all cluster node namespace pod; do
   for n in all percent provisioned load actual requests limits cpu mem age; do
-    eval "alias report_${t}_${n}='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..10}; date && eks report ${t//all/\[cnp\]}  ${n//all/.} -n 5 && sleep 10 && clear'"
-    eval "alias report_${t}_${n}_forever='while true; do bcs_assume_role && report_${t}_${n}; done'"
+    eval "alias report_${t}_${n}_loop_20='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..20}; date && eks report \"${t//all/}\"  \"${n//all/}\" -n 5 && sleep 5 && clear'"
+    eval "alias report_${t}_${n}_forever='while true; do bcs_assume_role && report_${t}_${n}_loop_20; done'"
   done
 done
+
+for t in cluster node namespace; do
+  for n in cpu mem; do
+  [[ "$t" == namespace ]] && eval "alias report_${t}_${n}_static=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+  eval "alias report_${t}_${n}_totals=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and shift @F and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+  done
+  [[ "$t" == node ]] && eval "alias report_${t}_age_static=\"perl -nale '(/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+done
+
+alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "$name cpu totals...\n" && eval report_${name}_cpu_totals'
 
 top_10() {
   # accepts:
@@ -214,20 +224,20 @@ top_10() {
               next unless /\\S\\s+[+-]?[\\d.]+\\w*\\b/;
               \$F[-1] =~ /^[KMGTpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F;
               my \$unit = 0;
-              eval {
-               (s/T/*(\$KB**4)/i   and \$unit = 4),
-               (s/G/*(\$KB**3)/i   and \$unit = 3),
-               (s/M/*(\$KB**2)/    and \$unit = 2),
-               (s/K/*\$KB/i        and \$unit = 1),
-               (s!m!/1000!         and \$unit =-1 and \$KB=1000),
-               (s![μu]!/(1000**2)! and \$unit =-2 and \$KB=1000),
-               (s!n!/(1000**3)!    and \$unit =-3 and \$KB=1000),
-               (s!p!/(1000**4)!    and \$unit =-4 and \$KB=1000),
-               tr!0-9*/().+-!!dc,
-               \$_ = eval
-              } for \$F[-1];
+              for (\$F[-1]) {
+                s/T/*(\$KB**4)/i   and \$unit = 4;
+                s/G/*(\$KB**3)/i   and \$unit = 3;
+                s/M/*(\$KB**2)/    and \$unit = 2;
+                s/K/*\$KB/i        and \$unit = 1;
+                s!m!/1000!         and \$unit =-1 and \$KB=1000;
+                s![μu]!/(1000**2)! and \$unit =-2 and \$KB=1000;
+                s!n!/(1000**3)!    and \$unit =-3 and \$KB=1000;
+                s!p!/(1000**4)!    and \$unit =-4 and \$KB=1000;
+                tr!0-9*/().+-!!dc;
+                \$_ = eval
+              }
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join ' ',grep !/\\x1b/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
+              \$h{+join ' ', grep !/\\x1b/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
 }
 
 # presumes a running emacs-server
