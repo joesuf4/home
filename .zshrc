@@ -210,7 +210,7 @@ top_10() {
                              qw/K M G T p n μ m/)[\$UNIT]
                 }
               }
-              next unless length;
+              next unless /\S\s+[+-]?[\d.]+\w*\b/;
               my \$unit = 0;
               eval {
                (s/T/*(\$KB**4)/i   and \$unit = 4),
