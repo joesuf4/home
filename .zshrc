@@ -225,7 +225,7 @@ top_10() {
                \$_ = eval
               } for \$F[-1];
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join ' ',@F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
+              \$h{+join ' ',grep !/\\x1b/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
 }
 
 # presumes a running emacs-server
