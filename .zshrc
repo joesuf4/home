@@ -191,6 +191,7 @@ top_10() {
   # accepts:
   #   COL (-umn width), and
   #   KB (SI Kilo multiplier) env vars;
+  # can process its own output (verbatim or otherwise)
 
   perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4; sub log_2 ($) {log(shift)/log(2)}}
               END {
