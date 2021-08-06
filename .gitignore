@@ -28,7 +28,10 @@
 .chess-save
 .ckl
 .cloud-locale-test.skip
-.config/
+.config/NuGet
+.config/configstore
+.config/op
+.config/wslu
 .cpan/
 .cups/
 .cvspass
