@@ -195,7 +195,7 @@ for t in cluster node namespace; do
   [[ "$t" == node ]] && eval "alias report_${t}_age_static=\"perl -nale '(/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
 done
 
-alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "$name cpu totals...\n" && eval report_${name}_cpu_totals'
+alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals'
 
 top_10() {
   # accepts:
