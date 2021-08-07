@@ -41,7 +41,7 @@ elsif ($call eq "connect") {
     parse $fd;
     $tinfo{$name}[$fd] = (/\Qhtons($ENV{PORT})/ && /\Q$ENV{IP}/) ? [[@F]] : undef;
 }
-if (defined $tinfo{$name}[$fd]) {
+elsif (defined $tinfo{$name}[$fd]) {
     push @{$tinfo{$name}[$fd]}, [@F];
 }
 
