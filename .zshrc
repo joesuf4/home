@@ -182,7 +182,7 @@ alias k=kubectl
 
 for t in all cluster node namespace pod; do
   for n in all percent provisioned load actual requests limits cpu mem age; do
-    eval "alias report_${t}_${n}_loop_20='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..20}; date && eks report \"${t//all/}\"  \"${n//all/}\" -n 5 && sleep 5 && clear'"
+    eval "alias report_${t}_${n}_loop_20='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..20}; date && eks report \"${t//all/}\"  \"${n//all/}\" -n 5 && sleep 10 && clear'"
     eval "alias report_${t}_${n}_forever='while true; do bcs_assume_role && report_${t}_${n}_loop_20; done'"
   done
 done
