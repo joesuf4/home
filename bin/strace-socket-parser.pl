@@ -1,6 +1,6 @@
 #!/usr/bin/perl -nal
 
-# pipe the output of `strace -t` to this script
+# pipe the output of `eks batch $foo strace -t -p 1` to this script
 
 # $ENV{IP} is optional (target host IP)
 # $ENV{PORT} is required, defaults to https(443)

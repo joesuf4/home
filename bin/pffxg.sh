@@ -111,7 +111,7 @@ unzip=0
 not=""
 refresh=""
 cache_compression_extension="gz"
-set_and_shift_cmd_args='cmd_args=(); while [ "$1" != "--" ]; do cmd_args+=("$1"); shift; done; shift'
+set_and_shift_cmd_args='cmd_args=(); while [[ "$1" != "--" ]]; do cmd_args+=("$1"); shift; done; shift'
 original_argument_count="$#"
 list_active_extensions=0
 
@@ -269,10 +269,10 @@ fi
 
 # simple argument processing
 
-while [ "$exit_loop" -ne 1 ]; do
+while [[ "$exit_loop" -ne 1 ]]; do
   arg="$1"
 
-  if [ -n "$arg" ]; then
+  if [[ -n "$arg" ]]; then
     shift
   fi
 
@@ -287,12 +287,12 @@ while [ "$exit_loop" -ne 1 ]; do
 
     --conf*)
       PFFXG_CONF="$1"
-      [ -f "$PFFXG_CONF" ] && . "$PFFXG_CONF"
+      [[ -f "$PFFXG_CONF" ]] && . "$PFFXG_CONF"
       shift
       ;;
 
     --list*)
-      if [ "$original_argument_count" -eq 1 ]; then
+      if [[ "$original_argument_count" -eq 1 ]]; then
         print_extension_flags
         exit 0
       fi
@@ -413,7 +413,7 @@ elif [[ -z "$PFFXG_EXTENSIONS" ]]; then
   PFFXG_EXTENSIONS="${!extension_types_reversed[*]}"
 fi
 
-if [ "$list_active_extensions" -eq 1 ]; then
+if [[ "$list_active_extensions" -eq 1 ]]; then
   echo -e "List of active file extensions:\n\t$PFFXG_EXTENSIONS"
   exit 0
 fi
@@ -606,14 +606,14 @@ ls -A | filter_exclusions | xargs -r -d '\n' -P $PFFXG_WORKERS -n $find_args bas
   # the inner bash search (meat of the program: the 'grep' script)
   $set_and_shift_cmd_args
   compression_suffix=
-  [ -n \"$PFFXG_CACHE\" ] && process_cache \"\$@\"
-  \$([ $unzip -eq 1 ] && unzip_prefix \"\$1\")$PFFXG_CMD \
+  [[ -n \"$PFFXG_CACHE\" ]] && process_cache \"\$@\"
+  \$([[ $unzip -eq 1 ]] && unzip_prefix \"\$1\")$PFFXG_CMD \
   \"\${cmd_args[@]}\" -- \"\${@%\$compression_suffix}\" >> $temp_dir/\$\$
-  [ \$? -gt $PFFXG_MAX_STATUS ] && exit 255
+  [[ \$? -gt $PFFXG_MAX_STATUS ]] && exit 255
   ' \
   -- $(single_quote "$@") --
   # back to outer bash script (the 'find' pipeline ended on previous line)
-  [ \$? -gt 123 ] && exit 255
+  [[ \$? -gt 123 ]] && exit 255
   " --
 
 # check xargs exit status for fatal errors that caused early termination (abort)
