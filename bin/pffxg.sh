@@ -256,14 +256,14 @@ done
 
 print_extension_flags() {
   echo "Suppported file extension flags:"
-  for type in $(echo "${!extension_types[@]}" | tr ' ' '\n' | sort); do
+  for type in $(echo "${!extension_types[@]}" | tr -s ' ' '\n' | sort); do
     echo -e "  --$type\n\t${extension_types[$type]}\n"
   done
 }
 
 # 'convenience' argument preprocessing
 
-if [[ $# -eq 1 && "$1" != "--help" && "$1" != "--version" || $# -gt 1 && "${1#-}" != "$1" && "${1#--}" == "$1" ]]; then
+if [[ ( $# -eq 1 && "$1" != "--help" && "$1" != "--version" ) || ( $# -gt 1 && "${1#-}" != "$1" && "${1#--}" == "$1" ) ]]; then
   set -- -- "$@"
 fi
 
@@ -444,7 +444,7 @@ fi
 
 # argument compatibility/sanity check
 
-if [[ -n "$PFFXG_EXTENSIONS" && "$unzip" -ne 1 && -z "$not" && "$filename" =~ [*]$ ]]; then
+if [[ -n "$PFFXG_EXTENSIONS" && "$unzip" -ne 1 && -z "$not" && "$filename" == "${filename%\*}" ]]; then
   echo "PFFXG_EXTENSIONS set, which conflicts with filename glob '$filename'" >&2
   echo 'Be sure you provided the true *-suffixed $filename argument right after your `ag`-style file extension classes!' >&2
   echo 'If you really intend to restrict the file extension to an exact match, please pass the --all argument on the command line!' >&2
