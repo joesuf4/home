@@ -263,7 +263,7 @@ print_extension_flags() {
 
 # 'convenience' argument preprocessing
 
-if [[ ( $# -eq 1 && "$1" != "--help" && "$1" != "--version" ) || ( $# -gt 1 && "${1#-}" != "$1" && "${1#--}" == "$1" ) ]]; then
+if [[ $# -eq 1 && "$1" != "--help" && "$1" != "--version" || $# -gt 1 && "${1#-}" != "$1" && "${1#--}" == "$1" ]]; then
   set -- -- "$@"
 fi
 
