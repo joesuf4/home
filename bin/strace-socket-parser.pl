@@ -35,19 +35,16 @@ $rv = ($F[-2] eq "=") ? $F[-1] : undef;
 $name = shift @F;
 shift @F;
 
-if ($call eq "socket" or $call eq "open") {
-  parse $rv;
-  $tinfo{$name}[$rv] = [[@F]];
-}
-elsif ($call eq "connect") {
+if ($call eq "connect") {
   parse $fd;
-  $tinfo{$name}[$fd] = (/\Qhtons($ENV{PORT})/ && /\Q$ENV{IP}/) ? [[@F]] : undef;
+  $tinfo{$name}[$fd] = ((/\Qhtons($ENV{PORT})/ && /\Q$ENV{IP}/) || (/AF_UNIX/ && exists $ENV{SPATH} and /\Q$ENV{SPATH}/)) ? [[@F]] : undef;
 }
 elsif (defined $tinfo{$name}[$fd]) {
   push @{$tinfo{$name}[$fd]}, [@F];
 }
 
 END {
+  print "FINAL";
   for my $n (keys %tinfo) {
     $name = $n;
     parse grep defined $tinfo{$n}[$_], 0..$#{$tinfo{$n}};

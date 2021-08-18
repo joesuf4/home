@@ -7,8 +7,8 @@ declare -ax _eks_trace_cmds=(list-trace-objects list-trace-ids "${_bcs_cli_cmds[
 declare -ax _eks_report_cmds=(list-reports list-reports-by-subtype report)
 declare -ax _eks_global_report_cmds=(clusters nodes namespaces)
 declare -ax _eks_cluster_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu actual-mem actual-cpu)
-declare -ax _eks_pod_report_cmds=(actual-mem actual-cpu)
-declare -ax _eks_node_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu load-mem load-cpu actual-mem actual-cpu percent-mem percent-cpu age)
+declare -ax _eks_pod_report_cmds=(actual-mem actual-cpu fd)
+declare -ax _eks_node_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu load-mem load-cpu actual-mem actual-cpu percent-mem percent-cpu age docker-fd)
 declare -ax _eks_namespace_report_cmds=(actual-mem actual-cpu)
 declare -ax _eks_reports=(global cluster node namespace pod)
 declare -ax _eks_namespace_cmds=(list-namespaces set-namespace)
@@ -669,10 +669,10 @@ eks_batch() {
     # setab =  "   "   background
     # sgr0  = reset local color adjustments back to default terminal settings
     local errstr="$(tput bold)$(tput setaf 1)$(tput setab 0)error$(tput sgr0)"
-    local prefix='$(tput bold)$(tput setaf 2)$pod$(tput sgr0)/$(tput setaf 6)$c$(tput sgr0)'
+    local prefix='$(tput bold)$(tput setaf 2)$pod$(tput sgr0)/$(tput setaf 6)$ctr$(tput sgr0)'
   else
     local errstr="error"
-    local prefix='$pod/$c'
+    local prefix='$pod/$ctr'
   fi
 
   local TMP
@@ -682,12 +682,12 @@ eks_batch() {
   fi
 
   for pod in $(eks_list_pods "$FILTER"); do
-    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
+    for ctr in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       if [[ -t 0 ]]; then
-        echo kubectl exec $pod -c $c -i -- \
+        echo kubectl exec $pod -c $ctr -i -- \
           sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
       else
-        echo bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- "<$TMP" '|' kubectl exec -i $pod -c $c -- \
+        echo bcs_sed_uprobe_shared_libs kubectl exec $pod -c $ctr -- "<$TMP" '|' kubectl exec -i $pod -c $c -- \
           sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
       fi
     done
@@ -816,17 +816,19 @@ _eks_report_global() {
       ))
     for org in "${lastrun[@]}"; do
       echo "$org"
-    done | time xargs -P${WORKERS:-$(nproc)} -i $SHELL -c "KUBECONFIG=/tmp/k8s/configs/$r/{} timeout --foreground --signal KILL 200 $SHELL -ic \
+    done | time xargs -P${WORKERS:-$(nproc)} -i $SHELL -c "KUBECONFIG=/tmp/k8s/configs/$r/{} timeout --foreground --signal KILL ${TIMEOUT-300} $SHELL -ic \
       'touch \$KUBECONFIG
        bcs assume-role {} engineer $r
        if [[ $context != cluster ]]; then
          for c in \$(eks list-clusters); do
+           KUBECONFIG+=.\$c
            eks update-kubeconfig \$c >/dev/null 2>&1
-           eks report $context . \$@ | tee ${context}s/$r/{}.\$c
+           eks report $context . \$@ | tee ${context}s/$r/{}.\$c &
          done
+         wait
        else
          eks report $context . \$@ | tee ${context}s/$r/{}
-       fi' -- \$@" -- $@
+       fi' -- \$@" -- "$@"
   done
   (
     sleep 300
@@ -869,6 +871,8 @@ alias _eks_report_node_load_mem='eks node-batch . free -m "|" awk "\"/^Mem:/ { p
 
 alias _eks_report_node_age='eks node-batch . uptime -s "|" sed -e "\"s/^.*up //\"" -e "\"s/,.*\$//\"" "|" xargs -I%j sh -c "\"echo \\\$(((\\\$(date +%s) - \\\$(date -d \\\"%j\\\" +%s))/86400))\"" 2>/dev/null | top_10'
 
+alias _eks_report_node_docker_fd='eks node-batch . ls "/proc/\$(pgrep docker | head -n 1)/fd" "|" wc -l 2>/dev/null | top_10'
+
 alias _eks_report_node_requests_cpu=': "${_k_describe_node:=$(k describe node 2>/dev/null)}" && echo "$_k_describe_node" | perl -nl -0777 -e "print \"\$1 \$2\" while /^Name:\\s+(\\S+).*?^Allocated resources:.*?cpu\\s+(\\d+\\w)/msg" 2>/dev/null | top_10'
 
 alias _eks_report_node_requests_mem=': "${_k_describe_node:=$(k describe node 2>/dev/null)}" && echo "$_k_describe_node" | perl -nl -0777 -e "print \"\$1 \$2\" while /^Name:\\s+(\\S+).*?^Allocated resources:.*?memory\\s+(\\d+\\w)/msg" | top_10'
@@ -892,6 +896,8 @@ alias _eks_report_namespace_actual_mem=': "${_k_top_pod:=$(k top pod --all-names
 alias _eks_report_pod_actual_cpu=': "${_k_top_pod:=$(k top pod --all-namespaces)}" && echo "$_k_top_pod" | (read _; awk "{ print \$2, \$3 }") | top_10'
 
 alias _eks_report_pod_actual_mem=': "${_k_top_pod:=$(k top pod --all-namespaces)}" && echo "$_k_top_pod" | (read _; awk "{ print \$2, \$4 }") | top_10'
+
+alias _eks_report_pod_fd='eks batch . "for d in /proc/[0-9]*/fd; do ls \$d; done | wc -l" | top_10'
 
 _eks_load_clusters >/dev/null 2>&1
 _eks_load_nodes >/dev/null 2>&1
