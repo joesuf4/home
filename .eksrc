@@ -260,7 +260,7 @@ eks_list_trace_ids() {
 
 eks_list_pods() {
   local FILTER="${1-}"
-  if [[ ! "${FILTER}" == "${FILTER#--}" ]]; then
+  if [[ "${FILTER}" != "${FILTER#--}" ]]; then
     local EKS_PODS_SRC
     local _eks_pods
     _eks_load_pods "$FILTER"
@@ -833,7 +833,7 @@ _eks_report_global() {
        fi' -- \$@" -- "$@"
   done
   (
-    sleep 300
+    sleep ${TIMEOUT-300}
     for f in "${context}s"/*/*; do
       [[ "$(stat -c %s $f)" -lt 1000 ]] && rm $f
     done
