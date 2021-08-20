@@ -39,6 +39,10 @@ if ($call eq "connect") {
   parse $fd;
   $tinfo{$name}[$fd] = ((/\Qhtons($ENV{PORT})/ && /\Q$ENV{IP}/) || (/AF_UNIX/ && exists $ENV{SPATH} and /\Q$ENV{SPATH}/)) ? [[@F]] : undef;
 }
+elsif ($call eq "open" or $call eq "socket") {
+  parse $rv;
+  $tinfo{$name}[$rv] = undef;
+}
 elsif (defined $tinfo{$name}[$fd]) {
   push @{$tinfo{$name}[$fd]}, [@F];
 }

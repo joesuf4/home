@@ -188,7 +188,7 @@ for t in all cluster node namespace pod; do
 done
 
 for t in cluster node namespace; do
-  for n in cpu mem; do
+  for n in cpu mem fd; do
   [[ "$t" == namespace ]] && eval "alias report_${t}_${n}_static=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
   eval "alias report_${t}_${n}_totals=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and shift @F and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
   done

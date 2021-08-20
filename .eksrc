@@ -7,9 +7,9 @@ declare -ax _eks_trace_cmds=(list-trace-objects list-trace-ids "${_bcs_cli_cmds[
 declare -ax _eks_report_cmds=(list-reports list-reports-by-subtype report)
 declare -ax _eks_global_report_cmds=(clusters nodes namespaces)
 declare -ax _eks_cluster_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu actual-mem actual-cpu)
-declare -ax _eks_pod_report_cmds=(actual-mem actual-cpu fd)
+declare -ax _eks_pod_report_cmds=(actual-mem actual-cpu datadog-fd)
 declare -ax _eks_node_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu load-mem load-cpu actual-mem actual-cpu percent-mem percent-cpu age docker-fd)
-declare -ax _eks_namespace_report_cmds=(actual-mem actual-cpu)
+declare -ax _eks_namespace_report_cmds=(actual-mem actual-cpu datadog-fd)
 declare -ax _eks_reports=(global cluster node namespace pod)
 declare -ax _eks_namespace_cmds=(list-namespaces set-namespace)
 declare -ax _eks_cluster_cmds=(list-clusters update-kubeconfig)
@@ -283,16 +283,16 @@ eks_list_trace_objects() {
 
 eks_list_pod_containers() {
   local PFILTER="${1-}"
-
+  local pod c
   set $(eks_list_pods "$PFILTER")
   if [[ $# -le $EKS_POD_SEARCH_LIMIT ]]; then
     for pod; do
-      for c in $(kubectl get pod $pod -o jsonpath="{.spec.containers[].name}"); do
+      for c in $(kubectl get pod $pod -n $EKS_NAMESPACE -o jsonpath="{.spec.containers[].name}"); do
         echo "$c"
       done
     done
   else
-    for c in $(kubectl get pods -o jsonpath="{..spec.containers[].name}"); do
+    for c in $(kubectl get pods -n $EKS_NAMESPACE -o jsonpath="{..spec.containers[].name}"); do
       echo "$c"
     done
   fi |
@@ -663,6 +663,8 @@ eks_batch() {
   local FILTER="$1"
   shift
 
+  [[ "$FILTER" != "${FILTER#--namespace=}" ]] && local EKS_NAMESPACE="${FILTER#--namespace=}"
+
   if [[ -t 1 ]]; then
     # ANSI color indexes: black = 0, red = 1, green = 2, cyan = 6
     # setaf = Set ANSI foreground
@@ -682,12 +684,12 @@ eks_batch() {
   fi
 
   for pod in $(eks_list_pods "$FILTER"); do
-    for ctr in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
+    for ctr in $([[ "$FILTER" != "${FILTER#--}" ]] && eks_list_pod_containers "$FILTER" || eks_list_pod_containers "^\\Q$pod\\E\$"); do
       if [[ -t 0 ]]; then
-        echo kubectl exec $pod -c $ctr -i -- \
+        echo kubectl exec $pod -c $ctr -n $EKS_NAMESPACE -i -- \
           sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
       else
-        echo bcs_sed_uprobe_shared_libs kubectl exec $pod -c $ctr -- "<$TMP" '|' kubectl exec -i $pod -c $c -- \
+        echo bcs_sed_uprobe_shared_libs kubectl exec $pod -c $ctr -n $EKS_NAMESPACE -- "<$TMP" '|' kubectl exec -i $pod -c $ctr -n $EKS_NAMESPACE -- \
           sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
       fi
     done
@@ -893,11 +895,13 @@ alias _eks_report_namespace_actual_cpu=': "${_k_top_pod:=$(k top pod --all-names
 
 alias _eks_report_namespace_actual_mem=': "${_k_top_pod:=$(k top pod --all-namespaces)}" && echo "$_k_top_pod" | (read _; awk "{ print \$1, \$4 }") | top_10'
 
+alias _eks_report_namespace_datadog_fd='eks batch --namespace=datadog "for d in /proc/[0-9]*/fd; do ls \$d; done | wc -l" 2>/dev/null | top_10'
+
 alias _eks_report_pod_actual_cpu=': "${_k_top_pod:=$(k top pod --all-namespaces)}" && echo "$_k_top_pod" | (read _; awk "{ print \$2, \$3 }") | top_10'
 
 alias _eks_report_pod_actual_mem=': "${_k_top_pod:=$(k top pod --all-namespaces)}" && echo "$_k_top_pod" | (read _; awk "{ print \$2, \$4 }") | top_10'
 
-alias _eks_report_pod_fd='eks batch . "for d in /proc/[0-9]*/fd; do ls \$d; done | wc -l" | top_10'
+alias _eks_report_pod_datadog_fd=_eks_report_namespace_datadog_fd
 
 _eks_load_clusters >/dev/null 2>&1
 _eks_load_nodes >/dev/null 2>&1
