@@ -152,7 +152,7 @@ alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"
 
 alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
 
-alias git_diff_branch='git diff $(git show-branch --merge-base $(git branch --show-current)~1)'
+alias git_diff_branch='git diff $(git show-branch --merge-base $(git branch --show-current))~1'
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 

@@ -478,7 +478,7 @@ _eks_trace_ship_kheaders() {
 eks_shell() {
   local FILTER="$1"
   shift
-
+  [[ $# -eq 0 ]] && set sh
   local TMP
   if [[ ! -t 0 ]]; then
     TMP="$(mktemp /tmp/eks-XXXX)"
@@ -599,6 +599,7 @@ eks_node_htop_ship_config_bg() {
 eks_screen() {
   local FILTER="$1"
   shift
+  [[ $# -gt 0 ]] || set sh
 
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
@@ -611,7 +612,7 @@ eks_screen() {
 eks_node_screen() {
   local NFILTER="${1-}"
   shift
-
+  [[ $# -gt 0 ]] || set bash
   local TMP
   if [[ ! -t 0 ]]; then
     TMP="$(mktemp /tmp/eks-XXXX)"

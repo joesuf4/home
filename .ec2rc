@@ -123,7 +123,7 @@ ec2_ssh_ship_public_key() {
       sleep "${DELAY-20}"
       echo 'mkdir -p ~/.ssh'
       sleep 1
-      echo grep "$USER@" '~/.ssh/authorized_keys' '||' \
+      echo grep "$USER@$(hostname)" '~/.ssh/authorized_keys' '||' \
         echo "$pubs" '>> ~/.ssh/authorized_keys'
       sleep 2
     ) | pty -n -- ec2-ssm-helper.sh "$host" &
@@ -134,7 +134,7 @@ ec2_ssh_ship_public_key() {
 ec2_shell() {
   local FILTER="${1-}"
   shift
-
+  [[ $# -gt 0 ]] || set bash
   local TMP
   if ! [[ -t 0 ]]; then
     TMP="$(mktemp /tmp/ec2-XXXX)"
@@ -199,6 +199,7 @@ ec2_bpftrace_ship_kheaders_bg() {
 ec2_screen() {
   local FILTER="${1-}"
   shift
+  [[ $# -gt 0 ]] || set bash
 
   for host in $(ec2_list_inventory "$FILTER"); do
     screen "$SHELL" -ic \
