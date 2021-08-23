@@ -444,23 +444,6 @@ eks_node_tools_ship_bg() {
   done
 }
 
-eks_scripts_ship_batch() {
-  local PFILTER="$1"
-  shift
-
-  for script; do
-    eks_batch "$PFILTER" "'mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script'" <~/bin/"$script"
-  done
-}
-
-eks_node_scripts_ship_batch() {
-  local FILTER="$1"
-  shift
-  for script; do
-    eks_node_batch "$FILTER" "'mkdir -p /tmp/bin && cat > /tmp/bin/$script && chmod +x /tmp/bin/$script'" <~/bin/"$script"
-  done
-}
-
 eks_shell() {
   local FILTER="$1"
   shift
