@@ -182,11 +182,11 @@ ec2_screen() {
   for host in $(ec2_list_inventory "$FILTER"); do
     if [[ -t 0 ]]; then
       screen "$SHELL" -ic \
-        "_bcs_title :$host: \"\$@\"; ssh -t $host sh -lc '\". ~/.profile; echo pty-driver off >&2;eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
+        "_bcs_title :$host: \"\$@\"; echo pty-driver off >&2; ssh -t $host sh -lc '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
     else
       bcs_sed_uprobe_shared_libs ssh -t "$host" <$TMP |
         screen "$SHELL" -ic \
-          "_bcs_title :$host: \"\$@\"; ssh -t $host sh -lc '\". ~/.profile; echo pty-driver off >&2;eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
+          "_bcs_title :$host: \"\$@\"; echo pty-driver off >&2; ssh -t $host sh -lc '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
     fi
   done
 }

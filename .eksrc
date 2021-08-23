@@ -622,10 +622,10 @@ eks_node_screen() {
   for node in $(eks_list_nodes "$NFILTER"); do
     if [[ -t 0 ]]; then
       screen "$SHELL" -ic \
-        "_bcs_title :$node: \"\$@\"; kubectl node-shell $node -- sh -lc 'echo pty-driver off >&2;eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
+        "_bcs_title :$node: \"\$@\"; echo pty-driver off >&2; kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
     else
       screen "$SHELL" -ic \
-        "_bcs_title :$node: \"\$@\"; bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
+        "_bcs_title :$node: \"\$@\"; echo pty-driver off >&2; bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
     fi
     sleep 1
   done
