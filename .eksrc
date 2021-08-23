@@ -25,7 +25,7 @@ export EKS_CLUSTERS_SRC EKS_NODES_SRC EKS_NS_SRC EKS_PODS_SRC EKS_POD_SEARCH_LIM
 _eks_usage() {
   cat <<EOF
 list-clusters              Show available AWS kubernetes clusters for the
-                           current AWS role
+                           current AWS role (aka $BCS_PROFILE).
 
                            ===
 
@@ -35,18 +35,21 @@ update-kubeconfig          Select current kubernetes cluster/context.
                            Notes: Defaults to currently selected cluster
                            (shown in your xterm window), which effectively
                            reloads the AWS eks config and its pod inventory.
+                             2. EKS Namespace (optional)
+                           Notes: Leaving this unset will cause \$EKS_NAMESPACE
+                           to default to the empty (default) namespace.
 
                            ===
 
 list-namespaces            List the available namespaces for this current
-                           kubernetes context.
+                           kubernetes context (aka $EKS_CLUSTER).
                            [<args>]
                              1. PCRE namespace filter
 
                            ===
 
 set-namespace              Set the current context's namespace (updating
-                           dependent pod/cluster data)
+                           dependent pod/cluster data).
                            [<args>]
                              1. New namespace
 
@@ -70,7 +73,7 @@ list-pod-containers        List the available containers for the given pod
                            [<args>]
                              1. PCRE pod name filter (see "list-pods" note)
                            Notes: Filtering on the container name is available
-                           through the EKS_CFILTER environment variable.  It's
+                           through the \$EKS_CFILTER environment variable.  It's
                            current value is:
 
                            ==> $EKS_CFILTER <==
@@ -85,9 +88,6 @@ list-nodes                 List the k8s cluster's nodes.
 
 node-*                     "COMMON CLI" node-prefixed commands.
                            Notes:  For admin use only: requires elevated privs.
-                           Embedded single-quotes within any arguments will be
-                           translated into double-quotes en masse (for internal
-                           kubectl-node_shell specific jsonfication steps). YHBW.
 
                            ===
 
@@ -124,7 +124,7 @@ trace-*                    "COMMON CLI" trace-prefixed commands.
 
 report                     Run reports
                            [<args>]
-                             1. report type PCRE filter (optional)
+                             1. report type PCRE filter (optional); skips "global" if unset
                              2. report subtype PCRE filter (optional)
 EOF
 }
@@ -401,7 +401,6 @@ eks_update_kubeconfig() {
 eks_set_namespace() {
   [[ $# -gt 0 ]] || set "$(kubectl config get-contexts | awk '/^\*/ { print $5 }')"
   kubectl config set-context --current --namespace="${1-default}"
-  EKS_NAMESPACE="${1-default}"
   EKS_PODS_SRC=
   EKS_TRACE_ID_SRC=
   _eks_load_pods
@@ -462,19 +461,6 @@ eks_node_scripts_ship_batch() {
   done
 }
 
-_eks_trace_ship_kheaders() {
-  local obj="$1"
-  local pod="${obj#pod/}"
-  local action="$([[ "$pod" == "$obj" ]] && echo node-shell $obj '2>/dev/null' || echo exec -i $pod)"
-  local remote_kernel="$(eval "kubectl $action -- sh -c '[ -d /tmp/kheaders-\$(uname -r) ] || uname -r' | tr -d '\r'")"
-  [ -z "$remote_kernel" ] && return 0
-  local major_version="${remote_kernel%%.*}"
-  local minor_version=${remote_kernel#$major_version.}
-  minor_version="${minor_version%%.*}"
-  _bcs_title $action ... "<shipping kheaders>"
-  eval "kubectl $action -- sh -c 'mkdir -p /tmp/kheaders-\$(uname -r) && cd /tmp/kheaders-\$(uname -r) && tar -xJf -' <~/.kheaders-$major_version.$minor_version.*.tar.xz"
-}
-
 eks_shell() {
   local FILTER="$1"
   shift
@@ -485,6 +471,7 @@ eks_shell() {
     cat >$TMP
   fi
 
+  echo pty-driver off >&2
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       _bcs_title :$pod/$c: "$@"
@@ -495,6 +482,7 @@ eks_shell() {
       fi
     done
   done
+  echo pty-driver on >&2
 
   local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
@@ -511,6 +499,7 @@ eks_node_shell() {
     cat >$TMP
   fi
 
+  echo pty-driver off >&2
   for node in $(eks_list_nodes "$FILTER"); do
     _bcs_title :$node: "$@"
     if [[ -t 0 ]]; then
@@ -519,6 +508,7 @@ eks_node_shell() {
       bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript "$@"' -- "$@"
     fi
   done
+  echo pty-driver on >&2
 
   local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
@@ -600,11 +590,21 @@ eks_screen() {
   local FILTER="$1"
   shift
   [[ $# -gt 0 ]] || set sh
+  local TMP
+  if [[ ! -t 0 ]]; then
+    TMP="$(mktemp /tmp/eks-XXXX)"
+    cat >$TMP
+  fi
 
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
-      screen "$SHELL" -ic \
-        "_bcs_title :$pod/$c: \"\$@\"; kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+      if [[ -t 0 ]]; then
+        screen "$SHELL" -ic \
+          "_bcs_title :$pod/$c: \"\$@\"; echo pty-driver off >&2; kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+      else
+        screen "$SHELL" -ic \
+          "_bcs_title :$pod/$c: \"\$@\"; echo pty-driver off >&2; bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- <$TMP | kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+      fi
     done
   done
 }
@@ -622,7 +622,7 @@ eks_node_screen() {
   for node in $(eks_list_nodes "$NFILTER"); do
     if [[ -t 0 ]]; then
       screen "$SHELL" -ic \
-        "_bcs_title :$node: \"\$@\"; kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
+        "_bcs_title :$node: \"\$@\"; kubectl node-shell $node -- sh -lc 'echo pty-driver off >&2;eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
     else
       screen "$SHELL" -ic \
         "_bcs_title :$node: \"\$@\"; bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
@@ -649,7 +649,7 @@ eks_trace_screen() {
       for key in $(eks_list_trace_ids "$FILTER" 1); do
         for id in ${EKS_TRACE_ID[$key]}; do
           screen "$SHELL" -ic \
-            "_bcs_title :$id: trace $ACTION \"\$@\"; kubectl trace $ACTION $id \"\$@\" | less" -- "$@"
+            "_bcs_title :$key/$id: trace $ACTION \"\$@\"; kubectl trace $ACTION $id \"\$@\"" -- "$@"
         done
       done
       ;;
@@ -759,7 +759,7 @@ eks_trace_batch() {
   fi
 
   case "$ACTION" in
-    run | delete)
+    run | delete | attach)
       eks_trace_shell "$FILTER" "$ACTION" "$@"
       ;;
     *)
@@ -772,8 +772,6 @@ eks_trace_batch() {
       ;;
   esac
 }
-
-alias _eks_load_metrics_server_pod='k apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml'
 
 eks_report() {
   local RTYPE="${1-[npc]}"
@@ -811,7 +809,7 @@ _eks_report_global() {
     rm -rf /tmp/k8s/reports/${context}s/$r
     mkdir -m 0700 -p /tmp/k8s/{reports/${context}s,configs}/$r
     cd /tmp/k8s/reports || return 1
-    [[ ${#lastrun} == 0 ]] &&
+    [[ ${#lastrun} -eq 0 ]] &&
       lastrun=($(
         for org in "${_bcs_accounts[@]}"; do
           [[ "$org" =~ ^[0-9]{12}$ || "$org" =~ sandbox || "$org" =~ security || "$org" =~ platform ]] || echo $org
@@ -824,7 +822,7 @@ _eks_report_global() {
        bcs assume-role {} engineer $r
        if [[ $context != cluster ]]; then
          for c in \$(eks list-clusters); do
-           KUBECONFIG+=.\$c
+           KUBECONFIG=\"\${KUBECONFIG%.*}.\$c\"
            eks update-kubeconfig \$c >/dev/null 2>&1
            eks report $context . \$@ | tee ${context}s/$r/{}.\$c &
          done
@@ -841,6 +839,8 @@ _eks_report_global() {
     tar -czO "${context}s" >"${context}s-$timestamp.tar.gz"
   ) &
 }
+
+alias _eks_load_metrics_server_pod='k apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml'
 
 alias _eks_report_global_clusters='_eks_report_global cluster "$@"; perl -nale "/provisioned-mem/ ... /Running/ and \$F[2] =~ /^\\d+\$/ and print \"TOTAL RAM \", @F[2,3]" clusters/*/* | top_10 "$@"; perl -nale "/provisioned-cpu/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"TOTAL CPU \", \$F[-1]" clusters/*/* | top_10'
 

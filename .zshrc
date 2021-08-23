@@ -9,13 +9,6 @@ setopt share_history extended_history hist_expire_dups_first hist_no_store
 
 # ctrl-arrow (up/down/left/right) key bindings
 
-if [[ "$(uname)" == "Darwin" ]]; then
-  bindkey '^[[A' history-search-backward
-  bindkey '^[[B' history-search-forward
-  bindkey '^[[C' emacs-forward-word
-  bindkey '^[[D' emacs-backward-word
-fi
-
 bindkey ';5A' history-search-backward
 bindkey ';5B' history-search-forward
 bindkey '5A' history-search-backward
