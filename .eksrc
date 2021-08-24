@@ -321,6 +321,12 @@ _eks_load_clusters() {
   EKS_NS_SRC=
   EKS_NODES_SRC=
   EKS_PODS_SRC=
+  EKS_TRACE_ID_SRC=
+  _eks_load_namespaces
+  _eks_load_nodes
+  _eks_load_pods
+  _eks_load_trace_objects
+  _eks_load_trace_ids
   return 0
 }
 
@@ -888,8 +894,3 @@ alias _eks_report_pod_actual_mem=': "${_k_top_pod:=$(k top pod --all-namespaces)
 alias _eks_report_pod_datadog_fd=_eks_report_namespace_datadog_fd
 
 _eks_load_clusters >/dev/null 2>&1
-_eks_load_nodes >/dev/null 2>&1
-_eks_load_namespaces >/dev/null 2>&1
-_eks_load_pods >/dev/null 2>&1
-_eks_load_trace_objects >/dev/null 2>&1
-_eks_load_trace_ids >/dev/null 2>&1
