@@ -1,5 +1,11 @@
 # -*- sh -*-
 
+declare -A EC2_ID
+declare -ax _ec2_hosts _bcs_cmds _bcs_tools
+declare -ax _ec2_cmds=(list-inventory ssh-ship-public-key ssm-helper)
+
+export EC2_ID_SRC
+
 # Embedded whitespace is a pain, so all shells compensate by doing magic
 # with this literal expression - "$@" - which tells the shell to list all the arguments
 # passed into this particular shell function from the command line, single-space-separated,
@@ -18,11 +24,6 @@
 # 5. to farm out all the AWS ssm session txn management to a small (advanced) ~/.ssh/config,
 # 6. introduce conceptual idempotency into the CLI mix.
 
-declare -A EC2_ID
-declare -ax _ec2_hosts _bcs_cmds _bcs_tools
-declare -ax _ec2_cmds=(list-inventory ssh-ship-public-key ssm-helper)
-
-export EC2_ID_SRC
 
 _ec2_usage() {
   cat <<EOF
@@ -110,7 +111,7 @@ ec2_list_inventory() {
 }
 
 ec2_ssh_ship_public_key() {
-  local FILTER="${1-}"
+  local FILTER="$1"
   # please ensure that this matches exactly one public keyfile for you
   local pubs="$(cat ~/.ssh/id_*.pub)"
 
@@ -132,7 +133,7 @@ ec2_ssh_ship_public_key() {
 }
 
 ec2_shell() {
-  local FILTER="${1-}"
+  local FILTER="$1"
   shift
   [[ $# -gt 0 ]] || set bash
   local TMP
@@ -159,18 +160,18 @@ ec2_shell() {
 }
 
 ec2_htop_ship_config_bg() {
-  local FILTER="${1-}"
+  local FILTER="$1"
   shift
 
   for host in $(ec2_list_inventory "$FILTER"); do
     ssh "$host" sudo sh -c \
-      '"cat > /home/ssm-user/.config/htop/htoprc"' <~/.config/htop/htoprc &
+      '"mkdir -p /home/ssm-user/.config/htop && cat > /home/ssm-user/.config/htop/htoprc"' <~/.config/htop/htoprc &
   done
   wait
 }
 
 ec2_screen() {
-  local FILTER="${1-}"
+  local FILTER="$1"
   shift
   [[ $# -gt 0 ]] || set bash
   local TMP
@@ -192,7 +193,7 @@ ec2_screen() {
 }
 
 ec2_batch() {
-  local FILTER="${1-}"
+  local FILTER="$1"
   shift
   local TMP
   if [[ ! -t 0 ]]; then
@@ -227,7 +228,7 @@ ec2_batch() {
 }
 
 ec2_tools_ship_bg() {
-  local FILTER="${1-}"
+  local FILTER="$1"
 
   for host in $(ec2_list_inventory "$FILTER"); do
     for t in "${_bcs_tools[@]}"; do
@@ -239,7 +240,6 @@ ec2_tools_ship_bg() {
     wait
     echo "Shipped tools to $host."
   done
-
 }
 
 _ec2_load_inventory >/dev/null 2>&1

@@ -316,12 +316,16 @@ eks_list_reports_by_subtype() {
 
 _eks_load_clusters() {
   [[ -n "$BCS_PROFILE" ]] || return 0
+
+  if [[ -z "${EKS_CLUSTERS_SRC-}" ]]; then
+    EKS_NS_SRC=
+    EKS_NODES_SRC=
+    EKS_PODS_SRC=
+    EKS_TRACE_ID_SRC=
+  fi
+
   : "${EKS_CLUSTERS_SRC:=$(aws eks list-clusters --output text | awk '{print $2}' | tr -dc "$BCS_ADMISSIBLE_CHARS")}"
   eval "_eks_clusters=($EKS_CLUSTERS_SRC)"
-  EKS_NS_SRC=
-  EKS_NODES_SRC=
-  EKS_PODS_SRC=
-  EKS_TRACE_ID_SRC=
   _eks_load_namespaces
   _eks_load_nodes
   _eks_load_pods
@@ -416,7 +420,7 @@ eks_set_namespace() {
 }
 
 eks_tools_ship_bg() {
-  local FILTER="${1-}"
+  local FILTER="$1"
 
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
@@ -433,7 +437,7 @@ eks_tools_ship_bg() {
 }
 
 eks_node_tools_ship_bg() {
-  local FILTER="${1-}"
+  local FILTER="$1"
 
   for node in $(eks_list_nodes "$FILTER"); do
     for t in "${_bcs_tools[@]}"; do
@@ -479,7 +483,7 @@ eks_shell() {
 }
 
 eks_node_shell() {
-  local FILTER="${1-}"
+  local FILTER="$1"
   shift
   [[ $# -eq 0 ]] && set bash
   local TMP
@@ -565,7 +569,7 @@ eks_htop_ship_config_bg() {
 }
 
 eks_node_htop_ship_config_bg() {
-  local NFILTER="${1-}"
+  local NFILTER="$1"
 
   for node in $(eks_list_nodes "$NFILTER"); do
     kubectl node-shell $node -- sh -c \
@@ -599,7 +603,7 @@ eks_screen() {
 }
 
 eks_node_screen() {
-  local NFILTER="${1-}"
+  local NFILTER="$1"
   shift
   [[ $# -gt 0 ]] || set bash
   local TMP
@@ -763,7 +767,7 @@ eks_trace_batch() {
 }
 
 eks_report() {
-  local RTYPE="${1-[npc]}"
+  local RTYPE="${1//./[npc]}"
   local STYPE="${2-}"
   [ $# -gt 0 ] && shift
   [ $# -gt 0 ] && shift
