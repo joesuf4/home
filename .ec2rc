@@ -24,7 +24,6 @@ export EC2_ID_SRC
 # 5. to farm out all the AWS ssm session txn management to a small (advanced) ~/.ssh/config,
 # 6. introduce conceptual idempotency into the CLI mix.
 
-
 _ec2_usage() {
   cat <<EOF
 list-inventory             List current ec2 inventory for this AWS role
@@ -182,12 +181,12 @@ ec2_screen() {
 
   for host in $(ec2_list_inventory "$FILTER"); do
     if [[ -t 0 ]]; then
-      screen "$SHELL" -ic \
-        "_bcs_title :$host: \"\$@\"; echo pty-driver off >&2; ssh -t $host sh -lc '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
+      screen -X screen "$SHELL" -ic \
+        "_bcs_title :$host: \"\$@\"; ssh -t $host sh -lc '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
     else
       bcs_sed_uprobe_shared_libs ssh -t "$host" <$TMP |
-        screen "$SHELL" -ic \
-          "_bcs_title :$host: \"\$@\"; echo pty-driver off >&2; ssh -t $host sh -lc '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
+        screen -X screen "$SHELL" -ic \
+          "_bcs_title :$host: \"\$@\"; ssh -t $host sh -lc '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
     fi
   done
 }

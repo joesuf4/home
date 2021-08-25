@@ -592,11 +592,11 @@ eks_screen() {
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       if [[ -t 0 ]]; then
-        screen "$SHELL" -ic \
-          "_bcs_title :$pod/$c: \"\$@\"; echo pty-driver off >&2; kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+        screen -X screen "$SHELL" -ic \
+          "_bcs_title :$pod/$c: \"\$@\"; kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
       else
-        screen "$SHELL" -ic \
-          "_bcs_title :$pod/$c: \"\$@\"; echo pty-driver off >&2; bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- <$TMP | kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+        screen -X screen "$SHELL" -ic \
+          "_bcs_title :$pod/$c: \"\$@\"; bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- <$TMP | kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
       fi
     done
   done
@@ -614,11 +614,11 @@ eks_node_screen() {
 
   for node in $(eks_list_nodes "$NFILTER"); do
     if [[ -t 0 ]]; then
-      screen "$SHELL" -ic \
-        "_bcs_title :$node: \"\$@\"; echo pty-driver off >&2; kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
+      screen -X screen "$SHELL" -ic \
+        "_bcs_title :$node: \"\$@\"; kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
     else
-      screen "$SHELL" -ic \
-        "_bcs_title :$node: \"\$@\"; echo pty-driver off >&2; bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
+      screen -X screen "$SHELL" -ic \
+        "_bcs_title :$node: \"\$@\"; bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
     fi
     sleep 1
   done
@@ -641,7 +641,7 @@ eks_trace_screen() {
     *)
       for key in $(eks_list_trace_ids "$FILTER" 1); do
         for id in ${EKS_TRACE_ID[$key]}; do
-          screen "$SHELL" -ic \
+          screen -X screen "$SHELL" -ic \
             "_bcs_title :$key/$id: trace $ACTION \"\$@\"; kubectl trace $ACTION $id \"\$@\"" -- "$@"
         done
       done
