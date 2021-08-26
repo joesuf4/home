@@ -111,7 +111,7 @@
 	     (define-key cperl-mode-map
 	       "\C-c\C-p"
 	       'cperl-perldoc)
-             (cperl-set-style "PerlStyle")
+             (cperl-set-style "CPerl")
              (setq cperl-close-paren-offset 0)
              (setq cperl-indent-parens-as-block t)
 	     ))
