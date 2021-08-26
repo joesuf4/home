@@ -385,7 +385,7 @@
 (add-hook 'go-mode-hook #'yas-minor-mode)
 
 ;; make fun
-(setq compile-command "powershell wsl make -kj ")
+(setq compile-command "wsl make -kj ")
 
 ;; python fun
 (use-package lsp-python-ms
