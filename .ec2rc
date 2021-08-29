@@ -151,9 +151,9 @@ ec2_shell() {
         ssh "$host" sh -c '". ~/.profile 2>/dev/null; eval script.sh -qa /tmp/typescript sudo -Es \"\$@\""' -- "$@"
     fi
   done
+  local rv=$?
   echo pty-driver on >&2
 
-  local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
   return $rv
 }

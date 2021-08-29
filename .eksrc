@@ -475,9 +475,9 @@ eks_shell() {
       fi
     done
   done
+  local rv=$?
   echo pty-driver on >&2
 
-  local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
   return $rv
 }
@@ -501,9 +501,9 @@ eks_node_shell() {
       bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript "$@"' -- "$@"
     fi
   done
+  local rv=$?
   echo pty-driver on >&2
 
-  local rv=$?
   [[ -f "$TMP" ]] && rm -f $TMP
   return $rv
 }
@@ -520,6 +520,7 @@ eks_trace_shell() {
     exec 0>&2
   fi
 
+  echo pty-driver off >&2
   case "$ACTION" in
     run)
       for obj in $(eks_list_trace_objects "$FILTER"); do
@@ -549,8 +550,9 @@ eks_trace_shell() {
       done
       ;;
   esac
-
   local rv=$?
+  echo pty-driver on >&2
+
   [[ -f "$TMP" ]] && rm -f $TMP
   return $rv
 }
