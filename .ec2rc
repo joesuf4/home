@@ -111,20 +111,17 @@ ec2_list_inventory() {
 
 ec2_ssh_ship_public_key() {
   local FILTER="$1"
-  # please ensure that this matches exactly one public keyfile for you
-  local pubs="$(cat ~/.ssh/id_*.pub)"
 
-  echo "$pubs" | grep -q "$USER@$(hostname)" || (
-    echo "Invalid Public Key: $USER@$(hostname) not found in : '$pubs'" >&2 && return 1
-  )
+  local pubkey="$(grep "$USER@$(hostname)\$" ~/.ssh/id_*.pub | head -n 1)"
+  [[ -z "$pubkey" ]] && echo "Can't find your public ssh key for this WSL install!" >&2 && return 1
 
   for host in $(ec2_list_inventory "$FILTER"); do
     (
-      sleep "${DELAY-20}"
+      sleep "${DELAY-30}"
       echo 'mkdir -p ~/.ssh'
       sleep 1
-      echo grep "$USER@$(hostname)" '~/.ssh/authorized_keys' '||' \
-        echo "$pubs" '>> ~/.ssh/authorized_keys'
+      echo grep -q "'$USER@$(hostname)\$'" '~/.ssh/authorized_keys' '||' \
+        echo "'$pubkey'" '>> ~/.ssh/authorized_keys'
       sleep 2
     ) | pty -n -- ec2-ssm-helper.sh "$host" &
   done
@@ -234,8 +231,8 @@ ec2_tools_ship_bg() {
       ssh $host -- sh -c "'mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t'" <~/bin/$t &
     done
     ssh $host -- sh -c "'$BCS_REMOTE_PROFILE_CREATION_SCRIPT'" &
-    ssh $host -- sh -c '"mkdir -p /tmp/terminfo/x && cat - >/tmp/terminfo/x/xterm-256color"' </lib/terminfo/x/xterm-256color &
-    ssh $host -- sh -c '"mkdir -p /tmp/terminfo/s && cat - >/tmp/terminfo/s/screen.xterm-256color"' </lib/terminfo/s/screen.xterm-256color &
+    ssh $host -- sh -c '"mkdir -p /tmp/terminfo/x && cat >/tmp/terminfo/x/xterm-256color"' </lib/terminfo/x/xterm-256color &
+    ssh $host -- sh -c '"mkdir -p /tmp/terminfo/s && cat >/tmp/terminfo/s/screen.xterm-256color"' </lib/terminfo/s/screen.xterm-256color &
     wait
     echo "Shipped tools to $host."
   done
