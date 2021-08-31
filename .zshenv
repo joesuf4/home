@@ -10,6 +10,7 @@ export COMPOSE_DOCKER_CLI_BUILD=0
 export DOCKER_BUILDKIT=0
 export MANPATH=/usr/local/share/man:/usr/share/man
 export BPFTRACE_VMLINUX=~/src/bcscli/WSL2-Linux-Kernel/vmlinux
+export KUBECTL_NODE_SHELL_IMAGE=artifactory.blackstone.com/docker/alpine:latest
 export NODE_PATH=/usr/local/lib/node_modules
 export KUBECONFIG
 
