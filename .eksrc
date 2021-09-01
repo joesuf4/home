@@ -366,7 +366,7 @@ _eks_load_trace_objects() {
 _eks_load_pods() {
   [[ -n "$BCS_PROFILE" ]] || return 0
   : "${EKS_PODS_SRC:=$(kubectl get pods "$@" --field-selector=status.phase=Running -o json |
-    jq '.items[]|select(.spec.nodeSelector."kubernetes.io/os" = "linux")|.metadata.name' | uniq | (
+    jq '.items[]|select(.spec.nodeSelector."kubernetes.io/os" == "linux")|.metadata.name' | uniq | (
     read -r _
     awk '{print $1}' | tr -dc "$BCS_ADMISSIBLE_CHARS"
   )) ${_eks_pods_flags[@]}}"

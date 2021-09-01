@@ -216,6 +216,7 @@ top_10() {
               }
               next unless /\\S\\s+[+-]?[\\d.]+\\w*\\b/;
               \$F[-1] =~ /^[KMGTpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F;
+              s/:\$// for @F;
               my \$unit = 0;
               for (\$F[-1]) {
                 s/T/*(\$KB**4)/i   and \$unit = 4;
