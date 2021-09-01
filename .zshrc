@@ -207,7 +207,7 @@ top_10() {
                   };
                   printf \"%${COL-40}s %s %s%s\\n\",
                     \$_,
-                    \"$(tput bold)$(tput setaf 1)x$(tput sgr0)\" x
+                    \"$(tput bold)$(tput setaf 2)x$(tput sgr0)\" x
                       eval \"\$SCALE(\$h{\$_}/\$DIV)\",
                     (eval          \"\$h{\$_}/\$DIV\"),
                     ('', map \" \$_\".(\$KB==1024 && 'i').('', 'B', 's')[\$UNIT<=>0],
