@@ -14,15 +14,14 @@ export KUBECTL_NODE_SHELL_IMAGE=artifactory.blackstone.com/docker/alpine:latest
 export NODE_PATH=/usr/local/lib/node_modules
 export KUBECONFIG
 
+. ~/.asdf/asdf.sh
+. ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
 
 for p in /sbin /usr/sbin /usr/local/bin "$(go env GOPATH)/bin" ~/{.local,.krew}/bin ~/bin
 do
   # fyi- this is not going to work if you use it on nested $p paths...
   [ -d "$p" ] && PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
 done
-
-. ~/.asdf/asdf.sh
-. ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
 
 [[ -z "$KUBECONFIG" ]] && for f in ~/.kube/* ~/.kube/config
 do
