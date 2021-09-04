@@ -191,7 +191,7 @@ for t in cluster node namespace; do
     eval "alias report_${t}_machines_total=\"perl -nle '/ provisioned-cpu / ... /Running/ and print \\\"machines 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
 done
 
-alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals'
+alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals; echo "\nnode count...\n" && report_node_machines_total'
 
 top_10() {
   # accepts:
