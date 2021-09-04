@@ -175,17 +175,17 @@ alias k=kubectl
 
 for t in all cluster node namespace pod; do
   for n in all percent provisioned load actual requests limits cpu mem age; do
-    eval "alias report_${t}_${n}_loop_20='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..20}; date && eks report \"${t//all/}\"  \"${n//all/}\" -n 5 && sleep 10 && clear'"
+    eval "alias report_${t}_${n}_loop_20='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..20}; date && eks report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
     eval "alias report_${t}_${n}_forever='while true; do bcs_assume_role && report_${t}_${n}_loop_20; done'"
   done
 done
 
 for t in cluster node namespace; do
   for n in cpu mem fd; do
-  [[ "$t" =~ ^n ]] && eval "alias report_${t}_${n}_static=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$ARGV @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+  [[ "$t" =~ ^n ]] && eval "alias report_${t}_${n}_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
   eval "alias report_${t}_${n}_totals=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and shift @F and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
   done
-  [[ "$t" == node ]] && eval "alias report_${t}_age_static=\"perl -nale '(/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$ARGV @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+  [[ "$t" == node ]] && eval "alias report_${t}_age_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
 done
 
 alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals'
