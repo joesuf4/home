@@ -175,8 +175,8 @@ alias k=kubectl
 
 for t in all cluster node namespace pod; do
   for n in all percent load actual cpu mem age; do
-    eval "alias report_${t}_${n}_loop_20='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..20}; date && eks report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
-    eval "alias report_${t}_${n}_forever='while true; do bcs_assume_role && report_${t}_${n}_loop_20; done'"
+    eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..100}; date && eks report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
+    eval "alias report_${t}_${n}_forever='while true; do bcs_assume_role && report_${t}_${n}_loop_100; done'"
   done
 done
 
@@ -188,10 +188,10 @@ for t in cluster node namespace; do
   [[ "$t" == node ]] &&
     eval "alias report_${t}_age_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
     eval "alias report_${t}_machines_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; / provisioned-cpu / ... /Running/ and print \\\"\\\$b 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
-    eval "alias report_${t}_machines_total=\"perl -nle '/ provisioned-cpu / ... /Running/ and print \\\"machines 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+    eval "alias report_${t}_machines_totals=\"perl -nle '/ provisioned-cpu / ... /Running/ and print \\\"machines 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
 done
 
-alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals; echo "\nnode count...\n" && report_node_machines_total'
+alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals && [[ "$name" == node ]] && echo "\nnode count...\n" && report_node_machines_totals; :'
 
 top_10() {
   # accepts:
