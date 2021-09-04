@@ -185,7 +185,10 @@ for t in cluster node namespace; do
   [[ "$t" =~ ^n ]] && eval "alias report_${t}_${n}_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
   eval "alias report_${t}_${n}_totals=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and shift @F and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
   done
-  [[ "$t" == node ]] && eval "alias report_${t}_age_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+  [[ "$t" == node ]] &&
+    eval "alias report_${t}_age_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
+    eval "alias report_${t}_machines_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; / provisioned-cpu / ... /Running/ and print \\\"\\\$b 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
+    eval "alias report_${t}_machines_total=\"perl -nle '/ provisioned-cpu / ... /Running/ and print \\\"machines 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
 done
 
 alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals'
