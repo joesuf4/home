@@ -182,10 +182,10 @@ done
 
 for t in cluster node namespace; do
   for n in cpu mem fd; do
-  [[ "$t" =~ ^n ]] && eval "alias report_${t}_${n}_static=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+  [[ "$t" =~ ^n ]] && eval "alias report_${t}_${n}_static=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$ARGV @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
   eval "alias report_${t}_${n}_totals=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and shift @F and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
   done
-  [[ "$t" == node ]] && eval "alias report_${t}_age_static=\"perl -nale '(/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+  [[ "$t" == node ]] && eval "alias report_${t}_age_static=\"perl -nale '(/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$ARGV @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
 done
 
 alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals'
