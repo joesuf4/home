@@ -235,7 +235,7 @@ top_10() {
                 \$_ = eval
               }
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join ' ', grep !/^(?:\Q$(tput bold)$(tput setaf ${ANSI_COLOR_ID-1})x$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
+              \$h{+join ' ', grep !/^(?:\Q$(tput bold)\E[^x]+?x\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
 }
 
 # presumes a running emacs-server
