@@ -12,7 +12,7 @@ export MANPATH=/usr/local/share/man:/usr/share/man
 export BPFTRACE_VMLINUX=~/src/bcscli/WSL2-Linux-Kernel/vmlinux
 export KUBECTL_NODE_SHELL_IMAGE=artifactory.blackstone.com/docker/alpine:latest
 export NODE_PATH=/usr/local/lib/node_modules
-export ANSI_COLOR_ID=2
+export ANSI_COLOR_ID=5
 export KUBECONFIG
 
 . ~/.asdf/asdf.sh
