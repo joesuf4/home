@@ -174,7 +174,7 @@ alias make='TERM=xterm-256color make -kj$(nproc)'
 alias k=kubectl
 
 for t in all cluster node namespace pod; do
-  for n in all percent load actual cpu mem age; do
+  for n in all percent load actual cpu mem; do
     eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..100}; date && eks report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
     eval "alias report_${t}_${n}_forever='while :; do bcs_assume_role && report_${t}_${n}_loop_100; done'"
   done
@@ -182,8 +182,8 @@ done
 
 for t in cluster node namespace; do
   for n in cpu mem fd; do
-  [[ "$t" =~ ^n ]] && eval "alias report_${t}_${n}_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
-  eval "alias report_${t}_${n}_totals=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and shift @F and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+    [[ "$t" =~ ^n ]] && eval "alias report_${t}_${n}_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+    eval "alias report_${t}_${n}_totals=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and shift @F and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
   done
   [[ "$t" == node ]] &&
     eval "alias report_${t}_age_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
