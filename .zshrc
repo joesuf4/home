@@ -173,6 +173,9 @@ alias make='TERM=xterm-256color make -kj$(nproc)'
 
 alias k=kubectl
 
+alias perl='perl -e "BEGIN{sub log_2 ($) {log(shift)/log(2)}}"'
+
+
 for t in all cluster node namespace pod; do
   for n in all percent load actual cpu mem; do
     eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..100}; date && eks report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
@@ -200,7 +203,7 @@ top_10() {
   #   KB (SI Kilo multiplier) env vars;
   # can process its own output (verbatim or otherwise)
 
-  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4; binmode(STDOUT, 'encoding(UTF-8)'); sub log_2 ($) {log(shift)/log(2)}}
+  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4; binmode(\$_, 'encoding(UTF-8)') for STDIN, STDOUT, STDERR}
               END {
                 \$DIV = \$KB**(\$UNIT);
                 for (sort {\$h{\$b} <=> \$h{\$a}} keys %h) {
