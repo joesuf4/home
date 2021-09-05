@@ -175,6 +175,7 @@ alias k=kubectl
 
 alias perl='perl -e "BEGIN{sub log_2 ($) {log(shift)/log(2)}}"'
 
+alias log_2='perl -le "print log_2 \$_ for @ARGV"'
 
 for t in all cluster node namespace pod; do
   for n in all percent load actual cpu mem; do
