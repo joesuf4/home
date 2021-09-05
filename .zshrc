@@ -195,6 +195,7 @@ alias report_all_totals='for name in cluster node namespace; echo "\n$name mem t
 
 top_10() {
   # accepts:
+  #   ANSI_COLOR_ID (defaults to 1=red)
   #   COL (-umn width), and
   #   KB (SI Kilo multiplier) env vars;
   # can process its own output (verbatim or otherwise)
@@ -210,7 +211,7 @@ top_10() {
                   };
                   printf \"%${COL-40}s %s %s%s\\n\",
                     \$_,
-                    \"$(tput bold)$(tput setaf ${TOP_10_COLOR_ID-1})x$(tput sgr0)\" x
+                    \"$(tput bold)$(tput setaf ${ANSI_COLOR_ID-1})x$(tput sgr0)\" x
                       eval \"\$SCALE(\$h{\$_}/\$DIV)\",
                     (eval          \"\$h{\$_}/\$DIV\"),
                     ('', map \" \$_\".(\$KB==1024 && 'i').('', 'B', 's')[\$UNIT<=>0],
@@ -234,7 +235,7 @@ top_10() {
                 \$_ = eval
               }
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join ' ', grep !/^(?:\Q$(tput bold)$(tput setaf ${TOP_10_COLOR_ID-1})x$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
+              \$h{+join ' ', grep !/^(?:\Q$(tput bold)$(tput setaf ${ANSI_COLOR_ID-1})x$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
 }
 
 # presumes a running emacs-server
