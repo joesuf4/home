@@ -167,7 +167,7 @@ alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
 alias pd='pty -d pty-driver.pl --'
 
-alias sps='screen pty -d pty-driver.pl $SHELL'
+alias sps='screen -U pty -d pty-driver.pl $SHELL'
 
 alias make='TERM=xterm-256color make -kj$(nproc)'
 
@@ -200,7 +200,7 @@ top_10() {
   #   KB (SI Kilo multiplier) env vars;
   # can process its own output (verbatim or otherwise)
 
-  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4; sub log_2 ($) {log(shift)/log(2)}}
+  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4; binmode(STDOUT, 'encoding(UTF-8)'); sub log_2 ($) {log(shift)/log(2)}}
               END {
                 \$DIV = \$KB**(\$UNIT);
                 for (sort {\$h{\$b} <=> \$h{\$a}} keys %h) {
@@ -211,7 +211,7 @@ top_10() {
                   };
                   printf \"%${COL-40}s %s %s%s\\n\",
                     \$_,
-                    \"$(tput bold)$(tput setaf ${ANSI_COLOR_ID-1})x$(tput sgr0)\" x
+                    \"$(tput bold)$(tput setaf ${ANSI_COLOR_ID-1})■$(tput sgr0)\" x
                       eval \"\$SCALE(\$h{\$_}/\$DIV)\",
                     (eval          \"\$h{\$_}/\$DIV\"),
                     ('', map \" \$_\".(\$KB==1024 && 'i').('', 'B', 's')[\$UNIT<=>0],
@@ -235,7 +235,7 @@ top_10() {
                 \$_ = eval
               }
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join ' ', grep !/^(?:\Q$(tput bold)\E[^x]+?x\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
+              \$h{+join ' ', grep !/^(?:\Q$(tput bold)\E[^x◆▬■]+?[x◆▬■]\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
 }
 
 # presumes a running emacs-server
