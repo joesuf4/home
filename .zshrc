@@ -187,7 +187,7 @@ for t in cluster node namespace; do
   done
   [[ "$t" == node ]] &&
     eval "alias report_${t}_age_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
-    eval "alias report_${t}_machines_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; / provisioned-cpu / ... /Running/ and print \\\"\\\$b 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
+    eval "alias report_${t}_machines_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; / provisioned-cpu / ... /Running/ and print \\\"machines \\\$b 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
     eval "alias report_${t}_machines_totals=\"perl -nle '/ provisioned-cpu / ... /Running/ and print \\\"machines 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
 done
 
@@ -210,7 +210,7 @@ top_10() {
                   };
                   printf \"%${COL-40}s %s %s%s\\n\",
                     \$_,
-                    \"$(tput bold)$(tput setaf 2)x$(tput sgr0)\" x
+                    \"$(tput bold)$(tput setaf ${TOP_10_COLOR_ID-1})x$(tput sgr0)\" x
                       eval \"\$SCALE(\$h{\$_}/\$DIV)\",
                     (eval          \"\$h{\$_}/\$DIV\"),
                     ('', map \" \$_\".(\$KB==1024 && 'i').('', 'B', 's')[\$UNIT<=>0],
@@ -234,7 +234,7 @@ top_10() {
                 \$_ = eval
               }
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join ' ', grep !/^(?:\Q$(tput bold)$(tput setaf 2)x$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
+              \$h{+join ' ', grep !/^(?:\Q$(tput bold)$(tput setaf ${TOP_10_COLOR_ID-1})x$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
 }
 
 # presumes a running emacs-server
