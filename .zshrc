@@ -203,8 +203,8 @@ top_10() {
   # accepts:
   #   ANSI_COLOR_ID (defaults to 1=red)
   #   HIST_BLOCK (defaults to "x")
-  #   COL (-umn width), and
-  #   KB (SI Kilo multiplier) env vars;
+  #   COL (-umn width, defaults to 40), and
+  #   KB (SI Kilo multiplier, defaults to 1024) env vars;
   # can process its own output (verbatim or otherwise)
 
   perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4; binmode(\$_, 'encoding(UTF-8)') for STDIN, STDOUT, STDERR }
