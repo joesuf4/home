@@ -177,6 +177,8 @@ alias perl='perl -e "BEGIN{sub log_2 ($) {log(shift)/log(2)}}"'
 
 alias log_2='perl -le "print log_2 \$_ for @ARGV"'
 
+alias sqrt='perl -le "print sqrt \$_ for @ARGV"'
+
 for t in all cluster node namespace pod; do
   for n in all percent load actual cpu mem; do
     eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..100}; date && eks report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
