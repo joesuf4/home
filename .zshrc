@@ -202,6 +202,7 @@ alias report_all_totals='for name in cluster node namespace; echo "\n$name mem t
 top_10() {
   # accepts:
   #   ANSI_COLOR_ID (defaults to 1=red)
+  #   HIST_BLOCK (defaults to "x")
   #   COL (-umn width), and
   #   KB (SI Kilo multiplier) env vars;
   # can process its own output (verbatim or otherwise)
