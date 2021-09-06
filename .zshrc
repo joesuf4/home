@@ -199,7 +199,7 @@ done
 
 alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals && [[ "$name" == node ]] && echo "\nnode count...\n" && report_node_machines_totals; :'
 
-alias report_node_inventory_static='join -j 1 -a 1 <(join -j 1 <(perl -nale "/ provisioned-cpu / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-1]\"" /tmp/k8s/reports/nodes/*/* | sort) <(perl -nale "/ provisioned-mem / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-2]\$F[-1]\"" /tmp/k8s/reports/nodes/*/* | sort)) <(perl -nale "/ age / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-1]\"" /tmp/k8s/reports/nodes/*/* | sort) | sed -e "s!/tmp/k8s/reports/nodes/!!" | sort -k3nr | (echo "AWSREGION/ORGNAME.EKSCLUSTER:HOSTNAME CPU RAM AGE"; cat)'
+alias report_node_inventory_static='join -j 1 -a 1 <(join -j 1 <(perl -nale "/ provisioned-cpu / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-1]\"" /tmp/k8s/reports/nodes/*/* | sort) <(perl -nale "/ provisioned-mem / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-2]\$F[-1]\"" /tmp/k8s/reports/nodes/*/* | sort)) <(perl -nale "/ age / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-1]\"" /tmp/k8s/reports/nodes/*/* | sort) | sed -e "s!/tmp/k8s/reports/nodes/!!" | sort -k3nr | (echo -e "AWSREGION/ORGNAME.EKSCLUSTER:HOSTNAME\tCPU\tRAM\tAGE"; tr " " "\\t")'
 
 top_10() {
   # accepts:
