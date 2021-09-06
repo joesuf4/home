@@ -194,10 +194,12 @@ for t in cluster node namespace; do
   [[ "$t" == node ]] &&
     eval "alias report_${t}_age_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
     eval "alias report_${t}_machines_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; / provisioned-cpu / ... /Running/ and print \\\"machines \\\$b 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
-    eval "alias report_${t}_machines_totals=\"perl -nle '/ provisioned-cpu / ... /Running/ and print \\\"machines 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+    eval "alias report_${t}_machines_totals=\"perl -nle '/ provisioned-cpu / ... /Running/ and !/Running/ and length and print \\\"machines 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
 done
 
 alias report_all_totals='for name in cluster node namespace; echo "\n$name mem totals...\n" && eval report_${name}_mem_totals && echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals && [[ "$name" == node ]] && echo "\nnode count...\n" && report_node_machines_totals; :'
+
+alias report_all_inventory='join -j 1 <(perl -nale "/ provisioned-cpu / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-1] CPU\"" /tmp/k8s/reports/nodes/*/* | sort) <(perl -nale "/ provisioned-mem / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-2]\$F[-1] RAM\"" /tmp/k8s/reports/nodes/*/* | sort) | sed -e "s!/tmp/k8s/reports/nodes/!!" | sort -k2nr'
 
 top_10() {
   # accepts:
