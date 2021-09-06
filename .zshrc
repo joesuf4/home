@@ -207,7 +207,7 @@ top_10() {
   #   KB (SI Kilo multiplier) env vars;
   # can process its own output (verbatim or otherwise)
 
-  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4; binmode(\$_, 'encoding(UTF-8)') for STDIN, STDOUT, STDERR}
+  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4; binmode(\$_, 'encoding(UTF-8)') for STDIN, STDOUT, STDERR }
               END {
                 \$DIV = \$KB**(\$UNIT);
                 for (sort {\$h{\$b} <=> \$h{\$a}} keys %h) {
