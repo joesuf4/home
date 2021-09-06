@@ -828,7 +828,7 @@ _eks_report_global() {
   (
     sleep ${TIMEOUT-300}
     for f in "${context}s"/*/*; do
-      [[ "$(stat -c %s $f)" -lt 1000 ]] && rm $f
+      [[ "$(stat -c %s $f)" -lt 500 ]] && rm $f
     done
     tar -czO "${context}s" >"${context}s-$timestamp.tar.gz"
   ) &
