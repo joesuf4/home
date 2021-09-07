@@ -1,6 +1,6 @@
 # -*- sh -*-
 
-declare -A EC2_ID
+declare -A EC2_ID _ec2_linux_price _ec2_windows_price
 declare -ax _ec2_hosts _bcs_cmds _bcs_tools
 declare -ax _ec2_cmds=(list-inventory ssh-ship-public-key ssm-helper)
 
