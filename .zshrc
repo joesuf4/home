@@ -173,7 +173,7 @@ alias make='TERM=xterm-256color make -kj$(nproc)'
 
 alias k=kubectl
 
-alias perl='perl -e "BEGIN{sub log_2 ($) {log(shift)/log(2)}}"'
+alias perl='perl -Mutf8 -e "BEGIN{sub log_2 ($) {log(shift)/log(2)} binmode(\$_, \"encoding(UTF-8)\") for STDIN, STDOUT, STDERR}"'
 
 alias log_2='perl -le "print log_2 \$_ for @ARGV"'
 
@@ -188,20 +188,30 @@ done
 
 for t in cluster node namespace; do
   for n in cpu mem fd; do
-    [[ "$t" =~ ^n ]] && eval "alias report_${t}_${n}_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
-    eval "alias report_${t}_${n}_totals=\"perl -nale '(/ (\\\\w+-$n) / and \\\$a=\\\$1) ... /Running/ and shift @F and print \\\"\\\$a @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+    [[ "$t" =~ ^n ]] && eval "alias report_${t}_${n}_static=\"_report_filter_block ${t}s -$n '\\\$a ' | top_10\""
+    eval "alias report_${t}_${n}_totals=\"_report_filter_block ${t}s -$n '\\\$a ' ' ' 1 | top_10\""
   done
   [[ "$t" == node ]] &&
-    eval "alias report_${t}_age_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; (/ (age) / and \\\$a=\\\$1) ... /Running/ and print \\\"\\\$a \\\$b @F\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
-    eval "alias report_${t}_machines_static=\"perl -nale 's!^/tmp/k8s/reports/${t}s/!! for \\\$b = \\\$ARGV; / provisioned-cpu / ... /Running/ and print \\\"machines \\\$b 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\"" &&
-    eval "alias report_${t}_machines_totals=\"perl -nle '/ provisioned-cpu / ... /Running/ and !/Running/ and length and print \\\"machines 1\\\"' /tmp/k8s/reports/${t}s/*/* | top_10\""
+    eval "alias report_${t}_age_static=\"_report_filter_block ${t}s age '\\\$a ' | top_10\"" &&
+    eval "alias report_${t}_machines_static=\"_report_filter_block ${t}s provisioned-cpu 'machines ' | top_10\"" &&
+    eval "alias report_${t}_machines_totals=\"_report_filter_block ${t}s provisioned-cpu 'machines ' ' ' 1 1 | top_10\""
 done
 
-alias report_all_totals='for name in cluster node namespace; do echo "\n$name mem totals...\n" && eval report_${name}_mem_totals; echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals; [[ "$name" == cluster ]] && echo "\ncluster tco...\n" && report_cluster_tco_static -n 1000000 | awk "{print \"dollars\", \$3}" | top_10; [[ "$name" == node ]] && echo "\nnode count...\n" && report_node_machines_totals; done; :'
+_report_filter_block() {
+  local ctx="$1"
+  local match="$2"
+  local prefix="${3-}"
+  local sep="${4- }"
+  local totals="${5-}"
+  local count="${6-}"
+  perl -nale "@F and \$F[-1] =~ /^[KMGTpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F; \$F[-1] = 1 if @F and length \"$count\"; (/([\\w-]*\b\Q$match\E\b)/ and \$a=\$1) ... /Running/ and !/Running/ and length and (@F > 2 and splice @F, 1, 1 or 1) and (length \"$totals\" ? (print \"$prefix\$F[-1]\") : print \"$prefix\$ARGV$sep@F\")" /tmp/k8s/reports/$ctx/*/* | sed -e "s!^/tmp/k8s/reports/$ctx/!!" | sort
+}
 
-alias report_node_inventory_static='join -j 1 -a 1 <(join -j 1 -a 1 <(join -j 1 <(perl -nale "/ provisioned-cpu / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-1]\"" /tmp/k8s/reports/nodes/*/* | sort) <(perl -nale "/ provisioned-mem / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-2]\$F[-1]\"" /tmp/k8s/reports/nodes/*/* | sort)) <(cat <(perl -nale "/ ec2-linux-price / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-1]\"" /tmp/k8s/reports/nodes/*/*) <(perl -nale "/ ec2-windows-price / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-1]\"" /tmp/k8s/reports/nodes/*/*) | sort)) <(perl -nale "/ age / ... /Running/ and !/Running/ and length and print \"\$ARGV:\$F[0] \$F[-1]\"" /tmp/k8s/reports/nodes/*/* | sort) | sed -e "s!/tmp/k8s/reports/nodes/!!" | sort -k3nr | perl -pale "defined \$F[4] and \$a=\$F[3]*\$F[4]*240000 and \$_ .= \" \$a\"" | (echo -e "AWSREGION\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\tPRICE\tAGE\tTCO"; perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; print @F")'
+alias report_all_totals='for name in cluster node namespace; do echo "\n$name mem totals...\n" && eval report_${name}_mem_totals; echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals; [[ "$name" == cluster ]] && echo "\ntco totals...\n" && report_cluster_tco_static -n 1000000 | awk "{print \"dollars\", \$3}" | top_10; [[ "$name" == node ]] && echo "\nnode count...\n" && report_node_machines_totals; done; :'
 
-alias report_cluster_tco_static='report_node_inventory_static | (read _; awk "{printf(\"%s %.2f\\n\", \$3, \$9 / 10000)}") | top_10'
+alias report_node_inventory_static='join -j 1 <(join -j 1 -a 1 <(join -j 1 <(_report_filter_block nodes provisioned-cpu "" :) <(_report_filter_block nodes provisioned-mem "" :)) <(sort -m <(_report_filter_block nodes ec2-linux-price "" :) <(_report_filter_block nodes ec2-windows-price "" :))) <(_report_filter_block nodes age "" :) | sort -k3nr | perl -pale "@F == 5 and \$a=\$F[3]*\$F[4]*240000 and \$_ .= \" \$a\"" | (echo -e "AWSREGION\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\tPRICE\tAGE\tTCO"; perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; print @F")'
+
+alias report_cluster_tco_static='report_node_inventory_static | (read -r _; awk "{printf(\"%s %.2f\\n\", \$3, \$9 / 10000)}") | top_10'
 
 top_10() {
   # accepts:
@@ -210,8 +220,7 @@ top_10() {
   #   COL (-umn width, defaults to 40), and
   #   KB (SI Kilo multiplier, defaults to 1024) env vars;
   # can process its own output (verbatim or otherwise)
-
-  perl -Mutf8 -nale "BEGIN { \$KB=${KB-1024}; \$UNIT =-4; binmode(\$_, 'encoding(UTF-8)') for STDIN, STDOUT, STDERR }
+  perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; }
               END {
                 \$DIV = \$KB**(\$UNIT);
                 for (sort {\$h{\$b} <=> \$h{\$a}} keys %h) {
@@ -225,7 +234,7 @@ top_10() {
                     \"$(tput bold)$(tput setaf ${ANSI_COLOR_ID-1})${HIST_BLOCK-x}$(tput sgr0)\" x
                       eval \"\$SCALE(\$h{\$_}/\$DIV)\",
                     (eval          \"\$h{\$_}/\$DIV\"),
-                    ('', map \" \$_\".(\$KB==1024 && 'i').('', 'B', 's')[\$UNIT<=>0],
+                    (\"\", map \" \$_\".(\$KB==1024 && 'i').(\"\", \"B\", \"s\")[\$UNIT<=>0],
                              qw/K M G T p n μ m/)[\$UNIT]
                 }
               }
@@ -246,7 +255,7 @@ top_10() {
                 \$_ = eval
               }
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join ' ', grep !/^(?:\Q$(tput bold)\E[^x☠◆▬■●▶]+?[x☠◆▬■●▶]\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
+              \$h{+join \" \", grep !/^(?:\Q$(tput bold)\E[^x☠◆▬■●▶]+?[x☠◆▬■●▶]\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "$@"
 }
 
 # presumes a running emacs-server
