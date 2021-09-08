@@ -167,7 +167,7 @@ alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
 alias pd='pty -d pty-driver.pl --'
 
-alias sps='screen -U pty -d pty-driver.pl $SHELL'
+alias sps='screen pty -d pty-driver.pl $SHELL'
 
 alias make='TERM=xterm-256color make -kj$(nproc)'
 
@@ -178,6 +178,8 @@ alias perl='perl -Mutf8 -e "BEGIN{sub log_2 ($) {log(shift)/log(2)} binmode(\$_,
 alias log_2='perl -le "print log_2 \$_ for @ARGV"'
 
 alias sqrt='perl -le "print sqrt \$_ for @ARGV"'
+
+alias screen='screen -U'
 
 for t in all cluster node namespace pod; do
   for n in all percent load actual cpu mem; do
@@ -192,6 +194,7 @@ for t in cluster node namespace; do
     eval "alias report_${t}_${n}_totals=\"_report_filter_block ${t}s -$n '\\\$a ' ' ' 1 | top_10\""
   done
   [[ "$t" == node ]] &&
+    eval "alias report_${t}_price_static=\"_report_filter_block ${t}s -price '\\\$a ' | top_10\"" &&
     eval "alias report_${t}_age_static=\"_report_filter_block ${t}s age '\\\$a ' | top_10\"" &&
     eval "alias report_${t}_machines_static=\"_report_filter_block ${t}s provisioned-cpu 'machines ' | top_10\"" &&
     eval "alias report_${t}_machines_totals=\"_report_filter_block ${t}s provisioned-cpu 'machines ' ' ' 1 1 | top_10\""
@@ -204,14 +207,14 @@ _report_filter_block() {
   local sep="${4- }"
   local totals="${5-}"
   local count="${6-}"
-  perl -nale "@F and \$F[-1] =~ /^[KMGTpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F; \$F[-1] = 1 if @F and length \"$count\"; (/([\\w-]*\b\Q$match\E\b)/ and \$a=\$1) ... /Running/ and !/Running/ and length and (@F > 2 and splice @F, 1, 1 or 1) and (length \"$totals\" ? (print \"$prefix\$F[-1]\") : print \"$prefix\$ARGV$sep@F\")" /tmp/k8s/reports/$ctx/*/* | sed -e "s!^/tmp/k8s/reports/$ctx/!!" | sort
+  perl -nale "@F and \$F[-1] =~ /^[KMGTpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F; \$F[-1] = 1 if @F and length \"$count\"; (/([\\w-]*\b\Q$match\E\b)/ and \$a=\$1) ... (/Running/ and (\$a=\"\", 1)) and (!/Running/ or (\"\$a\" eq \"\" and redo)) and length and (@F > 2 and splice @F, 1, 1 or 1) and (length \"$totals\" ? (print \"$prefix\$F[-1]\") : print \"$prefix\$ARGV$sep@F\")" /tmp/k8s/reports/$ctx/*/* | sed -e "s!/tmp/k8s/reports/$ctx/!!" | sort
 }
 
 alias report_all_totals='for name in cluster node namespace; do echo "\n$name mem totals...\n" && eval report_${name}_mem_totals; echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals; [[ "$name" == cluster ]] && echo "\ntco totals...\n" && report_cluster_tco_static -n 1000000 | awk "{print \"dollars\", \$3}" | top_10; [[ "$name" == node ]] && echo "\nnode count...\n" && report_node_machines_totals; done; :'
 
-alias report_node_inventory_static='join -j 1 <(join -j 1 -a 1 <(join -j 1 <(_report_filter_block nodes provisioned-cpu "" :) <(_report_filter_block nodes provisioned-mem "" :)) <(sort -m <(_report_filter_block nodes ec2-linux-price "" :) <(_report_filter_block nodes ec2-windows-price "" :))) <(_report_filter_block nodes age "" :) | sort -k3nr | perl -pale "@F == 5 and \$a=\$F[3]*\$F[4]*240000 and \$_ .= \" \$a\"" | (echo -e "AWSREGION\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\tPRICE\tAGE\tTCO"; perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; print @F")'
+alias report_node_inventory_static='join -j 1 -a 1 <(join -j 1 <(join -j 1 <(_report_filter_block nodes provisioned-cpu "" :) <(_report_filter_block nodes provisioned-mem "" :)) <(_report_filter_block nodes age "" :)) <(sort -m <(_report_filter_block nodes ec2-linux-price "" :) <(_report_filter_block nodes ec2-windows-price "" :)) | sort -k3nr | perl -pale "@F == 5 and \$a=\$F[3]*\$F[4]*24 and \$_ .= sprintf \" %.2f\", \$a" | (echo -e "AWSREGION\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\tAGE\tPRICE\tTCO"; perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; print @F")'
 
-alias report_cluster_tco_static='report_node_inventory_static | (read -r _; awk "{printf(\"%s %.2f\\n\", \$3, \$9 / 10000)}") | top_10'
+alias report_cluster_tco_static='report_node_inventory_static | (read -r _; awk "{printf \"%s %.2f\\n\", \$3, \$9}") | top_10'
 
 top_10() {
   # accepts:
