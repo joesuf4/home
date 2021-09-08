@@ -240,11 +240,13 @@ done
 
 eks_list_clusters() {
   local FILTER="${1-}"
+  local c
   for c in "${_eks_clusters[@]}"; do echo "$c"; done | grep -Pe "$FILTER"
 }
 
 eks_list_namespaces() {
   local FILTER="${1-}"
+  local c
   for c in "${_eks_namespaces[@]}"; do echo "$c"; done | grep -Pe "$FILTER"
 }
 
@@ -267,6 +269,7 @@ eks_list_pods() {
     _eks_load_pods "$FILTER"
     FILTER=""
   fi
+  local c
   for c in "${_eks_pods[@]}"; do
     [[ "$c" == "${c#--}" ]] && echo "$c"
   done | grep -Pe "$FILTER"
@@ -274,11 +277,13 @@ eks_list_pods() {
 
 eks_list_nodes() {
   local FILTER="${1-}"
+  local c
   for c in "${_eks_nodes[@]}"; do echo "$c"; done | grep -Pe "$FILTER"
 }
 
 eks_list_trace_objects() {
   local FILTER="${1-}"
+  local c
   for c in "${_eks_trace_objects[@]}"; do echo "$c"; done | grep -Pe "$FILTER"
 }
 
@@ -302,6 +307,7 @@ eks_list_pod_containers() {
 
 eks_list_reports() {
   local NFILTER="${1-}"
+  local n
   for n in "${_eks_reports[@]}"; do
     echo "$n"
   done | grep -Pe "$NFILTER"
@@ -310,6 +316,7 @@ eks_list_reports() {
 eks_list_reports_by_subtype() {
   local name="$1"
   local NFILTER="${2-}"
+  local n
   for n in $(eval echo "\"\${_eks_${name}_report_cmds[@]}\""); do
     echo "$n"
   done | grep -Pe "$NFILTER"
@@ -422,6 +429,7 @@ eks_set_namespace() {
 eks_tools_ship_bg() {
   local FILTER="$1"
 
+  local pod c t
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       for t in "${_bcs_tools[@]}"; do
@@ -439,6 +447,7 @@ eks_tools_ship_bg() {
 eks_node_tools_ship_bg() {
   local FILTER="$1"
 
+  local node t
   for node in $(eks_list_nodes "$FILTER"); do
     for t in "${_bcs_tools[@]}"; do
       time kubectl node-shell $node -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
@@ -464,6 +473,7 @@ eks_shell() {
     cat >$TMP
   fi
 
+  local pod c
   echo pty-driver off >&2
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
@@ -492,6 +502,7 @@ eks_node_shell() {
     cat >$TMP
   fi
 
+  local node
   echo pty-driver off >&2
   for node in $(eks_list_nodes "$FILTER"); do
     _bcs_title :$node: "$@"
@@ -520,6 +531,7 @@ eks_trace_shell() {
     exec 0>&2
   fi
 
+  local obj key id
   echo pty-driver off >&2
   case "$ACTION" in
     run)
@@ -561,6 +573,7 @@ eks_htop_ship_config_bg() {
   local FILTER="$1"
   shift
 
+  local pod c
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       kubectl exec -i $pod -c $c -- sh -c \
@@ -573,6 +586,7 @@ eks_htop_ship_config_bg() {
 eks_node_htop_ship_config_bg() {
   local NFILTER="$1"
 
+  local node
   for node in $(eks_list_nodes "$NFILTER"); do
     kubectl node-shell $node -- sh -c \
       '[ -x /usr/bin/sudo ] && sudo="sudo -Es"; $sudo sh -c "mkdir -p ~/.config/htop && cat > ~/.config/htop/htoprc"' <~/.config/htop/htoprc &
@@ -591,6 +605,7 @@ eks_screen() {
     cat >$TMP
   fi
 
+  local pod c
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       if [[ -t 0 ]]; then
@@ -614,6 +629,7 @@ eks_node_screen() {
     cat >$TMP
   fi
 
+  local node
   for node in $(eks_list_nodes "$NFILTER"); do
     if [[ -t 0 ]]; then
       screen -X screen "$SHELL" -ic \
@@ -636,6 +652,7 @@ eks_trace_screen() {
   shift
   shift
 
+  local key id
   case "$ACTION" in
     get | run | delete)
       eks_trace_shell $FILTER $ACTION "$@"
@@ -679,6 +696,7 @@ eks_batch() {
     cat >$TMP
   fi
 
+  local pod ctr
   for pod in $(eks_list_pods "$FILTER"); do
     for ctr in $([[ "$FILTER" != "${FILTER#--}" ]] && eks_list_pod_containers "$FILTER" || eks_list_pod_containers "^\\Q$pod\\E\$"); do
       if [[ -t 0 ]]; then
@@ -754,6 +772,7 @@ eks_trace_batch() {
     local prefix='$key>$id'
   fi
 
+  local key id
   case "$ACTION" in
     run | delete | attach)
       eks_trace_shell "$FILTER" "$ACTION" "$@"
@@ -778,6 +797,7 @@ eks_report() {
   local _eks_cluster=$EKS_CLUSTER
   local _eks_ns=$EKS_NAMESPACE
 
+  local r s
   for r in $(eks list-reports "$RTYPE"); do
     local _k_describe_node=
     local _k_top_node=
