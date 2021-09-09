@@ -208,7 +208,7 @@ _report_filter_block() {
   local totals="${5-}"
   local count="${6-}"
   local suffix="${7-}"
-  perl -nale "@F and \$F[-1] =~ /^[KMGTpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F; \$F[-1] = 1 if @F and length \"$count\"; (/([\\w-]*\b\Q$match\E\b)/ and \$a=\$1) ... (/Running/ and (\$a=\"\", 1)) and (!/Running/ or (\"\$a\" eq \"\" and redo)) and length and (@F > 2 and \$F[-2] =~ /^(?:\Q$(tput bold)\E[^x☠◆▬■●▶]+?[x☠◆▬■●▶]\Q$(tput sgr0)\E)+$/ and splice @F, -2, 1 or 1) and (length \"$totals\" ? (print \"$prefix\$F[-1]\") : print \"$prefix\$ARGV$sep@F$suffix\")" /tmp/k8s/reports/$ctx/*/* | sed -e "s!/tmp/k8s/reports/$ctx/!!" | sort
+  perl -nale "@F and \$F[-1] =~ /^[KMGTpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F; \$F[-1] = 1 if @F and length \"$count\"; (/([\\w-]*\b\Q$match\E\b)/ and \$a=\$1) ... (/Running/ and (\$a=\"\", 1)) and (!/Running/ or (not length \$a and redo)) and length and (@F > 2 and \$F[-2] =~ /^(?:\Q$(tput bold)\E[^x☠◆▬■●▶]+?[x☠◆▬■●▶]\Q$(tput sgr0)\E)+$/ and splice @F, -2, 1 or 1) and (length \"$totals\" ? (print \"$prefix\$F[-1]\") : print \"$prefix\$ARGV$sep@F$suffix\")" /tmp/k8s/reports/$ctx/*/* | sed -e "s!/tmp/k8s/reports/$ctx/!!" | sort
 }
 
 alias report_all_totals='for name in cluster node namespace; do echo "\n$name mem totals...\n" && eval report_${name}_mem_totals; echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals; [[ "$name" == cluster ]] && echo "\nmonthly cost totals...\n" && report_node_monthly_totals | awk "{print \"dollars\", \$3}" | top_10; [[ "$name" == node ]] && echo "\nnode count...\n" && report_node_machines_totals; done'
