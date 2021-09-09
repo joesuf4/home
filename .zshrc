@@ -173,7 +173,7 @@ alias make='TERM=xterm-256color make -kj$(nproc)'
 
 alias k=kubectl
 
-alias perl='perl -Mutf8 -e "BEGIN{sub log_2 ($) {log(shift)/log(2)} binmode(\$_, \"encoding(UTF-8)\") for STDIN, STDOUT, STDERR}"'
+alias perl='perl -CSD -Mutf8 -e "BEGIN{sub log_2 (\$) {log(shift)/log(2)}}"'
 
 alias log_2='perl -le "print log_2 \$_ for @ARGV"'
 
@@ -208,18 +208,18 @@ _report_filter_block() {
   local totals="${5-}"
   local count="${6-}"
   local suffix="${7-}"
-  perl -nale "@F and \$F[-1] =~ /^[KMGTpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F; \$F[-1] = 1 if @F and length \"$count\"; (/([\\w-]*\b\Q$match\E\b)/ and \$a=\$1) ... (/Running/ and (\$a=\"\", 1)) and (!/Running/ or (\"\$a\" eq \"\" and redo)) and length and (@F > 2 and splice @F, 1, 1 or 1) and (length \"$totals\" ? (print \"$prefix\$F[-1]\") : print \"$prefix\$ARGV$sep@F$suffix\")" /tmp/k8s/reports/$ctx/*/* | sed -e "s!/tmp/k8s/reports/$ctx/!!" | sort
+  perl -nale "@F and \$F[-1] =~ /^[KMGTpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F; \$F[-1] = 1 if @F and length \"$count\"; (/([\\w-]*\b\Q$match\E\b)/ and \$a=\$1) ... (/Running/ and (\$a=\"\", 1)) and (!/Running/ or (\"\$a\" eq \"\" and redo)) and length and (@F > 2 and \$F[-2] =~ /^(?:\Q$(tput bold)\E[^x☠◆▬■●▶]+?[x☠◆▬■●▶]\Q$(tput sgr0)\E)+$/ and splice @F, -2, 1 or 1) and (length \"$totals\" ? (print \"$prefix\$F[-1]\") : print \"$prefix\$ARGV$sep@F$suffix\")" /tmp/k8s/reports/$ctx/*/* | sed -e "s!/tmp/k8s/reports/$ctx/!!" | sort
 }
 
 alias report_all_totals='for name in cluster node namespace; do echo "\n$name mem totals...\n" && eval report_${name}_mem_totals; echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals; [[ "$name" == cluster ]] && echo "\nmonthly cost totals...\n" && report_node_monthly_totals | awk "{print \"dollars\", \$3}" | top_10; [[ "$name" == node ]] && echo "\nnode count...\n" && report_node_machines_totals; done'
 
-alias report_node_inventory_static='join -j 1 -a 1 <(join -j 1 <(join -j 1 <(_report_filter_block nodes provisioned-cpu "" :) <(_report_filter_block nodes provisioned-mem "" :)) <(_report_filter_block nodes age "" :)) <(_report_filter_block nodes -price "" : "" "" " \$a") | sort -k3nr | perl -pale "@F == 6 and \$_ .= sprintf \" %.2f %.2f\", \$F[3]*\$F[4]*24, 30*\$F[4]*24" | (echo -e "AWSREGION\tAWSORGID\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\tAGE\tPRICE\tTYPE\tTCO\tMONTHLY"; perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; splice @F, 1, 0, grep chomp, qx([ -z \"${NOSHELL-}\" ] && $SHELL -ic \"bcs get-account-number \$F[1]\" || echo PLACEHOLDER); print @F")'
+alias report_node_inventory_static='join -j 1 -a 1 <(join -j 1 <(join -j 1 <(_report_filter_block nodes provisioned-cpu "" :) <(_report_filter_block nodes provisioned-mem "" :)) <(_report_filter_block nodes age "" :)) <(_report_filter_block nodes -price "" : "" "" " \$a") | sort -k3nr | perl -pale "@F == 7 and \$_ .= sprintf \" %.2f %.2f\", \$F[3]*\$F[5]*24, 30*\$F[5]*24" | (echo -e "AWSREGION\tAWSORGID\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\tAGE\tINSTANCETYPE\tPRICE\tOSTYPE\tTCO\tMONTHLY"; perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; splice @F, 1, 0, grep chomp, qx([ -z \"${NOSHELL-}\" ] && $SHELL -ic \"bcs get-account-number \$F[1]\" || echo PLACEHOLDER); print @F")'
 
-alias report_node_tco_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[3], \$F[9]") | top_10'
-alias report_node_tco_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[9]; END{print \"dollars\", \$a}") | top_10'
+alias report_node_tco_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[3], \$F[10]") | top_10'
+alias report_node_tco_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[10]; END{print \"dollars\", \$a}") | top_10'
 
-alias report_node_monthly_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[3], \$F[10]") | top_10'
-alias report_node_monthly_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[10]; END{printf \"%s %.2f\", \"dollars\", \$a}") | top_10'
+alias report_node_monthly_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[3], \$F[11]") | top_10'
+alias report_node_monthly_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[11]; END{printf \"%s %.2f\", \"dollars\", \$a}") | top_10'
 
 top_10() {
   # accepts:
