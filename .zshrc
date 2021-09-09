@@ -215,11 +215,11 @@ alias report_all_totals='for name in cluster node namespace; do echo "\n$name me
 
 alias report_node_inventory_static='join -j 1 -a 1 <(join -j 1 <(join -j 1 <(_report_filter_block nodes provisioned-cpu "" :) <(_report_filter_block nodes provisioned-mem "" :)) <(_report_filter_block nodes age "" :)) <(_report_filter_block nodes -price "" : "" "" " \$a") | sort -k3nr | perl -pale "@F == 7 and \$_ .= sprintf \" %.2f %.2f\", \$F[3]*\$F[5]*24, 30*\$F[5]*24" | (echo -e "AWSREGION\tAWSORGID\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\tAGE\tINSTANCETYPE\tPRICE\tOSTYPE\tTCO\tMONTHLY"; perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; splice @F, 1, 0, grep chomp, qx([ -z \"${NOSHELL-}\" ] && $SHELL -ic \"bcs get-account-number \$F[1]\" || echo PLACEHOLDER); print @F")'
 
-alias report_node_tco_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[3], \$F[10]") | top_10'
-alias report_node_tco_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[10]; END{print \"dollars\", \$a}") | top_10'
+alias report_node_tco_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[3], \$F[11]") | top_10'
+alias report_node_tco_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[11]; END{print \"dollars\", \$a}") | top_10'
 
-alias report_node_monthly_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[3], \$F[11]") | top_10'
-alias report_node_monthly_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[11]; END{printf \"%s %.2f\", \"dollars\", \$a}") | top_10'
+alias report_node_monthly_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[3], \$F[12]") | top_10'
+alias report_node_monthly_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[12]; END{printf \"%s %.2f\", \"dollars\", \$a}") | top_10'
 
 top_10() {
   # accepts:
