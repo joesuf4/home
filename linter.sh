@@ -47,6 +47,13 @@ EOF
   fi
 fi
 
+# punt to docker if appropriate
+
+if [[ "$0" != "${0%.git/hooks/pre-commit}" ]] && command -v docker >/dev/null 2>&1; then
+  exec docker run -t -v $PWD:/src:ro --rm --entrypoint= $LINTER_DOCKER_IMAGE bash -c \
+    "cd /src && grep '[)]\$' linter.rc | awk '{print \$1}' | (echo; cut -d')' -f1) | xargs -P $(nproc) -d '\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $@'"
+fi
+
 # load associated rcfile
 
 . ./linter.rc
@@ -107,11 +114,6 @@ if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
 else
   # using (installed ".git/hooks/pre-commit" suffix) path,
   # thus "git diff" pipeline inputs
-  if command -v docker >/dev/null 2>&1; then
-    # punt to docker for full linter.rc processing (and dependency isolation)
-    exec docker run -v $(pwd):/src:ro --rm -t --entrypoint bash $LINTER_DOCKER_IMAGE -c \
-      "cd /src && grep '[)]\$' linter.rc | awk '{print \$1}' | (echo; cut -d')' -f1) | xargs -P $(nproc) -d '\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $@'"
-  fi
   git diff --name-only "${@:---cached}"
 fi | grep -v /templates/ | grep -Pe "$PCRE_PAT" |
   while read -r line; do [[ -f "$line" ]] && echo "$line"; done |
