@@ -1,4 +1,5 @@
 #!/bin/bash
+# for details, see https://blackstone.jira.com/wiki/spaces/ENG/pages/2509178295/Code+Linting+in+GitLab+Repos
 if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
   if [[ "$1" == install ]]; then
     if [[ -z "$OLDPWD" ]]; then
@@ -106,6 +107,10 @@ if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
 else
   # using (installed ".git/hooks/pre-commit" suffix) path,
   # thus "git diff" pipeline inputs
+  if command -v docker >/dev/null 2>&1; then
+    exec docker run -v $(pwd):/src:ro --rm -t --entrypoint bash artifactory.blackstone.com/bx-cicd-docker-local/jenkins-agents/4.7-1-jdk11/bcscli -c \
+      "cd /src && grep '[)]\$' linter.rc | awk '{print \$1}' | (echo; cut -d')' -f1) | xargs -P $(nproc) -d '\n' -i sh -c 'git diff --name-only ${@:---cached} | LINTER={} bash linter.sh'"
+  fi
   git diff --name-only "${@:---cached}"
 fi | grep -v /templates/ | grep -Pe "$PCRE_PAT" |
   while read -r line; do [[ -f "$line" ]] && echo "$line"; done |
