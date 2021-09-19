@@ -1,4 +1,6 @@
 # -*- sh -*-
+# for details, see https://blackstone.jira.com/wiki/spaces/ENG/pages/2509178295/Code+Linting+in+GitLab+Repos
+
 case "$LINTER" in
   # make sure the only lines that end in a closing parenthesis
   # are these (simple) case matches for executables,

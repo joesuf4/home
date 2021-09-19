@@ -16,7 +16,7 @@ if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
     fi
     exit $?
   elif [[ "$1" == uninstall ]]; then
-    rm .git/hooks/pre-commit && echo "pre commit hook uninstalled."
+    rm .git/hooks/pre-commit && echo "pre-commit hook uninstalled."
     exit $?
   elif [[ "${1:-run}" != run ]]; then
     # HELP/USAGE MESSAGE BELOW
@@ -51,7 +51,7 @@ fi
 
 if [[ "$0" != "${0%.git/hooks/pre-commit}" ]] && command -v docker >/dev/null 2>&1; then
   exec docker run -t -v $PWD:/src:ro --rm --entrypoint= $LINTER_DOCKER_IMAGE bash -c \
-    "cd /src && grep '[)]\$' linter.rc | awk '{print \$1}' | (echo; cut -d')' -f1) | xargs -P $(nproc) -d '\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $@'"
+    "cd /src && grep '[)]\$' linter.rc | awk '{print \$1}' | (echo; cut -d')' -f1) | xargs -P$(nproc) -d'\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $@'"
 fi
 
 # load associated rcfile

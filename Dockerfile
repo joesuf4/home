@@ -18,4 +18,4 @@ RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION} && \
     . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION} && \
     . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 RUN npm config set strict-ssl false && npm install -g eslint
-ENTRYPOINT cd /src && grep '[)]$' linter.rc | (echo; awk '{print $1}') | cut -d')' -f1 |  xargs -P $(nproc) -d '\n' -i sh -c 'git diff --name-only $(git show-branch --merge-base HEAD)~1 | LINTER={} bash ./linter.sh'
+ENTRYPOINT cd /src && grep '[)]$' linter.rc | (echo; awk '{print $1}') | cut -d')' -f1 |  xargs -P$(nproc) -d'\n' -i sh -c 'git diff --name-only $(git show-branch --merge-base HEAD)~1 | LINTER={} bash linter.sh'
