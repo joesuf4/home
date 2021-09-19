@@ -110,7 +110,7 @@ else
   if command -v docker >/dev/null 2>&1; then
     # punt to docker for full linter.rc processing (and dependency isolation)
     exec docker run -v $(pwd):/src:ro --rm -t --entrypoint bash $LINTER_DOCKER_IMAGE -c \
-      "cd /src && grep '[)]\$' linter.rc | awk '{print \$1}' | (echo; cut -d')' -f1) | xargs -P $(nproc) -d '\n' -i sh -c 'git diff --name-only ${@:---cached} | LINTER={} bash linter.sh'"
+      "cd /src && grep '[)]\$' linter.rc | awk '{print \$1}' | (echo; cut -d')' -f1) | xargs -P $(nproc) -d '\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $@'"
   fi
   git diff --name-only "${@:---cached}"
 fi | grep -v /templates/ | grep -Pe "$PCRE_PAT" |
