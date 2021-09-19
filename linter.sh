@@ -6,12 +6,12 @@ if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
   if [[ "$1" == install ]]; then
     if [[ -z "$OLDPWD" ]]; then
       # non-UNIX environment (Win 10?)
-      cp -f $(basename "$0") .git/hooks/pre-commit &&
+      cp -f linter.sh .git/hooks/pre-commit &&
         sed -i -Ee 's|^(\#!/bin/bash)|\1; C:/Windows/System32/bash.exe|' .git/hooks/pre-commit &&
         echo "pre-commit hook installed. Happy hacking!"
     else
       # UNIX shell environment
-      ln -s -f ../../$(basename "$0") .git/hooks/pre-commit &&
+      ln -s -f ../../linter.sh .git/hooks/pre-commit &&
         echo "pre-commit hook installed. Happy hacking!"
     fi
     exit $?
@@ -40,18 +40,16 @@ examples:
   $0 run foo bar                  # searches foo and bar subdirs for linting
   $0 install                      # symlinks .git/hooks/pre-commit
   echo -e "foo.yml\nbar.yml" | $0 # overrides "find ..." via pipeline
-  .git/hooks/pre-commit HEAD~2    # "git diff" against HEAD~2 for YAML files
+  .git/hooks/pre-commit HEAD~2    # lint "git diff" against HEAD~2
 EOF
     [[ "$1" == help ]]
     exit $?
   fi
 fi
 
-# load associated rcfile (if present)
+# load associated rcfile
 
-rcfile="$(realpath "$0" | sed -e 's/\.sh$/.rc/; t; q1')"
-[[ $? -eq 0 && -f "$rcfile" ]] && . "$rcfile" ||
-  [[ -f linter.rc ]] && . ./linter.rc
+. ./linter.rc
 
 # set defaults
 
