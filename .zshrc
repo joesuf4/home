@@ -220,16 +220,17 @@ _report_filter_block() {
 alias report_all_totals='for name in cluster node namespace; do echo "\n$name mem totals...\n" && eval report_${name}_mem_totals; echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals; [[ "$name" == cluster ]] && echo "\nmonthly cost totals...\n" && report_node_monthly_totals | awk "{print \"dollars\", \$3}" | top_10; [[ "$name" == node ]] && echo "\nnode count...\n" && report_node_machines_totals; done; :'
 
 report_node_inventory_static() {
+  local ts=$(date +%s)
   join -j 1 \
-       <(join -j 1 \
-              <(join -j 1 -a 1 \
-                     <(join -j 1 <(_report_filter_block nodes provisioned-cpu "" :) <(_report_filter_block nodes provisioned-mem "" :)) \
-                     <(join -j 1 <(_report_filter_block nodes percent-cpu "" :) <(_report_filter_block nodes percent-mem "" :))) \
-              <(_report_filter_block nodes age "" :)) \
-       <(_report_filter_block nodes -price "" : "" "" " \$a") |
+    <(join -j 1 \
+      <(join -j 1 -a 1 \
+        <(join -j 1 <(_report_filter_block nodes provisioned-cpu "" :) <(_report_filter_block nodes provisioned-mem "" :)) \
+        <(join -j 1 <(_report_filter_block nodes percent-cpu "" :) <(_report_filter_block nodes percent-mem "" :))) \
+      <(_report_filter_block nodes age "" :)) \
+    <(_report_filter_block nodes -price "" : "" "" " \$a") |
     sort -k3nr | perl -nale "BEGIN{\$,=\" \"} @F == 7 and splice @F, 3, 0, (\"${PLACEHOLDER-n/a}\") x 2; push @F, map {sprintf \"%.2f\", \$_} \$F[5]*\$F[7]*24, 30*\$F[7]*24; print @F" |
-    (echo -e "AWSREGION\tAWSORGID\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\t%CPU\t%RAM\tAGE\tINSTANCETYPE\tPRICE\tOSTYPE\tTCO\tMONTHLY"
-     perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; splice @F, 1, 0, grep chomp, qx([ -z \"${PLACEHOLDER-}\" ] && $SHELL -ic \"bcs get-account-number \$F[1]\" || echo $PLACEHOLDER); print @F")
+    (echo -e "TIMESTAMP\tAWSREGION\tAWSORGID\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\t%CPU\t%RAM\tAGE\tINSTANCETYPE\tPRICE\tOSTYPE\tTCO\tMONTHLY"
+     perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; splice @F, 1, 0, grep chomp, qx([ -z \"${PLACEHOLDER-}\" ] && $SHELL -ic \"bcs get-account-number \$F[1]\" || echo $PLACEHOLDER); unshift @F, $ts; print @F")
 }
 
 alias report_node_tco_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[3], \$F[13]") | top_10'
