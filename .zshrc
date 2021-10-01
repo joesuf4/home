@@ -233,11 +233,11 @@ report_node_inventory_static() {
      perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; splice @F, 1, 0, grep chomp, qx([ -z \"${PLACEHOLDER-}\" ] && $SHELL -ic \"bcs get-account-number \$F[1]\" || echo $PLACEHOLDER); unshift @F, $ts; print @F")
 }
 
-alias report_node_tco_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[3], \$F[13]") | top_10'
-alias report_node_tco_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[13]; END{ print \"dollars \", \$a }") | top_10'
+alias report_node_tco_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[4], \$F[14]") | top_10'
+alias report_node_tco_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[14]; END{ print \"dollars \", \$a }") | top_10'
 
-alias report_node_monthly_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[3], \$F[14]") | top_10'
-alias report_node_monthly_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[14]; END{ printf \"%s %.2f\", \"dollars\", \$a }") | top_10'
+alias report_node_monthly_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[4], \$F[15]") | top_10'
+alias report_node_monthly_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[15]; END{ printf \"%s %.2f\", \"dollars\", \$a }") | top_10'
 
 top_10() {
   # accepts:
