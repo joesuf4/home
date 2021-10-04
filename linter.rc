@@ -13,12 +13,17 @@ case "$LINTER" in
     PCRE_PAT='(\.sh|^\.?\w+\.?rc)$'
     LINTER+=' -d -i 2 -ci'
     ;;
-  pylint)
+  flake8)
     PCRE_PAT='\.py$'
-    LINTER+=' -E'
+    LINTER+=' --select=E999,E902'
     ;;
   tidy)
     PCRE_PAT='\.html?$'
     LINTER='sh -c "tidy -utf8 \"\$@\" || [ \$? -eq 1 ]" --'
+    ;;
+  jinjalint)
+    LINT_TEMPLATES=yes
+    PCRE_PAT='/templates/'
+    LINTER+=' --parse-only'
     ;;
 esac
