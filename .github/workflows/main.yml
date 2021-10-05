@@ -27,7 +27,8 @@ jobs:
       - name: Run Linter
 
         run: |
+          cd $GITHUB_WORKSPACE
           echo FROM schaefj/linter > Dockerfile
-          echo ADD $GITHUB_WORKSPACE /src >> Dockerfile
+          echo ADD . /src >> Dockerfile
           docker build -t linter .
           docker run -t --rm linter
