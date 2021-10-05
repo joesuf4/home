@@ -28,4 +28,4 @@ jobs:
 
         run: |
           git fetch origin master
-          docker run --entrypoint= -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter
+          docker run -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter
