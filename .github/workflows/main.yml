@@ -1,4 +1,4 @@
-name: Docker Linter
+name: Linter
 
 # Controls when the workflow will run
 on:
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v2
 
       # CI
-      - name: Run Docker Linter
+      - name: Run Linter
 
         run: |
           docker run -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter
