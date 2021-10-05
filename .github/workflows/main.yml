@@ -27,4 +27,4 @@ jobs:
       - name: Run Linter
 
         run: |
-          docker run -a STDOUT -a STDERR --rm -v $GITHUB_WORKSPACE:/src schaefj/linter
+          docker run -t --rm -v $(pwd):/src schaefj/linter
