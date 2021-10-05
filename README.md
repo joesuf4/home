@@ -23,6 +23,10 @@ recursive grep - targeting *very* large source trees typical for embedded
 development work.  I've included some primitive documentation for it below
 the next section.
 
+## Ansible-friendly Linter Framework
+
+Copy and paste linter.{rc,sh} into your local repo, run `./linter.sh install`,  enjoy.
+
 # WSL Specs
 
 I have python, emacs, mingw+git, and Docker Desktop locally installed in Windows
