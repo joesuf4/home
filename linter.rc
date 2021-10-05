@@ -12,6 +12,13 @@ case "$LINTER" in
     PCRE_PAT='(\.sh|^\.?\w+\.?rc)$'
     LINTER+=' -d -i 2 -ci'
     ;;
+  clang-tidy)
+    PCRE_PAT='\.(c|cc|cpp|h|hh)?$'
+    ;;
+  perl)
+    PCRE_PAT='\.p[ml]$'
+    LINTER+=' -MO=Lint'
+    ;;
   flake8)
     PCRE_PAT='\.py$'
     LINTER+=' --select=E999,E902'
