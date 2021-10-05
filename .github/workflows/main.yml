@@ -6,7 +6,7 @@ on:
   push:
     branches: [wsl]
   pull_request:
-    branches: []
+    branches: [wsl]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -26,4 +26,6 @@ jobs:
       # CI
       - name: Run Linter
 
-        run: docker run --entrypoint= -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter git version
+        run: |
+          git fetch origin master
+          docker run --entrypoint= -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter
