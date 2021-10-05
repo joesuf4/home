@@ -27,4 +27,4 @@ jobs:
       - name: Run Linter
 
         run: |
-          docker run -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter which eslint
+          docker run -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter
