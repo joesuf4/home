@@ -67,10 +67,10 @@ autoload colors
 colors
 
 for COLOR in RED GREEN YELLOW WHITE BLACK CYAN BLUE MAGENTA; do
-    eval PR_$COLOR='%{$fg[${(L)COLOR}]%}'
-    eval PR_BRIGHT_$COLOR='%{$fg_bold[${(L)COLOR}]%}'
+  eval PR_$COLOR='%{$fg[${(L)COLOR}]%}'
+  eval PR_BRIGHT_$COLOR='%{$fg_bold[${(L)COLOR}]%}'
 done
-PR_RESET="%{${reset_color}%}";
+PR_RESET="%{${reset_color}%}"
 
 # translate deep blue (which PowerShell obfuscates by default) to cyan
 eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
@@ -114,7 +114,7 @@ if [[ ${EMACS+} == t ]]; then
 else
   case "$(uname)" in
 
-    FreeBSD|Darwin)
+    FreeBSD | Darwin)
       alias ls='ls -G'
       alias grep='grep --color=auto'
       PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
@@ -229,8 +229,10 @@ report_node_inventory_static() {
       <(_report_filter_block nodes age "" :)) \
     <(_report_filter_block nodes -price "" : "" "" " \$a") |
     sort -k3nr | perl -nale "BEGIN{\$,=\" \"} @F == 7 and splice @F, 3, 0, (\"${PLACEHOLDER-n/a}\") x 2; push @F, map {sprintf \"%.2f\", \$_} \$F[5]*\$F[7]*24, 30*\$F[7]*24; print @F" |
-    (echo -e "TIMESTAMP\tAWSREGION\tAWSORGID\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\t%CPU\t%RAM\tAGE\tINSTANCETYPE\tPRICE\tOSTYPE\tTCO\tMONTHLY"
-     perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; splice @F, 1, 0, grep chomp, qx([ -z \"${PLACEHOLDER-}\" ] && $SHELL -ic \"bcs get-account-number \$F[1]\" || echo $PLACEHOLDER); unshift @F, $ts; print @F")
+    (
+      echo -e "TIMESTAMP\tAWSREGION\tAWSORGID\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\t%CPU\t%RAM\tAGE\tINSTANCETYPE\tPRICE\tOSTYPE\tTCO\tMONTHLY"
+      perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; splice @F, 1, 0, grep chomp, qx([ -z \"${PLACEHOLDER-}\" ] && $SHELL -ic \"bcs get-account-number \$F[1]\" || echo $PLACEHOLDER); unshift @F, $ts; print @F"
+    )
 }
 
 alias report_node_tco_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[4], \$F[14]") | top_10'
@@ -287,17 +289,17 @@ top_10() {
 # presumes a running emacs-server
 
 emac() {
-  local args; args=()
+  local args
+  args=()
   local nw=false
   local running=false
   # check if emacsclient is already running
-  pgrep -U $(id -u) emacsclient > /dev/null && running=true
+  pgrep -U $(id -u) emacsclient >/dev/null && running=true
 
   # check if the user wants TUI mode
-  local arg;
+  local arg
   for arg; do
-    if [[ "$arg" == "-nw" || "$arg" == "-t" || "$arg" == "--tty" ]]
-    then
+    if [[ "$arg" == "-nw" || "$arg" == "-t" || "$arg" == "--tty" ]]; then
       nw=true
     fi
   done
@@ -320,7 +322,7 @@ emac() {
   if $nw; then
     emacsclient "${args[@]}"
   else
-    (nohup emacsclient "${args[@]}" </dev/null >/dev/null 2>&1 &) > /dev/null 2>&1
+    (nohup emacsclient "${args[@]}" </dev/null >/dev/null 2>&1 &) >/dev/null 2>&1
   fi
 }
 
