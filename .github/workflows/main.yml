@@ -26,4 +26,4 @@ jobs:
       # CI
       - name: Run Linter
 
-        run: docker run -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter
+        run: docker run --entrypoint= -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter git version
