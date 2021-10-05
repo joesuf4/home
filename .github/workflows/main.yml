@@ -27,5 +27,5 @@ jobs:
       - name: Run Linter
 
         run: |
-          git fetch origin master
+          git fetch origin wsl
           docker run -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter
