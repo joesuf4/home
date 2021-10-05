@@ -25,4 +25,4 @@ jobs:
 
       # CI
       - name: Run Linter
-        run: docker -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter
+        run: docker run -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter
