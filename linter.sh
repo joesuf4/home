@@ -1,6 +1,6 @@
 #!/bin/bash
-# for details, see https://blackstone.jira.com/wiki/spaces/ENG/pages/2509178295/Code+Linting+in+GitLab+Repos
-: "${LINTER_DOCKER_IMAGE:=artifactory.blackstone.com/bx-cicd-docker-local/jenkins-agents/4.7-1-jdk11/bcscli:latest}"
+
+: "${LINTER_DOCKER_IMAGE=schaefj/linter:latest}"
 
 if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
   if [[ "$1" == install ]]; then

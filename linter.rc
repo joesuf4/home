@@ -1,5 +1,4 @@
 # -*- sh -*-
-# for details, see https://blackstone.jira.com/wiki/spaces/ENG/pages/2509178295/Code+Linting+in+GitLab+Repos
 
 case "$LINTER" in
   # make sure the only lines that end in a closing parenthesis
@@ -20,6 +19,9 @@ case "$LINTER" in
   tidy)
     PCRE_PAT='\.html?$'
     LINTER='sh -c "tidy -utf8 \"\$@\" || [ \$? -eq 1 ]" --'
+    ;;
+  eslint)
+    PCRE_PAT='(?<!\.min)\.js$'
     ;;
   jinjalint)
     LINT_TEMPLATES=yes
