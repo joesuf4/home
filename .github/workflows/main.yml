@@ -1,4 +1,4 @@
-name: Linter
+name: Docker Linter
 
 # Controls when the workflow will run
 on:
