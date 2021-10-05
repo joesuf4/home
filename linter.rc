@@ -23,6 +23,9 @@ case "$LINTER" in
   eslint)
     PCRE_PAT='(?<!\.min)\.js$'
     ;;
+  tflint)
+    PCRE_PAT='\.tf$'
+    ;;
   jinjalint)
     LINT_TEMPLATES=yes
     PCRE_PAT='/templates/'
