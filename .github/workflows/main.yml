@@ -27,6 +27,5 @@ jobs:
       - name: Run Linter
 
         run: |
-          cd $GITHUB_WORKSPACE
-          git checkout wsl
+          git version
           docker run -t --rm -v $GITHUB_WORKSPACE:/src schaefj/linter
