@@ -16,12 +16,13 @@ export ANSI_COLOR_ID=5
 export HIST_BLOCK="■"
 export COL=75
 export PLACEHOLDER=n/a
+export TERMINFO=/lib/terminfo
 export KUBECONFIG
 
 . ~/.asdf/asdf.sh
 . ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
 
-for p in /sbin /usr/sbin /usr/local/bin "$(go env GOPATH)/bin" ~/{.local,.krew}/bin ~/bin
+for p in /sbin /usr/sbin /usr/local/bin "$(go env GOPATH)/bin" ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin
 do
   # fyi- this is not going to work if you use it on nested $p paths...
   [ -d "$p" ] && PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"

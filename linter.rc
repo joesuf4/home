@@ -33,6 +33,10 @@ case "$LINTER" in
   tflint)
     PCRE_PAT='\.tf$'
     ;;
+  csharp)
+    PCRE_PAT='\.cs$'
+    LINTER='bash -c ". ~/.asdf/asdf.sh; . ~/.asdf/plugins/dotnet-core/set-dotnet-home.bash; dotnet format --include \"\$@\"" --'
+    ;;
   jinjalint)
     LINT_TEMPLATES=yes
     PCRE_PAT='/templates/'
