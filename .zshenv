@@ -16,7 +16,7 @@ export ANSI_COLOR_ID=5
 export HIST_BLOCK="■"
 export COL=75
 export PLACEHOLDER=n/a
-export TERMINFO=/lib/terminfo
+[[ "$USER" == schaefj ]] && export TERMINFO=/lib/terminfo
 export KUBECONFIG
 
 . ~/.asdf/asdf.sh
