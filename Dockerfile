@@ -12,6 +12,6 @@ RUN git clone https://github.com/joesuf4/jinjalint /tmp/jinjalint && (cd /tmp/ji
 RUN git clone https://github.com/asdf-vm/asdf.git /root/.asdf
 ENV PATH="$PATH:/root/.dotnet/tools"
 RUN bash -c '. ~/.asdf/asdf.sh; for pkg in dotnet-core golangci-lint; do asdf plugin-add $pkg; v="$(asdf list-all $pkg | tail -n 1)"; asdf install $pkg $v; echo $pkg $v >>~/.tool-versions; done'
-RUN bash -c '. ~/.asdf/asdf.sh; . ~/.asdf/plugins/dotnet-core/set-dotnet-home.bash; dotnet tool install -g dotnet-format --version "7.0.*" --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json'
+RUN bash -c '. ~/.asdf/asdf.sh; . ~/.asdf/plugins/dotnet-core/set-dotnet-home.bash; dotnet tool install -g dotnet-format --version "7.0.*" --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json || :'
 RUN cpan -f install B::Lint
 ENTRYPOINT cd /src && grep '[)]$' linter.rc | (echo; awk '{print $1}') | cut -d')' -f1 |  xargs -P$(nproc) -d'\n' -i sh -c 'git diff --name-only $(git show-branch --merge-base HEAD)~1 | LINTER={} bash linter.sh'
