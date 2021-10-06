@@ -37,6 +37,10 @@ case "$LINTER" in
     PCRE_PAT='\.cs$'
     LINTER='bash -c ". ~/.asdf/asdf.sh; . ~/.asdf/plugins/dotnet-core/set-dotnet-home.bash; dotnet format --include \"\$@\"" --'
     ;;
+  golangci-lint)
+    PCRE_PAT='\.go(?:lang)?$'
+    LINTER='bash -c ". ~/.asdf/asdf.sh; golangci-lint run \"\$@\"" --'
+    ;;
   jinjalint)
     LINT_TEMPLATES=yes
     PCRE_PAT='/templates/'
