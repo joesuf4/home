@@ -151,7 +151,7 @@ alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $
 
 alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
-alias htop='sudo -Es htop'
+alias htop='sudo true && echo pty-driver off && sudo -Es htop && echo pty-driver on'
 
 alias lsof='sudo -Es lsof'
 
