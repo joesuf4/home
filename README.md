@@ -26,6 +26,7 @@ the next section.
 ## Ansible-friendly Linter Framework
 
 Copy and paste linter.{rc,sh} into your local repo, run `./linter.sh install`,  enjoy.
+Workable for any PR-based workflow and programming language framework imaginable.
 
 # WSL Specs
 
@@ -42,7 +43,7 @@ engines that are *promised* to work with modern hardware and backed up by a supp
 contract.  I insist on paying, or having my employer pay, Microsoft (or Apple,
 once up on time) for the privilege.  X11 ain't that.  Not even close.
 
-I keep ~winhome under this git repo, as well as Ubuntu's ~ dir.  I have .zshrc
+I keep `~winhome` under this git repo, as well as Ubuntu's `~` dir.  I have `.zshrc`
 aliases to make synchronization via git push/pull trivial.  I rely on
 Powershell for CLI Terminal sessions, and drop into my Ubuntu install via the
 `wsl` command.
@@ -51,12 +52,11 @@ This is my preferred business environment to work within, and my employer gives
 me amazing hardware and software support, so I don't need Windows admin privs to
 get it done.  Fuck Apple, **this** is the cat's meow.
 
-I have static builds of my Linux observability toolchain living in ~/bin along
+I have static builds of my Linux observability toolchain living in `~/bin` along
 with a lot of other interesting things.  These are stand-alone tools that will
 execute on any reasonably current Linux bare-metal host, or running Linux-based
 container, or WSL (on a 5.x kernel built w/ CONFIG_IKHEADERS=yes in the config)
 itself.
-
 
 ## Parallel Find Filename Xargs Grep (~/bin/pffxg.sh)
 
@@ -142,9 +142,10 @@ To search `pwd` for `foo`:
 ```
 
 My employer has me on a top-of-the-line Dell Precision 5550 i9 w/8 cores,
-which presents as 16 CPU to WSL/Linux. Only WSL kernel builds, and broad
-pffxg.sh searches, light up the fans (for 2-3 min tops).  I've had it with
-"*.min.{js,css} as text-file" greps, so pffxg.conf excludes them all.
+which presents as 16 CPU to WSL/Linux. Only WSL kernel builds, `eks report
+global . -n 1000` and broad `pffxg.sh` searches, light up the fans (for 2-3
+min tops). I've had it with "*.min.{js,css} as text-file" greps, so `pffxg.conf`
+excludes them all.
 
 ### Emacs Interface
 
