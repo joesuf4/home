@@ -16,6 +16,7 @@ case "$LINTER" in
     PCRE_PAT='\.(c|cc|cpp|h|hh)?$'
     ;;
   perl)
+    XARGS_MAX_FILES=1
     PCRE_PAT='\.p[ml]$'
     LINTER+=' -MO=Lint'
     ;;

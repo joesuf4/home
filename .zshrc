@@ -175,6 +175,8 @@ alias k=kubectl
 
 alias perl='perl -CSD -Mutf8 -e "BEGIN{sub log_2 (\$) {log(shift)/log(2)}}"'
 
+alias plint='/usr/local/bin/perl -MO=Lint'
+
 alias log_2='perl -le "print int log_2 \$_ for @ARGV"'
 
 alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
