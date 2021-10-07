@@ -31,7 +31,17 @@ case "$LINTER" in
     PCRE_PAT='(?<!\.min)\.js$'
     ;;
   tflint)
+    CONFIG_SRC="$(
+      cat <<EOF
+plugin "aws" {
+    enabled = true
+    version = "0.7.2"
+    source  = "github.com/terraform-linters/tflint-ruleset-aws"
+}
+EOF
+    )"
     PCRE_PAT='\.tf$'
+    LINTER='sh -c "tflint --config $CONFIG_TMP_FILE --init && tflint --config $CONFIG_TMP_FILE \"\$@\" || [ \$? -eq 2 ]" --'
     ;;
   csharp)
     PCRE_PAT='\.cs$'
