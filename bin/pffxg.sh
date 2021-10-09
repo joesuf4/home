@@ -569,7 +569,7 @@ single_quote() {
 
 # bash exports
 
-export refresh cache_compression_extension PFFXG_EXCLUSIONS \
+export refresh cache_compression_extension my_exclusions PFFXG_EXCLUSIONS \
   PFFXG_EXTENSIONS PFFXG_CACHE PFFXG_COMPRESS PFFXG_COMPRESSOR PFFXG_LEVEL
 export -f unzip_prefix filter_exclusions filter_extensions process_cache compress_cache
 
