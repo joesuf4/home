@@ -70,7 +70,7 @@ version="2.2"
 # customizable env vars:
 
 # Fully-Qualified Path to (optional) config file
-: "${PFFXG_CONF:=~/.pffxg.conf}"
+: "${PFFXG_CONF:=$HOME/.pffxg.conf}"
 # $PWD directories to fully ignore
 : "${PFFXG_EXCLUSIONS:=out release prebuilts kernel external hardware}"
 # The default grep(1) command plus appropriate base arguments
@@ -94,7 +94,7 @@ version="2.2"
 
 # source config file if present
 
-[ -f "$PFFXG_CONF" ] && . "$PFFXG_CONF"
+[ -f "$PFFXG_CONF" ] && . "$PFFXG_CONF" || echo "no config file found!" >&2
 
 # internal variables
 
@@ -454,7 +454,7 @@ fi
 # named filters
 
 filter_exclusions() {
-  grep -Ev "^($(echo $my_exclusions $PFFXG_EXCLUSIONS | tr ' ' '|'))\$"
+  grep -Ev "^($(echo $my_exclusions "$PFFXG_EXCLUSIONS" | tr ' ' '|'))\$"
 }
 
 filter_extensions() {
