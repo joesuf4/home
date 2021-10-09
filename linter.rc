@@ -13,7 +13,7 @@ case "$LINTER" in
     LINTER+=' -d -i 2 -ci'
     ;;
   clang-tidy)
-    PCRE_PAT='\.(c|cc|cpp|h|hh)?$'
+    PCRE_PAT='\.(cc?|cpp|hh?)$'
     ;;
   perl)
     XARGS_MAX_FILES=1
