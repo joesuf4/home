@@ -100,7 +100,7 @@ version="2.2"
 
 filename=""
 temp_dir="$(mktemp -d ${TMPDIR:-/tmp}/pffxg-XXXXXX)"
-my_exclusions="[.]repo [.]git [.]svn"
+my_exclusions=".*[.]repo.* .*[.]git.* .*[.]svn.*"
 exit_loop=0
 usage_head=31
 usage_tail=27
