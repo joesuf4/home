@@ -134,6 +134,7 @@
 .xsession-errors
 .xvpics/
 .zcompdump
+.zplug/
 .zsh_history
 3D\ Objects/
 ACLI/

@@ -16,6 +16,7 @@ export ANSI_COLOR_ID=5
 export HIST_BLOCK="■"
 export COL=75
 export PLACEHOLDER=n/a
+export HISTORY_FILTER_EXCLUDE=("_KEY" "https://")
 [[ "$USER" == schaefj ]] && export TERMINFO=/lib/terminfo
 export KUBECONFIG
 
