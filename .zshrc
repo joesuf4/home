@@ -1,10 +1,13 @@
 setopt prompt_subst extendedglob
 
+# enable zplug
+. ~/.zplug/init.zsh
+
 # history settings
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
-. ~/.zplug/init.zsh
+
 zplug "MichaelAquilina/zsh-history-filter"
 setopt share_history extended_history hist_expire_dups_first hist_no_store
 
