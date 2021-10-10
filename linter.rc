@@ -33,7 +33,7 @@ case "$LINTER" in
     ;;
   tflint)
     CONFIG_SRC="$(
-      cat <<EOF
+      cat .tflint.hcl - 2>/dev/null <<EOF
 plugin "aws" {
     enabled = true
     version = "0.7.2"
