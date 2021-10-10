@@ -65,7 +65,7 @@ tplay() {
   ' -- "$@"
 }
 
-# color vars
+# (prompt) color vars
 
 autoload colors
 colors
@@ -332,7 +332,7 @@ emac() {
   fi
 }
 
-# reject any use of unset variable "evaluation"
+# reject any evaluation of unset variables
 
 unsetopt unset
 

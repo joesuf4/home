@@ -16,7 +16,9 @@ export ANSI_COLOR_ID=5
 export HIST_BLOCK="■"
 export COL=75
 export PLACEHOLDER=n/a
+# don't save commands with SSL URLs on them, to keep `pty -d pty-driver.pm` from going aggressively bonkers on history completion
 export HISTORY_FILTER_EXCLUDE=("_KEY" "https://")
+# Joe has a debugging libc build installed on his WSL Ubuntu, with a non-default TERMINFO setting
 [[ "$USER" == schaefj ]] && export TERMINFO=/lib/terminfo
 export KUBECONFIG
 
