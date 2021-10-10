@@ -1,7 +1,7 @@
 setopt prompt_subst extendedglob
 
 # enable zplug
-. ~/.zplug/init.zsh || /usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh && sleep 1 && . ~/.zplug/init.zsh
+. ~/.zplug/init.zsh || (/usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh && sleep 1 && . ~/.zplug/init.zsh)
 
 # history settings
 HISTSIZE=10000
