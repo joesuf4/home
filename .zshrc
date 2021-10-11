@@ -5,7 +5,8 @@ setopt prompt_subst extendedglob
 . ~/.zplug/init.zsh || (
   /usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh &&
     sleep 1 &&
-    . ~/.zplug/init.zsh)
+    . ~/.zplug/init.zsh
+)
 
 zplug "plugins/ubuntu", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
@@ -359,8 +360,8 @@ seed_vault_pass() {
     ptyd sudo pip3 install -U ansible
     bcs assume-role devops-nonprod engineer >/dev/null &&
       PW="$(aws secretsmanager get-secret-value --secret-id service-deployer-ansible-vault-pass |
-        jq .SecretString |
-        tr -d \")"; (printf "%s\n%s\n" "$PW" "$PW" && sleep 1) | pty -nie -- pty -d pty-driver.pl ansible-vault encrypt "$TMP"
+        jq .SecretString | tr -d \")"
+    (printf "%s\n%s\n" "$PW" "$PW" && sleep 1) | pty -nie -- pty -d pty-driver.pl ansible-vault encrypt "$TMP"
   )
   rm "$TMP"
 }
