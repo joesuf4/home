@@ -14,13 +14,13 @@ export KUBECONFIG
 # WSL cyan for grep filenames
 export GREP_COLORS=fn=36
 
-# if you're avoiding a Win10 emacs server, set these to eg "vim" instead
+# if you're avoiding a Win10 emacs server, leave this section alone
+# otherwise you'll need to build symlinks from ~/bin/emacsclient to your Win10 emacs install location first.
 for ed in EDITOR VISUAL; do
   [[ "$USER" == schaefj ]] && export $ed=emacsclient
 done
 
-# be sure chrome.exe is in your Win10 %PATH% (it's not by default)
-export MOZILLA=chrome.exe
+export MOZILLA="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
 
 # top_10() customizations
 export ANSI_COLOR_ID=5
@@ -30,7 +30,7 @@ export COL=75
 # report_node_inventory_static() (hi-speed) setting
 export PLACEHOLDER=n/a
 
-# don't save commands with SSL URLs on them, to keep `pty -d pty-driver.pm` from going aggressively bonkers on history completion
+# don't save commands with SSL URLs on them, to keep `ptyd` from going aggressively bonkers on history completion
 export HISTORY_FILTER_EXCLUDE=(secret SECRET https://)
 export HISTORY_FILTER_SILENT=
 
