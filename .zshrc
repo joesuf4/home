@@ -1,12 +1,23 @@
 setopt prompt_subst extendedglob
 
-# enable zplug
+# enable zplug/ubuntu and local autosuggestions
 
 . ~/.zplug/init.zsh || (/usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh && sleep 1 && . ~/.zplug/init.zsh)
 
-# enable autosuggestions
-POSTDISPLAY=
+zplug "plugins/ubuntu", from:oh-my-zsh
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
+
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -r -q; then
+        echo; zplug install
+    fi
+fi
+
+zplug load
+
 . ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+
 
 # history settings
 
@@ -23,7 +34,7 @@ rewrite_history() {
   local new_history="$HISTFILE.bak"
   local excluded=0
 
-  cat $HISTFILE | while read entry; do
+  <$HISTFILE while read -r entry; do
     # TODO: Doing this per line is very slow!
     local command="$(echo "$entry" | cut -d ';' -f2-)"
 
@@ -31,7 +42,7 @@ rewrite_history() {
       echo "$entry"
     else
       ((++excluded))
-      printf "\rExcluded $excluded entries" >&2
+      echo -n "\rExcluded $excluded entries" >&2
     fi
   done >"$new_history"
   mv "$new_history" "$HISTFILE"
@@ -50,7 +61,7 @@ _matches_filter() {
 _history_filter() {
   if _matches_filter "$1"; then
     if [[ -z "${HISTORY_FILTER_SILENT:-}" ]]; then
-      printf "Excluding command from history\n" >&2
+      echo "Excluding command from history" >&2
     fi
     return 2
   else
