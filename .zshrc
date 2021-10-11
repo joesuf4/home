@@ -1,6 +1,6 @@
 setopt prompt_subst extendedglob
 
-# enable zplug/ubuntu and local autosuggestions
+# enable zplug and local autosuggestions
 
 . ~/.zplug/init.zsh || (/usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh && sleep 1 && . ~/.zplug/init.zsh)
 
@@ -10,7 +10,8 @@ zplug "zsh-users/zsh-syntax-highlighting", defer:2
 if ! zplug check --verbose; then
     printf "Install? [y/N]: "
     if read -r -q; then
-        echo; zplug install
+        echo
+        zplug install
     fi
 fi
 
@@ -50,7 +51,7 @@ rewrite_history() {
 
 _matches_filter() {
   local value
-  for value in ${HISTORY_FILTER_EXCLUDE[@]}; do
+  for value in "${HISTORY_FILTER_EXCLUDE[@]}"; do
     if [[ "$1" =~ $value ]]; then
       return 0
     fi
