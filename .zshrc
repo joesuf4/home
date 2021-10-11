@@ -1,14 +1,68 @@
 setopt prompt_subst extendedglob
 
 # enable zplug
+
 . ~/.zplug/init.zsh || (/usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh && sleep 1 && . ~/.zplug/init.zsh)
 
+# enable autosuggestions
+POSTDISPLAY=
+. ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+
 # history settings
+
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
 
-zplug "MichaelAquilina/zsh-history-filter"
+## include zsh-history-filter
+export HISTORY_FILTER_VERSION="0.4.1-locally-patched"
+
+## overwrite the history file so that it
+## retro-actively applies the currently set filters
+rewrite_history() {
+  local new_history="$HISTFILE.bak"
+  local excluded=0
+
+  cat $HISTFILE | while read entry; do
+    # TODO: Doing this per line is very slow!
+    local command="$(echo "$entry" | cut -d ';' -f2-)"
+
+    if ! _matches_filter "$command"; then
+      echo "$entry"
+    else
+      ((++excluded))
+      printf "\rExcluded $excluded entries" >&2
+    fi
+  done >"$new_history"
+  mv "$new_history" "$HISTFILE"
+}
+
+_matches_filter() {
+  local value
+  for value in ${HISTORY_FILTER_EXCLUDE[@]}; do
+    if [[ "$1" =~ $value ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+_history_filter() {
+  if _matches_filter "$1"; then
+    if [[ -z "${HISTORY_FILTER_SILENT:-}" ]]; then
+      printf "Excluding command from history\n" >&2
+    fi
+    return 2
+  else
+    return 0
+  fi
+}
+
+autoload -Uz add-zsh-hook
+add-zsh-hook zshaddhistory _history_filter
+
+## end include zsh-history-filter
+
 setopt share_history extended_history hist_expire_dups_first hist_no_store
 
 # ctrl-arrow (up/down/left/right) key bindings
