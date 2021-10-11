@@ -19,7 +19,6 @@ zplug load
 
 . ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-
 # history settings
 
 HISTSIZE=10000
