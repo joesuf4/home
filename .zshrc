@@ -1,11 +1,12 @@
 setopt prompt_subst extendedglob
 
-# enable zplug and local autosuggestions/auto-complete
+# enable zplug and local autosuggestions
 
 . ~/.zplug/init.zsh || (/usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh && sleep 1 && . ~/.zplug/init.zsh)
 
 zplug "plugins/ubuntu", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
+zplug "marlonrichert/zsh-autocomplete"
 
 if ! zplug check --verbose; then
   printf "Install? [y/N]: "
@@ -17,8 +18,7 @@ fi
 
 zplug load
 
-. ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-. ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+. ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh || (git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions && perl -i -ple 's/unset POSTDISPLAY/POSTDISPLAY=/' ~/.zsh/zsh-autosuggestions/*.zsh && . ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh)
 
 # history settings
 
