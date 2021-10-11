@@ -356,6 +356,7 @@ emac() {
 seed_vault_pass() {
   local TMP=$(mktemp)
   (
+    ptyd pip3 install -U ansible
     bcs assume-role devops-nonprod engineer >/dev/null &&
       PW="$(aws secretsmanager get-secret-value --secret-id service-deployer-ansible-vault-pass |
         jq .SecretString |
