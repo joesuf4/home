@@ -43,7 +43,7 @@ rewrite_history() {
       echo "$entry"
     else
       ((++excluded))
-      echo -n "\rExcluded $excluded entries" >&2
+      printf "\rExcluded %d entries" excluded >&2
     fi
   done <"$HISTFILE" >"$new_history"
   mv "$new_history" "$HISTFILE"
