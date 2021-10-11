@@ -78,10 +78,12 @@ add-zsh-hook zshaddhistory _history_filter
 
 setopt share_history extended_history hist_expire_dups_first hist_no_store
 
-# ^f, ^b word cursor motion
+# ctrl-(up/down/left/right) arrow bindings
 
-bindkey '^f' emacs-forward-word
-bindkey '^b' emacs-backward-word
+bindkey '\e[1;5A' history-search-backward
+bindkey '\e[1;5B' history-search-forward
+bindkey '\e[1;5C' emacs-forward-word
+bindkey '\e[1;5D' emacs-backward-word
 
 # directory stuff
 
