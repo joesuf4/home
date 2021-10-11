@@ -7,6 +7,7 @@ setopt prompt_subst extendedglob
 zplug "plugins/ubuntu", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
 zplug "marlonrichert/zsh-autocomplete"
+zplug "zsh-users/zsh-history-substring-search"
 
 if ! zplug check --verbose; then
   printf "Install? [y/N]: "
@@ -77,16 +78,10 @@ add-zsh-hook zshaddhistory _history_filter
 
 setopt share_history extended_history hist_expire_dups_first hist_no_store
 
-# ctrl-arrow (up/down/left/right) key bindings
+# ^f, ^b word cursor motion
 
-bindkey ';5A' history-search-backward
-bindkey ';5B' history-search-forward
-bindkey '5A' history-search-backward
-bindkey '5B' history-search-forward
-bindkey ';5C' emacs-forward-word
-bindkey ';5D' emacs-backward-word
-bindkey '5C' emacs-forward-word
-bindkey '5D' emacs-backward-word
+bindkey '^f' emacs-forward-word
+bindkey '^b' emacs-backward-word
 
 # directory stuff
 
@@ -234,7 +229,7 @@ alias wingit_pull='(~winhome && git pull)'
 
 alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
-alias passd='pty -d pty-driver.pl --'
+alias ptyd='pty -d pty-driver.pl --'
 
 alias sps='screen pty -d pty-driver.pl $SHELL'
 
