@@ -52,6 +52,3 @@ done
 do
   [ -f "$f" ] && KUBECONFIG="$f$(echo ":$KUBECONFIG" | /usr/bin/sed -e "s|:$f||g")"
 done
-
-: "${TERM:=xterm}"
-export TERM
