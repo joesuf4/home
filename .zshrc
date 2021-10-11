@@ -35,7 +35,7 @@ rewrite_history() {
   local new_history="$HISTFILE.bak"
   local excluded=0
 
-  <$HISTFILE while read -r entry; do
+  while read -r entry <$HISTFILE; do
     # TODO: Doing this per line is very slow!
     local command="$(echo "$entry" | cut -d ';' -f2-)"
 
