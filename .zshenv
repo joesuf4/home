@@ -11,7 +11,7 @@ export KUBECTL_NODE_SHELL_IMAGE=artifactory.blackstone.com/docker/alpine:latest
 export NODE_PATH=/usr/local/lib/node_modules
 export KUBECONFIG
 
-# WSL azure for grep filenames
+# WSL cyan for grep filenames
 export GREP_COLORS=fn=36
 
 # if you're avoiding a Win10 emacs server, set these to eg "vim" instead
