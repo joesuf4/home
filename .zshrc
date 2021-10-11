@@ -166,9 +166,9 @@ alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
 alias ptyd='pty -d pty-driver.pl --'
 
-alias ptyon='echo pty-driver on'
+alias ptyon='echo pty-driver "on"'
 
-alias ptyoff='echo pty-driver off'
+alias ptyoff='echo pty-driver "off"'
 
 alias sps='screen pty -d pty-driver.pl $SHELL'
 
