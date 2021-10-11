@@ -351,6 +351,19 @@ emac() {
   fi
 }
 
+# fetch service-deployer vault pass
+
+seed_vault_pass() {
+  local TMP=$(mktemp)
+  (
+    bcs assume-role devops-nonprod engineer >/dev/null &&
+      PW="$(aws secretsmanager get-secret-value --secret-id service-deployer-ansible-vault-pass |
+        jq .SecretString |
+        tr -d \")"; (printf "%s\n%s\n" $PW $PW && sleep 1) | pty -nie -- pty -d pty-driver.pl ansible-vault encrypt $TMP
+  )
+  rm $TMP
+}
+
 # reject any evaluation of unset variables
 
 unsetopt unset
