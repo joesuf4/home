@@ -234,7 +234,7 @@ alias wingit_pull='(~winhome && git pull)'
 
 alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
-alias pd='pty -d pty-driver.pl --'
+alias passd='pty -d pty-driver.pl --'
 
 alias sps='screen pty -d pty-driver.pl $SHELL'
 
