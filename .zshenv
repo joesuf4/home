@@ -16,7 +16,7 @@ export GREP_COLORS=fn=36
 
 # if you're avoiding a Win10 emacs server, set these to eg "vim" instead
 for ed in EDITOR VISUAL; do
-  [[ "$USER" == schaefj ]] && export $ed=emacsclient || export $ed=vi
+  [[ "$USER" == schaefj ]] && export $ed=emacsclient
 done
 
 # be sure chrome.exe is in your Win10 %PATH% (it's not by default)
