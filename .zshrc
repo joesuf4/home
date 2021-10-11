@@ -12,6 +12,7 @@ zplug "zsh-users/zsh-syntax-highlighting", defer:2
 zplug "marlonrichert/zsh-autocomplete"
 zplug "zsh-users/zsh-history-substring-search"
 zplug "MichaelAquilina/zsh-history-filter"
+zplug "joesuf4/zsh-autosuggestions"
 
 if ! zplug check --verbose; then
   printf "Install? [y/N]: "
@@ -22,8 +23,6 @@ if ! zplug check --verbose; then
 fi
 
 zplug load
-
-. ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh || (git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions && perl -i -ple 's/unset POSTDISPLAY/POSTDISPLAY=/' ~/.zsh/zsh-autosuggestions/*.zsh && . ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh)
 
 # history settings
 
