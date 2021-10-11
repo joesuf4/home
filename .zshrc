@@ -18,6 +18,7 @@ fi
 zplug load
 
 . ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+. ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh
 
 # history settings
 
