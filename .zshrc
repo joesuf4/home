@@ -135,33 +135,12 @@ RPROMPT='$vcs_info_msg_0_'
 
 if [[ ${EMACS+} == t ]]; then
   unsetopt zle
-  PROMPT=$'%n@%m:%~%(?..(%?%))%# '
+  PROMPT=$'%~%(?..(%?%))%# '
   unset RPROMPT
 else
-  case "$(uname)" in
-
-    FreeBSD | Darwin)
-      alias ls='ls -G'
-      alias grep='grep --color=auto'
-      PROMPT=$'$PR_BLACK%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_BLACK%#$PR_RESET '
-      ;;
-
-    Linux)
-      alias ls='ls --color=auto'
-      alias grep='grep --color=auto'
-      PROMPT=$'$PR_CYAN%~$PR_RESET$PR_BRIGHT_BLACK%(?..($PR_RESET$PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
-      ;;
-
-    SunOS)
-      alias ls='ls -F'
-      alias grep='ggrep --color=auto'
-      PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_BLUE%~$PR_RESET%(?..($PR_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
-      ;;
-
-    *)
-      PROMPT=$'%n@%m:%~%(?..(%?%))%# '
-      ;;
-  esac
+  alias ls='ls --color=auto'
+  alias grep='grep --color=auto'
+  PROMPT=$'$PR_CYAN%~$PR_RESET$PR_BRIGHT_BLACK%(?..($PR_RESET$PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
 fi
 
 # utilities
@@ -169,13 +148,9 @@ fi
 # translate between big-endian and little-endian objdumps.
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
 
-alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
-
-alias git_diff_branch='git diff $(git show-branch --merge-base $(git branch --show-current))~1'
+alias git_diff_branch='git diff $(git show-branch --merge-base HEAD)~1'
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
-
-alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
 
 alias htop='sudo true && echo pty-driver "off" && sudo -Es htop && echo pty-driver "on"'
 
