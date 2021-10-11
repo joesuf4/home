@@ -113,6 +113,7 @@ tplay() {
       last;
     }
     ReadMode raw => $t;
+    $SIG{INT} = sub { ReadMode restore => $t };
     while ($opt_s or $opt_c or ($_=ReadKey(0,$t)) ne "q") {
       if ($opt_s or $_ eq "s" or $opt_c or $_ eq "c") {
         while (<>) {
