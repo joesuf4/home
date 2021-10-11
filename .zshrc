@@ -32,7 +32,7 @@ HISTFILE=~/.zsh_history
 
 setopt share_history extended_history hist_expire_dups_first hist_no_store
 
-# ctrl-(up/down/left/right) arrow bindings
+# ctrl-(up/down/right/left) arrow bindings
 
 bindkey '\e[1;5A' history-search-backward
 bindkey '\e[1;5B' history-search-forward
