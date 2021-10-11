@@ -15,8 +15,9 @@ export KUBECONFIG
 export GREP_COLORS=fn=36
 
 # if you're avoiding a Win10 emacs server, set these to eg "vim" instead
-export EDITOR=emacsclient
-export VISUAL=emacsclient
+for ed in EDITOR VISUAL; do
+  [[ "$USER" == schaefj ]] && export $ed=emacsclient || export $ed=vi
+done
 
 # be sure chrome.exe is in your Win10 %PATH% (it's not by default)
 export MOZILLA=chrome.exe
