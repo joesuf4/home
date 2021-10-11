@@ -227,8 +227,6 @@ alias lsof='sudo -Es lsof'
 
 alias bpftrace='sudo -Es bpftrace'
 
-alias apt='sudo -E apt'
-
 alias asdf='PATH="/usr/bin:$PATH" asdf'
 
 alias wingit_pull='(~winhome && git pull)'
