@@ -8,11 +8,11 @@ zplug "plugins/ubuntu", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
 if ! zplug check --verbose; then
-    printf "Install? [y/N]: "
-    if read -r -q; then
-        echo
-        zplug install
-    fi
+  printf "Install? [y/N]: "
+  if read -r -q; then
+    echo
+    zplug install
+  fi
 fi
 
 zplug load
@@ -35,7 +35,7 @@ rewrite_history() {
   local new_history="$HISTFILE.bak"
   local excluded=0
 
-  while read -r entry <$HISTFILE; do
+  while read -r entry; do
     # TODO: Doing this per line is very slow!
     local command="$(echo "$entry" | cut -d ';' -f2-)"
 
@@ -45,7 +45,7 @@ rewrite_history() {
       ((++excluded))
       echo -n "\rExcluded $excluded entries" >&2
     fi
-  done >"$new_history"
+  done <"$HISTFILE" >"$new_history"
   mv "$new_history" "$HISTFILE"
 }
 
