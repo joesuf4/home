@@ -1,6 +1,6 @@
 setopt prompt_subst extendedglob
 
-# enable zplug and local autosuggestions
+# enable zplug and load fun modules
 
 . ~/.zplug/init.zsh || (
   /usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh &&
