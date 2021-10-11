@@ -27,7 +27,10 @@ HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
 
-## include zsh-history-filter
+setopt share_history extended_history hist_expire_dups_first hist_no_store
+
+## include zsh-history-filter (regex word port)
+
 export HISTORY_FILTER_VERSION="0.4.1-locally-patched"
 
 ## overwrite the history file so that it
@@ -75,8 +78,6 @@ autoload -Uz add-zsh-hook
 add-zsh-hook zshaddhistory _history_filter
 
 ## end include zsh-history-filter
-
-setopt share_history extended_history hist_expire_dups_first hist_no_store
 
 # ctrl-(up/down/left/right) arrow bindings
 
