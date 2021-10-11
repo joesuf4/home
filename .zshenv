@@ -31,6 +31,7 @@ export PLACEHOLDER=n/a
 
 # don't save commands with SSL URLs on them, to keep `pty -d pty-driver.pm` from going aggressively bonkers on history completion
 export HISTORY_FILTER_EXCLUDE=(secret SECRET https://)
+export HISTORY_FILTER_SILENT=
 
 # Joe has a debugging libc build installed on his WSL Ubuntu, with a non-default TERMINFO setting
 [[ "$USER" == schaefj ]] && export TERMINFO=/lib/terminfo

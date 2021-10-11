@@ -2,12 +2,16 @@ setopt prompt_subst extendedglob
 
 # enable zplug and local autosuggestions
 
-. ~/.zplug/init.zsh || (/usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh && sleep 1 && . ~/.zplug/init.zsh)
+. ~/.zplug/init.zsh || (
+  /usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh &&
+    sleep 1 &&
+    . ~/.zplug/init.zsh)
 
 zplug "plugins/ubuntu", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
 zplug "marlonrichert/zsh-autocomplete"
 zplug "zsh-users/zsh-history-substring-search"
+zplug "MichaelAquilina/zsh-history-filter"
 
 if ! zplug check --verbose; then
   printf "Install? [y/N]: "
@@ -29,62 +33,15 @@ HISTFILE=~/.zsh_history
 
 setopt share_history extended_history hist_expire_dups_first hist_no_store
 
-## include zsh-history-filter (regex word port)
-
-export HISTORY_FILTER_VERSION="0.4.1-locally-patched"
-
-## overwrite the history file so that it
-## retro-actively applies the currently set filters
-rewrite_history() {
-  local new_history="$HISTFILE.bak"
-  local excluded=0
-
-  while read -r entry; do
-    # TODO: Doing this per line is very slow!
-    local command="$(echo "$entry" | cut -d ';' -f2-)"
-
-    if ! _matches_filter "$command"; then
-      echo "$entry"
-    else
-      ((++excluded))
-      printf "\rExcluded %d entries" excluded >&2
-    fi
-  done <"$HISTFILE" >"$new_history"
-  mv "$new_history" "$HISTFILE"
-}
-
-_matches_filter() {
-  local value
-  for value in "${HISTORY_FILTER_EXCLUDE[@]}"; do
-    if [[ "$1" =~ $value ]]; then
-      return 0
-    fi
-  done
-  return 1
-}
-
-_history_filter() {
-  if _matches_filter "$1"; then
-    if [[ -z "${HISTORY_FILTER_SILENT:-}" ]]; then
-      echo "Excluding command from history" >&2
-    fi
-    return 2
-  else
-    return 0
-  fi
-}
-
-autoload -Uz add-zsh-hook
-add-zsh-hook zshaddhistory _history_filter
-
-## end include zsh-history-filter
-
 # ctrl-(up/down/left/right) arrow bindings
 
 bindkey '\e[1;5A' history-search-backward
 bindkey '\e[1;5B' history-search-forward
 bindkey '\e[1;5C' emacs-forward-word
 bindkey '\e[1;5D' emacs-backward-word
+
+bindkey '^P' history-substring-search-up
+bindkey '^N' history-substring-search-down
 
 # directory stuff
 
