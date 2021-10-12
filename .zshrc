@@ -245,7 +245,7 @@ alias report_node_tco_static='report_node_inventory_static | (read -r _; perl -n
 alias report_node_tco_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[14]; END{ print \"dollars \", \$a }") | top_10'
 
 alias report_node_monthly_static='report_node_inventory_static | (read -r _; perl -nale "printf \"%s %.2f\\n\", \$F[4], \$F[15]") | top_10'
-alias report_node_monthly_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[15]; END{ printf \"%s %.2f\", \"dollars\", \$a }") | top_10'
+alias report_node_monthly_totals='report_node_inventory_static | (read -r _; perl -nale "\$a+=\$F[15]; END{ printf \"%s %.2f\\n\", \"dollars\", \$a }") | top_10'
 
 top_10() {
   # accepts:
