@@ -14,6 +14,7 @@ zplug "marlonrichert/zsh-autocomplete"
 zplug "zsh-users/zsh-history-substring-search"
 zplug "MichaelAquilina/zsh-history-filter"
 zplug "joesuf4/zsh-autosuggestions"
+zplug "zplug/zplug", hook-build:"zplug --self-manage"
 
 if ! zplug check --verbose; then
   printf "Install? [y/N]: "
