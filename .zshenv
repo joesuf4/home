@@ -52,5 +52,5 @@ done
 # KUBECONFIG
 [[ -z "$KUBECONFIG" ]] && for f in ~/.kube/* ~/.kube/config
 do
-  [ -f "$f" ] && KUBECONFIG="$f$(echo ":$KUBECONFIG" | /usr/bin/sed -e "s|:$f||g")"
+  [ -f "$f" ] && KUBECONFIG="$f$(echo "${KUBECONFIG:+:$KUBECONFIG}" | /usr/bin/sed -e "s|:$f||g")"
 done
