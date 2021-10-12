@@ -163,7 +163,7 @@ alias asdf='PATH="/usr/bin:$PATH" asdf'
 
 alias npmu='sudo -Es npm update -g'
 
-alias pip3u='sudo pip3 install -U'
+alias pip3u='pip3 freeze | cut -d= -f1 | sudo xargs pip3 install -U'
 
 alias wingit_pull='(~winhome && git pull)'
 

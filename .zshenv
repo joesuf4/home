@@ -20,6 +20,7 @@ for ed in EDITOR VISUAL; do
   [[ "$USER" == schaefj ]] && export $ed=emacsclient
 done
 
+# ptyd's URL engine relies on this setting
 export MOZILLA="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
 
 # top_10() customizations
