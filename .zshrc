@@ -161,6 +161,10 @@ alias bpftrace='sudo -Es bpftrace'
 
 alias asdf='PATH="/usr/bin:$PATH" asdf'
 
+alias npmu='sudo -Es npm update -g'
+
+alias pip3u='sudo pip3 install -U'
+
 alias wingit_pull='(~winhome && git pull)'
 
 alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
