@@ -191,6 +191,18 @@ alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 
 alias screen='screen -U'
 
+# wrappers to disable ptyd on terminal window apps
+
+for cmd in vi vim man more less k9s; do
+  exep="$(which $cmd)"
+  eval "$cmd() {
+          ptyoff
+          \"$exep\" \"\$@\"
+          sleep 1
+          ptyon
+       }"
+done
+
 for t in all cluster node namespace pod; do
   for n in all percent load actual cpu mem; do
     eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..100}; date && eks report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
