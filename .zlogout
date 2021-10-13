@@ -8,6 +8,6 @@ unset MOZILLA
     agud
     npmu
     pip3u
-  ' >/tmp/upgrades 2>&1 </dev/null &
+  ' >"$UPGRADE_LOGFILE" 2>&1 </dev/null &
 )
 sudo -k

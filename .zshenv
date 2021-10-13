@@ -9,6 +9,7 @@ export MANPATH=/usr/local/share/man:/usr/share/man
 export BPFTRACE_VMLINUX=~/src/bcscli/WSL2-Linux-Kernel/vmlinux
 export KUBECTL_NODE_SHELL_IMAGE=artifactory.blackstone.com/docker/alpine:latest
 export NODE_PATH=/usr/local/lib/node_modules
+export UPGRADE_LOGFILE=/tmp/upgrades
 export KUBECONFIG
 
 # WSL cyan for grep filenames
@@ -22,6 +23,9 @@ done
 
 # ptyd's URL engine relies on this setting
 export MOZILLA="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
+# "lazy-toggles" for pty-driver.pl on a per-cmd basis
+PTYOFF=(vi vim man more less tail k9s pffxg.sh strace)
+PTYON=(sudo git op ansible-playbook ansible-vault)
 
 # top_10() customizations
 export ANSI_COLOR_ID=5
