@@ -161,6 +161,8 @@ alias bpftrace='sudo -Es bpftrace'
 
 alias curl='/usr/bin/curl'
 
+alias asdf='PATH="/usr/bin:$PATH" asdf'
+
 alias npmu='sudo -Es npm update -g'
 
 alias pip3u='pip3 freeze | cut -d= -f1 | sudo xargs pip3 install -U'
@@ -204,7 +206,7 @@ done
 
 # wrappers to enable ptyd on credential-using apps
 
-for cmd in sudo git op ansible-vault; do
+for cmd in sudo git op ansible-playbook ansible-vault; do
   unfunction $cmd 2>/dev/null
   exep="$(which $cmd)"
   [[ $? -eq 0 ]] && eval "$cmd() {
