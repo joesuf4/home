@@ -12,7 +12,7 @@ zplug "plugins/ubuntu", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
 zplug "marlonrichert/zsh-autocomplete"
 zplug "zsh-users/zsh-history-substring-search"
-zplug "MichaelAquilina/zsh-history-filter"
+zplug "joesuf4/zsh-history-filter"
 zplug "joesuf4/zsh-autosuggestions"
 zplug "zplug/zplug", hook-build:"zplug --self-manage"
 
@@ -171,9 +171,9 @@ alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
 alias ptyd='pty -d pty-driver.pl --'
 
-alias ptyon='echo pty-driver "on"'
+alias ptyon='echo pty-driver "on" >&2'
 
-alias ptyoff='echo pty-driver "off"'
+alias ptyoff='echo pty-driver "off" >&2'
 
 alias sps='screen pty -d pty-driver.pl $SHELL'
 
@@ -197,8 +197,7 @@ for cmd in vi vim man more less k9s; do
   unfunction $cmd 2>/dev/null
   exep="$(which $cmd)"
   [[ $? -eq 0 ]] && eval "$cmd() {
-    ptyoff >&2
-    sleep 1
+    ptyoff
     \"$exep\" \"\$@\"
   }"
 done
@@ -209,8 +208,7 @@ for cmd in sudo git op ansible-vault; do
   unfunction $cmd 2>/dev/null
   exep="$(which $cmd)"
   [[ $? -eq 0 ]] && eval "$cmd() {
-    ptyon >&2
-    [[ $cmd != git ]] && sleep 1
+    ptyon
     \"$exep\" \"\$@\"
   }"
 done

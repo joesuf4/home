@@ -180,6 +180,7 @@ audio/
 bin/OmniSharp
 bin/emacs*
 bin/isatty
+bin/ttyname
 bin/nproc
 bin/op
 bin/pty*
