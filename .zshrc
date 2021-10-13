@@ -210,8 +210,8 @@ for cmd in sudo git op ansible-playbook ansible-vault; do
   unfunction $cmd 2>/dev/null
   exep="$(which $cmd)"
   [[ $? -eq 0 ]] && eval "$cmd() {
-    if [[ $cmd == git ]] && [[ \"\${1:-}\" =~ diff || \"\${1:-}\" =~ log ]]; then
-      ptyoff
+    if [[ $cmd == git ]]; then
+      [[ \"\${1:-}\" =~ push || \"\${1:-}\" =~ pull  || \"\${1:-}\" =~ fetch ]] && ptyon || ptyoff
     else
       ptyon
     fi
