@@ -195,7 +195,7 @@ alias screen='screen -U'
 
 # wrappers to disable ptyd on terminal window apps
 
-for cmd in vi vim man more less k9s pffxg.sh strace; do
+for cmd in vi vim man more less tail k9s pffxg.sh strace; do
   unfunction $cmd 2>/dev/null
   exep="$(which $cmd)"
   [[ $? -eq 0 ]] && eval "$cmd() {
