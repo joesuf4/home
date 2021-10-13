@@ -4,11 +4,12 @@
 
 # $ENV{IP} is optional (target host IP)
 # $ENV{PORT} is required, defaults to https(443)
-
-$ENV{PORT} //= 443;
-$SIG{TERM} = $SIG{HUP} = $SIG{INT} = sub { exit };
+# $ENV{SPATH} is optional (unix socket path)
 
 BEGIN {
+  $ENV{PORT} //= 443;
+  $SIG{TERM} = $SIG{HUP} = $SIG{INT} = sub { exit };
+
   sub parse {
     for my $fd (grep $_ > 0, @_) {
       my @pid;
@@ -49,8 +50,7 @@ elsif (defined $tinfo{$name}[$fd]) {
 
 END {
   print "FINAL";
-  for my $n (keys %tinfo) {
-    $name = $n;
-    parse grep defined $tinfo{$n}[$_], 0..$#{$tinfo{$n}};
+  for $name (keys %tinfo) {
+    parse grep defined $tinfo{$name}[$_], 0..$#{$tinfo{$name}};
   }
 }

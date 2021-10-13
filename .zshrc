@@ -1,4 +1,4 @@
-setopt prompt_subst extendedglob
+setopt prompt_subst extendedglob unset
 
 # enable zplug and load fun modules
 
@@ -149,11 +149,11 @@ fi
 # translate between big-endian and little-endian objdumps.
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
 
-alias git_diff_branch='git diff $(git show-branch --merge-base HEAD)~1'
+alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)~1'
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
-alias htop='sudo true && ptyoff && sudo -Es htop && ptyon'
+alias htop='sudo true && ptyoff && /usr/bin/sudo -Es htop'
 
 alias lsof='sudo -Es lsof'
 
@@ -194,13 +194,25 @@ alias screen='screen -U'
 # wrappers to disable ptyd on terminal window apps
 
 for cmd in vi vim man more less k9s; do
+  unfunction $cmd 2>/dev/null
   exep="$(which $cmd)"
-  eval "$cmd() {
-          ptyoff
-          \"$exep\" \"\$@\"
-          sleep 1
-          ptyon
-       }"
+  [[ $? -eq 0 ]] && eval "$cmd() {
+    ptyoff >&2
+    sleep 1
+    \"$exep\" \"\$@\"
+  }"
+done
+
+# wrappers to enable ptyd on credential-using apps
+
+for cmd in sudo git op ansible-vault; do
+  unfunction $cmd 2>/dev/null
+  exep="$(which $cmd)"
+  [[ $? -eq 0 ]] && eval "$cmd() {
+    ptyon >&2
+    [[ $cmd != git ]] && sleep 1
+    \"$exep\" \"\$@\"
+  }"
 done
 
 for t in all cluster node namespace pod; do
