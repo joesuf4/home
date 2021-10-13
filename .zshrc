@@ -149,15 +149,15 @@ fi
 # translate between big-endian and little-endian objdumps.
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
 
-alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)~1 2>/dev/null'
+alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)~1'
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
 alias htop='sudo true && ptyoff && /usr/bin/sudo -Es htop'
 
-alias lsof='sudo -Es lsof'
+alias lsof='sudoe true && ptyoff && /usr/bin/sudo -Es lsof'
 
-alias bpftrace='sudo -Es bpftrace'
+alias bpftrace='sudo true && ptyoff && /usr/bin/sudo -Es bpftrace'
 
 alias curl='/usr/bin/curl'
 
@@ -195,7 +195,7 @@ alias screen='screen -U'
 
 # wrappers to disable ptyd on terminal window apps
 
-for cmd in vi vim man more less k9s; do
+for cmd in vi vim man more less k9s pffxg.sh strace; do
   unfunction $cmd 2>/dev/null
   exep="$(which $cmd)"
   [[ $? -eq 0 ]] && eval "$cmd() {
@@ -214,6 +214,8 @@ for cmd in sudo git op ansible-playbook ansible-vault; do
     \"$exep\" \"\$@\"
   }"
 done
+
+# report_* aliases
 
 for t in all cluster node namespace pod; do
   for n in all percent load actual cpu mem; do
