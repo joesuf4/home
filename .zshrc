@@ -159,7 +159,7 @@ alias lsof='sudo -Es lsof'
 
 alias bpftrace='sudo -Es bpftrace'
 
-alias asdf='PATH="/usr/bin:$PATH" asdf'
+alias curl='/usr/bin/curl'
 
 alias npmu='sudo -Es npm update -g'
 
