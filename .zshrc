@@ -211,7 +211,7 @@ for cmd in sudo git op ansible-playbook ansible-vault; do
   exep="$(which $cmd)"
   [[ $? -eq 0 ]] && eval "$cmd() {
     if [[ $cmd == git ]]; then
-      [[ \"\${1:-}\" == push || \"\${1:-}\" == pull || \"\${1:-}\" == fetch ]] && ptyon || ptyoff
+      [[ \"\${1:-}\" == clone || \"\${1:-}\" == push || \"\${1:-}\" == pull || \"\${1:-}\" == fetch ]] && ptyon || ptyoff
     else
       ptyon
     fi
