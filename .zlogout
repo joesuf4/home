@@ -1,9 +1,8 @@
 unset MOZILLA
 (
   nohup pty -nie -- timeout 300 pty -d pty-driver.pl -- $SHELL -ic '
-    setopt unset
-    asdf update && asdf plugin update --all
-    zplug update
+    asdfu
+    zplugu
     [[ "$USER" == schaefj ]] && sudo gitlab-runner stop
     agud
     npmu

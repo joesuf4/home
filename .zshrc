@@ -159,6 +159,10 @@ alias curl='/usr/bin/curl'
 
 alias asdf='PATH="/usr/bin:$PATH" asdf'
 
+alias asdfu='asdf update && asdf plugin-update --all'
+
+alias zplugu='setopt unset && zplug update; unsetopt unset'
+
 alias npmu='sudo true && ptyoff && /usr/bin/sudo -Es npm update -g'
 
 alias pip3u='pip3 freeze | cut -d= -f1 | sudo xargs pip3 install -U'
