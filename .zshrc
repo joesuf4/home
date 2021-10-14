@@ -91,7 +91,7 @@ alias ptyd='pty -d pty-driver.pl --'
 
 alias ptyon='touch /tmp/ptyon-$USER/$(basename $(ttyname 0));'
 
-alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename $(ttyname 0));'
+alias ptyoff='[[ -f /tmp/ptyon-$USER/$(basename $(ttyname 0)) ]] && sleep 1 && rm -f /tmp/ptyon-$USER/$(basename $(ttyname 0));'
 
 alias sps='screen pty -d pty-driver.pl $SHELL'
 
@@ -156,9 +156,6 @@ eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 # window/screen title hooks
 
 precmd() {
-  ptyoff
-  _bcs_title
-
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
     zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}[${PR_RESET}${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_BLACK}]${PR_RESET}"
   else
@@ -166,6 +163,8 @@ precmd() {
   fi
 
   vcs_info 2>/dev/null
+  ptyoff
+  _bcs_title
 }
 
 preexec() {
