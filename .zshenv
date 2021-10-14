@@ -1,4 +1,4 @@
-# standard
+# standards
 export LANG=en_US.UTF-8
 export LESSCHARSET=utf-8
 export PAGER=less
@@ -9,8 +9,13 @@ export MANPATH=/usr/local/share/man:/usr/share/man
 export BPFTRACE_VMLINUX=~/src/bcscli/WSL2-Linux-Kernel/vmlinux
 export KUBECTL_NODE_SHELL_IMAGE=artifactory.blackstone.com/docker/alpine:latest
 export NODE_PATH=/usr/local/lib/node_modules
-export UPGRADE_LOGFILE=/tmp/upgrades
 export KUBECONFIG
+
+UPGRADE_LOGFILE=/tmp/upgrades
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE=~/.zsh_history
+DIRSTACKSIZE=8
 
 # WSL cyan for grep filenames
 export GREP_COLORS=fn=36
@@ -28,16 +33,16 @@ PTYOFF=(vi vim man more less tail k9s pffxg.sh strace)
 PTYON=(sudo ssh git op ansible-playbook ansible-vault)
 
 # top_10() customizations
-export ANSI_COLOR_ID=5
-export HIST_BLOCK="■"
-export COL=75
+ANSI_COLOR_ID=5
+HIST_BLOCK="■"
+COL=75
 
 # report_node_inventory_static() (hi-speed) setting
-export PLACEHOLDER=n/a
+PLACEHOLDER=n/a
 
-# don't save commands with SSL URLs on them, to keep `ptyd` from going aggressively bonkers on history completion
-export HISTORY_FILTER_EXCLUDE=('(?i:secret)' _KEY 'https?://')
-export HISTORY_FILTER_SILENT=
+# don't save commands with URLs on them, to keep `ptyd` sane
+HISTORY_FILTER_EXCLUDE=('(?i:secret)' _KEY 'https?://')
+HISTORY_FILTER_SILENT=
 
 # Joe has a debugging libc build installed on his WSL Ubuntu, with a non-default TERMINFO setting
 [[ "$USER" == schaefj ]] && export TERMINFO=/lib/terminfo

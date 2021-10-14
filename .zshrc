@@ -29,10 +29,6 @@ zplug load
 
 # history settings
 
-HISTSIZE=10000
-SAVEHIST=10000
-HISTFILE=~/.zsh_history
-
 setopt share_history extended_history hist_expire_dups_first hist_no_store
 
 # ctrl-(up/down/right/left) arrow bindings
@@ -52,7 +48,6 @@ nd() {
   : ~$1
 }
 
-DIRSTACKSIZE=8
 setopt autocd autopushd pushdminus pushdsilent pushdtohome
 alias dh='dirs -v'
 
@@ -133,7 +128,7 @@ zstyle ':vcs_info:*' enable svn git
 
 RPROMPT='$vcs_info_msg_0_'
 
-# various platform colorized prompts (and basic utils)
+# prompts (and basic utils)
 
 if [[ ${EMACS+} == t ]]; then
   unsetopt zle
@@ -156,7 +151,7 @@ alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $
 
 alias htop='sudo true && ptyoff && /usr/bin/sudo -Es htop'
 
-alias lsof='sudoe true && ptyoff && /usr/bin/sudo -Es lsof'
+alias lsof='sudo true && ptyoff && /usr/bin/sudo -Es lsof'
 
 alias bpftrace='sudo true && ptyoff && /usr/bin/sudo -Es bpftrace'
 
@@ -164,7 +159,7 @@ alias curl='/usr/bin/curl'
 
 alias asdf='PATH="/usr/bin:$PATH" asdf'
 
-alias npmu='sudo -Es npm update -g'
+alias npmu='sudo true && ptyoff && /usr/bin/sudo -Es npm update -g'
 
 alias pip3u='pip3 freeze | cut -d= -f1 | sudo xargs pip3 install -U'
 
