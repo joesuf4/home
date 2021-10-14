@@ -54,6 +54,61 @@ alias dh='dirs -v'
 nd winhome /mnt/c/Users/$USER
 nd winsrc ~winhome/src
 
+# utilities
+
+alias reset='reset;echoon'
+
+# translate between big-endian and little-endian objdumps.
+alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
+
+alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)~1'
+
+alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
+
+alias htop='sudo true && ptyoff /usr/bin/sudo -Es htop'
+
+alias lsof='sudo true && ptyoff /usr/bin/sudo -Es lsof'
+
+alias bpftrace='sudo true && ptyoff /usr/bin/sudo -Es bpftrace'
+
+alias curl='/usr/bin/curl'
+
+alias asdf='PATH="/usr/bin:$PATH" asdf'
+
+alias asdfu='asdf update && asdf plugin-update --all'
+
+alias zplugu='setopt unset && zplug update; unsetopt unset'
+
+alias npmu='sudo true && ptyoff /usr/bin/sudo -Es npm update -g'
+
+alias pip3u='pip3 freeze | cut -d= -f1 | sudo xargs pip3 install -U'
+
+alias wingit_pull='(~winhome && git pull)'
+
+alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
+
+alias ptyd='pty -d pty-driver.pl --'
+
+alias ptyon='touch /tmp/ptyon-$USER/$(basename $(ttyname 0));'
+
+alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename $(ttyname 0));'
+
+alias sps='screen pty -d pty-driver.pl $SHELL'
+
+alias make='TERM=xterm-256color make -kj$(nproc)'
+
+alias k=kubectl
+
+alias perl='perl -CSD -Mutf8 -e "BEGIN{sub log_2 (\$) {log(shift)/log(2)}}"'
+
+alias plint='command perl -MO=Lint'
+
+alias log_2='perl -le "print int log_2 \$_ for @ARGV"'
+
+alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
+
+alias screen='screen -U'
+
 # typescript file walker
 
 tplay() {
@@ -140,61 +195,6 @@ else
   alias grep='grep --color=auto'
   PROMPT=$'$PR_CYAN%~$PR_RESET$PR_BRIGHT_BLACK%(?..($PR_RESET$PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
 fi
-
-# utilities
-
-alias reset='reset;echoon'
-
-# translate between big-endian and little-endian objdumps.
-alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
-
-alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)~1'
-
-alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
-
-alias htop='sudo true && ptyoff /usr/bin/sudo -Es htop'
-
-alias lsof='sudo true && ptyoff /usr/bin/sudo -Es lsof'
-
-alias bpftrace='sudo true && ptyoff /usr/bin/sudo -Es bpftrace'
-
-alias curl='/usr/bin/curl'
-
-alias asdf='PATH="/usr/bin:$PATH" asdf'
-
-alias asdfu='asdf update && asdf plugin-update --all'
-
-alias zplugu='setopt unset && zplug update; unsetopt unset'
-
-alias npmu='sudo true && ptyoff /usr/bin/sudo -Es npm update -g'
-
-alias pip3u='pip3 freeze | cut -d= -f1 | sudo xargs pip3 install -U'
-
-alias wingit_pull='(~winhome && git pull)'
-
-alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
-
-alias ptyd='pty -d pty-driver.pl --'
-
-alias ptyon='touch /tmp/ptyon-$USER/$(basename $(ttyname 0));'
-
-alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename $(ttyname 0));'
-
-alias sps='screen pty -d pty-driver.pl $SHELL'
-
-alias make='TERM=xterm-256color make -kj$(nproc)'
-
-alias k=kubectl
-
-alias perl='perl -CSD -Mutf8 -e "BEGIN{sub log_2 (\$) {log(shift)/log(2)}}"'
-
-alias plint='command perl -MO=Lint'
-
-alias log_2='perl -le "print int log_2 \$_ for @ARGV"'
-
-alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
-
-alias screen='screen -U'
 
 # wrappers to enable ptyd on credential-using apps
 

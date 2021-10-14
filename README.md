@@ -5,12 +5,12 @@ files across several servers.  The sources are found on my laptop, are
 pushed to my github account, and from there are cloned to my home directory
 across various hosts, typically with ansible.
 
-Most of my worktime is spent in zsh running inside a pty-driven screen session
-on my laptop, and that's reflected in my config.  Obviously I use emacs
-a lot, and the .emacs file contains a few essential elpa/melpa packages;
-I couldn't get by without some of them.  Of particular note is `ccls`, which
-is an excellent piece of software to drive clang-based LSP IDE apps (like
-emacs).
+Most of my worktime is spent in zsh running inside a pty-driven (@SunStarSys
+has the `pty` git repo) screen session on my laptop, and that's reflected in
+my config.  Obviously I use emacs a lot, and the .emacs file contains a few
+essential elpa/melpa packages; I couldn't get by without some of them.  Of
+particular note is `ccls`, which is an excellent piece of software to drive
+clang-based LSP IDE apps (like emacs).
 
 The configs are messy and not really aimed at public distribution, but
 I'd be happy to consider appropriate patches if there's something you'd
