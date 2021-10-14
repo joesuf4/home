@@ -41,7 +41,7 @@ COL=75
 PLACEHOLDER=n/a
 
 # don't save commands with URLs on them, to keep `ptyd` sane
-HISTORY_FILTER_EXCLUDE=('(?i:secret)' _KEY 'https?://')
+HISTORY_FILTER_EXCLUDE=('(?i:secret|pass)' _KEY 'https?://')
 HISTORY_FILTER_SILENT=
 
 # Joe has a debugging libc build installed on his WSL Ubuntu, with a non-default TERMINFO setting

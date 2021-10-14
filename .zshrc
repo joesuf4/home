@@ -142,6 +142,8 @@ fi
 
 # utilities
 
+alias reset='reset;echoon'
+
 # translate between big-endian and little-endian objdumps.
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
 
