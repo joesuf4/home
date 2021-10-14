@@ -25,7 +25,7 @@ done
 export MOZILLA="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
 # "lazy-toggles" for pty-driver.pl on a per-cmd basis
 PTYOFF=(vi vim man more less tail k9s pffxg.sh strace)
-PTYON=(sudo git op ansible-playbook ansible-vault)
+PTYON=(sudo ssh git op ansible-playbook ansible-vault)
 
 # top_10() customizations
 export ANSI_COLOR_ID=5
