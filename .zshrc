@@ -203,14 +203,11 @@ for cmd in "${PTYON[@]}"; do
   exep="$(which $cmd)"
   [[ $? -eq 0 ]] && eval "$cmd() {
     if [[ $cmd == git ]]; then
-      [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch)\$' ]] && ptyon || ptyoff
+      [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch)\$' ]] && ptyon
     else
       ptyon
     fi
     \"$exep\" \"\$@\"
-    local rv=\$?
-    [[ $cmd == git && \"\${1:-}\" == clone ]] && ptyoff
-    return \$rv
   }"
 done
 
