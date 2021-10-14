@@ -1,4 +1,5 @@
 setopt prompt_subst extendedglob unset
+zmodload zsh/pcre
 
 # enable zplug and load fun modules
 
@@ -211,7 +212,7 @@ for cmd in "${PTYON[@]}"; do
   exep="$(which $cmd)"
   [[ $? -eq 0 ]] && eval "$cmd() {
     if [[ $cmd == git ]]; then
-      [[ \"\${1:-}\" == clone || \"\${1:-}\" == push || \"\${1:-}\" == pull || \"\${1:-}\" == fetch ]] && ptyon || ptyoff
+      [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch)\$' ]] && ptyon || ptyoff
     else
       ptyon
     fi
