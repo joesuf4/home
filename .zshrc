@@ -217,6 +217,9 @@ for cmd in "${PTYON[@]}"; do
       ptyon
     fi
     \"$exep\" \"\$@\"
+    local rv=\$?
+    [[ $cmd == git && \"\${1:-}\" == clone ]] && ptyoff
+    return \$rv
   }"
 done
 
