@@ -101,7 +101,7 @@ eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 # window/screen title hooks
 
 precmd() {
-  rm -f /tmp/ptyon-$USER/$(basename $(ttyname 0))
+  ptyoff
   _bcs_title
 
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
@@ -176,9 +176,9 @@ alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
 alias ptyd='pty -d pty-driver.pl --'
 
-alias ptyon='echo pty-driver "on" >&2;'
+alias ptyon='touch /tmp/ptyon-$USER/$(basename $(ttyname 0));'
 
-alias ptyoff='echo pty-driver "off" >&2;'
+alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename $(ttyname 0));'
 
 alias sps='screen pty -d pty-driver.pl $SHELL'
 
