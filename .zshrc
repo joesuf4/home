@@ -101,6 +101,7 @@ eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 # window/screen title hooks
 
 precmd() {
+  rm -f /tmp/ptyon-$USER/$(basename $(ttyname 0))
   _bcs_title
 
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
@@ -194,17 +195,6 @@ alias log_2='perl -le "print int log_2 \$_ for @ARGV"'
 alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 
 alias screen='screen -U'
-
-# wrappers to disable ptyd on terminal window apps
-
-for cmd in "${PTYOFF[@]}"; do
-  unfunction $cmd 2>/dev/null
-  exep="$(which $cmd)"
-  [[ $? -eq 0 ]] && eval "$cmd() {
-    ptyoff
-    \"$exep\" \"\$@\"
-  }"
-done
 
 # wrappers to enable ptyd on credential-using apps
 

@@ -29,8 +29,7 @@ done
 # ptyd's URL engine relies on this setting
 export MOZILLA="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
 # "lazy-toggles" for pty-driver.pl on a per-cmd basis
-PTYOFF=(vi vim man more less tail k9s pffxg.sh strace)
-PTYON=(sudo ssh git op ansible-playbook ansible-vault)
+PTYON=(sudo git op ansible-playbook ansible-vault)
 
 # top_10() customizations
 ANSI_COLOR_ID=5
