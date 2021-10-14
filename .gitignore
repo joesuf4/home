@@ -204,3 +204,4 @@ src
 tmp/
 zeus/
 .npmrc
+bin/echo*
