@@ -203,3 +203,4 @@ specs/
 src
 tmp/
 zeus/
+.npmrc
