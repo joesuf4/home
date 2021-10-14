@@ -15,6 +15,8 @@ UPGRADE_LOGFILE=/tmp/upgrades
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
+HISTORY_FILTER_EXCLUDE=('(?i:secret|pass|_key)')
+HISTORY_FILTER_SILENT=
 DIRSTACKSIZE=8
 
 # WSL cyan for grep filenames
@@ -39,9 +41,6 @@ COL=75
 # report_node_inventory_static() (hi-speed) setting
 PLACEHOLDER=n/a
 
-# don't save commands with URLs on them, to keep `ptyd` sane
-HISTORY_FILTER_EXCLUDE=('(?i:secret|pass)' _KEY 'https?://')
-HISTORY_FILTER_SILENT=
 
 # Joe has a debugging libc build installed on his WSL Ubuntu, with a non-default TERMINFO setting
 [[ "$USER" == schaefj ]] && export TERMINFO=/lib/terminfo
