@@ -25,7 +25,8 @@ export GREP_COLORS=fn=36
 # if you're avoiding a Win10 emacs server, leave this section alone
 # otherwise you'll need to build symlinks from ~/bin/emacsclient to your Win10 emacs install location first.
 for ed in EDITOR VISUAL; do
-  [[ "$USER" == schaefj ]] && export $ed=emacsclient
+  # s/code/vim/ below if vim is your preferred text editor
+  [[ "$USER" == schaefj ]] && export $ed=emacsclient || export $ed=code
 done
 
 # ptyd's URL engine relies on this setting
