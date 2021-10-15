@@ -203,7 +203,7 @@ for cmd in "${PTYON[@]}"; do
   exep="$(which $cmd)"
   [[ $? -eq 0 ]] && eval "$cmd() {
     if [[ $cmd == git ]]; then
-      [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch)\$' ]] && ptyon
+      [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch|remote)\$' ]] && ptyon
     else
       ptyon
     fi
