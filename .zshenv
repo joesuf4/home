@@ -30,7 +30,7 @@ done
 
 # ptyd's URL engine relies on this setting
 export MOZILLA="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
-# "lazy-toggles" for pty-driver.pl on a per-cmd basis
+# whitelist of "password-sensitive" executables for enabling pty-driver.pl (within `sps`)
 PTYON=(sudo git op ansible-playbook ansible-vault)
 
 # top_10() customizations
