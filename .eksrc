@@ -474,7 +474,6 @@ eks_shell() {
   fi
 
   local pod c
-  echo pty-driver off >&2
   for pod in $(eks_list_pods "$FILTER"); do
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       _bcs_title :$pod/$c: "$@"
@@ -486,7 +485,6 @@ eks_shell() {
     done
   done
   local rv=$?
-  echo pty-driver on >&2
 
   [[ -f "$TMP" ]] && rm -f $TMP
   return $rv
@@ -503,7 +501,6 @@ eks_node_shell() {
   fi
 
   local node
-  echo pty-driver off >&2
   for node in $(eks_list_nodes "$FILTER"); do
     _bcs_title :$node: "$@"
     if [[ -t 0 ]]; then
@@ -513,7 +510,6 @@ eks_node_shell() {
     fi
   done
   local rv=$?
-  echo pty-driver on >&2
 
   [[ -f "$TMP" ]] && rm -f $TMP
   return $rv
@@ -532,7 +528,6 @@ eks_trace_shell() {
   fi
 
   local obj key id
-  echo pty-driver off >&2
   case "$ACTION" in
     run)
       for obj in $(eks_list_trace_objects "$FILTER"); do
@@ -563,7 +558,6 @@ eks_trace_shell() {
       ;;
   esac
   local rv=$?
-  echo pty-driver on >&2
 
   [[ -f "$TMP" ]] && rm -f $TMP
   return $rv

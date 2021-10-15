@@ -138,7 +138,6 @@ ec2_shell() {
     cat >$TMP
   fi
 
-  echo pty-driver off >&2
   for host in $(ec2_list_inventory "$FILTER"); do
     _bcs_title :$host: "$@"
     if [[ -t 0 ]]; then
@@ -149,7 +148,6 @@ ec2_shell() {
     fi
   done
   local rv=$?
-  echo pty-driver on >&2
 
   [[ -f "$TMP" ]] && rm -f $TMP
   return $rv
