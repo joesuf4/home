@@ -15,6 +15,7 @@ zplug "marlonrichert/zsh-autocomplete"
 zplug "zsh-users/zsh-history-substring-search"
 zplug "joesuf4/zsh-history-filter"
 zplug "joesuf4/zsh-autosuggestions"
+#zplug "dracula/zsh", as:theme
 zplug "zplug/zplug", hook-build:"zplug --self-manage"
 
 if ! zplug check --verbose; then
@@ -162,7 +163,7 @@ precmd() {
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
     zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}[${PR_RESET}${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_BLACK}]${PR_RESET}"
   else
-    zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}[${PR_RESET}${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_RED}?${PR_BRIGHT_BLACK}]${PR_RESET}"
+    zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}[${PR_RESET}${PR_CYAN}%b${PR_BRIGHT_GREEN}%c${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_RED}✗${PR_BRIGHT_BLACK}]${PR_RESET}"
   fi
 
   vcs_info 2>/dev/null
@@ -176,8 +177,8 @@ preexec() {
 
 autoload -Uz vcs_info
 
-zstyle ':vcs_info:*' stagedstr 'S'
-zstyle ':vcs_info:*' unstagedstr 'M'
+zstyle ':vcs_info:*' stagedstr '✔'
+zstyle ':vcs_info:*' unstagedstr '➜'
 zstyle ':vcs_info:*' check-for-changes true
 zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{1}:%F{11}%r'
 zstyle ':vcs_info:*' enable svn git
