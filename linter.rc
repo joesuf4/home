@@ -6,7 +6,7 @@ case "$LINTER" in
   # because the linter greps for them using this pattern: '[)]$'
   shellcheck)
     PCRE_PAT='(\.sh|^\.?\w+\.?rc)$'
-    LINTER+=' -x -P . -s bash -e SC1004,SC2016,SC2034,SC2046,SC2128,SC2155,SC2181,SC2207,SC2145,SC2088,SC2015,SC2086,SC2154,SC2199,SC2120,SC2119,SC2142,SC1090,SC2206,SC2012,SC2174,SC1117,SC2035,SC2139,SC2028,SC2030,SC2031'
+    LINTER+=' -x -P . -s bash -e SC1004,SC2016,SC2034,SC2046,SC2128,SC2155,SC2181,SC2207,SC2145,SC2088,SC2015,SC2086,SC2154,SC2199,SC2120,SC2119,SC2142,SC1090,SC2206,SC2012,SC2174,SC1117,SC2035,SC2139,SC2030,SC2031'
     ;;
   shfmt)
     PCRE_PAT='(\.sh|^\.?\w+\.?rc)$'
@@ -14,11 +14,13 @@ case "$LINTER" in
     ;;
   clang-tidy)
     PCRE_PAT='\.(cc?|cpp|hh?)$'
+    LINTER+=' --extra-arg-before -DVERSION=\"0.0\"'
     ;;
   perl)
     XARGS_MAX_FILES=1
     PCRE_PAT='\.p[ml]$'
-    LINTER+=' -MO=Lint'
+    export STTY_NAME=0
+    LINTER='perl -c 3<&0'
     ;;
   flake8)
     PCRE_PAT='\.py$'
@@ -27,6 +29,25 @@ case "$LINTER" in
   tidy)
     PCRE_PAT='\.html?$'
     LINTER='sh -c "tidy -utf8 \"\$@\" || [ \$? -eq 1 ]" --'
+    ;;
+  typescript)
+    PCRE_PAT='\.ts$'
+    CONFIG_SRC="$(
+      cat .eslintrc.js - 2>/dev/null <<EOF
+module.exports = {
+  root: true,
+  parser: '@typescript-eslint/parser',
+  plugins: [
+    '@typescript-eslint',
+  ],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+  ],
+};
+EOF
+    )"
+    LINTER='eslint -c $CONFIG_TMP_FILE'
     ;;
   eslint)
     PCRE_PAT='(?<!\.min)\.js$'
