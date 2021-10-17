@@ -208,7 +208,7 @@ for cmd in "${PTYON[@]}"; do
       ptyon
     fi
     local rv
-    while (\"$exep\" \"\$@\"; rv=\$?; [[ \$rv -ne 0 ]]); do [[ -f /tmp/ptyon-\$USER/\$(basename \$(ttyname 0)) ]] && [[ $cmd != sudo ]] || return \$rv; done
+    while (\"$exep\" \"\$@\"; rv=\$?; [[ \$rv -ne 0 ]]); do [[ -f /tmp/ptyon-\$USER/\$(basename \$(ttyname 0)) ]] && [[ $cmd != sudo ]] || return \$rv; sleep 1; done
     [[ -f /tmp/ptyon-\$USER/\$(basename \$(ttyname 0)) ]] && sleep 1
     return 0
   }"
