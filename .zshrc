@@ -108,7 +108,7 @@ alias log_2='perl -le "print int log_2 \$_ for @ARGV"'
 
 alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 
-alias screen='screen -U'
+alias screen='TERM=xterm-256color screen -U'
 
 # typescript file walker
 
