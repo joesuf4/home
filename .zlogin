@@ -14,6 +14,7 @@ fi
 
 [[ "$USER" == schaefj ]] && ptyd sudo $SHELL -c 'mkdir -m 0777 -p /run/screen; pgrep gitlab-runner >/dev/null 2>&1 || gitlab-runner start'
 
-[[ "$USER" == schaefj ]] && emac
-
 reset
+
+ptyd $SHELL
+exit $?
