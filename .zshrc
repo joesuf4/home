@@ -90,9 +90,9 @@ alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
 alias ptyd='pty -d pty-driver.pl --'
 
-alias ptyon='touch /tmp/ptyon-$USER/$(basename $(ttyname 0));'
+alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 0)");'
 
-alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename $(ttyname 0));'
+alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 0)");'
 
 alias sps='screen pty -d pty-driver.pl $SHELL'
 
@@ -210,7 +210,7 @@ for cmd in "${PTYON[@]}"; do
     fi
     local rv
     local n
-    for n in {1..3}; do \"$exep\" \"\$@\"; rv=\$?; [[ \$rv -ne 0 ]] || break; [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 0)\") ]] && [[ $cmd != sudo ]] || return \$rv; sleep 1; done
+    for n in {1..3}; do \"$exep\" \"\$@\"; rv=\$?; [[ \$rv -eq 0 ]] && break; [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 0)\") ]] && [[ $cmd != sudo ]] || return \$rv; sleep 1; done
     [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 0)\") ]] && sleep 1
     return \$rv
   }"
