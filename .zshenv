@@ -36,7 +36,7 @@ PTYON=(sudo git op ansible-vault)
 # top_10() customizations
 ANSI_COLOR_ID=5
 HIST_BLOCK="☠"
-COL=75
+COL=68
 
 # report_node_inventory_static() (hi-speed) setting
 PLACEHOLDER=n/a
