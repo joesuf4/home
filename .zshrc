@@ -59,7 +59,18 @@ nd winsrc ~winhome/src
 
 alias reset='reset; echoon'
 
+alias wingit_pull='(~winhome && git pull)'
+
+alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
+
+alias ptyd='pty -d pty-driver.pl --'
+
+alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 0)");'
+
+alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 0)");'
+
 # translate between big-endian and little-endian objdumps.
+
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
 
 alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)~1'
@@ -84,17 +95,7 @@ alias npmu='sudo true && ptyoff /usr/bin/sudo -Es npm update -g'
 
 alias pip3u='pip3 freeze | cut -d= -f1 | sudo xargs pip3 install -U'
 
-alias wingit_pull='(~winhome && git pull)'
-
-alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
-
-alias ptyd='pty -d pty-driver.pl --'
-
-alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 0)");'
-
-alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 0)");'
-
-alias sps='screen pty -d pty-driver.pl $SHELL'
+alias sps='screen pty -d pty-driver.pl -- $SHELL'
 
 alias make='TERM=xterm-256color make -kj$(nproc)'
 
