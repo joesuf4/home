@@ -3,11 +3,10 @@ zmodload zsh/pcre
 
 # enable zplug and load fun modules
 
-. ~/.zplug/init.zsh || (
+[[ -f ~/.zplug/init.zsh ]] || (
   /usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh &&
-    sleep 1 &&
-    . ~/.zplug/init.zsh
-)
+    sleep 1
+) && . ~/.zplug/init.zsh
 
 zplug "plugins/ubuntu", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
