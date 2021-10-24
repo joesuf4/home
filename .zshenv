@@ -52,11 +52,11 @@ PLACEHOLDER=n/a
 for p in /sbin /usr/sbin /usr/local/bin "$(go env GOPATH)/bin" ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin
 do
   # fyi- this is not going to work if you use it on nested $p paths...
-  [ -d "$p" ] && PATH="$p$(echo ":$PATH" | /usr/bin/sed -e "s|:$p||g")"
+  [ -d "$p" ] && PATH="$p$(echo ":$PATH" | sed -e "s|:$p||g")"
 done
 
 # KUBECONFIG
 [[ -z "$KUBECONFIG" ]] && for f in ~/.kube/* ~/.kube/config
 do
-  [ -f "$f" ] && KUBECONFIG="$f$(echo "${KUBECONFIG:+:$KUBECONFIG}" | /usr/bin/sed -e "s|:$f||g")"
+  [ -f "$f" ] && KUBECONFIG="$f$(echo "${KUBECONFIG:+:$KUBECONFIG}" | sed -e "s|:$f||g")"
 done
