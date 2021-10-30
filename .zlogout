@@ -5,6 +5,7 @@ unset MOZILLA
     zplugu
     [[ "$USER" == schaefj ]] && sudo gitlab-runner stop
     agud
+    agar
     npmu
     pip3u
   ' >"$UPGRADE_LOGFILE" 2>&1 </dev/null &

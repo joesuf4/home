@@ -31,7 +31,7 @@ done
 # ptyd's URL engine relies on this setting
 export MOZILLA="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
 # whitelist of "password-sensitive" executables for enabling pty-driver.pl (within `sps` or just `ptyd zsh`)
-PTYON=(sudo git op ansible-vault)
+PTYON=(sudo git gpg op ansible-vault)
 
 # top_10() customizations
 ANSI_COLOR_ID=5
