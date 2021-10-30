@@ -1,6 +1,7 @@
 [user]
 	name = Joe Schaefer
 	email = joseph.schaefer@blackstone.com
+	signingkey = 4020EC2ED601D519
 [clean]
 	requireForce = 1
 [push]
