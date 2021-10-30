@@ -64,9 +64,9 @@ alias winemac_cp='cp ~winhome/.emacs ~/.emacs && emac ~/.emacs'
 
 alias ptyd='pty -d pty-driver.pl --'
 
-alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 0)");'
+alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
-alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 0)");'
+alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 # translate between big-endian and little-endian objdumps.
 
@@ -210,8 +210,8 @@ for cmd in "${PTYON[@]}"; do
     fi
     local rv
     local n
-    for n in {1..3}; do \"$exep\" \"\$@\"; rv=\$?; [[ \$rv -eq 0 ]] && break; [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 0)\") ]] && [[ $cmd != sudo ]] || return \$rv; sleep 1; done
-    [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 0)\") ]] && sleep 1
+    for n in {1..3}; do \"$exep\" \"\$@\"; rv=\$?; [[ \$rv -eq 0 ]] && break; [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && [[ $cmd != sudo ]] || return \$rv; sleep 1; done
+    [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && sleep 1
     return \$rv
   }"
 done
