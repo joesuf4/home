@@ -372,9 +372,7 @@ emac() {
   fi
 }
 
-# fetch service-deployer vault pass
-
-seed_vault_pass() {
+seed_bastion_ssh() {
   local TMP="$(mktemp)"
   (
     bcs assume-role devops-nonprod engineer >/dev/null &&
@@ -383,6 +381,13 @@ seed_vault_pass() {
     (printf "%s\n%s\n" "$PW" "$PW" && sleep 1) | pty -nie -- pty -d pty-driver.pl ansible-vault encrypt "$TMP"
   )
   rm "$TMP"
+
+  EC2_SRC_ID="$(for dir in ~/src/*-deployer; do
+      (cd $dir && ansible-vault decrypt *.pem.encrypted && ssh-add *.pem.encrypted && git checkout *.pem.encrypted &&
+        grep ansible_ provisioning/inventory/*/hosts | cut -d: -f2 | awk '{print $2}' | sort -u | while read -r bastion; do
+          echo $bastion $bastion; done &)
+  done; wait)"
+  _ec2_load_inventory
 }
 
 # reject any evaluation of unset variables

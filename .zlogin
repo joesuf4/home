@@ -11,7 +11,7 @@ else
   ptyd sudo update-binfmts --disable cli
   eval "$(ssh-agent)"
   ptyd ssh-add
-  seed_vault_pass
+  seed_bastion_ssh
 fi
 
 reset
