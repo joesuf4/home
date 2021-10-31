@@ -76,15 +76,19 @@ alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
-alias htop='sudo true && ptyoff /usr/bin/sudo -Es htop'
+alias htop='sudo true && ptyoff /usr/bin/sudo -Es /usr/bin/htop'
 
-alias lsof='sudo true && ptyoff /usr/bin/sudo -Es lsof'
+alias lsof='sudo true && ptyoff /usr/bin/sudo -Es /usr/bin/lsof'
 
 alias bpftrace='sudo true && ptyoff /usr/bin/sudo -Es bpftrace'
 
 alias curl='/usr/bin/curl'
 
+alias screen='TERM=xterm-256color /usr/bin/screen -U'
+
 alias asdf='PATH="/usr/bin:$PATH" asdf'
+
+alias strace='/usr/bin/strace'
 
 alias asdfu='asdf update && asdf plugin-update --all'
 
@@ -108,7 +112,6 @@ alias log_2='perl -le "print int log_2 \$_ for @ARGV"'
 
 alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 
-alias screen='TERM=xterm-256color screen -U'
 
 alias sdexec='sudo nsenter -t $(pidof systemd) -a'
 
