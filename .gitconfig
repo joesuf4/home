@@ -8,3 +8,5 @@
 	default = matching
 [github]
 	user = joesuf4
+[pull]
+	rebase = true
