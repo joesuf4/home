@@ -110,6 +110,8 @@ alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 
 alias screen='TERM=xterm-256color screen -U'
 
+alias sdexec='sudo nsenter -t $(pidof systemd) -a'
+
 # typescript file walker
 
 tplay() {
