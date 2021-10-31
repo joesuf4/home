@@ -76,7 +76,7 @@ alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
-alias htop='sudo true && ptyoff PATH="/usr/bin:$PATH" /usr/bin/sudo -Es /usr/bin/htop'
+alias htop='sudo true && ptyoff /usr/bin/sudo -E /usr/bin/htop'
 
 alias lsof='sudo true && ptyoff /usr/bin/sudo -Es /usr/bin/lsof'
 
@@ -88,7 +88,7 @@ alias screen='TERM=xterm-256color /usr/bin/screen -U'
 
 alias asdf='PATH="/usr/bin:$PATH" asdf'
 
-alias strace='/usr/bin/strace'
+alias strace='sudo -s /usr/bin/strace'
 
 alias asdfu='asdf update && asdf plugin-update --all'
 
