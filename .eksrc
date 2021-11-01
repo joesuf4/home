@@ -323,7 +323,7 @@ eks_list_reports_by_subtype() {
 }
 
 _eks_load_clusters() {
-  [[ -n "$BCS_PROFILE" ]] || return 0
+  [[ -n "${BCS_PROFILE#n/a}" ]] || return 0
 
   if [[ -z "${EKS_CLUSTERS_SRC-}" ]]; then
     EKS_NS_SRC=
