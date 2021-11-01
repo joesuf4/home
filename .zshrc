@@ -112,6 +112,7 @@ alias log_2='perl -le "print int log_2 \$_ for @ARGV"'
 
 alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 
+alias sbei='seed_bastion_ec2_inventory ~/src/*-deployer'
 
 alias sdexec='sudo nsenter -t $(pidof systemd) -a'
 
@@ -210,13 +211,19 @@ for cmd in "${PTYON[@]}"; do
   [[ $? -eq 0 ]] && eval "$cmd() {
     if [[ $cmd == git ]]; then
       [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch|remote|commit)\$' ]] && ptyon
+    elif [[ $cmd == ssh ]]; then
+      local arg PEMFILE
+      PEMFILE=\"\$(mktemp /tmp/bastion-ec2-ssh-id-XXXXX.pem)\"
+      for arg; do [[ \"\$arg\" == \"\${arg#-}\" && \"\$EC2_ID[\$arg]\" =~ ^/ ]] && set -- -i \"\$PEMFILE\" \"\$@\" && break; done
+      [[ \"\$EC2_ID[\$arg]\" =~ ^/ ]] && pty -nie -- pty -d pty-driver.pl -- \$SHELL -ic 'ansible-vault decrypt --output \"\$@\"' -- \"\$PEMFILE\" \"\$EC2_ID[\$arg]\" </dev/null >/dev/null 2>&1
+      ptyoff
     else
       ptyon
     fi
-    local rv
-    local n
+    local rv n
     for n in {1..3}; do \"$exep\" \"\$@\"; rv=\$?; [[ \$rv -eq 0 ]] && break; [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && [[ $cmd != sudo ]] || return \$rv; sleep 1; done
     [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && sleep 1
+    [[ $cmd == ssh ]] && rm -rf \"\$PEMFILE\"
     return \$rv
   }"
 done
@@ -372,7 +379,7 @@ emac() {
   fi
 }
 
-seed_bastion_ssh() {
+seed_vault_pass() {
   local TMP="$(mktemp)"
   (
     bcs assume-role devops-nonprod engineer >/dev/null &&
@@ -381,13 +388,13 @@ seed_bastion_ssh() {
     (printf "%s\n%s\n" "$PW" "$PW" && sleep 1) | pty -nie -- pty -d pty-driver.pl ansible-vault encrypt "$TMP"
   )
   rm "$TMP"
+}
 
-  EC2_SRC_ID="$(for dir in ~/src/*-deployer; do
-      (cd $dir && ansible-vault decrypt *.pem.encrypted && ssh-add *.pem.encrypted && git checkout *.pem.encrypted &&
-        grep ansible_ provisioning/inventory/*/hosts | cut -d: -f2 | awk '{print $2}' | sort -u | while read -r bastion; do
-          echo $bastion $bastion; done &)
-  done; wait)"
-  _ec2_load_inventory
+seed_bastion_ec2_inventory() {
+  EC2_ID_SRC="$(for dir in "$@"; do
+    cd $dir && grep ansible_ provisioning/inventory/*/hosts | cut -d: -f2 | awk "{gsub(\"^.*/\", \"$dir/\", \$3); print \$1, \$3\".encrypted\"}" | sort -u | grep -Fv 10.161.160.
+  done)"
+  BCS_PROFILE=n/a _ec2_load_inventory
 }
 
 # reject any evaluation of unset variables
