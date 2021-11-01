@@ -159,7 +159,7 @@ ec2_htop_ship_config_bg() {
 
   for host in $(ec2_list_inventory "$FILTER"); do
     ssh "$host" sudo sh -c \
-      '"mkdir -p /home/ssm-user/.config/htop && cat > /home/ssm-user/.config/htop/htoprc"' <~/.config/htop/htoprc &
+      '"TMP=\$(mktmp);cat >\$TMP; for user in ssm-user ubuntu; do mkdir -p /home/\$user/.config/htop && cp $TMP /home/\$user/.config/htop/htoprc; done; rm \$TMP"' <~/.config/htop/htoprc &
   done
   wait
 }
@@ -177,11 +177,11 @@ ec2_screen() {
   for host in $(ec2_list_inventory "$FILTER"); do
     if [[ -t 0 ]]; then
       screen -X screen "$SHELL" -ic \
-        "_bcs_title :$host: \"\$@\"; ssh -t $host sh -lc '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
+        "_bcs_title :$host: \"\$@\"; BCS_PROFILE=n/a _ec2_load_inventory; ssh -t $host sh -lc '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
     else
       bcs_sed_uprobe_shared_libs ssh -t "$host" <$TMP |
         screen -X screen "$SHELL" -ic \
-          "_bcs_title :$host: \"\$@\"; ssh -t $host sh -lc '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
+          "_bcs_title :$host: \"\$@\"; BCS_PROFILE=n/a _ec2_load_inventory; ssh -t $host sh -lc '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es \\\"\\\$@\\\"\"' -- \"\$@\"" -- "$@"
     fi
   done
 }
@@ -214,7 +214,7 @@ ec2_batch() {
     ec2_list_inventory "$FILTER" | xargs -d '\n' -i echo bcs_sed_uprobe_shared_libs \
       ssh {} '|' ssh {} bash -c '"\". ~/.profile; (eval sudo -Es \\\"\\\$@\\\" || echo \\\"'"$errstr"':\\\" \\\(\\\"\\\$@\\\"\\\) failed with status code \\\$?) 2>&1 | while read -r line; do echo \\\"'"$prefix"':\\\" \\\$line; done\""' -- '"$@"'
   fi |
-    xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}' -- "$@"
+    xargs -d '\n' -P $BCS_BATCH -i $SHELL -ic 'BCS_PROFILE=n/a _ec2_load_inventory; {}; exit 0' -- "$@"
 
   local rv=$?
   [ -f "$TMP" ] && rm -f $TMP

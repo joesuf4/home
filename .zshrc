@@ -25,7 +25,7 @@ if ! zplug check --verbose; then
   fi
 fi
 
-zplug load
+zplug load >/dev/null 2>&1
 
 # history settings
 
