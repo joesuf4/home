@@ -3,7 +3,6 @@ unset MOZILLA
   nohup pty -nie -- timeout 300 pty -d pty-driver.pl -- $SHELL -ic '
     asdfu
     zplugu
-    [[ "$USER" == schaefj ]] && sudo gitlab-runner stop
     agud
     agar
     npmu
