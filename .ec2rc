@@ -158,8 +158,8 @@ ec2_htop_ship_config_bg() {
   shift
 
   for host in $(ec2_list_inventory "$FILTER"); do
-    ssh "$host" sudo sh -c \
-      '"TMP=\$(mktmp);cat >\$TMP; for user in ssm-user ubuntu; do mkdir -p /home/\$user/.config/htop && cp $TMP /home/\$user/.config/htop/htoprc; done; rm \$TMP"' <~/.config/htop/htoprc &
+    ssh "$host" sh -c \
+      '"TMP=\$(mktemp); cat >>\$TMP; for user in ssm-user ubuntu; do sudo mkdir -m0777 -p /home/\$user/.config/htop && sudo cp -f \$TMP /home/\$user/.config/htop/htoprc; done; rm \$TMP"' <~/.config/htop/htoprc &
   done
   wait
 }
