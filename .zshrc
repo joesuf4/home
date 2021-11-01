@@ -116,7 +116,7 @@ alias sbei='seed_bastion_ec2_inventory ~/src/*-deployer'
 
 alias sdexec='sudo nsenter -t $(pidof systemd) -a'
 
-alias accept_bastion_ssh_host_keys='while true; do timeout 1 yes yes | head -n 1; sleep 1; done | pty -nie -- $SHELL -ic "BCS_PROFILE=n/a _ec2_load_inventory; for host in \${(k)EC2_ID[@]}; ssh \$host true"'
+alias accept_bastion_ssh_host_keys='for count in {1..60}; do timeout 1 yes yes | head -n 1; sleep 1; done | pty -ne -- $SHELL -ic "BCS_PROFILE=n/a _ec2_load_inventory; for host in \${(k)EC2_ID[@]}; ssh \$host true"'
 
 # typescript file walker
 
