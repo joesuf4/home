@@ -15,6 +15,5 @@ else
 fi
 
 reset
-sbei
-BCS_PROFILE=n/a ptyd $SHELL
+ptyd $SHELL
 exit $?
