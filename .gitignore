@@ -99,6 +99,7 @@
 .plan
 .plugin141_02.trace
 .projects.ede
+.pylint.d/
 .qmail*
 .qt/
 .rc-persist/
