@@ -32,6 +32,7 @@
 .config/configstore
 .config/op
 .config/pagerduty-cli/
+.config/tabtab
 .config/wslu
 .cpan/
 .cups/
@@ -109,6 +110,7 @@
 .rnd
 .semantic*
 .serverauth.*
+.serverless*
 .signature
 .sqlite_history
 .ssh/

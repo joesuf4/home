@@ -1,3 +1,3 @@
 . /etc/profile
-[[ -f ~/.profile ]] && . ~/.profile
 . ~/.oprc
+[[ -f ~/.profile ]] && . ~/.profile
