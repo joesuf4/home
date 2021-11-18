@@ -399,6 +399,10 @@ seed_bastion_ec2_inventory() {
   BCS_PROFILE=n/a _ec2_load_inventory
 }
 
+# pull in local rc config
+
+[[ -f ~/.myzshrc ]] && . ~/.myzshrc
+
 # reject any evaluation of unset variables
 
 unsetopt unset
