@@ -104,6 +104,8 @@ alias make='TERM=xterm-256color make -kj$(nproc)'
 
 alias k=kubectl
 
+alias tf=terraform
+
 alias perl='perl -CSD -Mutf8 -e "BEGIN{sub log_2 (\$) {log(shift)/log(2)}}"'
 
 alias plint='command perl -MO=Lint'
@@ -165,6 +167,7 @@ eval $(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/' | dircolors /dev/stdin)
 # window/screen title hooks
 
 precmd() {
+  setopt monitor
   ptyoff
   _bcs_title
 
