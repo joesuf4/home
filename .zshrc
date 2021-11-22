@@ -417,6 +417,10 @@ bashcompinit -i
 
 . ~/.asdf/completions/asdf.bash
 
+# enable job control (something's turned it off somewhere)
+
+setopt monitor
+
 # aws/tfe/k8s/bcs/eks/ec2
 
 complete -C aws_completer aws

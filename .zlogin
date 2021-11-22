@@ -11,7 +11,7 @@ else
   ptyd sudo update-binfmts --disable cli
   eval "$(mkdir -m 0700 -p /tmp/ssh-$USER && ssh-agent -a /tmp/ssh-$USER/agent.$$)"
   ptyd ssh-add
-  seed_vault_pass
+  (seed_vault_pass >/dev/null 2>&1 </dev/null &)
 fi
 
 reset
