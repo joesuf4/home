@@ -7,6 +7,7 @@ unset MOZILLA
     agar &
     npmu &
     pip3u &
+    gpgr &
     wait
   ' >"$UPGRADE_LOGFILE" 2>&1 </dev/null &
 )
