@@ -830,7 +830,7 @@ _eks_report_global() {
       echo "$org"
     done | time xargs -P${WORKERS:-$(nproc)} -i $SHELL -c "KUBECONFIG=/tmp/k8s/configs/$r/{} timeout --foreground --signal KILL ${TIMEOUT-300} $SHELL -ic \
       'touch \$KUBECONFIG
-       bcs assume-role {} engineer $r
+       BCS_ABORT_LOGIN=1 bcs assume-role {} engineer $r || exit $?
        if [[ $context != cluster ]]; then
          for c in \$(eks list-clusters); do
            KUBECONFIG=\"\${KUBECONFIG%.*}.\$c\"

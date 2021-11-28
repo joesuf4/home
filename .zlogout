@@ -3,8 +3,7 @@ unset MOZILLA
   nohup pty -nie -- timeout 300 pty -d pty-driver.pl -- $SHELL -ic '
     asdfu &
     zplugu &
-    agud &
-    agar &
+    agud && agar &
     npmu &
     pip3u &
     gpgr &
