@@ -10,7 +10,7 @@ zmodload zsh/pcre
 
 zplug "plugins/ubuntu", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
-zplug "marlonrichert/zsh-autocomplete"
+# zplug "marlonrichert/zsh-autocomplete"
 zplug "zsh-users/zsh-history-substring-search"
 zplug "joesuf4/zsh-history-filter"
 zplug "joesuf4/zsh-autosuggestions"
