@@ -35,8 +35,8 @@ export MOZILLA="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
 PTYON=(sudo git gpg op ssh ansible-vault)
 
 # top_10() customizations
-ANSI_COLOR_ID=5
-HIST_BLOCK="☠"
+ANSI_COLOR_ID=6
+HIST_BLOCK="❄"
 COL=68
 
 # report_node_inventory_static() (hi-speed) setting
