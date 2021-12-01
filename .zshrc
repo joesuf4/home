@@ -10,6 +10,7 @@ zmodload zsh/pcre
 
 zplug "plugins/ubuntu", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
+# I don't care for this menu-driven bash-like autocomplete plugin; but if you do, put it in ~/.myzshrc!
 # zplug "marlonrichert/zsh-autocomplete"
 zplug "zsh-users/zsh-history-substring-search"
 zplug "joesuf4/zsh-history-filter"
