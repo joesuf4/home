@@ -18,16 +18,6 @@ zplug "joesuf4/zsh-autosuggestions"
 #zplug "dracula/zsh", as:theme
 zplug "zplug/zplug", hook-build:"zplug --self-manage"
 
-if ! zplug check --verbose; then
-  printf "Install? [y/N]: "
-  if read -r -q; then
-    echo
-    zplug install
-  fi
-fi
-
-zplug load >/dev/null 2>&1
-
 # history settings
 
 setopt share_history extended_history hist_expire_dups_first hist_no_store
@@ -408,6 +398,18 @@ seed_bastion_ec2_inventory() {
 # pull in local rc config
 
 [[ -f ~/.myzshrc ]] && . ~/.myzshrc
+
+# install/load zplugins:
+
+if ! zplug check --verbose; then
+  printf "Install? [y/N]: "
+  if read -r -q; then
+    echo
+    zplug install
+  fi
+fi
+
+zplug load >/dev/null 2>&1
 
 # reject any evaluation of unset variables
 
