@@ -422,7 +422,7 @@ bashcompinit -i
 
 . ~/.asdf/completions/asdf.bash
 
-# enable job control (something's turned it off somewhere)
+# enable job control (something's turned it off somewhere on Ubuntu-21.04)
 
 setopt monitor
 
