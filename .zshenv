@@ -43,9 +43,6 @@ COL=68
 # report_node_inventory_static() (hi-speed) setting
 PLACEHOLDER=n/a
 
-# Joe has a debugging libc build installed on his WSL Ubuntu, with a non-default TERMINFO setting
-[[ "$USER" == schaefj ]] && export TERMINFO=/lib/terminfo
-
 # asdf setup
 . ~/.asdf/asdf.sh
 . ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
