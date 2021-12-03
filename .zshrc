@@ -318,8 +318,8 @@ top_10() {
               s/:\$// for @F;
               my \$unit = 0;
               for (\$F[-1]) {
-                s/P/*(\$KB**5)/i   and \$unit = 5;
-                s/T/*(\$KB**4)/i   and \$unit = 4;
+                s/P/*(\$KB**5)/    and \$unit = 5;
+                s/T/*(\$KB**4)/    and \$unit = 4;
                 s/G/*(\$KB**3)/i   and \$unit = 3;
                 s/M/*(\$KB**2)/    and \$unit = 2;
                 s/K/*\$KB/i        and \$unit = 1;
