@@ -1,4 +1,4 @@
 #!/bin/sh
 echoon <&2
 command -v gpg.exe >/dev/null 2>&1 && exec gpg.exe "$@"
-exec gpg --pinentry-mode loopback "$@"
+exec /usr/bin/gpg --pinentry-mode loopback "$@"
