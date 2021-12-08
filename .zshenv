@@ -45,7 +45,7 @@ PLACEHOLDER=n/a
 
 # asdf setup
 . ~/.asdf/asdf.sh
-. ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
+. ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh >/dev/null 2>&1
 
 # PATH
 for p in /sbin /usr/sbin /usr/local/bin "$(go env GOPATH)/bin" ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin
