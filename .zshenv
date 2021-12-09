@@ -10,7 +10,6 @@ export BPFTRACE_VMLINUX=~/src/bcscli/WSL2-Linux-Kernel/vmlinux
 export KUBECTL_NODE_SHELL_IMAGE=artifactory.blackstone.com/docker/alpine:latest
 export NODE_PATH=~/.asdf/installs/nodejs/$(grep nodejs ~/.tool-versions|awk '{print $2}')/.npm/lib/node_modules
 export NODE_OPTIONS=--use-openssl-ca
-export BCS_INSTALL_NPM_MODULES=1
 export KUBECONFIG
 
 UPGRADE_LOGFILE=/tmp/upgrades
