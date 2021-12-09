@@ -1,4 +1,4 @@
 #!/bin/sh
-echoon <&2
+echoon <&2 >/dev/null 2>&1
 command -v gpg.exe >/dev/null 2>&1 && exec gpg.exe "$@"
 exec /usr/bin/gpg --pinentry-mode loopback "$@"
