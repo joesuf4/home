@@ -1,4 +1,7 @@
 #!/bin/sh
 echoon <&2 >/dev/null 2>&1
-command -v gpg.exe >/dev/null 2>&1 && exec gpg.exe "$@"
+if command -v gpg.exe >/dev/null 2>&1; then
+  gpg.exe "$@" | tr -d '\r'
+  exit 0
+fi
 exec /usr/bin/gpg --pinentry-mode loopback "$@"
