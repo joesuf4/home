@@ -88,6 +88,7 @@
 .motd_shown
 .mozilla*/
 .mysql_history
+.myzshrc
 .nautilus/
 .netrc
 .newsrc*
