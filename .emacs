@@ -366,7 +366,7 @@
           (delete-file buffer-file-name)
     )))
 
-(add-hook 'before-save-hook #'delete-if-file)
+;; (add-hook 'before-save-hook #'delete-if-file)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; Company mode
