@@ -109,7 +109,7 @@ alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 
 alias sbei='seed_bastion_ec2_inventory ~/src/*-deployer'
 
-alias sdexec='sudo nsenter -t $(pidof systemd)'
+alias sdexec='sudo nsenter -t $(pidof systemd) -p'
 
 alias accept_bastion_ssh_host_keys='for count in {1..100}; do sleep 3; timeout 1 yes yes | head -n 1; done | pty -ne -- $SHELL -ic "BCS_PROFILE=n/a _ec2_load_inventory; for host in \${(k)EC2_ID[@]}; ssh \$host true"'
 
