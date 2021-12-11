@@ -16,7 +16,7 @@
 .aptitude/
 .asdf/
 .authinfo
-.aws/
+.aws
 .azure
 .bash_history
 .bash_profile
