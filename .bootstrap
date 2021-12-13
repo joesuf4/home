@@ -1,4 +1,4 @@
-cat <<'EOBCSRC' | sed -e 's/### VERSION ###/2.0-beta/' -e 's/## CLI ###/bcs ec2 eks/' > ~/.bcsrc
+cat <<'EOBCSRC' | sed -e 's/### VERSION ###/2.0-beta/' -e 's/### CLI ###/bcs ec2 eks/' > ~/.bcsrc
 # -*- sh -*-
 declare -ax words REQUIRED_ASDF_UTILITIES=(aws terraform kubectl go node k9s tflint dotnet golangci-lint) \
 REQUIRED_APT_UTILITIES=(jq xsltproc gcc clang zsh tmux pip3 pylint yamllint clang-tidy daemonize) \
