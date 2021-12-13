@@ -1,0 +1,587 @@
+# -*- sh -*-
+declare -ax words REQUIRED_ASDF_UTILITIES=(aws terraform kubectl go node k9s tflint dotnet golangci-lint) \
+REQUIRED_APT_UTILITIES=(jq xsltproc gcc clang zsh tmux pip3 pylint yamllint clang-tidy daemonize) \
+REQUIRED_PIP3_UTILITIES=(ansible flake8 black virtualenv) \
+REQUIRED_NPM_UTILITIES=(eslint serverless) \
+_bcs_tools=(htop lsof strace curl pty script.sh screen pffxg.sh) \
+_bcs_accounts=($(grep -P '[\w-]+\s*\).*;;' ~/.bcsrc | sed -Ee 's/\) [^;]*;;//g')) \
+_bcs_roles=(bx_root bx_super bx_admin bx_eks_admin developer engineer operator) \
+_bcs_regions=(us-east-1 us-east-2) \
+_bcs_cli_cmds=(shell batch screen tools-ship-bg htop-ship-config-bg help version) \
+_bcs_cmds=(get-account-name get-account-number assume-role mfa-session clear-envs set-region pty-screen help version)
+
+export LONG_TERM_AWS_ACCESS_KEY_ID LONG_TERM_AWS_SECRET_ACCESS_KEY \
+  AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_ACCESS_KEY_ID AWS_DEFAULT_REGION \
+  BCS_PROFILE BCS_BATCH BCS_ADMISSIBLE_CHARS BCS_VERSION _bcs_gur _bcs_mfa_arn _bcs_gstr
+
+: "${AWS_DEFAULT_REGION:=us-east-1}" "${BCS_ADMISSIBLE_CHARS:=[:alnum:][:space:]_.-}" \
+  "${BCS_BATCH:=$(nproc)}" "${BCS_VERSION:=### VERSION ###}"
+
+BCS_REMOTE_PROFILE_CREATION_SCRIPT='
+  cat <<EOF > ~/.profile
+[ -f ~/.bashrc ] && . ~/.bashrc
+export PATH="/tmp/bin:\$PATH" LANG=en_US.UTF-8 TERM=xterm-256color TERMINFO=/tmp/terminfo
+for cmd in ls grep; do
+  alias \$cmd="\$cmd --color=always"
+done
+alias screen="screen -U"
+top_10() {
+  sort -k\${F:-2}nr | head "\$@"
+}
+EOF
+'
+
+_bcs_cli_usage() {
+  local ns="$1"
+  echo -e "Version $BCS_VERSION\nUsage: $ns <command> [<args>]\n"
+  _${ns}_usage
+  [[ "$ns" != bcs ]] && cat <<EOF
+
+----------
+COMMON CLI
+----------
+
+shell                      Remote shell CLI for hosts/containers
+                           [<args>]
+                             1. select the target resource to
+                                deliver CLI (via PCRE filter)
+                             *  remainder form the commands to execute within a
+                                target shell
+                           Notes: commands will be run from a terminal session
+                           if STDIN is a terminal (the default case). Multiple
+                           targets are dealt with in succession, without any
+                           form of parallelization. Will execute under "sudo -E"
+                           if "sudo" exists on the remote targets.
+
+                           Requires tools-ship-bg to be run first.
+
+                           ===
+
+batch                      Batch processing CLI for remote shell CLI on
+                           hosts/containers
+                           [<args>]
+                             1. select target resource(s) to
+                                deliver CLI (via PCRE filter)
+                             *. remainder form the commands to execute within
+                                a target shell
+                           Notes: By no stretch of the imagination does this command
+                           support interactive remote terminal connections. Multiple
+                           targets are dealt with in (parallel) batches, determined by the
+                           \$BCS_BATCH environment variable. Will execute under
+                           "sudo -E" if "sudo" exists on the remote targets.
+
+                           ===
+
+screen                     Launch screen windows for remote shell CLI on
+                           hosts/containers
+                           [<args>]
+                             1. select the target resource
+                                to deliver CLI (via PCRE filter)
+                             *. remainder form the commands to execute on a
+                                per-screen-window basis
+                           Notes: command must be run from a controlling
+                           "bcs pty-screen ..." session. Will execute under
+                           "sudo -E" if "sudo" exists on the remote targets.
+
+                           Requires tools-ship-bg to be run first.
+
+                           ===
+
+tools-ship-bg              Ship non-kernel observability tools to
+                           hosts/containers in parallel
+                           [<args>]
+                             1. select the target resource(s) to receive the tools
+                           Notes: tooling includes static builds of the following
+                           binaries:
+
+                             ${_bcs_tools[@]}
+
+                           Tools will be installed to /tmp/bin and ~/.profile will
+                           update the (remote) \$PATH environment variable as well.
+
+                           ===
+
+htop-ship-config-bg        Ship local htop config to remote hosts/containers in
+                           parallel
+                           [<args>]
+                             1. selects the target resource(s) to receive the
+                                config file
+EOF
+  [[ "$cmd" == help ]]
+}
+
+_bcs_usage() {
+  cat <<EOF
+get-account-number         Translate a BX Org Name listed on AWS Inventory Page
+                           into its associated numeric AWS Org ID number.
+                           [<args>]
+                             1. lower-case Org Name
+                           Notes: conventions on translations: Org Names marked
+                           "(closed)" are omitted from consideration.
+                           Additionally, other formes of parenthetical remarks
+                           are taken to mean the Org is formally deprecated, and
+                           so those remarks are treated as adding a "-deprecated"
+                           suffix to the actual name.
+
+                           ===
+
+get-account-name           Reverse operation of "get-account-number": translates
+                           AWS Org ID numbers into their AWS Inventory Page
+                           names.
+                           [<args>]
+                             1. AWS Org ID
+                           Notes: see above notes for "get-account-number".
+
+                           ===
+
+assume-role                Assume an AWS spoke role via your BX Root role with
+                           MFA
+                           - Configures the AWS environment variables for the
+                             assumed role in your shell
+                           [<args>]
+                             1. account_identifier - account name or id number
+                             2. role - delegated IAM role (bx_admin, bx_readonly,
+                                etc.)
+                             3. aws region (optional; defaults to us-east-1)
+                             4. mfa_token  (optional; will prompt when missing)
+                           Example usage:
+                             $ bcs assume-role platform-nonprod bx_admin us-east-1
+                             $ bcs assume-role 072292405059 bx_eks_admin us-east-2
+
+                            If the mfa_token is not given on the command line, you
+                            will be prompted interactively
+                            $ bcs assume-role platform-nonprod bx_super
+                            > MFA token:
+
+                           ===
+
+mfa-session                Fetch AWS creds for your (parent) bx_root user account.
+                           - Configures the session variables accordingly.
+                           [<args>]
+                             1. mfa_token (optional; will prompt when missing)
+
+                           ===
+
+clear-envs                 Clear AWS environment variables from your shell
+                           - Vacates any AWS environment variables you have set
+                             in your shell
+                           Example usage:
+                           $ bcs clear-envs
+
+                           ===
+
+set-region                 Adjust controlling region. Repopulates inventory
+                           accordingly.
+                           [<args>]
+                             1. new region
+
+                           ===
+
+pty-screen                 Launch a pty -d pty-driver.pl screen (SSO) session.
+                           [<args>] - same as assume-role above
+                           Notes: this is a prereq for running any *screen* subcmds.
+
+EOF
+}
+
+_bcs_zsh_completion() {
+  local state
+  _arguments '1: :->bcs_cmd' '2: :->bcs_account' '3: :->bcs_role' '4: :->bcs_region'
+
+  case $state in
+    bcs_cmd)
+      _arguments "1:bcs_cmd:($_bcs_cmds)"
+      ;;
+    bcs_account)
+      if [[ "${words[2]}" == set-region ]]; then
+        _arguments "2:bcs_region:($_bcs_regions)"
+      else
+        _arguments "2:bcs_account:($_bcs_accounts)"
+      fi
+      ;;
+    bcs_role)
+      _arguments "3:bcs_role:($_bcs_roles)"
+      ;;
+    bcs_region)
+      _arguments "4:bcs_region:($_bcs_regions)"
+      ;;
+  esac
+}
+
+_bcs_title() {
+  local k8s_conf="$(kubectl config get-contexts | awk '/^\*/ { print $2,$5 }' | cut -d/ -f2)"
+  EKS_CLUSTER="$(eks_list_clusters "^\\Q${k8s_conf% *}\\E\$")"
+  EKS_NAMESPACE="$([[ -n "$EKS_CLUSTER" ]] && echo "${k8s_conf#* }")"
+
+  [[ "$TERM" =~ xterm ]] || return 1
+  local ptyon
+  [[ -f /tmp/ptyon-$USER/$(basename "$(ttyname 0)") ]] && ptyon="<ptyon>"
+
+  local zsh_script=$(
+    cat <<'EOF'
+    # screen title
+    [[ "$TERM" =~ screen ]] && \
+     print -Pn "\ek" && print -rn $@ && print -Pn "\e\\"
+
+    # window title
+    print -Pn "\e]0;$BCS_PROFILE\[$EKS_CLUSTER/$EKS_NAMESPACE\]: "
+    print -rn $@
+    print -Pn " [%j]\a"
+EOF
+  )
+
+  local bash_script=$(
+    cat <<'EOF'
+    # screen title
+    [[ "$TERM" =~ screen ]] && \
+     echo -en '\ek' && echo -n $@ && echo -en '\e\\'
+
+    # window title
+    echo -en '\e]0;'"$BCS_PROFILE[$EKS_CLUSTER/$EKS_NAMESPACE]: "
+    echo -n $@
+    echo -en ' ['$(jobs | wc -l)']\a'
+EOF
+  )
+
+  [[ $# == 0 ]] && set $(basename "$SHELL") $ptyon
+
+  if [[ $(basename "$SHELL") == zsh ]]; then
+    eval "$zsh_script"
+  else
+    eval "$bash_script"
+  fi
+}
+
+_bcs_command_exists() {
+  command -v "$@" >/dev/null 2>&1
+}
+
+_bcs_check_shell_requirements() {
+  local req
+  if ! _bcs_command_exists asdf; then
+    [[ -d ~/.asdf ]] || git clone https://github.com/asdf-vm/asdf.git ~/.asdf
+    . ~/.asdf/asdf.sh
+  fi
+  for req in "${REQUIRED_ASDF_UTILITIES[@]}"; do
+    if ! _bcs_command_exists "$req"; then
+      [[ "$req" == aws ]] && req+=cli
+      [[ "$req" == go ]] && req+=lang
+      [[ "$req" == node ]] && req+=js
+      [[ "$req" == dotnet ]] && req+=-core
+      echo "Missing required utility: $req; installing w/ asdf" >&2
+      asdf plugin-add "$req" || return $?
+      local version="$(asdf list-all "$req" | tail -n 1)"
+      PATH="/usr/bin:$PATH" asdf install "$req" "$version" || return $?
+      echo "$req" "$version" >>~/.tool-versions
+    fi
+  done
+  local pm
+  for pm in apt pip3 $([[ -n "${BCS_INSTALL_NPM_MODULES-}" ]] && echo npm); do
+    local UTILS=REQUIRED_"$(tr '[:lower:]' '[:upper:]' <<<"$pm")"_UTILITIES
+    for req in $(eval echo "\${${UTILS}[@]}"); do
+      if ! _bcs_command_exists "$req"; then
+        echo "Missing required utility: $req; installing w/ sudo -Es $pm" >&2
+        [[ "$req" == pip3 ]] && req=python3-pip
+        [[ "$req" == eslint ]] && req+=' typescript typescript-eslint'
+        [[ "$pm" == npm ]] && req="-g $req"
+        sudo -Es $pm install $req || return $?
+      fi
+    done
+  done
+}
+
+bcs_sed_uprobe_shared_libs() {
+  local _bcs_libs
+  declare -A _bcs_libs
+  local IFS=\;
+  while read -r line; do
+    line="${line//\\/\\\\}"
+    if [[ "$line" =~ ^#\!/ ]]; then
+      echo "${line// sudo -Es/}"
+      continue
+    fi
+    local lpath="${line#*:}"
+    lpath="${lpath%:**}"
+    if [[ ! "$lpath" =~ .*/lib/.* ]]; then
+      echo "$line"
+      continue
+    fi
+    local lib="${lpath##*/}"
+    lib="${lib%%.*}"
+    if [[ ! "$lib" =~ ^lib.* ]]; then
+      echo "$line"
+      continue
+    fi
+    : "${_bcs_libs[$lib]:=$("$@" sh -c "[ -f $lpath ] && echo $lpath || find -P /lib* /usr/lib* /usr/local/lib* -name '$lib.*so.*' | head -n 1")}"
+    echo "${line//$lpath/${_bcs_libs[$lib]}}"
+  done
+}
+
+bcs_get_account_number() {
+  local account_identifier="$1"
+
+  # Short circuit if the account_identifier is an AWS account ID
+  if [[ "$account_identifier" =~ ^[0-9]{12}$ ]]; then
+    echo "$account_identifier"
+    return 0
+  fi
+
+  case "$account_identifier" in
+    ### XSLTPROC ###
+  esac
+}
+
+bcs_get_account_name() {
+  local account_identifier="$1"
+  [[ "$account_identifier" =~ ^[0-9]{12}$ ]] || return 1
+
+  case "$account_identifier" in
+    ### XSLTREVS ###
+  esac
+}
+
+_bcs_set_access_key_id() {
+  local access_key_id_set=1
+
+  if [[ -n "$LONG_TERM_AWS_ACCESS_KEY_ID" ]]; then
+    AWS_ACCESS_KEY_ID="$LONG_TERM_AWS_ACCESS_KEY_ID"
+    access_key_id_set=0
+  elif [[ -n "$AWS_ACCESS_KEY_ID" && -z "$AWS_SESSION_TOKEN" ]]; then
+    access_key_id_set=0
+  elif [[ $(aws configure get long-term.aws_access_key_id) ]]; then
+    AWS_ACCESS_KEY_ID=$(aws configure get long-term.aws_access_key_id)
+    access_key_id_set=0
+  elif [[ $(aws configure get default.aws_access_key_id) ]]; then
+    AWS_ACCESS_KEY_ID=$(aws configure get default.aws_access_key_id)
+    access_key_id_set=0
+  fi
+
+  return "$access_key_id_set"
+}
+
+_bcs_set_secret_access_key() {
+  local secret_access_key_set=1
+
+  if [[ -n "$LONG_TERM_AWS_SECRET_ACCESS_KEY" ]]; then
+    AWS_SECRET_ACCESS_KEY="$LONG_TERM_AWS_SECRET_ACCESS_KEY"
+    secret_access_key_set=0
+  elif [[ -n "$AWS_SECRET_ACCESS_KEY" && -z "$AWS_SESSION_TOKEN" ]]; then
+    secret_access_key_set=0
+  elif [[ $(aws configure get long-term.aws_secret_access_key) ]]; then
+    AWS_SECRET_ACCESS_KEY=$(aws configure get long-term.aws_secret_access_key)
+    secret_access_key_set=0
+  elif [[ $(aws configure get default.aws_secret_access_key) ]]; then
+    AWS_SECRET_ACCESS_KEY=$(aws configure get default.aws_secret_access_key)
+    secret_access_key_set=0
+  fi
+
+  return "$secret_access_key_set"
+}
+
+_bcs_set_initial_aws_vars() {
+  _bcs_set_access_key_id || return 1
+  _bcs_set_secret_access_key || return 1
+  AWS_DEFAULT_REGION="${region-$AWS_DEFAULT_REGION}"
+  # Unset the session token if one is set
+  AWS_SESSION_TOKEN=
+  return 0
+}
+
+_bcs_read_mfa_from_stdin_if_not_given() {
+  if [[ -z "$1" ]]; then
+    if _bcs_command_exists op; then
+      eval "$(pty -nie -- pty -d pty-driver.pl -- op signin my 2>&1 | grep "^export " | tr -d '\r')"
+      op get totp "$OP_AWS" 2>/dev/null
+    else
+      echo -n "MFA token: " >&2
+      read -r mfa_token && echo "$mfa_token"
+    fi
+  else
+    echo "$1"
+  fi
+}
+
+bcs_mfa_session() {
+  _bcs_check_shell_requirements || return 1
+
+  #  _bcs_gur     # get user response
+  #  _bcs_mfa_arn # parsed and calculated mfa arn value from user info
+  #  _bfa_gstr    # get session token response
+
+  _bcs_set_initial_aws_vars
+  if [[ $? -eq 1 ]]; then
+    echo "Missing AWS credentials" >&2
+    return 1
+  fi
+
+  : "${_bcs_gur:=$(aws iam get-user)}"
+  # The mfa arn is the same thing as the user arn except for replacing user -> mfa
+  : "${_bcs_mfa_arn:=$(echo "$_bcs_gur" | jq -r .User.Arn | sed -e "s/user/mfa/")}"
+  : "${_bcs_gstr:=$(aws sts get-session-token --serial-number "$_bcs_mfa_arn" --token-code "$(_bcs_read_mfa_from_stdin_if_not_given "${1-}")")}"
+
+  if [[ -z "$_bcs_gstr" ]]; then
+    bcs_clear_envs
+    bcs_mfa_session
+    return $?
+  fi
+
+  BCS_PROFILE="bx_root@bx-root.$AWS_DEFAULT_REGION"
+  AWS_ACCESS_KEY_ID=$(echo "$_bcs_gstr" | jq -r .Credentials.AccessKeyId)
+  AWS_SECRET_ACCESS_KEY=$(echo "$_bcs_gstr" | jq -r .Credentials.SecretAccessKey)
+  AWS_SESSION_TOKEN=$(echo "$_bcs_gstr" | jq -r .Credentials.SessionToken)
+  _bcs_title
+  clear
+}
+
+bcs_assume_role() {
+  _bcs_check_shell_requirements || return
+
+  local account_identifier="${1-$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f1)}"
+  local role="${2-$(echo "$BCS_PROFILE" | cut -d@ -f1)}"
+  local region="${3-$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f2)}"
+  : "${region:=$AWS_DEFAULT_REGION}"
+
+  local account_id=$(bcs_get_account_number "$account_identifier")
+  if [[ ${#account_id} -ne 12 ]]; then
+    echo "Account ID is not 12 digits long" >&2
+    return 2
+  fi
+
+  if [[ -n "$account_id" ]]; then
+    bcs_mfa_session "${4-}"
+    local arr # assume role response
+    arr="$(aws sts assume-role --role-arn arn:aws:iam::"$account_id":role/"$role" --role-session-name "bcscli-$BCS_VERSION")"
+
+    if [[ $? -ne 0 ]]; then
+      [[ -n "${BCS_ABORT_LOGIN:-}" ]] && return 1
+      echo Retrying "$role@$account_identifier.$region" w/ new mfa-session...
+      bcs_clear_envs
+      bcs_assume_role "$account_identifier" "$role" "$region"
+      return $?
+    fi
+    AWS_ACCESS_KEY_ID=$(echo "$arr" | jq -r .Credentials.AccessKeyId)
+    AWS_SECRET_ACCESS_KEY=$(echo "$arr" | jq -r .Credentials.SecretAccessKey)
+    AWS_SESSION_TOKEN=$(echo "$arr" | jq -r .Credentials.SessionToken)
+    BCS_PROFILE="$role@$account_identifier.$region"
+    EC2_ID_SRC=
+    EKS_CLUSTERS_SRC=
+    _ec2_load_inventory
+    _eks_load_clusters
+    _bcs_title
+  else
+    echo "No account id" >&2
+    bcs_clear_envs
+    return 3
+  fi
+}
+
+bcs_clear_envs() {
+  for varname in AWS_ACCESS_KEY_ID AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY \
+    BCS_PROFILE _bcs_gur _bcs_mfa_arn _bcs_gstr \
+    EC2_ID_SRC EKS_CLUSTERS_SRC EKS_NODES_SRC EKS_TRACE_IDS_SRC EKS_NS_SRC EKS_PODS_SRC; do
+    eval "$varname="
+  done
+}
+
+_bcs_generate_cli() {
+  for ns; do
+    eval "$ns() {
+      local cmd=\"\$1\"
+      shift
+      if _bcs_command_exists ${ns}_\${cmd//-/_}; then
+        ${ns}_\${cmd//-/_} \"\$@\"
+        return \$?
+      elif _bcs_command_exists ${ns}-\$cmd.sh; then
+        ${ns}-\$cmd.sh \"\$@\"
+        return \$?
+      fi
+      _bcs_cli_usage $ns
+    }
+    ${ns}_version() {
+      $ns help | head -n 1
+    }
+    "
+    if [[ "$(basename $SHELL)" == zsh ]]; then
+      compdef _${ns}_zsh_completion $ns
+    else
+      if [[ "$ns" == bcs ]]; then
+        complete -W "\${_${ns}_cmds[@]}" $ns
+      else
+        complete -W "\${_bcs_cli_cmds[@]} \${_${ns}_cmds[@]}" $ns
+      fi
+    fi
+  done
+  return 0
+}
+
+bcs_pty_screen() {
+  "$SHELL" -ic 'bcs_assume_role "$@" && exec screen -U pty -d pty-driver.pl $SHELL' -- "$@"
+  local rv=$?
+  reset
+  return $rv
+}
+
+bcs_set_region() {
+  local account_identifier="$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f1)"
+  local role="$(echo "$BCS_PROFILE" | cut -d@ -f1)"
+  local region=$1
+  AWS_DEFAULT_REGION=$region
+  BCS_PROFILE="$role@$account_identifier.$region"
+  EC2_ID_SRC=
+  EKS_CLUSTERS_SRC=
+  _ec2_load_inventory
+  _eks_load_clusters
+  _bcs_title
+}
+
+# custom tab-completion
+
+_bcs_zsh_assume_role_completion() {
+  local state
+
+  _arguments '1: :->bcs_account' '2: :->bcs_role' '3: :->bcs_region'
+
+  case $state in
+    bcs_account)
+      _arguments "1:bcs_account:($_bcs_accounts)"
+      ;;
+
+    bcs_role)
+      _arguments "2:bcs_role:($_bcs_roles)"
+      ;;
+
+    bcs_region)
+      _arguments "3:bcs_region:($_bcs_regions)"
+      ;;
+  esac
+}
+
+_bcs_zsh_set_region_completion() {
+  local state
+
+  _arguments '1: :->bcs_region'
+
+  case $state in
+    bcs_region)
+      _arguments "1:bsc_region:($_bcs_regions)"
+      ;;
+  esac
+}
+
+for fcn in "${_bcs_cmds[@]}"; do
+  if [[ "$(basename "$SHELL")" == zsh ]]; then
+    if [[ "$fcn" == set-region ]]; then
+      compdef _bcs_zsh_set_region_completion bcs_${fcn//-/_}
+    else
+      compdef _bcs_zsh_assume_role_completion bcs_${fcn//-/_}
+    fi
+  else
+    if [[ "$fcn" == set-region ]]; then
+      complete -W '${_bcs_regions[@]}' bcs_${fcn//-/_}
+    else
+      complete -W '${_bcs_accounts[@]}' bcs_${fcn//-/_}
+    fi
+  fi
+done
+
+_bcs_generate_cli ### CLI ###
