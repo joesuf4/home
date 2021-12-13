@@ -587,3 +587,5 @@ done
 
 _bcs_generate_cli ### CLI ###
 EOBCSRC
+. ~/.bcsrc
+_bcs_check_shell_requirements
