@@ -60,5 +60,3 @@ done
 do
   [[ -f "$f" ]] && KUBECONFIG="$f$(echo "${KUBECONFIG:+:$KUBECONFIG}" | sed -e "s|:$f||g")"
 done
-
-unsetopt unset
