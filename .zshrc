@@ -371,7 +371,6 @@ emac() {
       args+=("$@")
       for arg; do
         [[ "$arg" != "${arg#-}" ]] && continue
-        [[ -e "$arg" ]] || echo >"$arg"
       done
     fi
   fi
