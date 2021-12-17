@@ -1,3 +1,3 @@
 #!/bin/bash
 
-[[ "$(mailcheck|wc -l)" -gt 0 ]] && echo "<Mail>"
+[[ "$(stat -c %s /var/spool/mail/$USER)" -gt 600 ]] && echo "<Mail>"
