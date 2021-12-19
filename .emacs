@@ -402,3 +402,7 @@
 
 ;;kubectx
 (require 'kubectx-mode)
+
+;;gnus
+(setq gnus-select-method '(nnml ""))
+(setq mail-sources '(((file :path "/var/spool/mail/joesu"))))
