@@ -405,4 +405,4 @@
 
 ;;gnus
 (setq gnus-select-method '(nnml ""))
-(setq mail-sources '(((file :path "/var/spool/mail/joesu"))))
+(setq mail-sources '(((file :path (concat "/var/spool/mail/" user-login-name)))))
