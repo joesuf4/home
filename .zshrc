@@ -59,6 +59,8 @@ alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
+alias ptyfix='pkill pty-agent && pty-agent'
+
 # translate between big-endian and little-endian objdumps.
 
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
