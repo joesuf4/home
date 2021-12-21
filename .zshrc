@@ -429,7 +429,7 @@ bashcompinit -i
 
 # enable job control (something's turned it off somewhere on Ubuntu-21.04)
 
-setopt monitor
+setopt monitor 2>/dev/null
 
 # aws/tfe/k8s/bcs/eks/ec2
 
