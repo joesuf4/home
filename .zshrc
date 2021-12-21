@@ -59,7 +59,7 @@ alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
-alias ptyfix='pkill pty-agent && pty-agent'
+alias ptyfix='pkill pty-agent && pty-agent && . ~/.oprc && sudo -k && sudo true'
 
 # translate between big-endian and little-endian objdumps.
 
