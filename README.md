@@ -58,6 +58,10 @@ execute on any reasonably current Linux bare-metal host, or running Linux-based
 container, or WSL (on a 5.x kernel built w/ CONFIG_IKHEADERS=yes in the config)
 itself.
 
+Update (12/22/2021): Experimenting with wslg on Windows 11 (X11 has no alpha
+channel support yet).  Emacs for Windows has some pain points on WSL, so I may
+need an attitude adjustment against my X11 loathing now the MS is in the game.
+
 ## Parallel Find Filename Xargs Grep (~/bin/pffxg.sh)
 
 ### TLDR; 4x faster than any other parallelized-recursive-grep solution.
