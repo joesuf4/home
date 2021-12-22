@@ -828,7 +828,7 @@ _eks_report_global() {
       ))
     for org in "${lastrun[@]}"; do
       echo "$org"
-    done | time xargs -P${WORKERS:-$(nproc)} -i $SHELL -c "KUBECONFIG=/tmp/k8s/configs/$r/{} timeout --foreground --signal KILL ${TIMEOUT-300} $SHELL -ic \
+    done | time xargs -P$BCS_BATCH -i $SHELL -c "KUBECONFIG=/tmp/k8s/configs/$r/{} timeout --foreground --signal KILL ${TIMEOUT-300} $SHELL -ic \
       'touch \$KUBECONFIG
        BCS_ABORT_LOGIN=1 bcs assume-role {} engineer $r || exit $?
        if [[ $context != cluster ]]; then
