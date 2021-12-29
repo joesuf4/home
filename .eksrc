@@ -334,11 +334,11 @@ _eks_load_clusters() {
 
   : "${EKS_CLUSTERS_SRC:=$(aws eks list-clusters --output text | awk '{print $2}' | tr -dc "$BCS_ADMISSIBLE_CHARS")}"
   eval "_eks_clusters=($EKS_CLUSTERS_SRC)"
-  _eks_load_namespaces
-  _eks_load_nodes
-  _eks_load_pods
-  _eks_load_trace_objects
-  _eks_load_trace_ids
+  _eks_load_namespaces 2>/dev/null
+  _eks_load_nodes 2>/dev/null
+  _eks_load_pods 2>/dev/null
+  _eks_load_trace_objects 2>/dev/null
+  _eks_load_trace_ids 2>/dev/null
   return 0
 }
 
