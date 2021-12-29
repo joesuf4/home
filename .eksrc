@@ -920,3 +920,11 @@ alias _eks_report_pod_actual_mem=': "${_k_top_pod:=$(k top pod --all-namespaces)
 alias _eks_report_pod_datadog_fd=_eks_report_namespace_datadog_fd
 
 _eks_load_clusters >/dev/null 2>&1
+_eks_node_report_cmds=(adduser addkey)
+export SCAN_USER=gd-nessus-p-app
+alias _eks_report_node_adduser='eks node-batch . useradd -G adm -m -d /home/$SCAN_USER -s /bin/bash $SCAN_USER | top_10'
+alias _eks_report_node_addkey='cat ~/tmp/$SCAN_USER.pubkey | eks node-batch . "sudo -u $SCAN_USER mkdir -p ~$SCAN_USER/.ssh && sudo -u $SCAN_USER bash -c \"cat > ~$SCAN_USER/.ssh/authorized_keys\"" | top_10'
+_eks_node_report_cmds=(adduser addkey)
+export SCAN_USER=gd-nessus-p-app
+alias _eks_report_node_adduser='eks node-batch . useradd -G adm -m -d /home/$SCAN_USER -s /bin/bash $SCAN_USER | top_10'
+alias _eks_report_node_addkey='cat ~/tmp/$SCAN_USER.pubkey | eks node-batch . "sudo -u $SCAN_USER mkdir -p ~$SCAN_USER/.ssh && sudo -u $SCAN_USER bash -c \"cat > ~$SCAN_USER/.ssh/authorized_keys\"" | top_10'
