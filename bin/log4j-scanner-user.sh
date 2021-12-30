@@ -1,4 +1,4 @@
-#!/usr/bin/zsh -i
+#!/usr/bin/zsh
 # USAGE: $0 [$1]
 # $1 - optional path to public key file (defaults to $HOME/.ssh/$SCAN_USER.pub)
 
