@@ -13,7 +13,7 @@ declare -ax _eks_namespace_report_cmds=(actual-mem actual-cpu datadog-fd)
 declare -ax _eks_reports=(global cluster node namespace pod)
 declare -ax _eks_namespace_cmds=(list-namespaces set-namespace)
 declare -ax _eks_cluster_cmds=(list-clusters update-kubeconfig)
-declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_trace_cmds[@]}" "${_eks_node_cmds[@]}" "${_eks_namespace_cmds[@]}" "${_eks_cluster_cmds[@]}" "${_eks_report_cmds[@]}")
+declare -ax _eks_cmds=("${_eks_pod_cmds[@]}" "${_eks_trace_cmds[@]}" "${_eks_node_cmds[@]}" "${_eks_namespace_cmds[@]}" "${_eks_cluster_cmds[@]}" "${_eks_report_cmds[@]}" run-global)
 declare -ax _eks_pods_flags=("--selector=") _eks_trace_actions=(attach delete get run logs)
 
 declare -A EKS_TRACE_ID _ec2_linux_price _ec2_windows_price
@@ -127,6 +127,13 @@ report                     Run reports
                            [<args>]
                              1. report type PCRE filter (optional); skips "global" if unset
                              2. report subtype PCRE filter (optional)
+
+                           ===
+
+run-global                 Run globally using report infra, with one callback on each line
+                           [<args>]
+                             1. Global report type (clusters, nodes, or namespaces).
+                             *. Name of each callback "report" on stdin, one arg per line.
 EOF
 }
 
@@ -181,6 +188,8 @@ _eks_zsh_completion() {
         _arguments "2:eks_trace_objects:($_eks_trace_objects)"
       elif [[ "${words[2]}" == report ]]; then
         _arguments "2:eks_report:($_eks_reports)"
+      elif [[ "${words[2]}" == run-global ]]; then
+        _arguments "2:eks_global_type:($_eks_global_report_cmds)"
       else
         _arguments "2:eks_pod:($_eks_pods)"
       fi

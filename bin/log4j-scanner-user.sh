@@ -10,6 +10,6 @@ if ! [[ -f $PUB_KEY ]]; then
 fi
 
 exec run-global.sh nodes adduser addkey <<'EOT'
-alias _eks_report_node_adduser='eks node-batch . "getent passwd $SCAN_USER || sudo useradd -G adm -m -d /home/$SCAN_USER -s /bin/bash $SCAN_USER"'
-alias _eks_report_node_addkey='eks node-batch . "sudo -u $SCAN_USER mkdir -p ~$SCAN_USER/.ssh && sudo -u $SCAN_USER bash -c \"cat > ~$SCAN_USER/.ssh/authorized_keys\"" <$PUB_KEY'
+eks node-batch . "getent passwd $SCAN_USER || sudo useradd -G adm -m -d /home/$SCAN_USER -s /bin/bash $SCAN_USER"
+eks node-batch . "sudo -u $SCAN_USER mkdir -p ~$SCAN_USER/.ssh && sudo -u $SCAN_USER bash -c \"cat > ~$SCAN_USER/.ssh/authorized_keys\"" <$PUB_KEY
 EOT

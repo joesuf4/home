@@ -15,7 +15,10 @@ done
 
 (
   echo "_eks_${type%s}_report_cmds=($@)"
-  cat
+  while read -r line; do
+    echo alias "_eks_report_${type%s}_$1='$line'"
+    shift
+  done
 ) >>~/.eksrc
 
 eks report global $type
