@@ -65,8 +65,9 @@ ptyfix() {
 }
 
 # translate between big-endian and little-endian objdumps.
-
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
+
+alias strip_cr="sed -i -e 's/\\r//'"
 
 alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)~1'
 
