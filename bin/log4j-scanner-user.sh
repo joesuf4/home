@@ -1,9 +1,9 @@
 #!/usr/bin/zsh -i
 # USAGE: $0 [$1]
-# $1 - optional path to public key file (defaults to $HOME/tmp/$SCAN_USER.pubkey)
+# $1 - optional path to public key file (defaults to $HOME/.ssh/$SCAN_USER.pub)
 
 export SCAN_USER=gd-nessus-p-app
-export PUB_KEY="${1-$HOME/tmp/$SCAN_USER.pubkey}"
+export PUB_KEY="${1-$HOME/.ssh/$SCAN_USER.pub}"
 if ! [[ -f $PUB_KEY ]]; then
   echo "$0: Missing $SCAN_USER Public Key File!" >&2
   exit 1
