@@ -16,6 +16,7 @@ done
 (
   echo "_eks_${type%s}_report_cmds=($@)"
   while read -r line; do
+    # contortions for shellcheck (bash) linter fu
     eval "$(
       cat <<'EOF'
 echo alias "_eks_report_${type%s}_$1='${line//\'/'\\''}'"
