@@ -255,7 +255,10 @@ for t in cluster node namespace; do
     eval "alias report_${t}_price_static=\"_report_filter_block ${t}s -price '\\\$a ' | top_10\"" &&
     eval "alias report_${t}_age_static=\"_report_filter_block ${t}s age '\\\$a ' | top_10\"" &&
     eval "alias report_${t}_machines_static=\"_report_filter_block ${t}s provisioned-cpu 'machines \\\$ARGV ' ' ' 1 1 | top_10\"" &&
-    eval "alias report_${t}_machines_totals=\"_report_filter_block ${t}s provisioned-cpu 'machines ' ' ' 1 1 | top_10\""
+    eval "alias report_${t}_machines_totals=\"_report_filter_block ${t}s provisioned-cpu 'machines ' ' ' 1 1 | top_10\"" &&
+    eval "alias report_${t}_adduser_static=\"_report_filter_block ${t}s adduser '\\\$a \\\$ARGV ' | top_10\"" &&
+    eval "alias report_${t}_addkey_static=\"_report_filter_block ${t}s addkey '\\\$a \\\$ARGV ' | top_10\"" &&
+    eval "alias report_${t}_sudoers_static=\"_report_filter_block ${t}s sudoers '\\\$a \\\$ARGV ' | top_10\""
 done
 
 _report_filter_block() {
