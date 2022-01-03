@@ -269,7 +269,7 @@ _report_filter_block() {
   local totals="${5-}"
   local count="${6-}"
   local suffix="${7-}"
-  perl -nale "@F and \$F[-1] =~ /^[KMGTpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F;
+  perl -nale "@F and \$F[-1] =~ /^[KMGTPpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F;
              \$F[-1] = 1 if @F and length \"$count\";
              (/([\\w-]*\b\Q$match\E\b)/ and \$a=\$1) ... (/Running/ and (\$a=\"\", 1))
                and (!/Running/ or (not length \$a and redo))
