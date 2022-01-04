@@ -1,7 +1,7 @@
 setopt prompt_subst extendedglob unset
 zmodload zsh/pcre
 
-# enable zplug and load fun modules
+# enable zplug and configure fun modules
 
 [[ -f ~/.zplug/init.zsh ]] || (
   /usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh &&
@@ -281,7 +281,7 @@ _report_filter_block() {
 alias report_all_totals='for name in cluster node namespace; do echo "\n$name mem totals...\n" && eval report_${name}_mem_totals; echo "\n$name cpu totals...\n" && eval report_${name}_cpu_totals; [[ "$name" == cluster ]] && echo "\nmonthly cost totals...\n" && report_node_monthly_totals | awk "{print \"dollars\", \$3}" | top_10; [[ "$name" == node ]] && echo "\nnode count...\n" && report_node_machines_totals; done; :'
 
 report_node_inventory_static() {
-  local ts=$(date +%s)
+  local ts="$(date +%s)"
   join -j 1 \
     <(join -j 1 \
       <(join -j 1 -a 1 \
@@ -413,7 +413,7 @@ seed_bastion_ec2_inventory() {
 
 [[ -f ~/.myzshrc ]] && . ~/.myzshrc
 
-# install/load zplugins:
+# install/load zplug modules
 
 if ! zplug check --verbose; then
   printf "Install? [y/N]: "
