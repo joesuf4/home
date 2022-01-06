@@ -60,8 +60,12 @@ alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 ptyfix() {
-  local OP_AWS
-  pkill pty-agent && pty-agent && . ~/.oprc && sudo -k && sudo true
+  pkill pty-agent
+  /usr/bin/sudo nsenter -t $(pidof systemd) -p -m -r -C /usr/bin/sudo -u $USER ~/bin/pty-agent
+  . ~/.oprc
+  [[ -f ~/.profile ]] && . ~/.profile
+  [[ -f ~/.myzshrc ]] && . ~/.myzshrc
+  /usr/bin/sudo -k && sudo true
 }
 
 # translate between big-endian and little-endian objdumps.
@@ -113,9 +117,9 @@ alias log_2='perl -le "print int log_2 \$_ for @ARGV"'
 
 alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 
-alias sbei='seed_bastion_ec2_inventory ~/src/*-deployer'
-
 alias sdexec='sudo -E nsenter -t $(pidof systemd) -p -m -r -C'
+
+alias sbei='seed_bastion_ec2_inventory ~/src/*-deployer'
 
 alias accept_bastion_ssh_host_keys='for count in {1..100}; do sleep 3; timeout 1 yes yes | head -n 1; done | pty -ne -- $SHELL -ic "BCS_PROFILE=n/a _ec2_load_inventory; for host in \${(k)EC2_ID[@]}; ssh \$host true"'
 
