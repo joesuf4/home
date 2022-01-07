@@ -1,6 +1,5 @@
 # -*- sh -*-
 cd
-
 echoon
 
 export SSH_AGENT_PID="$(pgrep -u $USER ssh-agent)"

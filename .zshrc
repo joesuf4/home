@@ -66,7 +66,7 @@ ptyfix() {
   . ~/.oprc
   [[ -f ~/.profile ]] && . ~/.profile
   [[ -f ~/.myzshrc ]] && . ~/.myzshrc
-  /usr/bin/sudo -k && ptyd sudo true
+  /usr/bin/sudo -k && ptyd sudo -v
 }
 
 # translate between big-endian and little-endian objdumps.
@@ -78,11 +78,11 @@ alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
-alias htop='sudo true && ptyoff /usr/bin/sudo -E /usr/bin/htop'
+alias htop='sudo -v && ptyoff /usr/bin/sudo -E /usr/bin/htop'
 
-alias lsof='sudo true && ptyoff /usr/bin/sudo -Es /usr/bin/lsof'
+alias lsof='sudo -v && ptyoff /usr/bin/sudo -Es /usr/bin/lsof'
 
-alias bpftrace='sudo true && ptyoff /usr/bin/sudo -Es bpftrace'
+alias bpftrace='sudo -v && ptyoff /usr/bin/sudo -Es bpftrace'
 
 alias curl='/usr/bin/curl'
 
@@ -96,9 +96,9 @@ alias asdfu='asdf update && asdf plugin-update --all'
 
 alias zplugu='setopt unset && zplug update; unsetopt unset'
 
-alias npmu='sudo true && ptyoff /usr/bin/sudo -Es npm update -g'
+alias npmu='sudo -v && ptyoff /usr/bin/sudo -Es npm update -g'
 
-alias pip3u='pip3 freeze | cut -d= -f1 | sudo xargs pip3 install -U'
+alias pip3u='sudo -v && ptyoff pip3 freeze | cut -d= -f1 | /usr/bin/sudo -Es xargs pip3 install -U'
 
 alias gpgr='gpg --refresh-keys'
 
