@@ -61,11 +61,12 @@ alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 ptyfix() {
   pkill pty-agent
-  /usr/bin/sudo nsenter -t $(pidof systemd) -p -m -r -C /usr/bin/sudo -u $USER ~/bin/pty-agent
+  wsl.exe --user root nsenter -t $(pidof systemd) -p -m -r -C sudo -u $USER ~/bin/pty-agent
+  sleep 1
   . ~/.oprc
   [[ -f ~/.profile ]] && . ~/.profile
   [[ -f ~/.myzshrc ]] && . ~/.myzshrc
-  /usr/bin/sudo -k && sudo true
+  /usr/bin/sudo -k && ptyd sudo true
 }
 
 # translate between big-endian and little-endian objdumps.
