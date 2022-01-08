@@ -14,7 +14,6 @@ else
   eval "$(mkdir -m 0700 -p /tmp/ssh-$USER && ssh-agent -a /tmp/ssh-$USER/agent.$$)"
   ptyd ssh-add
   ptyd zsh -ic 'echo foo | gpg --clear-sign --armor >/dev/null 2>&1'
-  (seed_vault_pass >/dev/null 2>&1 </dev/null &)
 fi
 
 reset
