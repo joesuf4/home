@@ -64,8 +64,10 @@ ptyfix() {
   wsl.exe --user root nsenter -t $(pidof systemd) -p -m -r -C sudo -u $USER ~/bin/pty-agent
   sleep 1
   . ~/.oprc
+  setopt unset
   [[ -f ~/.profile ]] && . ~/.profile
   [[ -f ~/.myzshrc ]] && . ~/.myzshrc
+  unsetopt unset
   /usr/bin/sudo -k && ptyd sudo -v
   (seed_vault_pass >/dev/null 2>&1 </dev/null &)
 }
