@@ -28,8 +28,8 @@ BCS_BATCH=4
 
 # m h  dom mon dow   command
 
-30 10 * * 1 sleep 300 | zsh -ic "for ctx in staging prod; do bcs assume-role apps-\$ctx-deprecated engineer; for c in bx-apps-\$ctx bx-apps-\$ctx-dmz; do eks update-kubeconfig \$c datadog; eks batch datadog '[' '\$(ls /proc/1/fd | wc -l)' -gt 10000 ']' '&&' echo kill 1 '&&' kill 1; done; done"
-30 10 * * 2 sleep 300 | zsh -ic "for org in corporate-finance-prod corporate-finance-nonprod treasury-nonprod user-feeds-nonprod niagara-nonprod niagara-prod bx-websites-nonprod bx-websites-prod bx-gso-nonprod hr-nonprod hr-prod; do bcs assume-role \$org engineer; eks update-kubeconfig \$(eks list-clusters | head -n 1) datadog; eks batch datadog '[' '\$(ls /proc/1/fd | wc -l)' -gt 10000 ']' '&&' echo kill 1 '&&' kill 1; done"
-30 10 * * 3 sleep 300 | zsh -ic 'seed_vault_pass && sbei && ec2 batch . "timedatectl | grep -qF \"synchronized: no\" && sudo apt-get install ntpdate && sudo ntpdate 169.254.169.123" 2>/dev/null'
-30 10 * * 4 sleep 300 | ~/bin/log4j-scanner-user.sh
-30 10 * * 5 sleep 300 | zsh -ic "eks report global . -n 1000; bcs clear-envs; PLACEHOLDER= report_node_inventory_static > ~winhome/tmp/eks-ec2-node-inventory-cost-report-\$(date -Iseconds).tsv"
+30 10 * * 1 zsh -ic "for ctx in staging prod; do bcs assume-role apps-\$ctx-deprecated engineer; for c in bx-apps-\$ctx bx-apps-\$ctx-dmz; do eks update-kubeconfig \$c datadog; eks batch datadog '[' '\$(ls /proc/1/fd | wc -l)' -gt 10000 ']' '&&' echo kill 1 '&&' kill 1; done; done"
+30 10 * * 2 zsh -ic "for org in corporate-finance-prod corporate-finance-nonprod treasury-nonprod user-feeds-nonprod niagara-nonprod niagara-prod bx-websites-nonprod bx-websites-prod bx-gso-nonprod crm-nonprod crm-prod investran-nonprod investran-prod hr-nonprod hr-prod; do bcs assume-role \$org engineer; eks update-kubeconfig \$(eks list-clusters | head -n 1) datadog; eks batch datadog '[' '\$(ls /proc/1/fd | wc -l)' -gt 10000 ']' '&&' echo kill 1 '&&' kill 1; done"
+30 10 * * 3 zsh -ic 'seed_vault_pass && sbei && ec2 batch . "timedatectl | grep -qF \"synchronized: no\" && sudo apt-get install ntpdate && sudo ntpdate 169.254.169.123" 2>/dev/null'
+30 10 * * 4 ~/bin/log4j-scanner-user.sh
+30 10 * * 5 zsh -ic "eks report global . -n 1000; bcs clear-envs; PLACEHOLDER= report_node_inventory_static > ~winhome/tmp/eks-ec2-node-inventory-cost-report-\$(date -Iseconds).tsv"
