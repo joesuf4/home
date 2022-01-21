@@ -16,4 +16,5 @@ RUN bash -c '. ~/.asdf/asdf.sh; . ~/.asdf/plugins/dotnet-core/set-dotnet-home.ba
 RUN cpan -f install B::Lint IO::Select URI Term::ReadKey
 ENV USER=root
 ENV TERM=xterm
+ENV LANG=en_US.UTF-8
 ENTRYPOINT cd /src && grep '[)]$' linter.rc | (echo; awk '{print $1}') | cut -d')' -f1 |  xargs -P$(nproc) -d'\n' -i sh -c 'git diff --name-only $(git show-branch --merge-base HEAD)~1 | LINTER={} bash linter.sh'
