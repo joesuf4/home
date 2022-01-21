@@ -25,4 +25,4 @@ jobs:
 
         run: |
           git clone -b wsl https://github.com/joesuf4/home .
-          docker run -t --rm -v $(pwd):/src schaefj/linter
+          LANG=en_US.UTF-8 docker run -t --rm -v $(pwd):/src schaefj/linter
