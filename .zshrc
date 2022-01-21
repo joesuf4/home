@@ -44,6 +44,7 @@ alias dh='dirs -v'
 
 nd winhome /mnt/c/Users/$USER
 nd winsrc ~winhome/src
+nd sd ~/src/service-deployer
 
 # utilities
 
