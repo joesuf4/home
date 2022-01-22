@@ -8,6 +8,7 @@ unset MOZILLA
     agud && agar &
     npmu &
     pip3u &
+    krewu &
     wait
   ' >"$UPGRADE_LOGFILE" 2>&1 </dev/null &
 )

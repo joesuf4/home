@@ -106,6 +106,8 @@ alias pip3u='sudo -v && ptyoff pip3 freeze | cut -d= -f1 | /usr/bin/sudo -Es xar
 
 alias gpgr='gpg --refresh-keys'
 
+alias krewu='k krew upgrade'
+
 alias sps='screen pty -d pty-driver.pl -- $SHELL'
 
 alias make='TERM=xterm-256color make -kj$(nproc)'
