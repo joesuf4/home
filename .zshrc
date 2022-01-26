@@ -356,7 +356,7 @@ top_10() {
                 \$_ = eval
               }
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join \" \", grep !/^(?:\Q$(tput bold)\E[^x☠❄◆▬■●▶]+?[x☠❄◆▬■●▶]\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head ${@:-${TOP_10_ARGS-}}
+              \$h{+join \" \", grep !/^(?:\Q$(tput bold)\E[^x☠❤❄◆▬■●▶]+?[x☠❤❄◆▬■●▶]\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head ${@:-${TOP_10_ARGS-}}
 }
 
 # presumes a running emacs-server
