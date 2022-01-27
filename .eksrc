@@ -929,3 +929,7 @@ alias _eks_report_pod_actual_mem=': "${_k_top_pod:=$(k top pod --all-namespaces)
 alias _eks_report_pod_datadog_fd=_eks_report_namespace_datadog_fd
 
 _eks_load_clusters >/dev/null 2>&1
+_eks_node_report_cmds=(adduser addkey sudoers)
+alias _eks_report_node_adduser='eks node-batch . '\''getent passwd gd-nessus-p-app || sudo useradd -G adm -m -d /home/gd-nessus-p-app -s /bin/bash gd-nessus-p-app'\'''
+alias _eks_report_node_addkey='eks node-batch . '\''sudo -u gd-nessus-p-app mkdir -p ~gd-nessus-p-app/.ssh && sudo -u gd-nessus-p-app bash -c "cat > ~gd-nessus-p-app/.ssh/authorized_keys"'\'' <"/home/schaefj/.ssh/gd-nessus-p-app.pub"'
+alias _eks_report_node_sudoers='eks node-batch . '\''bash -c "echo %adm \"ALL=(ALL) NOPASSWD: ALL\" >/etc/sudoers.d/adm && chmod 0440 /etc/sudoers.d/adm"'\'''
