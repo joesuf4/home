@@ -16,17 +16,18 @@ The configs are messy and not really aimed at public distribution, but
 I'd be happy to consider appropriate patches if there's something you'd
 like to see me make use of.
 
-The reusable (static) binaries and scripts are over in the bin/ dir. The
-`screen` binary should be suid root for session reattachment to have any hope
-of working. The only nontrivial script is `bin/pffxg.sh` - a parallelized
-recursive grep - targeting *very* large source trees typical for embedded
-development work.  I've included some primitive documentation for it below
-the next section.
+The reusable (static) binaries and scripts are over in the bin/ dir. The were
+compiled against Ubuntu 20.04's glibc, and most will not work on newer glibc
+operating systems. The `screen` binary should be suid root for session reattachment
+to have any hope of working. The only nontrivial script is `bin/pffxg.sh` -
+a parallelized recursive grep - targeting *very* large source trees typical
+for embedded development work.  I've included some primitive documentation for
+it below the next section.
 
 ## Ansible-friendly Linter Framework
 
 Copy and paste linter.{rc,sh} into your local repo, run `./linter.sh install`,  enjoy.
-Workable for any PR-based workflow and programming language framework imaginable.
+Workable for any PR/MR-based workflow and programming language framework imaginable.
 
 # WSL Specs
 
