@@ -20,14 +20,14 @@ uprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc
 /arg1 > 0/
 {
   @stack[pid, tid] = ustack(perf);
-  @size[pid, tid, @stack[pid, tid]] = arg1;
+  @size[pid, tid, @stack[pid, tid]] = (uint32)arg1;
 }
 
 uprobe:/lib/x86_64-linux-gnu/libc.so.6:calloc
 /arg1 > 0 && arg2 > 0/
 {
   @stack[pid, tid] = ustack(perf);
-  @size[pid, tid, @stack[pid, tid]] = arg1 * arg2;
+  @size[pid, tid, @stack[pid, tid]] = (uint32)(arg1 * arg2);
 }
 
 uprobe:/lib/x86_64-linux-gnu/libc.so.6:realloc,
@@ -35,7 +35,7 @@ uprobe:/lib/x86_64-linux-gnu/libc.so.6:realloc,
      /arg2 > 0/
 {
   @stack[pid, tid] = ustack(perf);
-  @size[pid, tid, @stack[pid, tid]] = arg2;
+  @size[pid, tid, @stack[pid, tid]] = (uint32)arg1;
 }
 
 uretprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc,
@@ -45,7 +45,8 @@ uretprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc,
      /@size[pid, tid, @stack[pid, tid]] > 0/
 {
   @st[comm, pid, tid, retval] = @stack[pid, tid];
-  @[comm, pid, tid, @stack[pid, tid], retval] = @size[pid, tid, @stack[pid, tid]];
+  $x=(uint32)@size[pid, tid, @stack[pid, tid]];
+  @[comm, pid, tid, @st[comm, pid, tid, retval], retval] = (int64)$x;
   delete(@size[pid, tid, @stack[pid, tid]]);
   delete(@stack[pid, tid]);
 }

@@ -550,7 +550,8 @@ eks_trace_shell() {
             if [[ "$pod" == "$obj" ]]; then
               kubectl trace $ACTION $obj --fetch-headers "$@" -f <(bcs_sed_uprobe_shared_libs kubectl node-shell $obj -- <$TMP)
             else
-              kubectl trace $ACTION $obj --fetch-headers "$@" -f <(bcs_sed_uprobe_shared_libs kubectl exec $pod -- <$TMP)
+              local ctr="$(eks_list_pod_containers "^\\Q$pod\\E\$" | head -n 1)"
+              kubectl trace $ACTION $obj --fetch-headers -c $ctr "$@" -f <(bcs_sed_uprobe_shared_libs kubectl exec $pod -c $ctr -- <$TMP)
             fi
           fi | tee -a /proc/self/fd/2 | awk '$3 == "created" {print $2}'
         )"
