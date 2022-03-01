@@ -14,6 +14,7 @@
 BEGIN
 {
   printf("Hit Ctrl-C to generate the Leak Check report\n");
+  @start = nsecs;
 }
 
 uprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc
@@ -45,8 +46,8 @@ uretprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc,
      /@size[pid, tid, @stack[pid, tid]] > 0/
 {
   @st[comm, pid, tid, retval] = @stack[pid, tid];
-  $x=(uint32)@size[pid, tid, @stack[pid, tid]];
-  @[comm, pid, tid, @st[comm, pid, tid, retval], retval] = (int64)$x;
+  @ns[comm, pid, tid, retval] = nsecs - @start;
+  @[comm, pid, tid, @st[comm, pid, tid, retval], retval] = @size[pid, tid, @stack[pid, tid]];
   delete(@size[pid, tid, @stack[pid, tid]]);
   delete(@stack[pid, tid]);
 }
@@ -56,6 +57,7 @@ uprobe:/lib/x86_64-linux-gnu/libc.so.6:free,
 {
   delete(@[comm, pid, tid, @st[comm, pid, tid, arg1], arg1]);
   delete(@st[comm, pid, tid, arg1]);
+  delete(@ns[comm, pid, tid, arg1]);
 }
 
 END
@@ -63,4 +65,8 @@ END
   clear(@size);
   clear(@stack);
   clear(@st);
+  printf("Total milliseconds since start of script: %lu\n", (nsecs - @start) / 1000000);
+  print(@ns, 100, 1000000);
+  clear(@ns);
+  clear(@start);
 }
