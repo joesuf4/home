@@ -45,9 +45,9 @@ uretprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc,
      uretprobe:/lib/x86_64-linux-gnu/libc.so.6:mmap
      /@size[pid, tid, @stack[pid, tid]] > 0/
 {
-  @st[comm, pid, tid, retval] = @stack[pid, tid];
-  @ns[comm, pid, tid, retval] = nsecs - @start;
-  @[comm, pid, tid, @st[comm, pid, tid, retval], retval] = @size[pid, tid, @stack[pid, tid]];
+  @st[comm, pid, retval] = @stack[pid, tid];
+  @ms[comm, pid, retval] = (nsecs - @start) / 1000000;
+  @[comm, pid, @ms[comm, pid, retval], @st[comm, pid, retval], retval] = @size[pid, tid, @stack[pid, tid]];
   delete(@size[pid, tid, @stack[pid, tid]]);
   delete(@stack[pid, tid]);
 }
@@ -55,9 +55,9 @@ uretprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc,
 uprobe:/lib/x86_64-linux-gnu/libc.so.6:free,
      uprobe:/lib/x86_64-linux-gnu/libc.so.6:munmap
 {
-  delete(@[comm, pid, tid, @st[comm, pid, tid, arg1], arg1]);
-  delete(@st[comm, pid, tid, arg1]);
-  delete(@ns[comm, pid, tid, arg1]);
+  delete(@[comm, pid, @ms[comm, pid, arg1], @st[comm, pid, arg1], arg1]);
+  delete(@st[comm, pid, arg1]);
+  delete(@ms[comm, pid, arg1]);
 }
 
 END
@@ -65,8 +65,6 @@ END
   clear(@size);
   clear(@stack);
   clear(@st);
-  printf("Total milliseconds since start of script: %lu\n", (nsecs - @start) / 1000000);
-  print(@ns, 100, 1000000);
-  clear(@ns);
+  printf("Total duration in milliseconds: %lu\n", (nsecs - @start) / 1000000);
   clear(@start);
 }
