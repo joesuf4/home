@@ -25,6 +25,7 @@ uprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_unlock
 {
   @held_time_us[comm, pid, usym(arg1), @ustack[arg1]] = hist((nsecs - @start[arg1])/1000);
   delete(@ustack[arg1]);
+  delete(@start[arg1]);
 }
 
 END
