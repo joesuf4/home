@@ -1,0 +1,35 @@
+#!/usr/bin/env -S sudo -Es bpftrace
+
+BEGIN
+{
+  printf("Hit Ctrl-C to generate the mutex_lock() held report\n");
+}
+
+uprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_lock,
+     uprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_trylock
+{
+  @ustack[arg1] = ustack(perf);
+  @addr[pid, tid] = arg1;
+}
+
+uretprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_lock,
+     uretprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_trylock
+     /retval == 0 && @addr[pid, tid] > 0/
+{
+  @start[@addr[pid, tid]] = nsecs;
+  delete(@addr[pid, tid]);
+}
+
+uprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_unlock
+/@start[arg1] > 0/
+{
+  @held_time_us[comm, pid, usym(arg1), @ustack[arg1]] = hist((nsecs - @start[arg1])/1000);
+  delete(@ustack[arg1]);
+}
+
+END
+{
+  clear(@ustack);
+  clear(@addr);
+  clear(@start);
+}

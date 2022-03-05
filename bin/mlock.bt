@@ -1,0 +1,29 @@
+#!/usr/bin/env -S sudo -Es bpftrace
+
+BEGIN
+{
+  printf("Hit Ctrl-C to generate the mutex_lock() latency report\n");
+}
+
+uprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_lock
+{
+  @ustack[pid, tid] = ustack(perf);
+  @addr[pid, tid] = arg1;
+  @start[pid, tid] = nsecs;
+}
+
+uretprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_lock
+/@start[pid, tid] > 0/
+{
+  @lock_latency_us[comm, usym(@addr[pid, tid]), @ustack[pid, tid]] = hist((nsecs - @start[pid, tid])/1000);
+  delete(@ustack[pid, tid]);
+  delete(@addr[pid, tid]);
+  delete(@start[pid, tid]);
+}
+
+END
+{
+  clear(@ustack);
+  clear(@addr);
+  clear(@start);
+}
