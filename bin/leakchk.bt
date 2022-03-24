@@ -36,7 +36,7 @@ uprobe:/lib/x86_64-linux-gnu/libc.so.6:realloc,
      /arg2 > 0/
 {
   @stack[pid, tid] = ustack(perf);
-  @size[pid, tid, @stack[pid, tid]] = (uint32)arg1;
+  @size[pid, tid, @stack[pid, tid]] = (uint32)arg2;
 }
 
 uretprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc,
