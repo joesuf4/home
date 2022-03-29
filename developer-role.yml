@@ -1,0 +1,93 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: developer-role
+rules:
+  - apiGroups: [""]
+    resources:
+      - "pods"
+      - "namespaces"
+    verbs: ["list", "get", "watch", "delete"]
+  - apiGroups: [""]
+    resources:
+      - "bindings"
+      - "configmaps"
+      - "endpoints"
+      - "events"
+      - "pods/log"
+      - "pods/status"
+      - "nodes"
+      - "limitranges"
+      - "namespaces/status"
+      - "persistentvolumeclaims/status"
+      - "persistentvolumeclaims"
+      - "replicationcontrollers/scale"
+      - "replicationcontrollers/status"
+      - "replicationcontrollers"
+      - "resourcequotas/status"
+      - "resourcequotas"
+      - "services/status"
+      - "services"
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["apps"]
+    resources:
+      - "controllerrevisions"
+      - "daemonsets/scale"
+      - "daemonsets/status"
+      - "daemonsets"
+      - "deployments/scale"
+      - "deployments/status"
+      - "deployments"
+      - "replicasets/scale"
+      - "replicasets/status"
+      - "replicasets"
+      - "statefulsets/scale"
+      - "statefulsets/status"
+      - "statefulsets"
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["autoscaling"]
+    resources:
+      - "horizontalpodautoscalers/status"
+      - "horizontalpodautoscalers"
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["batch"]
+    resources:
+      - "cronjobs/status"
+      - "cronjobs"
+      - "jobs/status"
+      - "jobs"
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["extensions"]
+    resources:
+      - "daemonsets/status"
+      - "daemonsets"
+      - "deployments/scale"
+      - "deployments/status"
+      - "deployments"
+      - "ingresses/status"
+      - "ingresses"
+      - "networkpolicies"
+      - "replicasets/scale"
+      - "replicasets/status"
+      - "replicasets"
+      - "replicationcontrollers/scale"
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources:
+      - "nodes"
+      - "pods"
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - "ingresses/status"
+      - "ingresses"
+      - "networkpolicies"
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["policy"]
+    resources:
+      - "poddisruptionbudgets/status"
+      - "poddisruptionbudgets"
+    verbs: ["list", "get", "watch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["list"]
