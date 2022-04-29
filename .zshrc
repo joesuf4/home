@@ -32,6 +32,9 @@ bindkey '\e[1;5D' emacs-backward-word
 bindkey '^P' history-substring-search-up
 bindkey '^N' history-substring-search-down
 
+bindkey '^A' vi-beginning-of-line
+bindkey '^K' kill-line
+
 # directory stuff
 
 nd() {
