@@ -34,6 +34,7 @@ bindkey '^N' history-substring-search-down
 
 bindkey '^A' vi-beginning-of-line
 bindkey '^K' kill-line
+bindkey '^Y' yank
 
 # directory stuff
 
