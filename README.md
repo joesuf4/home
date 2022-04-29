@@ -20,7 +20,7 @@ The reusable (static) binaries and scripts are over in the bin/ dir. The were
 compiled against Ubuntu 20.04's glibc, and most will not work on newer glibc
 operating systems. The `screen` binary should be suid root for session reattachment
 to have any hope of working. The only nontrivial script is `bin/pffxg.sh` -
-a parallelized recursive grep - targeting *very* large source trees typical
+a parallelized, filtered recursive grep - targeting *very* large source trees typical
 for embedded development work.  I've included some primitive documentation for
 it below the next section.
 
