@@ -30,6 +30,7 @@
 .cloud-locale-test.skip
 .config/NuGet
 .config/configstore
+.config/k9s/
 .config/op
 .config/pagerduty-cli/
 .config/tabtab
