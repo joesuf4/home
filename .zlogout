@@ -14,7 +14,7 @@ chmod 0600 "$UPGRADE_LOGFILE"
     pip3u &
     krewu &
     wait
-    echo "UPGRADES COMPLETE(exit=$?)."
+    echo "UPGRADES COMPLETE(wait=$?)."
   ' >"$UPGRADE_LOGFILE" 2>&1 </dev/null &
 )
 sudo -k
