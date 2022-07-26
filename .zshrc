@@ -104,7 +104,7 @@ alias asdfu='asdf update && asdf plugin-update --all'
 
 alias zplugu='setopt unset && zplug update; unsetopt unset'
 
-alias npmu='sudo -v && ptyoff /usr/bin/sudo -Es npm update -g'
+alias npmu='sudo -v && ptyoff /usr/bin/sudo -Es npm update --location=global'
 
 alias pip3u='sudo -v && ptyoff pip3 freeze | cut -d= -f1 | /usr/bin/sudo -Es xargs pip3 install -U'
 

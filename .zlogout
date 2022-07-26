@@ -1,15 +1,20 @@
+set -e
 unset MOZILLA
+touch "$UPGRADE_LOGFILE"
+chmod 0600 "$UPGRADE_LOGFILE"
 (
-  nohup pty -nie -- timeout 300 pty -d pty-driver.pl -- $SHELL -ic '
+  nohup pty -t 3 -nie -- timeout 300 pty -d pty-driver.pl -- $SHELL -ic '
+    echoon
     sudo -v
     asdfu &
     zplugu &
     gpgr &
-    agud && agar &
+    agu && sdexec apt dist-upgrade && agar &
     npmu &
     pip3u &
     krewu &
     wait
+    echo "UPGRADES COMPLETE(exit=$?)."
   ' >"$UPGRADE_LOGFILE" 2>&1 </dev/null &
 )
 sudo -k

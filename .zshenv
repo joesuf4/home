@@ -12,10 +12,10 @@ export BPFTRACE_VMLINUX=~/src/bcscli/WSL2-Linux-Kernel/vmlinux
 export KUBECTL_NODE_SHELL_IMAGE=artifactory.blackstone.com/docker/alpine:latest
 export NODE_PATH=~/.asdf/installs/nodejs/$(awk '$1 == "nodejs" {print $2}' ~/.tool-versions)/.npm/lib/node_modules
 export NODE_OPTIONS=--use-openssl-ca
-export MAIL=/var/spool/mail/$USER
+export MAIL="/var/spool/mail/$USER"
 export KUBECONFIG
 
-UPGRADE_LOGFILE=/tmp/upgrades
+UPGRADE_LOGFILE="/tmp/upgrades-$USER"
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
