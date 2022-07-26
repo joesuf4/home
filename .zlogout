@@ -3,7 +3,7 @@ unset MOZILLA
 touch "$UPGRADE_LOGFILE"
 chmod 0600 "$UPGRADE_LOGFILE"
 (
-  nohup pty -t 3 -nie -- timeout 300 pty -d pty-driver.pl -- $SHELL -ic '
+  nohup pty -t 3 -nie -- timeout 300 pty -d pty-driver.pl -- flock -Fn "$UPGRADE_LOGFILE" $SHELL -ic '
     echoon
     sudo -v
     asdfu &
