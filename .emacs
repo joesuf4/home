@@ -206,8 +206,8 @@
  '(dired-use-ls-dired nil)
  '(diredfl-global-mode t nil (diredfl))
  '(exec-suffixes '(".exe" ".com" ".bat" ".cmd" ".btm" ".ps1" ""))
- '(flycheck-c/c++-clang-executable "clang-10")
- '(flycheck-clang-analyzer-executable "clang-10")
+ '(flycheck-c/c++-clang-executable "clang")
+ '(flycheck-clang-analyzer-executable "clang")
  '(lsp-csharp-server-path "~/bin/OmniSharp.bat")
  '(lsp-enable-file-watchers nil)
  '(lsp-file-watch-threshold nil)
@@ -219,15 +219,20 @@
      ("melpa" . "https://melpa.org/packages/")
      ("melpa-stable" . "https://stable.melpa.org/packages/")))
  '(package-selected-packages
-   '(dockerfile-mode kubernetes kubectx-mode terraform-doc terraform-mode lsp-python-ms go-mode yasnippet csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))
- '(sh-basic-offset 2))
+   '(lsp-jedi dockerfile-mode kubernetes kubectx-mode terraform-doc terraform-mode lsp-python-ms go-mode yasnippet csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))
+ '(sh-basic-offset 2)
+ '(warning-suppress-log-types '(((unlock-file)))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :extend nil :stipple nil :background "DarkSlateGray" :foreground "White" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 200 :width normal :foundry "outline" :family "Deja Vu Sans Mono")))))
+ '(default ((t (:inherit nil :extend nil :stipple nil :background
+                         "DarkSlateGray" :foreground "White" :inverse-video nil
+                         :box nil :strike-through nil :overline nil :underline
+                         nil :slant normal :weight normal :height 100 :width
+                         normal :foundry "outline" :family "DejaVu Sans Mono")))))
 
 
 ;;--------------------------------------------------
@@ -388,12 +393,12 @@
 (setq compile-command "wsl make -kj ")
 
 ;; python fun
-(use-package lsp-python-ms
+(use-package lsp-jedi
   :ensure t
-  :init (setq lsp-python-ms-auto-install-server t)
-  :hook (python-mode . (lambda ()
-                          (require 'lsp-python-ms)
-                          (lsp-deferred))))
+  :config
+  (with-eval-after-load "lsp-mode"
+    (add-to-list 'lsp-disabled-clients 'pyls)
+    (add-to-list 'lsp-enabled-clients 'jedi)))
 
 
 ;; terraform
