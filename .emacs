@@ -231,7 +231,7 @@
  '(default ((t (:inherit nil :extend nil :stipple nil :background
                          "DarkSlateGray" :foreground "White" :inverse-video nil
                          :box nil :strike-through nil :overline nil :underline
-                         nil :slant normal :weight normal :height 120 :width
+                         nil :slant normal :weight normal :height 200 :width
                          normal :foundry "outline" :family "DejaVu Sans Mono")))))
 
 
