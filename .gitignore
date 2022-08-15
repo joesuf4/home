@@ -203,6 +203,7 @@ libexec/
 mail/
 node_modules/
 ntuser*
+package-lock.json
 perl5-*/
 private/
 public_html/
