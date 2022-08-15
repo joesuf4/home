@@ -460,6 +460,7 @@ setopt monitor 2>/dev/null
 complete -C aws_completer aws
 complete -o nospace -C terraform terraform
 
+. ~/.ocirc
 . <(kubectl completion $(basename "$SHELL"))
 . ~/.bcsrc
 . ~/.ec2rc
