@@ -61,3 +61,17 @@ done
 do
   [[ -f "$f" ]] && KUBECONFIG="$f$(echo "${KUBECONFIG:+:$KUBECONFIG}" | sed -e "s|:$f||g")"
 done
+
+declare -A OCI_AD
+# do not edit the next line manually!
+OCI_AD=( )
+
+OCI_SITE_SVCS=(http:apache24 markdownd svnwcsub watchdog)
+OCI_HOST_PREFIX=HA-fileserver
+OCI_ZPOOL=HApool
+
+ZFS_TANK_EXPORTS=(tank/x1/cms tank/x1/svnpubsub tank/x1/httpd)
+ZFS_RPOOL_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt rpool/etc/mail rpool/etc/svc/manifest/site)
+ZFS_EXPORTS=(${ZFS_TANK_EXPORTS[@]} ${ZFS_RPOOL_EXPORTS[@]})
+
+PKG_REPOS=http://127.0.0.1:9999/
