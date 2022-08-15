@@ -131,12 +131,15 @@ TODO
 VirtualBox VMs/
 \#*
 audio/
+bin/echoon
+bin/echooff
 bin/isatty
 bin/nproc
 bin/pty*
 bin/publish*
 bin/script.sh
 bin/strace
+bin/ttyname
 build/
 console.out
 crons/
