@@ -28,6 +28,8 @@
 .chess-save
 .ckl
 .cloud-locale-test.skip
+.config/GIMP/
+.config/gtk-2.0/
 .config/NuGet
 .config/configstore
 .config/k9s/
