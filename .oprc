@@ -1,3 +1,4 @@
 # -*- sh -*-
-command -v op >/dev/null && ~/bin/pty -d pty-driver.pl -- zsh -ic "op signin my >/dev/null"
+command -v op >/dev/null && ~/bin/pty -d pty-driver.pl -- zsh -ic "op signin --account my.1password.com >/dev/null"
 export OP_AWS="BX AWS"
+export OP_TOTP="Zeus"

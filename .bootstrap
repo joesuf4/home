@@ -391,8 +391,8 @@ _bcs_set_initial_aws_vars() {
 _bcs_read_mfa_from_stdin_if_not_given() {
   if [[ -z "$1" ]]; then
     if _bcs_command_exists op; then
-      eval "$(pty -nie -- pty -d pty-driver.pl -- op signin my 2>&1 | grep "^export " | tr -d '\r')"
-      op get totp "$OP_AWS" 2>/dev/null
+      eval "$(pty -nie -- pty -d pty-driver.pl -- op signin -f 2>&1 | grep "^export " | tr -d '\r')"
+      op item get --otp "$OP_AWS" 2>/dev/null
     else
       echo -n "MFA token: " >&2
       read -r mfa_token && echo "$mfa_token"

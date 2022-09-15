@@ -430,7 +430,7 @@ oci_region_ssh_enable_gwp () {
     oci_region_exec $region sed -i -e "'s/bool_def GatewayPorts/def GatewayPorts/'" /lib/svc/stencils/sshd_config.stencil
     oci_region_exec $region sudo svccfg -s network/ssh:default setprop config/GatewayPorts = astring: clientspecified
     oci_region_exec $region svcadm restart manifest-import
-    oci_region_exec $region svcadm restart ssh
+    oci_region_exec $region svcadm refresh ssh
 }
 
 oci_region_zlogin () {
