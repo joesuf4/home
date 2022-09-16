@@ -460,8 +460,9 @@ setopt monitor 2>/dev/null
 complete -C aws_completer aws
 complete -o nospace -C terraform terraform
 
-. ~/.lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh
-. ~/.ocirc
+for sfile in  ~/.lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh ~/.ocirc;
+  [[ -f $sfile ]] && . $sfile
+
 . <(kubectl completion $(basename "$SHELL"))
 . ~/.bcsrc
 . ~/.ec2rc
