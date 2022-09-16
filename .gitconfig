@@ -12,3 +12,5 @@
 	rebase = true
 [commit]
 #	gpgsign = true
+[http]
+        sslCAinfo = /etc/certs/ca-certificates.crt
