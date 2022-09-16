@@ -4,7 +4,6 @@ echoon
 
 if [[ "$(uname)" != Linux ]]; then
   reset
-  ptyfix
   ptyd $SHELL
   exit $?
 fi
