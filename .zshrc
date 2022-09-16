@@ -257,7 +257,7 @@ for cmd in "${PTYON[@]}"; do
       for arg; do [[ \"\$arg\" == \"\${arg#-}\" && \"\$EC2_ID[\${arg#*@}]\" =~ ^/ ]] && set -- -i \"\$PEMFILE\" \"\$@\" && break; done
       [[ \"\$EC2_ID[\${arg#*@}]\" =~ ^/ ]] && pty -nie -- pty -d pty-driver.pl -- \$SHELL -ic 'ansible-vault decrypt --output \"\$@\"' -- \"\$PEMFILE\" \"\$EC2_ID[\$arg]\" </dev/null >/dev/null 2>&1
       ptyon
-      (sleep 3; ptyoff &)
+      (sleep 3; ptyoff sleep 2 &)
     else
       ptyon
     fi
