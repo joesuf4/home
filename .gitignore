@@ -81,6 +81,7 @@
 .kube/
 .landscape/
 .lesshst
+.lib/
 .local/
 .lpoptions
 .lsof*
@@ -99,6 +100,7 @@
 .npm/
 .nnmail-cache
 .nuget/
+.oci/
 .openoffice.org2/
 .oracle*/
 .pinerc
@@ -192,6 +194,7 @@ bin/isatty
 bin/ttyname
 bin/nproc
 bin/op
+bin/oci
 bin/pty*
 bin/publish*
 bin/script.sh
