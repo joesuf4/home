@@ -134,6 +134,8 @@ alias sbei='seed_bastion_ec2_inventory ~/src/*-deployer'
 
 alias accept_bastion_ssh_host_keys='for count in {1..100}; do sleep 3; timeout 1 yes yes | head -n 1; done | pty -ne -- $SHELL -ic "BCS_PROFILE=n/a _ec2_load_inventory; for host in \${(k)EC2_ID[@]}; ssh \$host true"'
 
+alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
+
 # typescript file walker
 
 tplay() {
@@ -217,9 +219,27 @@ if [[ ${EMACS+} == t ]]; then
   PROMPT=$'%~%(?..(%?%))%# '
   unset RPROMPT
 else
-  alias ls='ls --color=auto'
-  alias grep='grep --color=auto'
-  PROMPT=$'$PR_CYAN%~$PR_RESET$PR_BRIGHT_BLACK%(?..($PR_RESET$PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
+  case "$(uname)" in
+    Linux)
+      alias ls='ls --color=auto'
+      alias grep='grep --color=auto'
+      PROMPT=$'$PR_CYAN%~$PR_RESET$PR_BRIGHT_BLACK%(?..($PR_RESET$PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
+      ;;
+    FreeBSD|Darwin)
+      alias ls='ls -G'
+      alias grep='grep --color=auto'
+      PROMPT=$'$PR_CYAN%~$PR_RESET$PR_MAGENTA(?..($PR_RESET$PR_RED%?$PR_MAGENTA%))$PR_MAGENTA%#$PR_RESET '
+      ;;
+    SunOS)
+      alias ls='ls --color'
+      alias grep='grep --color=auto'
+      alias perlfreq="dtrace -qZn 'sub-entry { @[strjoin(strjoin(copyinstr(arg3),\"::\"),copyinstr(arg0))] = count() } END {trunc(@, 10)}'"
+
+      alias perlop="dtrace -qZn 'sub-entry { self->fqn = strjoin(copyinstr(arg3), strjoin(\"::\", copyinstr(arg0))) } op-entry /self->fqn != \"\"/ { @[self->fqn] = count() } END { trunc(@, 3) }'"
+      alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
+      PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_CYAN%~$PR_RESET%(?..($PR_BRIGHT_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
+      ;;
+  esac
 fi
 
 # wrappers to enable ptyd on credential-using apps
