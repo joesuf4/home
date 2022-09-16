@@ -2,6 +2,13 @@
 cd
 echoon
 
+if [[ "$(uname)" != Linux ]]; then
+  reset
+  ptyfix
+  ptyd $SHELL
+  exit $?
+fi
+
 export SSH_AGENT_PID="$(pgrep -u $USER ssh-agent)"
 if [[ -n "$SSH_AGENT_PID" ]]; then
   export SSH_AUTH_SOCK="$(ls -t /tmp/ssh-$USER/agent.* | head -n 1)"

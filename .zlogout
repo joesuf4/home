@@ -1,5 +1,9 @@
 set -e
 unset MOZILLA
+if [[ "$(uname)" != Linux ]]; then
+   sudo -k
+   exit 0
+fi
 touch "$UPGRADE_LOGFILE"
 chmod 0600 "$UPGRADE_LOGFILE"
 (
