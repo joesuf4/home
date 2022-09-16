@@ -3,7 +3,7 @@ cd
 echoon
 
 if [[ "$(uname)" != Linux ]]; then
-  $SHELL
+  ptyd $SHELL
   exit $?
 fi
 
