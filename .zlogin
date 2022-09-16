@@ -3,7 +3,6 @@ cd
 echoon
 
 if [[ "$(uname)" != Linux ]]; then
-  reset
   $SHELL
   exit $?
 fi
