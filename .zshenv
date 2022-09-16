@@ -50,7 +50,7 @@ PLACEHOLDER=n/a
 . ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh >/dev/null 2>&1
 
 # PATH
-for p in /sbin /usr/sbin /usr/local/bin "$(go env GOPATH)/bin" ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin
+for p in /sbin /usr/sbin /usr/local/bin "$(go env GOPATH)/bin 2>/dev/null" ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin
 do
   # fyi- this is not going to work if you use it on nested $p paths...
   [[ -d "$p" ]] && PATH="$p$(echo ":$PATH" | sed -e "s|:$p||g")"

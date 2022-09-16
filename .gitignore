@@ -219,3 +219,8 @@ tmp/
 zeus/
 .npmrc
 bin/echo*
+.zulu*
+.softwareupdate
+*.pem
+.dt*
+.tarsnap-cache/
