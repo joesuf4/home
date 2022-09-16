@@ -4,7 +4,7 @@ echoon
 
 if [[ "$(uname)" != Linux ]]; then
   reset
-  ptyd $SHELL
+  PATH="~/bin:/usr/local/bin:$PATH" ptyd $SHELL
   exit $?
 fi
 
