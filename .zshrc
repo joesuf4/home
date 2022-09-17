@@ -178,7 +178,7 @@ done
 PR_RESET="%{${reset_color}%}"
 
 # translate deep blue (which PowerShell obfuscates by default) to cyan
-dircolors <(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/')
+eval "$(dircolors <(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/'))"
 
 # window/screen title hooks
 
