@@ -259,7 +259,7 @@ for cmd in "${PTYON[@]}"; do
       ptyon
       (sleep 5; ptyoff sleep 1 &)&
     elif [[ $cmd == svn ]]; then
-      [[ \"\${1:-}\" -pcre-match '^(up|co)' ]] && ptyon
+      [[ \"\${1:-}\" -pcre-match '^(up|co|ci)' ]] && ptyon
     else
       ptyon
     fi
