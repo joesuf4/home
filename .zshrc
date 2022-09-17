@@ -466,7 +466,7 @@ unsetopt unset
 autoload -Uz bashcompinit
 bashcompinit -i
 
-. ~/.asdf/completions/asdf.bash
+[[ -d ~/.asdf ]] && . ~/.asdf/completions/asdf.bash
 
 # enable job control (something's turned it off somewhere on Ubuntu-21.04)
 
@@ -480,7 +480,7 @@ complete -o nospace -C terraform terraform
 for sfile in  ~/.lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh ~/.ocirc;
   [[ -f $sfile ]] && . $sfile
 
-. <(kubectl completion $(basename "$SHELL"))
+command -v kubectl >/dev/null 2>&1 && . <(kubectl completion $(basename "$SHELL"))
 . ~/.bcsrc
 . ~/.ec2rc
 . ~/.eksrc
