@@ -20,11 +20,19 @@ case "$LINTER" in
     XARGS_MAX_FILES=1
     PCRE_PAT='\.p[ml]$'
     export STTY_NAME=0
-    LINTER='perl -I. -Ilib -c 3<&0'
+    LINTER='perl -I. -Ilib -Iblib -c 3<&0'
+    ;;
+  perlcritic)
+    XARGS_MAX_FILES=1
+    PCRE_PAT='\.p[ml]$'
     ;;
   flake8)
     PCRE_PAT='\.py$'
     LINTER+=' --select=E999,E902'
+    ;;
+  black)
+    PCRE_PAT='\.py$'
+    LINTER+=' --check --diff --color'
     ;;
   tidy)
     PCRE_PAT='\.html?$'
