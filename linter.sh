@@ -50,7 +50,7 @@ fi
 # punt to docker if appropriate
 
 if [[ "$0" != "${0%.git/hooks/pre-commit}" ]] && command -v docker >/dev/null 2>&1; then
-  exec docker run -t -v $PWD:/src:ro --rm --entrypoint= $LINTER_DOCKER_IMAGE bash -c \
+  exec docker run -t -v "$PWD":/src:ro --rm --entrypoint= "$LINTER_DOCKER_IMAGE" bash -c \
     ". ~/.asdf/asdf.sh; cd /src && grep '[)]\$' linter.rc | awk '{print \$1}' | (echo; cut -d')' -f1) | xargs -P$(nproc) -d'\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $@'"
 fi
 
@@ -60,7 +60,7 @@ fi
 
 # set defaults
 
-: "${LINTER:=yamllint -c \$CONFIG_TMP_FILE}" "${PCRE_PAT:=\\.ya?ml\$}" "${CONFIG_SRC:=$(
+: "${LINTER:=yamllint -c \"\$CONFIG_TMP_FILE\"}" "${PCRE_PAT:=\\.ya?ml\$}" "${CONFIG_SRC:=$(
   cat <<EOF
 ---
 yaml-files:
@@ -99,8 +99,8 @@ EOF
 # prep the (temporary) config file
 
 trap 'rv=$?; rm -f $CONFIG_TMP_FILE; exit $rv' EXIT INT HUP TERM
-CONFIG_TMP_FILE=$(mktemp)
-echo -e "$CONFIG_SRC" >$CONFIG_TMP_FILE
+CONFIG_TMP_FILE="$(mktemp)"
+echo -e "$CONFIG_SRC" >"$CONFIG_TMP_FILE"
 
 # run the configured linter
 

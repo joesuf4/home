@@ -20,7 +20,7 @@ case "$LINTER" in
     XARGS_MAX_FILES=1
     PCRE_PAT='\.p[ml]$'
     export STTY_NAME=0
-    LINTER='perl -c 3<&0'
+    LINTER='perl -I. -Ilib -c 3<&0'
     ;;
   flake8)
     PCRE_PAT='\.py$'
@@ -33,24 +33,72 @@ case "$LINTER" in
   typescript)
     PCRE_PAT='\.ts$'
     CONFIG_SRC="$(
-      cat .eslintrc.js - 2>/dev/null <<EOF
-module.exports = {
-  root: true,
-  parser: '@typescript-eslint/parser',
-  plugins: [
+      cat <<'EOF'
+{
+  "root": true,
+  "parser": '@typescript-eslint/parser',
+  "plugins": [
     '@typescript-eslint',
   ],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-  ],
-};
+  "extends": "standard-with-typescript",
+  "env": {
+    "es2021": true,
+    "node": true,
+  },
+  "overrides": [
+    {
+      "files": "*",
+      "rules": {
+        "semi": 0,
+        "no-multi-spaces": 0,
+        "quotes": 0,
+        "camelcase": 0,
+        "n/no-deprecated-api": 1,
+        "n/no-path-concat": 1,
+        "no-control-regex": 1,
+        "key-spacing": 0,
+      }
+    },
+  ]
+}
 EOF
     )"
-    LINTER='eslint -c $CONFIG_TMP_FILE'
+    LINTER='eslint $([ -f .eslintrc.json ] || [ -f .eslintrc.ya?ml ] || echo "-c" "$CONFIG_TMP_FILE")'
     ;;
   eslint)
     PCRE_PAT='(?<!\.min)\.js$'
+    CONFIG_SRC="$(
+      cat - <<'EOF'
+{
+  "root": true,
+  "parser": '@typescript-eslint/parser',
+  "plugins": [
+    '@typescript-eslint',
+  ],
+  "extends": "standard-with-typescript",
+  "env": {
+    "es2021": true,
+    "node": true,
+  },
+  "overrides": [
+    {
+      "files": "*",
+      "rules": {
+        "semi": 0,
+        "no-multi-spaces": 0,
+        "quotes": 0,
+        "camelcase": 0,
+        "n/no-deprecated-api": 1,
+        "n/no-path-concat": 1,
+        "no-control-regex": 1,
+        "key-spacing": 0,
+      }
+    },
+  ]
+}
+EOF
+    )"
+    LINTER='eslint $([ -f .eslintrc.json ] || [ -f .eslintrc.ya?ml ] || echo "-c" "$CONFIG_TMP_FILE")'
     ;;
   tflint)
     CONFIG_SRC="$(
@@ -63,7 +111,7 @@ plugin "aws" {
 EOF
     )"
     PCRE_PAT='\.tf$'
-    LINTER='sh -c "tflint --config $CONFIG_TMP_FILE --init && tflint --config $CONFIG_TMP_FILE \"\$@\" || [ \$? -eq 2 ]" --'
+    LINTER='sh -c "tflint --config "$CONFIG_TMP_FILE" --init && tflint --config $CONFIG_TMP_FILE \"\$@\" || [ \$? -eq 2 ]" --'
     ;;
   csharp)
     PCRE_PAT='\.cs$'
