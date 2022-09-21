@@ -4,12 +4,8 @@ setopt unset
 export LANG=en_US.UTF-8
 export LESSCHARSET=utf-8
 export PAGER=less
-export DOCKER_COMPOSE_VERSION=1.25.4
-export COMPOSE_DOCKER_CLI_BUILD=0
-export DOCKER_BUILDKIT=0
 export MANPATH=/usr/local/share/man:/usr/share/man
-export BPFTRACE_VMLINUX=~/src/bcscli/WSL2-Linux-Kernel/vmlinux
-export KUBECTL_NODE_SHELL_IMAGE=artifactory.blackstone.com/docker/alpine:latest
+export BPFTRACE_VMLINUX=~/src/WSL2-Linux-Kernel/vmlinux
 export NODE_PATH=~/.asdf/installs/nodejs/$(awk '$1 == "nodejs" {print $2}' ~/.tool-versions)/lib/node_modules
 export NODE_OPTIONS=--use-openssl-ca
 export MAIL="/var/spool/mail/$USER"
