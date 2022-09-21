@@ -24,5 +24,5 @@ jobs:
       - name: Run Linter
 
         run: |
-          git clone -b $GITHUB_REF_NAME https://github.com/joesuf4/home .
+          git clone -b $GITHUB_REF_NAME https://github.com/$GITHUB_REPOSITORY .
           LANG=en_US.UTF-8 docker run -t --rm -v $(pwd):/src:ro schaefj/linter
