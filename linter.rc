@@ -89,7 +89,8 @@ EOF
     ;;
 
   remark)
-    CONFIG_SRC="$(cat <<EOT
+    CONFIG_SRC="$(
+      cat <<EOT
 {
   "plugins": {
     "preset-lint-consistent":"",
