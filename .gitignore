@@ -224,3 +224,4 @@ bin/echo*
 *.pem
 .dt*
 .tarsnap-cache/
+t/
