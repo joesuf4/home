@@ -250,7 +250,7 @@ for cmd in "${PTYON[@]}"; do
   [[ $? -eq 0 ]] && eval "$cmd() {
     if [[ $cmd == git ]]; then
       [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch|remote|commit)\$' ]] && ptyon
-    elif [[ $cmd == ssh ]]; then
+    elif [[ $cmd == ssh ]] || [[ $cmd == scp ]]; then
       setopt unset
       local arg PEMFILE
       PEMFILE=\"\$(mktemp /tmp/bastion-ec2-ssh-id-XXXXX.pem)\"
