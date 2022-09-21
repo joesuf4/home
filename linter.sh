@@ -80,4 +80,4 @@ else
   git diff --name-only "${@:---cached}"
 fi | if [[ "${LINT_TEMPLATES:-}" == yes ]]; then cat; else grep -v /templates/; fi | grep -Pe "$PCRE_PAT" |
   while read -r line; do [[ -f "$line" ]] && echo "$line"; done |
-  eval "xargs -rd'\n' -P${XARGS_WORKERS:-$(nproc)} -n${XARGS_MAX_FILES:-64} $LINTER"
+  eval "xargs -rd'\n' -P${XARGS_WORKERS:-$(nproc)} -n${XARGS_MAX_FILES:-256} $LINTER"
