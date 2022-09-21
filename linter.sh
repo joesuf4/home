@@ -51,54 +51,17 @@ fi
 
 if [[ "$0" != "${0%.git/hooks/pre-commit}" ]] && command -v docker >/dev/null 2>&1; then
   exec docker run -t -v "$PWD":/src:ro --rm --entrypoint= "$LINTER_DOCKER_IMAGE" bash -c \
-    ". ~/.asdf/asdf.sh; grep '[)]\$' linter.rc | awk '{print \$1}' | (echo; cut -d')' -f1) | xargs -P$(nproc) -d'\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $@'"
+    ". ~/.asdf/asdf.sh; grep '[)]\$' linter.rc | awk '{print \$1}' | cut -d')' -f1 | xargs -P$(nproc) -d'\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $@'"
 fi
 
 # load associated rcfile
 
+: "${LINTER:=yamllint}" # the default linter
 . ./linter.rc
-
-# set defaults
-
-: "${LINTER:=yamllint -c \"\$CONFIG_TMP_FILE\"}" "${PCRE_PAT:=\\.ya?ml\$}" "${CONFIG_SRC:=$(
-  cat <<EOF
----
-yaml-files:
-  - '*.yaml'
-  - '*.yml'
-  - '.yamllint'
-  - '.*.yaml'
-  - '.*.yml'
-rules:
-  colons: enable
-  commas: enable
-  hyphens: enable
-  brackets: enable
-  new-lines: enable
-  indentation: enable
-  key-duplicates: enable
-  trailing-spaces: enable
-  new-line-at-end-of-file: enable
-  truthy:
-    level: warning
-  comments-indentation:
-    level: warning
-  braces: disable
-  document-end: disable
-  document-start: disable
-  empty-lines: disable
-  empty-values: disable
-  key-ordering: disable
-  line-length: disable
-  octal-values: disable
-  quoted-strings: disable
-  comments: disable
-EOF
-)}"
 
 # prep the (temporary) config file
 
-trap 'rv=$?; rm -f $CONFIG_TMP_FILE; exit $rv' EXIT INT HUP TERM
+trap 'rv=$?; rm -f "$CONFIG_TMP_FILE"; exit $rv' EXIT INT HUP TERM
 CONFIG_TMP_FILE="$(mktemp)"
 echo -e "$CONFIG_SRC" >"$CONFIG_TMP_FILE"
 

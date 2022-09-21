@@ -24,4 +24,4 @@ RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 RUN git config --global --add safe.directory /src
 RUN mkdir /src
 WORKDIR /src
-ENTRYPOINT bash -c "grep '[)]\$' linter.rc | (echo; awk '{print \$1}') | cut -d')' -f1 |  xargs -P\$(nproc) -d'\n' -i bash -c '. ~/.asdf/asdf.sh; git diff --name-only \$(git show-branch --merge-base HEAD)~1 | LINTER={} bash linter.sh'"
+ENTRYPOINT bash -c "grep '[)]\$' linter.rc | awk '{print \$1}' | cut -d')' -f1 |  xargs -P\$(nproc) -d'\n' -i bash -c '. ~/.asdf/asdf.sh; git diff --name-only \$(git show-branch --merge-base HEAD)~1 | LINTER={} bash linter.sh'"

@@ -5,6 +5,47 @@ case "$LINTER" in
   # are these (simple) case matches for executables,
   # because the linter greps for them using this pattern: '[)]$'
 
+  yamllint)
+    PCRE_PAT='\.ya?ml$'
+    CONFIG_SRC="$(
+      cat <<EOF
+---
+yaml-files:
+  - '*.yaml'
+  - '*.yml'
+  - '.yamllint'
+  - '.*.yaml'
+  - '.*.yml'
+rules:
+  colons: enable
+  commas: enable
+  hyphens: enable
+  brackets: enable
+  new-lines: enable
+  indentation:
+    indent-sequences: consistent
+  key-duplicates: enable
+  trailing-spaces: enable
+  new-line-at-end-of-file: enable
+  truthy:
+    level: warning
+  comments-indentation:
+    level: warning
+  braces: disable
+  document-end: disable
+  document-start: disable
+  empty-lines: disable
+  empty-values: disable
+  key-ordering: disable
+  line-length: disable
+  octal-values: disable
+  quoted-strings: disable
+  comments: disable
+EOF
+    )"
+    LINTER+=' $([ -f .yamllint* ] || echo "-c" "$CONFIG_TMP_FILE")'
+    ;;
+
   shellcheck)
     PCRE_PAT='(\.sh|^\.?\w+\.?rc)$'
     LINTER+=' -x -P . -s bash -e SC1004,SC2016,SC2034,SC2046,SC2128,SC2155,SC2181,SC2207,SC2145,SC2088,SC2015,SC2086,SC2154,SC2199,SC2120,SC2119,SC2142,SC1090,SC2206,SC2012,SC2174,SC1117,SC2035,SC2139,SC2030,SC2031'
