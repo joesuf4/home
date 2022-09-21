@@ -51,7 +51,7 @@ fi
 
 if [[ "$0" != "${0%.git/hooks/pre-commit}" ]] && command -v docker >/dev/null 2>&1; then
   exec docker run -t -v "$PWD":/src:ro --rm --entrypoint= "$LINTER_DOCKER_IMAGE" bash -c \
-    ". ~/.asdf/asdf.sh; cd /src && grep '[)]\$' linter.rc | awk '{print \$1}' | (echo; cut -d')' -f1) | xargs -P$(nproc) -d'\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $@'"
+    ". ~/.asdf/asdf.sh; grep '[)]\$' linter.rc | awk '{print \$1}' | (echo; cut -d')' -f1) | xargs -P$(nproc) -d'\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $@'"
 fi
 
 # load associated rcfile

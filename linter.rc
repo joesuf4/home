@@ -4,42 +4,51 @@ case "$LINTER" in
   # make sure the only lines that end in a closing parenthesis
   # are these (simple) case matches for executables,
   # because the linter greps for them using this pattern: '[)]$'
+
   shellcheck)
     PCRE_PAT='(\.sh|^\.?\w+\.?rc)$'
     LINTER+=' -x -P . -s bash -e SC1004,SC2016,SC2034,SC2046,SC2128,SC2155,SC2181,SC2207,SC2145,SC2088,SC2015,SC2086,SC2154,SC2199,SC2120,SC2119,SC2142,SC1090,SC2206,SC2012,SC2174,SC1117,SC2035,SC2139,SC2030,SC2031'
     ;;
+
   shfmt)
     PCRE_PAT='(\.sh|^\.?\w+\.?rc)$'
     LINTER+=' -d -i 2 -ci'
     ;;
+
   clang-tidy)
     PCRE_PAT='\.(cc?|cpp|hh?)$'
     LINTER+=' --extra-arg-before -DVERSION=\"0.0\"'
     ;;
+
   perl)
     XARGS_MAX_FILES=1
     PCRE_PAT='\.p[ml]$'
     export STTY_NAME=0
-    LINTER='perl -I. -Ilib -Iblib -c 3<&0'
+    LINTER+=' -I. -Ilib -Iblib -c 3<&0'
     ;;
+
   perlcritic)
     XARGS_MAX_FILES=1
     PCRE_PAT='\.p[ml]$'
     ;;
+
   flake8)
     PCRE_PAT='\.py$'
     LINTER+=' --select=E999,E902'
     ;;
+
   black)
     PCRE_PAT='\.py$'
     LINTER+=' --check --diff --color'
     ;;
+
   tidy)
     PCRE_PAT='\.html?$'
     LINTER='sh -c "tidy -utf8 \"\$@\" || [ \$? -eq 1 ]" --'
     ;;
-  typescript)
-    PCRE_PAT='\.ts$'
+
+  eslint)
+    PCRE_PAT='(\.ts|(?<!\.min)\.js)$'
     CONFIG_SRC="$(
       cat <<'EOF'
 {
@@ -71,43 +80,32 @@ case "$LINTER" in
 }
 EOF
     )"
-    LINTER='eslint $([ -f .eslintrc.json ] || [ -f .eslintrc.ya?ml ] || echo "-c" "$CONFIG_TMP_FILE")'
+    LINTER+=' $([ -f .eslintrc.json ] || [ -f .eslintrc.ya?ml ] || echo "-c" "$CONFIG_TMP_FILE")'
     ;;
-  eslint)
-    PCRE_PAT='(?<!\.min)\.js$'
-    CONFIG_SRC="$(
-      cat - <<'EOF'
+
+  hadolint)
+    PCRE_PAT='\b[dD]ockerfile\b'
+    LINTER+=' -t error'
+    ;;
+
+  remark)
+    CONFIG_SRC="$(cat <<EOT
 {
-  "root": true,
-  "parser": '@typescript-eslint/parser',
-  "plugins": [
-    '@typescript-eslint',
-  ],
-  "extends": "standard-with-typescript",
-  "env": {
-    "es2021": true,
-    "node": true,
-  },
-  "overrides": [
-    {
-      "files": "*",
-      "rules": {
-        "semi": 0,
-        "no-multi-spaces": 0,
-        "quotes": 0,
-        "camelcase": 0,
-        "n/no-deprecated-api": 1,
-        "n/no-path-concat": 1,
-        "no-control-regex": 1,
-        "key-spacing": 0,
-      }
-    },
-  ]
+  "plugins": {
+    "preset-lint-consistent":"",
+    "preset-lint-markdown-style-guide":"",
+    "preset-lint-recommended":"",
+    "validate-links": true,
+    "lint-list-item-indent": "mixed",
+    "lint-maximum-line-length": false
+  }
 }
-EOF
+EOT
     )"
-    LINTER='eslint $([ -f .eslintrc.json ] || [ -f .eslintrc.ya?ml ] || echo "-c" "$CONFIG_TMP_FILE")'
+    PCRE_PAT='\.md(?:text)?$'
+    LINTER+=' --no-stdout --quiet $([ -f .remarkrc.* ] || echo "-r" "$CONFIG_TMP_FILE")'
     ;;
+
   tflint)
     CONFIG_SRC="$(
       cat .tflint.hcl - 2>/dev/null <<EOF
@@ -121,14 +119,17 @@ EOF
     PCRE_PAT='\.tf$'
     LINTER='sh -c "tflint --config "$CONFIG_TMP_FILE" --init && tflint --config $CONFIG_TMP_FILE \"\$@\" || [ \$? -eq 2 ]" --'
     ;;
+
   csharp)
     PCRE_PAT='\.cs$'
     LINTER='bash -c ". ~/.asdf/asdf.sh; . ~/.asdf/plugins/dotnet-core/set-dotnet-home.bash; dotnet format --include \"\$@\"" --'
     ;;
+
   golangci-lint)
     PCRE_PAT='\.go(?:lang)?$'
     LINTER='bash -c ". ~/.asdf/asdf.sh; golangci-lint run \"\$@\"" --'
     ;;
+
   jinjalint)
     LINT_TEMPLATES=yes
     PCRE_PAT='/templates/'
