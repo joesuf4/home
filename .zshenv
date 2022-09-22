@@ -6,7 +6,7 @@ export LESSCHARSET=utf-8
 export PAGER=less
 export MANPATH=/usr/local/share/man:/usr/share/man
 export BPFTRACE_VMLINUX=~/src/WSL2-Linux-Kernel/vmlinux
-export NODE_PATH=~/.asdf/installs/nodejs/$(awk '$1 == "nodejs" {print $2}' ~/.tool-versions)/lib/node_modules
+export NODE_PATH=node_modules:~/.asdf/installs/nodejs/$(awk '$1 == "nodejs" {print $2}' ~/.tool-versions)/lib/node_modules
 export NODE_OPTIONS=--use-openssl-ca
 export MAIL="/var/spool/mail/$USER"
 export KUBECONFIG
@@ -35,7 +35,7 @@ PTYON=(sudo git svn gpg op ssh scp ansible-vault ortpasswd otp-sha1)
 
 # top_10() customizations
 ANSI_COLOR_ID=3
-HIST_BLOCK="♱"
+HIST_BLOCK="☠"
 COL=68
 
 # report_node_inventory_static() (hi-speed) setting
