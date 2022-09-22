@@ -3,7 +3,7 @@ USER root
 ENV TZ=America/NewYork
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/home/ubuntu
-RUN apt-get update -qq && apt-get dist-upgrade -y -qq && apt-get install -y -qq locales curl ca-certificates net-tools zip make unzip zsh subversion git software-properties-common jq zlib1g-dev libsqlite3-dev python3-pip yamllint pylint tidy clang-tidy apache2-dev libapr1-dev libaprutil1-dev libapache2-mod-perl2 libapache2-mod-apreq2 libapache2-request-perl
+RUN apt-get update -qq && apt-get upgrade -y -qq && apt-get install -y -qq locales curl ca-certificates net-tools zip make unzip zsh subversion git software-properties-common jq zlib1g-dev libsqlite3-dev python3-pip yamllint pylint tidy clang-tidy apache2-dev libapr1-dev libaprutil1-dev libapache2-mod-perl2 libapache2-mod-apreq2 libapache2-request-perl
 WORKDIR /tmp
 ENV SHELLCHECK_VERSION=v0.8.0
 RUN curl -L https://github.com/koalaman/shellcheck/releases/download/$SHELLCHECK_VERSION/shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz | tar -xJf - && mv shellcheck-$SHELLCHECK_VERSION/shellcheck /usr/local/bin
