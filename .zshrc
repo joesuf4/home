@@ -225,7 +225,7 @@ else
       alias grep='grep --color=auto'
       PROMPT=$'$PR_CYAN%~$PR_RESET$PR_BRIGHT_BLACK%(?..($PR_RESET$PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
       ;;
-    FreeBSD|Darwin)
+    FreeBSD | Darwin)
       alias ls='ls -G'
       alias grep='grep --color=auto'
       PROMPT=$'$PR_CYAN%~$PR_RESET$PR_MAGENTA(?..($PR_RESET$PR_RED%?$PR_MAGENTA%))$PR_MAGENTA%#$PR_RESET '
@@ -479,7 +479,7 @@ setopt monitor 2>/dev/null
 complete -C aws_completer aws
 complete -o nospace -C terraform terraform
 
-for sfile in  ~/.lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh ~/.ocirc; do
+for sfile in ~/.lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh ~/.ocirc; do
   [[ -f $sfile ]] && . $sfile
 done
 
