@@ -419,9 +419,9 @@ emac() {
   fi
 
   if $nw; then
-    emacsclient "${args[@]}"
+    TERM=xterm-256color emacsclient "${args[@]}"
   else
-    (nohup emacsclient "${args[@]}" </dev/null >/dev/null 2>&1 &) >/dev/null 2>&1
+    (TERM=xterm-256color nohup emacsclient "${args[@]}" </dev/null >/dev/null 2>&1 &) >/dev/null 2>&1
   fi
 }
 
