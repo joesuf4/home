@@ -479,8 +479,9 @@ setopt monitor 2>/dev/null
 complete -C aws_completer aws
 complete -o nospace -C terraform terraform
 
-for sfile in  ~/.lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh ~/.ocirc;
+for sfile in  ~/.lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh ~/.ocirc; do
   [[ -f $sfile ]] && . $sfile
+done
 
 command -v kubectl >/dev/null 2>&1 && . <(kubectl completion $(basename "$SHELL"))
 . ~/.bcsrc
