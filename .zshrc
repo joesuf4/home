@@ -82,6 +82,7 @@ alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"
 
 alias dsign='DOCKER_CONTENT_TRUST=1 docker trust sign --local'
 
+# pre-commit-hook friendly version of 'git commit -a ...'
 alias gac='git add -u && git commit'
 
 alias strip_cr="sed -i -e 's/\\r//'"
