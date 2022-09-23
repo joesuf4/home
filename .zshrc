@@ -363,7 +363,7 @@ top_10() {
                       eval \"\$SCALE(\$h{\$_}/\$DIV)\",
                     (eval          \"\$h{\$_}/\$DIV\"),
                     (\"\", map \" \$_\".(\$KB==1024 && 'i').(\"\", \"B\", \"s\")[\$UNIT<=>0],
-                             qw/K M G T P p n μ m/)[\$UNIT]
+                             qw/K M G T P E p n μ m/)[\$UNIT]
                 }
               }
               next unless /\\S\\s+[+-]?[\\d.]+\\w*\\b/;
@@ -371,6 +371,7 @@ top_10() {
               s/:\$// for @F;
               my \$unit = 0;
               for (\$F[-1]) {
+                s/E/*(\$KB**6)/    and \$unit = 6;
                 s/P/*(\$KB**5)/    and \$unit = 5;
                 s/T/*(\$KB**4)/    and \$unit = 4;
                 s/G/*(\$KB**3)/i   and \$unit = 3;
