@@ -42,7 +42,7 @@ COL=68
 PLACEHOLDER=n/a
 
 # asdf setup
-if [[ -d ~/.asdf ]]; then
+if [[ -d ~/.asdf ]] && ! command -v asdf >/dev/null 2>&1; then
   . ~/.asdf/asdf.sh
   . ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh >/dev/null 2>&1
 fi
