@@ -82,6 +82,8 @@ alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"
 
 alias dsign='DOCKER_CONTENT_TRUST=1 docker trust sign --local'
 
+alias gac='git add -u && git commit'
+
 alias strip_cr="sed -i -e 's/\\r//'"
 
 alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)~1'
@@ -381,7 +383,7 @@ top_10() {
                 \$_ = eval
               }
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join \" \", grep !/^(?:\Q$(tput bold)\E[^x✡♱☠❤❄◆▬■●▶]+?[x✡♱☠❤❄◆▬■●▶]\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head ${@:-${TOP_10_ARGS-}}
+              \$h{+join \" \", grep !/^(?:\Q$(tput bold)\E[^x✡♱☠❤❄◆▬■●▶]+?[x✡♱☠❤❄◆▬■●▶]\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "${@:-${TOP_10_ARGS:--10}}"
 }
 
 # presumes a running emacs-server
