@@ -83,7 +83,7 @@ EOF
     ;;
 
   tidy)
-    PCRE_PAT='\.html?$'
+    PCRE_PAT='\.html?(?:\.|$)'
     LINTER='sh -c "tidy -utf8 \"\$@\" || [ \$? -eq 1 ]" --'
     ;;
 
@@ -143,7 +143,7 @@ EOF
 }
 EOT
     )"
-    PCRE_PAT='\.md(?:text)?$'
+    PCRE_PAT='\.md(?:text)?(?:\.|$)'
     LINTER+=' --no-stdout --quiet $([ -f .remarkrc.* ] || echo "-r" "$CONFIG_TMP_FILE")'
     ;;
 
