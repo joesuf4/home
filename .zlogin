@@ -15,7 +15,7 @@ else
   ptyd sudo update-binfmts --disable cli
   ptyfix
   ln -s /mnt/wslg/.X11-unix/X0 /tmp/.X11-unix/X0
-  [[ -f /etc/wsl.conf ]] || (rm /etc/resolv.conf && cp /mnt/wsl/resolv.conf /etc)
+  [[ -f /etc/wsl.conf ]] || ptyd sudo zsh -c "rm /etc/resolv.conf && cp /mnt/wsl/resolv.conf /etc"
   eval "$(mkdir -m 0700 -p /tmp/ssh-$USER && ssh-agent -a /tmp/ssh-$USER/agent.$$)"
   ptyd ssh-add
   ptyd zsh -ic 'echo foo | gpg --clear-sign --armor >/dev/null 2>&1'
