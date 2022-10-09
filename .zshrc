@@ -254,7 +254,7 @@ for cmd in "${PTYON[@]}"; do
   exep="$(which $cmd)"
   [[ $? -eq 0 ]] && eval "$cmd() {
     if [[ $cmd == git ]]; then
-      [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch|remote|commit)\$' ]] && ptyon
+      [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch|remote|commit|svn)\$' ]] && ptyon
     elif [[ $cmd == ssh ]] || [[ $cmd == scp ]]; then
       setopt unset
       local arg PEMFILE
