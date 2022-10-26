@@ -157,6 +157,7 @@ oci_region_ship_zones () {
     oci_region_exec $region dladm create-etherstub etherstub0
     oci_region_exec $region dladm create-vnic -l etherstub0 gz0
     oci_region_exec $region dladm create-vnic -l etherstub0 www0
+    oci_region_exec $region dladm create-vnic -l etherstub0 cms0
     oci_region_exec $region ipadm create-ip gz0
     oci_region_exec $region ipadm create-addr -T static -a 192.168.254.1/24 gz0
     oci_region_exec $region ipadm set-ifprop -p forwarding=on -m ipv4 net0
