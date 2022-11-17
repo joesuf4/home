@@ -111,7 +111,7 @@ unzip=0
 not=""
 refresh=""
 cache_compression_extension="gz"
-set_and_shift_cmd_args='cmd_args=(); while [[ "$1" != "--" ]]; do cmd_args+=("$1"); shift; done; shift'
+set_and_shift_cmd_args="cmd_args=(); while [[ \"\$1\" != \"--\" ]]; do cmd_args+=(\"\$1\"); shift; done; shift"
 original_argument_count="$#"
 list_active_extensions=0
 
@@ -562,8 +562,10 @@ single_quote() {
   # Append a newline to each item in $@ and munge the quotes on each line.
   # The pipelined output trades newlines for single space characters, so
   # we wind up with a one-line output terminated by a space, not a newline.
-
-  echo -en "" "${@/%/\\n}" |
+  local arg;
+  for arg in "$@"; do
+    echo "" "$arg"
+  done |
     sed -e "s/'/'\\\\''/g" -e "s/^ /'/" -e "s/\$/'/" | tr '\n' ' '
 }
 
@@ -608,7 +610,7 @@ ls -A | filter_exclusions | xargs -r -d '\n' -P $PFFXG_WORKERS -n $find_args bas
   compression_suffix=
   [[ -n \"$PFFXG_CACHE\" ]] && process_cache \"\$@\"
   \$([[ $unzip -eq 1 ]] && unzip_prefix \"\$1\")$PFFXG_CMD \
-  \"\${cmd_args[@]}\" -- \"\${@%\$compression_suffix}\" >> $temp_dir/\$\$
+      \"\${cmd_args[@]}\" -- \"\${@%\$compression_suffix}\" >> $temp_dir/\$\$
   [[ \$? -gt $PFFXG_MAX_STATUS ]] && exit 255
   ' \
   -- $(single_quote "$@") --
