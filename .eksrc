@@ -263,7 +263,7 @@ eks_list_trace_ids() {
   local FILTER="${1-}"
   local field="${2-2}"
   if [[ "$(basename "$SHELL")" == zsh ]]; then
-    eval "for k v in \${(kv)EKS_TRACE_ID}; do echo \"\$k:\$v\"; done"
+    eval "for k v in \${(@kv)EKS_TRACE_ID}; do echo \"\$k:\$v\"; done"
   else
     for k in "${!EKS_TRACE_ID[@]}"; do echo "$k:${EKS_TRACE_ID[$k]}"; done
   fi |
