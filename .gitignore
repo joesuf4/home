@@ -225,3 +225,5 @@ bin/echo*
 .dt*
 .tarsnap-cache/
 t/
+.asy/
+.wget-hsts
