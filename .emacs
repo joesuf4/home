@@ -232,7 +232,7 @@
  '(default ((t (:inherit nil :extend nil :stipple nil :background
                          "DarkSlateGray" :foreground "White" :inverse-video nil
                          :box nil :strike-through nil :overline nil :underline
-                         nil :slant normal :weight normal :height 150 :width
+                         nil :slant normal :weight normal :height 130 :width
                          normal :foundry "outline" :family "Cascadia Code")))))
 
 
