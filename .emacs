@@ -299,6 +299,8 @@
 (use-package ccls
   :ensure t
   :config
+  (with-eval-after-load "lsp-mode"
+    (add-to-list 'lsp-enabled-clients 'ccls))
   (setq ccls-executable "ccls")
   (setq ccls-initialization-options
       '(;:compilationDatabaseDirectory "out"
