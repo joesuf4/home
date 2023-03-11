@@ -261,8 +261,10 @@ for cmd in "${PTYON[@]}"; do
       PEMFILE=\"\$(mktemp /tmp/bastion-ec2-ssh-id-XXXXX.pem)\"
       for arg; do [[ \"\$arg\" == \"\${arg#-}\" && \"\$EC2_ID[\${arg#*@}]\" =~ ^/ ]] && set -- -i \"\$PEMFILE\" \"\$@\" && break; done
       [[ \"\$EC2_ID[\${arg#*@}]\" =~ ^/ ]] && pty -nie -- pty -d pty-driver.pl -- \$SHELL -ic 'ansible-vault decrypt --output \"\$@\"' -- \"\$PEMFILE\" \"\$EC2_ID[\$arg]\" </dev/null >/dev/null 2>&1
-      ptyon
-      (sleep 6; ptyoff sleep 1 &)&
+      if [[ \"\$1\" == \"\${1#*-}\" ]]; then
+        ptyon
+        (sleep 6; ptyoff sleep 1 &)&
+      fi
     elif [[ $cmd == svn ]]; then
       [[ \"\${1:-}\" -pcre-match '^(up|co|ci)' ]] && ptyon
     else
