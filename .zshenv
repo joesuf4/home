@@ -35,7 +35,7 @@ PTYON=(sudo git svn gpg op ssh scp ansible-vault ortpasswd otp-sha1)
 
 # top_10() customizations
 ANSI_COLOR_ID=2
-HIST_BLOCK="🐇"
+HIST_BLOCK="🌼"
 COL=30
 
 # report_node_inventory_static() (hi-speed) setting
