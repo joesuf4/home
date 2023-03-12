@@ -614,10 +614,10 @@ eks_screen() {
     for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
       if [[ -t 0 ]]; then
         screen -X screen "$SHELL" -ic \
-          "_bcs_title :$pod/$c: \"\$@\"; kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+          "_bcs_title :$pod/$c: $@; kubectl exec -ti $pod -c $c -- sh -lc 'eval script.sh -qa /tmp/typescript $@\"'"
       else
         screen -X screen "$SHELL" -ic \
-          "_bcs_title :$pod/$c: \"\$@\"; bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- <$TMP | kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo =\"sudo -Es\"; eval script.sh -qa /tmp/typescript \$sudo \"\$@\"' -- \"\$@\"" -- "$@"
+          "_bcs_title :$pod/$c: $@; bcs_sed_uprobe_shared_libs kubectl exec $pod -c $c -- <$TMP | kubectl exec -ti $pod -c $c -- sh -lc 'eval script.sh -qa /tmp/typescript $@\"'"
       fi
     done
   done
@@ -637,10 +637,10 @@ eks_node_screen() {
   for node in $(eks_list_nodes "$NFILTER"); do
     if [[ -t 0 ]]; then
       screen -X screen "$SHELL" -ic \
-        "_bcs_title :$node: \"\$@\"; kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
+        "_bcs_title :$node: $@; _eks_load_nodes; kubectl node-shell $node -- sh -lc 'TERM=screen.xterm-256color eval script.sh -qa /tmp/typescript $@'"
     else
       screen -X screen "$SHELL" -ic \
-        "_bcs_title :$node: \"\$@\"; bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript \"\$@\"' -- \"\$@\"" -- "$@"
+        "_bcs_title :$node: $@; _eks_load_nodes; bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'TERM=screen.xterm-256color eval script.sh -qa /tmp/typescript \$@'"
     fi
     sleep 1
   done

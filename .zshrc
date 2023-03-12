@@ -74,7 +74,7 @@ ptyfix() {
   [[ -f ~/.myzshrc ]] && . ~/.myzshrc
   unsetopt unset
   /usr/bin/sudo -k && ptyd sudo -v
-  (seed_vault_pass >/dev/null 2>&1 </dev/null &)
+  #(seed_vault_pass >/dev/null 2>&1 </dev/null &)
 }
 
 # translate between big-endian and little-endian objdumps.
