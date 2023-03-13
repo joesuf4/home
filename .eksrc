@@ -637,10 +637,10 @@ eks_node_screen() {
   for node in $(eks_list_nodes "$NFILTER"); do
     if [[ -t 0 ]]; then
       screen -X screen "$SHELL" -ic \
-        "_bcs_title :$node: $@; _eks_load_nodes; kubectl node-shell $node -- sh -lc 'TERM=screen.xterm-256color eval script.sh -qa /tmp/typescript $@'"
+        "_bcs_title :$node: $@; kubectl node-shell $node -- sh -lc 'sleep 1;TERM=screen.xterm-256color eval script.sh -qa /tmp/typescript $@'"
     else
       screen -X screen "$SHELL" -ic \
-        "_bcs_title :$node: $@; _eks_load_nodes; bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'TERM=screen.xterm-256color eval script.sh -qa /tmp/typescript \$@'"
+        "_bcs_title :$node: $@; bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'sleep 1; TERM=screen.xterm-256color eval script.sh -qa /tmp/typescript $@'"
     fi
     sleep 1
   done
