@@ -861,8 +861,6 @@ _eks_report_global() {
   ) &
 }
 
-alias _eks_load_metrics_server_pod='k apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml'
-
 alias _eks_report_global_clusters='_eks_report_global cluster "$@"; perl -nale "/provisioned-mem/ ... /Running/ and \$F[2] =~ /^\\d+\$/ and print \"TOTAL RAM \", @F[2,3]" clusters/*/* | top_10 "$@"; perl -nale "/provisioned-cpu/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"TOTAL CPU \", \$F[-1]" clusters/*/*'
 
 alias _eks_report_global_nodes='_eks_report_global node "$@"; echo percent-mem report; perl -nale "/percent-mem/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/* | top_10 "$@"; echo percent-cpu report; perl -nale "/percent-cpu/ ... /Running/ and \$F[-1] =~ /^\\d+\$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/* | top_10 "$@"; echo age report;perl -nale "/ age / ... /Running/ and \$F[-1] =~ /^\\d+$/ and print \"\$ARGV \$F[0] \$F[-1]\"" nodes/*/*'
@@ -873,9 +871,9 @@ alias _eks_report_cluster_provisioned_mem='for c in $(eks list-clusters); do eks
 
 alias _eks_report_cluster_provisioned_cpu='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && : "${_k_describe_node[$c]:=$(k describe node 2>/dev/null)}" && echo "${_k_describe_node[$c]}" | perl -nl -0777 -e "print \"$c \$2\" while /^Name:\\s+(\\S+).*?^Capacity:.*?cpu:\\s+(\\d+)/msg"; done'
 
-alias _eks_report_cluster_actual_cpu='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && _eks_load_metrics_server_pod >/dev/null 2>&1; : "${_k_top_pod[$c]:=$(k top pod --all-namespaces)}" && echo "${_k_top_pod[$c]}" | (read _; awk "{ print \"$c\", \$3 }"); done'
+alias _eks_report_cluster_actual_cpu='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1; : "${_k_top_pod[$c]:=$(k top pod --all-namespaces)}" && echo "${_k_top_pod[$c]}" | (read _; awk "{ print \"$c\", \$3 }"); done'
 
-alias _eks_report_cluster_actual_mem='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && _eks_load_metrics_server_pod >/dev/null 2>&1; : "${_k_top_pod[$c]:=$(k top pod --all-namespaces)}" && echo "${_k_top_pod[$c]}" | (read _; awk "{ print \"$c\", \$4 }"); done'
+alias _eks_report_cluster_actual_mem='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1; : "${_k_top_pod[$c]:=$(k top pod --all-namespaces)}" && echo "${_k_top_pod[$c]}" | (read _; awk "{ print \"$c\", \$4 }"); done'
 
 alias _eks_report_cluster_requests_cpu='for c in $(eks list-clusters); do eks update-kubeconfig $c >/dev/null 2>&1 && : "${_k_describe_node[$c]:=$(k describe node 2>/dev/null)}" && echo "${_k_describe_node[$c]}" | perl -nl -0777 -e "print \"$c \$2\" while /^Name:\\s+(\\S+).*?^Allocated resources:.*?cpu\\s+(\\d+\\w)/msg"; done'
 
