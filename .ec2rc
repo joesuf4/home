@@ -179,11 +179,11 @@ ec2_screen() {
   for host in $(ec2_list_inventory "$FILTER"); do
     if [[ -t 0 ]]; then
       screen -X screen "$SHELL" -ic \
-         "_bcs_title :$host: $@; BCS_PROFILE=n/a _ec2_load_inventory; ssh -t $host bash -ic '\". ~/.profile; TERM=screen.xterm256-color eval script.sh -qa /tmp/typescript sudo -Es $@\"'"
+         "_bcs_title :$host: $@; ssh -t $host bash -ic '\". ~/.profile; TERM=screen.xterm256-color eval script.sh -qa /tmp/typescript sudo -Es $@\"'"
     else
       bcs_sed_uprobe_shared_libs ssh -t "$host" <$TMP |
         screen -X screen "$SHELL" -ic \
-          "_bcs_title :$host: $@; BCS_PROFILE=n/a _ec2_load_inventory; ssh -t $host sh -ic '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es $@\"'"
+          "_bcs_title :$host: $@; ssh -t $host sh -ic '\". ~/.profile; eval script.sh -qa /tmp/typescript sudo -Es $@\"'"
     fi
   done
 }
