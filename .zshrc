@@ -332,7 +332,7 @@ report_node_inventory_static() {
     <(_report_filter_block nodes -price "" : "" "" " \$a") |
     sort -k3nr | perl -nale "BEGIN{\$,=\" \"} @F == 7 and splice @F, 3, 0, (\"${PLACEHOLDER-n/a}\") x 2; push @F, map {sprintf \"%.2f\", \$_} \$F[5]*\$F[7]*24, 30*\$F[7]*24; print @F" |
     (
-      echo -e "TIMESTAMP\tAWSREGION\tAWSORGID\tBXORGNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\t%CPU\t%RAM\tAGE\tINSTANCETYPE\tPRICE\tOSTYPE\tTCO\tMONTHLY"
+      echo -e "TIMESTAMP\tAWSREGION\tAWSID\tCTRXNAME\tEKSCLUSTER\tEC2HOSTNAME\tCPU\tRAM\t%CPU\t%RAM\tAGE\tINSTANCETYPE\tPRICE\tOSTYPE\tTCO\tMONTHLY"
       perl -nale "BEGIN{\$,=\"\\t\"} splice @F, 0, 1, split m![/:]!, \$F[0]; splice @F, 1, 1, split /[.]/, \$F[1]; splice @F, 1, 0, grep chomp, qx([ -z \"${PLACEHOLDER-}\" ] && $SHELL -ic \"bcs get-account-number \$F[1]\" || echo $PLACEHOLDER); unshift @F, $ts; print @F"
     )
 }
