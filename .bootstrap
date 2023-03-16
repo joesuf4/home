@@ -6,8 +6,8 @@ REQUIRED_PIP3_UTILITIES=(ansible flake8 black virtualenv) \
 REQUIRED_NPM_UTILITIES=(eslint serverless) \
 _bcs_tools=(htop lsof strace curl pty script.sh screen pffxg.sh) \
 _bcs_accounts=($(grep -P '[\w-]+\s*\).*;;' ~/.bcsrc | sed -Ee 's/\) [^;]*;;//g')) \
-_bcs_roles=(bx_root bx_super bx_admin bx_eks_admin developer engineer operator) \
-_bcs_regions=(us-east-1 us-east-2) \
+_bcs_roles=(SRE HonorarySRE Developer) \
+_bcs_regions=(us-east-1) \
 _bcs_cli_cmds=(shell batch screen tools-ship-bg htop-ship-config-bg help version) \
 _bcs_cmds=(get-account-name get-account-number assume-role mfa-session clear-envs set-region pty-screen help version)
 
@@ -295,6 +295,12 @@ bcs_sed_uprobe_shared_libs() {
   local _bcs_libs
   declare -A _bcs_libs
   local IFS=\;
+  if [[ "$2" == "exec" ]]; then
+    local prefix='/proc/$container_pid/root'
+  else
+    local prefix=""
+  fi
+
   while read -r line; do
     line="${line//\\/\\\\}"
     if [[ "$line" =~ ^#\!/ ]]; then
@@ -313,8 +319,8 @@ bcs_sed_uprobe_shared_libs() {
       echo "$line"
       continue
     fi
-    : "${_bcs_libs[$lib]:=$("$@" sh -c "[ -f $lpath ] && echo $lpath || find -P /lib* /usr/lib* /usr/local/lib* -name '$lib.*so.*' | head -n 1")}"
-    echo "${line//$lpath/${_bcs_libs[$lib]}}"
+    : "${_bcs_libs[$lib]:=$("$@" sh -c "[ -f '$lpath' ] && echo '$lpath' || find -P /lib* /usr/lib* /usr/local/lib* -name '$lib.*so.*'" | head -n 1 | while read tlib; do [[ -n '$prefix' ]] && (echo "${tlib/\/usr\//\/usr-host\/}"|tr -d '\\')|| echo "$tlib"; done)}"
+    echo "${line//$lpath/$prefix${_bcs_libs[$lib]}}"
   done
 }
 
@@ -337,7 +343,7 @@ bcs_get_account_name() {
   [[ "$account_identifier" =~ ^[0-9]{12}$ ]] || return 1
 
   case "$account_identifier" in
-    ### XSLTREVS ###
+    ### XSLTPROCREV ###
   esac
 }
 
@@ -415,21 +421,21 @@ bcs_mfa_session() {
     return 1
   fi
 
-  : "${_bcs_gur:=$(aws iam get-user)}"
+  #: "${_bcs_gur:=$(aws sts get-caller-identity)}"
   # The mfa arn is the same thing as the user arn except for replacing user -> mfa
-  : "${_bcs_mfa_arn:=$(echo "$_bcs_gur" | jq -r .User.Arn | sed -e "s/user/mfa/")}"
-  : "${_bcs_gstr:=$(aws sts get-session-token --serial-number "$_bcs_mfa_arn" --token-code "$(_bcs_read_mfa_from_stdin_if_not_given "${1-}")")}"
+  #: "${_bcs_mfa_arn:=$(echo "$_bcs_gur" | jq -r .Arn | sed -e "s/user/mfa/")}"
+  #: "${_bcs_gstr:=$(aws sts get-session-token)}"
 
-  if [[ -z "$_bcs_gstr" ]]; then
-    bcs_clear_envs
-    bcs_mfa_session
-    return $?
-  fi
+#  if [[ -z "$_bcs_gstr" ]]; then
+#    bcs_clear_envs
+#    bcs_mfa_session
+#    return $?
+#  fi
 
-  BCS_PROFILE="bx_root@bx-root.$AWS_DEFAULT_REGION"
-  AWS_ACCESS_KEY_ID=$(echo "$_bcs_gstr" | jq -r .Credentials.AccessKeyId)
-  AWS_SECRET_ACCESS_KEY=$(echo "$_bcs_gstr" | jq -r .Credentials.SecretAccessKey)
-  AWS_SESSION_TOKEN=$(echo "$_bcs_gstr" | jq -r .Credentials.SessionToken)
+  BCS_PROFILE="root@sharefile2.$AWS_DEFAULT_REGION"
+  #AWS_ACCESS_KEY_ID=$(echo "$_bcs_gstr" | jq -r .Credentials.AccessKeyId)
+  #AWS_SECRET_ACCESS_KEY=$(echo "$_bcs_gstr" | jq -r .Credentials.SecretAccessKey)
+  #AWS_SESSION_TOKEN=$(echo "$_bcs_gstr" | jq -r .Credentials.SessionToken)
   _bcs_title
   clear
 }
@@ -451,7 +457,7 @@ bcs_assume_role() {
   if [[ -n "$account_id" ]]; then
     bcs_mfa_session "${4-}"
     local arr # assume role response
-    arr="$(aws sts assume-role --role-arn arn:aws:iam::"$account_id":role/"$role" --role-session-name "bcscli-$BCS_VERSION")"
+    arr="$(aws sts assume-role --role-arn arn:aws:iam::"$account_id":role/"$role" --role-session-name "bcsli-$BCS_VERSION")"
 
     if [[ $? -ne 0 ]]; then
       [[ -n "${BCS_ABORT_LOGIN:-}" ]] && return 1
@@ -516,7 +522,7 @@ _bcs_generate_cli() {
 }
 
 bcs_pty_screen() {
-  "$SHELL" -ic 'bcs_assume_role "$@" && exec screen -U pty -d pty-driver.pl $SHELL' -- "$@"
+  "$SHELL" -ic 'bcs_assume_role "$@" && TERM=xterm-256color exec /usr/bin/screen -U pty -d pty-driver.pl $SHELL' -- "$@"
   local rv=$?
   reset
   return $rv
@@ -584,7 +590,6 @@ for fcn in "${_bcs_cmds[@]}"; do
     fi
   fi
 done
-
 _bcs_generate_cli ### CLI ###
 EOBCSRC
 . ~/.bcsrc
