@@ -316,7 +316,7 @@ _report_filter_block() {
              \$F[-1] = 1 if @F and length \"$count\";
              (/([\\w-]*\b\Q$match\E\b)/ and \$a=\$1) ... (/Running/ and (\$a=\"\", 1))
                and (!/Running/ or (not length \$a and redo))
-                 and length and (@F > 2 and \$F[-2] =~ /^(?:\Q$(tput bold)\E[^🌷x✡♱☠❤❄◆▬■●▶]+?[🌷x✡♱☠❤❄◆▬■●▶]\Q$(tput sgr0)\E)+\$/ and splice @F, -2, 1 or 1)
+                 and length and (@F > 2 and \$F[-2] =~ /^(?:\Q$(tput bold)\E[^🍀🌷x✡♱☠❤❄◆▬■●▶]+?[🍀🌷x✡♱☠❤❄◆▬■●▶]\Q$(tput sgr0)\E)+\$/ and splice @F, -2, 1 or 1)
                    and (length \"$totals\" ? (print \"$prefix\$F[-1]\") : print \"$prefix\$ARGV$sep@F$suffix\")" /tmp/k8s/reports/$ctx/*/* |
     sed -e "s!/tmp/k8s/reports/$ctx/!!" | sort
 }
@@ -389,7 +389,7 @@ top_10() {
                 \$_ = eval
               }
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join \" \", grep !/^(?:\Q$(tput bold)\E[^🌷x✡♱☠❤❄◆▬■●▶]+?[🌷x✡♱☠❤❄◆▬■●▶]\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "${@:-${TOP_10_ARGS:--10}}"
+              \$h{+join \" \", grep !/^(?:\Q$(tput bold)\E[^🍀🌷x✡♱☠❤❄◆▬■●▶]+?[🍀🌷x✡♱☠❤❄◆▬■●▶]\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "${@:-${TOP_10_ARGS:--10}}"
 }
 
 # presumes a running emacs-server
