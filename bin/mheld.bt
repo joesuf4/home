@@ -23,7 +23,7 @@ uretprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_lock,
 uprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_unlock
 /@start[arg1] > 0/
 {
-  @held_time_us[comm, pid, usym(arg1), @ustack[arg1]] = hist((nsecs - @start[arg1])/1000);
+  @held_time_us[comm, pid, @ustack[arg1]] = hist((nsecs - @start[arg1])/1000);
   delete(@ustack[arg1]);
   delete(@start[arg1]);
 }

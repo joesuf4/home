@@ -15,7 +15,7 @@ uprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_lock
 uretprobe:/lib/x86_64-linux-gnu/libpthread.so.0:pthread_mutex_lock
 /@start[pid, tid] > 0/
 {
-  @lock_latency_us[comm, usym(@addr[pid, tid]), @ustack[pid, tid]] = hist((nsecs - @start[pid, tid])/1000);
+  @lock_latency_us[comm, @ustack[pid, tid]] = hist((nsecs - @start[pid, tid])/1000);
   delete(@ustack[pid, tid]);
   delete(@addr[pid, tid]);
   delete(@start[pid, tid]);
