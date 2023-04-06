@@ -228,3 +228,4 @@ t/
 .asy/
 .wget-hsts
 op.sig
+.cargo
