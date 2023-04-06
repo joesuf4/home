@@ -229,3 +229,5 @@ t/
 .wget-hsts
 op.sig
 .cargo
+.rustup
+snap/
