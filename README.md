@@ -19,9 +19,9 @@ mappings, written as shell `case` clauses, concatenated on a single line.  The
 only difference between the former string and the latter is that the roles are
 reversed for `### XSLTPROCREV ###`:
 
-    $aws\_account_id) echo $aws_account_name;; ...
+    $aws_account_id) echo $aws_account_name;; ...
 
-The other tunable is the `${\_bcs\_roles[@]}` array at the top of `.bcsrc`, to
+The other tunable is the `${_bcs_roles[@]}` array at the top of `.bcsrc`, to
 set the range of assumable AWS roles for your company.
 
 # Home directory git repo
