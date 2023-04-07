@@ -1,3 +1,16 @@
+# TLDR - before installing this repo into your own home dir...
+
+1. Install <github.com/SunStarSys/pty>
+2. git clone https://github.com/joesuf4/home
+3. cp -a home/.git ~
+4. cd ~
+5. git checkout wsl .
+6. ./bootstrap.sh
+
+That will get you the whole ball of wax, except for the XSLTPROC XSLTPROCREV replacement strings in .bcsrc to make the AWS interfaces work.
+Soon I will document what's involved in getting the `bcs assume-role $foo $bar` to function correctly for your workplace.
+
+
 # Home directory git repo
 
 I use this primarily to distribute my home directory's essential
