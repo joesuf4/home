@@ -1,10 +1,10 @@
 # TLDR - before installing this repo into your own home dir...
 
-1. Install <github.com/SunStarSys/pty>
-2. git clone https://github.com/joesuf4/home
+1. Install <https://github.com/SunStarSys/pty>
+2. git clone https://github.com/joesuf4/home -b wsl
 3. cp -a home/.git ~
 4. cd ~
-5. git checkout wsl .
+5. git checkout .
 6. ./bootstrap.sh
 
 That will get you the whole ball of wax, except for the XSLTPROC XSLTPROCREV replacement strings in .bcsrc to make the AWS interfaces work.
