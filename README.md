@@ -13,13 +13,13 @@ Soon I will document what's involved in getting the `bcs assume-role $foo $bar` 
 Post-Op:  The strings `### XSLTPROC ###` and `### XSLTPROCREV ###` in the
 `.bootstrap`-produced `.bcsrc` script need to each reflect your
 
-    $aws\_account\_name) echo $aws\_account\_id;; ...
+    $aws_account_name) echo $aws_account_id;; ...
 
 mappings, written as shell `case` clauses, concatenated on a single line.  The
 only difference between the former string and the latter is that the roles are
-reversed for `### XSLTPROCREV ##`:
+reversed for `### XSLTPROCREV ###`:
 
-    $aws\_account\_id) echo $aws\_account\_name;; ...
+    $aws\_account_id) echo $aws_account_name;; ...
 
 The other tunable is the `${\_bcs\_roles[@]}` array at the top of `.bcsrc`, to
 set the range of assumable AWS roles for your company.
