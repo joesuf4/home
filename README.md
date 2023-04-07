@@ -10,6 +10,19 @@
 That will get you the whole ball of wax, except for the XSLTPROC XSLTPROCREV replacement strings in .bcsrc to make the AWS interfaces work.
 Soon I will document what's involved in getting the `bcs assume-role $foo $bar` to function correctly for your workplace.
 
+Post-Op:  The strings `### XSLTPROC ###` and `### XSLTPROCREV ###` in the
+`.bootstrap`-produced `.bcsrc` script need to each reflect your
+
+    aws\_account\_name) aws\_account\_id;; ...
+
+mappings, written as shell `case` clauses, concatenated on a single line.  The
+only difference between the former string and the latter is that the roles are
+reversed for `### XSLTPROCREV ##`:
+
+    aws\_account\_id) aws\_account\_name;; ...
+
+The other tunable is the `${\_bcs\_roles[@]}` array at the top of `.bcsrc`, to
+set the range of assumable AWS roles for your company.
 
 # Home directory git repo
 
