@@ -51,7 +51,7 @@ my $in_stack = 0;
 foreach (<>) {
   chomp;
   if (!$in_stack) {
-    if (/^@\[$/) {
+    if (/^@\[[^\]]*$/) {
       $in_stack = 1;
     } elsif (/^@\[,\s(.*)\]: (\d+)/) {
       print $1 . " $2\n";
