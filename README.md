@@ -24,6 +24,13 @@ reversed for `### XSLTPROCREV ###`:
 The other tunable is the `${_bcs_roles[@]}` array at the top of `.bcsrc`, to
 set the range of assumable AWS roles for your company.
 
+Finally, toss everything but the `[default]` block out of `~/.aws/config`.
+`bcs` will manage all your AWS logins and role assumptions from your default
+credentials in `~/.aws/credentials`.  Currently the `op` automation for MFA
+logins are disabled, but go through the pre-March 2023 history of the
+`.bootstrap` script if you want MFA on your AWS CLI use cases.
+
+
 # Home directory git repo
 
 I use this primarily to distribute my home directory's essential
