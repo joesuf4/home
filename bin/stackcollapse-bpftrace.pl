@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl -n
 #
 # stackcollapse-bpftrace.pl	collapse bpftrace samples into single lines.
 #
@@ -43,25 +43,33 @@
 #  (http://www.gnu.org/copyleft/gpl.html)
 #
 
-use strict;
 
-my @stack;
-my $in_stack = 0;
-my %h;
+BEGIN {
+  $increment = @ARGV && ($ARGV[0] eq "++");
+  shift if $increment;
+}
 
-foreach (<>) {
-  chomp;
-  s/\r$//;
-  if (!$in_stack) {
-    $in_stack = /^@\w*\[[^\]]*$/;
-  } else {
-    if (/^,?\s?(.*)\]: (\d+)$/) {
-      $h{join(';', reverse(@stack))} += $2;
-      $in_stack = 0;
-      @stack = ();
-    } else {
-      /(\S+)/ and push @stack, $1;
+chomp;
+s/\r$//;
+
+if (!$in_stack) {
+  $in_stack = /^@\w*\[[^\]]*$/;
+} else {
+  if (/^,?\s?(.*)\]: (\d+)?$/) {
+    my $count = $2;
+    unless ($count) {
+      while (<>) {
+        chomp;
+        s/\r$//;
+        last unless /(\s+)(\d+)\s+[|]\@*/;
+        $count += $2;
+      }
     }
+    $h{join(';',reverse(@stack))} += $increment || $count;
+    $in_stack = 0;
+    @stack = ();
+  } else {
+    /\d+ (\w.*?[+]\d+)/ and push @stack, $1;
   }
 }
 
