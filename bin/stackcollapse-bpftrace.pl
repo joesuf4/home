@@ -47,26 +47,26 @@ use strict;
 
 my @stack;
 my $in_stack = 0;
+my %h;
 
 foreach (<>) {
   chomp;
+  s/\r$//;
   if (!$in_stack) {
-    if (/^@\[[^\]]*$/) {
-      $in_stack = 1;
-    } elsif (/^@\[,\s(.*)\]: (\d+)/) {
-      print $1 . " $2\n";
-    }
+    $in_stack = /^@\w*\[[^\]]*$/;
   } else {
-    if (m/^,?\s?(.*)\]: (\d+)/) {
-      if (length $1) {
-        push(@stack, $1);
-      }
-      print join(';', reverse(@stack)) . " $2\n";
+    if (/^,?\s?(.*)\]: (\d+)$/) {
+      $h{join(';', reverse(@stack))} += $2;
       $in_stack = 0;
       @stack = ();
     } else {
-      $_ =~ s/^\s+//;
-      push(@stack, $_);
+      /(\S+)/ and push @stack, $1;
     }
   }
+}
+
+END {
+  $, = " ";
+  $\ = "\n";
+  print $_, $h{$_} for sort {$h{$b} <=> $h{$a}} keys %h;
 }
