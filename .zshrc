@@ -145,9 +145,11 @@ alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
 
 # typescript file walker
 
-fg() {
-  pptyd "$@" | stackcollapse-bpftrace.pl | flamegraph.pl >~winhome/tmp/fg.svg
-  $MOZILLA file:///C:/Users/$USER/tmp/fg.svg
+flameg() {
+  local TMP="$(mktemp ~winhome/tmp/flameg-XXXX.svg)"
+  local URL="file:///C:/${TMP#/mnt/c/}"
+  pptyd "$@" | stackcollapse-bpftrace.pl | flamegraph.pl > $TMP
+  $MOZILLA $URL
 }
 
 tplay() {
