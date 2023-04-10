@@ -43,7 +43,6 @@
 #  (http://www.gnu.org/copyleft/gpl.html)
 #
 
-
 BEGIN {
   $increment = @ARGV && ($ARGV[0] eq "++");
   shift if $increment;
@@ -55,7 +54,7 @@ s/\r$//;
 if (!$in_stack) {
   $in_stack = /^@\w*\[[^\]]*$/;
 } else {
-  if (/^,?\s?(.*)\]: (\d+)?$/) {
+  if (/^,?\s?(.*)\]:\s*(\d+)?$/) {
     my $count = $2;
     unless ($count) {
       while (<>) {
@@ -69,7 +68,7 @@ if (!$in_stack) {
     $in_stack = 0;
     @stack = ();
   } else {
-    /\d+ (\w.*?[+]\d+)/ and push @stack, $1;
+    /^\s+[\d0a-f]+ (\w.*?[+]\d+)/ and push @stack, $1;
   }
 }
 

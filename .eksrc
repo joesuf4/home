@@ -561,7 +561,7 @@ eks_trace_shell() {
       for key in $(eks_list_trace_ids "$FILTER" 1); do
         _bcs_title :$key: trace $ACTION $FILTER "$@"
         for id in ${EKS_TRACE_ID[$key]}; do
-          [[ "$ACTION" == attach ]] && kubectl trace logs $id -f >&2 &
+          [[ "$ACTION" == attach ]] && ! [[ -t 2 ]] && kubectl trace logs $id -f >&2 &
           kubectl trace $ACTION $id "$@"
         done
         [[ $ACTION == delete ]] && unset "EKS_TRACE_ID[$key]" || :
@@ -787,7 +787,7 @@ eks_trace_batch() {
         for id in ${EKS_TRACE_ID[$key]}; do
           echo '(' kubectl trace $ACTION $id "$@" '||' echo \""$errstr"\": "(trace $ACTION \"\$@\") failed with status code \$?" ')' '2>&1' '|' 'while IFS=";" read -r line; do echo '\"$prefix\"': $line; done'
         done |
-          xargs -d '\n' -P $BCS_BATCH -i $SHELL -c '. ~/.bcsrc 2>/dev/null; {}'
+          xargs -d '\n' -P $BCS_BATCH -i $SHELL -ic '{}'
       done
       ;;
   esac
