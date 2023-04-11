@@ -1,11 +1,12 @@
 # TLDR - steps for installing this repo into your own home dir...
 
 1. Install <https://github.com/SunStarSys/pty>
+2. cd ~
 2. git clone https://github.com/joesuf4/home -b wsl
-3. cp -a home/.git ~
-4. cd ~
+3. cp -a home/.git .
 5. git checkout .
-6. ./bootstrap.sh
+6. rm -rf home
+7. ./bootstrap.sh
 
 That will get you the whole ball of wax, except for the XSLTPROC XSLTPROCREV replacement strings in .bcsrc to make the AWS interfaces work.
 Below documents what's involved in getting the `bcs assume-role $foo $bar` to function correctly for your workplace.
