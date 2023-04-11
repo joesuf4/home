@@ -149,7 +149,7 @@ flameg() {
   local TMP="$(mktemp ~winhome/tmp/flameg-XXXX.svg)"
   local URL="file:///C:/${TMP#/mnt/c/}"
   pptyd "$@" | stackcollapse-bpftrace.pl | flamegraph.pl >"$TMP"
-  $MOZILLA $URL
+  "$MOZILLA" "$URL"
 }
 
 tplay() {
