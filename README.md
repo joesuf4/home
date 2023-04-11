@@ -8,7 +8,7 @@
 6. ./bootstrap.sh
 
 That will get you the whole ball of wax, except for the XSLTPROC XSLTPROCREV replacement strings in .bcsrc to make the AWS interfaces work.
-Soon I will document what's involved in getting the `bcs assume-role $foo $bar` to function correctly for your workplace.
+Below documents what's involved in getting the `bcs assume-role $foo $bar` to function correctly for your workplace.
 
 Post-Op:  The strings `### XSLTPROC ###` and `### XSLTPROCREV ###` in the
 `.bootstrap`-produced `.bcsrc` script need to each reflect your
