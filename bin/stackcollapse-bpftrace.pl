@@ -42,14 +42,16 @@
 #
 #  (http://www.gnu.org/copyleft/gpl.html)
 #
+use strict;
 
 BEGIN {
-  $increment = @ARGV && ($ARGV[0] eq "++");
+  our $increment = @ARGV && ($ARGV[0] eq "++");
   shift if $increment;
 }
 
 chomp;
 s/\r$//;
+our (@stack, $increment, $in_stack, %h);
 
 if (!$in_stack) {
   $in_stack = /^@\w*\[[^\]]*$/;
@@ -64,11 +66,11 @@ if (!$in_stack) {
         $count += $2;
       }
     }
-    $h{join(';',reverse(@stack))} += $increment || $count;
+    $h{join(';',reverse( @stack))} += our $increment || $count;
     $in_stack = 0;
     @stack = ();
   } else {
-    /^\s+[\d0a-f]+ (\w.*?[+]\d+)/ and push @stack, $1;
+    /^\s+[\dxa-f]+ (\w.*?[+]\d+|[\dxa-f]+)/ and push @stack, $1;
   }
 }
 
