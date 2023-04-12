@@ -347,7 +347,7 @@ while [[ "$exit_loop" -ne 1 ]]; do
 
       unzip=1
       PFFXG_ARGS=1
-      PFFXG_EXTENSIONS="gz gzip zip bz2 lz4 lzma lzo xz tar"
+      PFFXG_EXTENSIONS="gz gzip zip bz2 lz4 lzma lzo xz tar pdf"
       PFFXG_CMD="grep -H -i -n"
       PFFXG_CACHE=""
       ;;
@@ -497,6 +497,10 @@ unzip_prefix() {
       prefix=ptar
       ;;
 
+    *.pdf)
+      prefix=pdf
+      ;;
+
   esac
 
   echo $prefix
@@ -548,7 +552,7 @@ compress_cache() {
   if [[ -n "$refresh" ]]; then
     nice $PFFXG_COMPRESSOR -$PFFXG_LEVEL -f -- "$@"
   else
-    nice rm -f -- "${@%$compression_suffix}"
+    nice rm -f -- "${@%"$compression_suffix"}"
   fi
 }
 
@@ -562,7 +566,7 @@ single_quote() {
   # Append a newline to each item in $@ and munge the quotes on each line.
   # The pipelined output trades newlines for single space characters, so
   # we wind up with a one-line output terminated by a space, not a newline.
-  local arg;
+  local arg
   for arg in "$@"; do
     echo "" "$arg"
   done |
