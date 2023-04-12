@@ -66,7 +66,7 @@ if (!$in_stack) {
         $count += $2;
       }
     }
-    $h{join(';',reverse( @stack))} += our $increment || $count;
+    $h{join(';',reverse( @stack))} += $increment || $count;
     $in_stack = 0;
     @stack = ();
   } else {
