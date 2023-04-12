@@ -173,7 +173,7 @@ EOF
 
   jinjalint)
     LINT_TEMPLATES=yes
-    PCRE_PAT='/templates/'
+    PCRE_PAT='/templates/\.ya?ml$'
     LINTER+=' --parse-only'
     ;;
 esac
