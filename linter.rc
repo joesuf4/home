@@ -120,7 +120,7 @@ EOF
 }
 EOF
     )"
-    LINTER+=' $([ -f .eslintrc.json ] || [ -f .eslintrc.ya?ml ] || echo "-c" "$CONFIG_TMP_FILE")'
+    LINTER+=' $([ -f .eslintrc.json ] || [ -f .eslintrc.y?ml ] || echo "-c" "$CONFIG_TMP_FILE")'
     ;;
 
   hadolint)
@@ -163,7 +163,7 @@ EOF
 
   csharp)
     PCRE_PAT='\.cs$'
-    LINTER='bash -c ". ~/.asdf/plugins/dotnet-core/set-dotnet-home.bash; dotnet format --include \"\$@\"" --'
+    LINTER='bash -c ". ~/.asdf/plugins/dotnet-core/set-dotnet-home.bash; dotnet format --no-restore --include \"\$@\"" --'
     ;;
 
   golangci-lint)
