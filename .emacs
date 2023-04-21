@@ -284,6 +284,11 @@
   :hook
   (flycheck-mode . flycheck-clang-tidy-setup))
 
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode 1))
+
 ;;--------------------------------------------------
 ;; modes for Brendan Gregg's brainchildren...
 (require 'bpftrace-mode)
