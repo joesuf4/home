@@ -24,8 +24,8 @@ setopt share_history extended_history hist_expire_dups_first hist_no_store
 
 # ctrl-(up/down/right/left) arrow bindings
 
-bindkey '\e[1;5A' history-search-backward
-bindkey '\e[1;5B' history-search-forward
+bindkey '\e[1;5A' history-incremental-search-backward
+bindkey '\e[1;5B' history-incremental-search-forward
 bindkey '\e[1;5C' emacs-forward-word
 bindkey '\e[1;5D' emacs-backward-word
 
