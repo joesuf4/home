@@ -112,8 +112,8 @@ EOF
         "no-multi-spaces": 0,
         "quotes": 0,
         "camelcase": 0,
-        "n/no-deprecated-api": 1,
-        "n/no-path-concat": 1,
+        "node/no-deprecated-api": 1,
+        "node/no-path-concat": 1,
         "no-control-regex": 1,
         "key-spacing": 0,
       }
