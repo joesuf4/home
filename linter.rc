@@ -100,6 +100,7 @@ EOF
   "extends": [
     "eslint:recommended",
     "plugin:node/recommended",
+  ],
   "env": {
     "es2021": true,
     "node": true,
