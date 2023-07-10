@@ -22,7 +22,7 @@ USER root
 RUN pip3 install flake8 black
 RUN cpan -f install sealed Algorithm::Diff LCS::BV LCS::XS B::Lint IO::Select URI Term::ReadKey Perl::Critic YAML::XS HTML::Escape Cpanel::JSON::XS URI::Escape Digest::SHA1 FreezeThaw Dotiac::DTL::Addon::markup
 USER ubuntu
-RUN bash -c '. ~/.asdf/asdf.sh; npm config set strict-ssl false && npm install -g eslint typescript navigator jsdom jquery @typescript-eslint/parser @typescript-eslint/eslint-plugin remark remark-cli remark-preset-lint-consistent remark-lint-list-item-indent remark-validate-links remark-preset-lint-recommended remark-preset-lint-markdown-style-guide'
+RUN bash -c '. ~/.asdf/asdf.sh; npm config set strict-ssl false && npm install -g eslint typescript navigator jsdom jquery @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-node remark remark-cli remark-preset-lint-consistent remark-lint-list-item-indent remark-validate-links remark-preset-lint-recommended remark-preset-lint-markdown-style-guide'
 USER root
 ENV NODE_PATH=node_modules:$HOME/.asdf/installs/nodejs/$NODE_VERSION/lib/node_modules
 ENV TERM=xterm-256color

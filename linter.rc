@@ -97,7 +97,9 @@ EOF
   "plugins": [
     '@typescript-eslint',
   ],
-  "extends": "eslint:recommended",
+  "extends": [
+    "eslint:recommended",
+    "plugin:node/recommended",
   "env": {
     "es2021": true,
     "node": true,
