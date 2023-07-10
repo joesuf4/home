@@ -88,7 +88,7 @@ EOF
     ;;
 
   eslint)
-    PCRE_PAT='(\.ts|(?<!\.min)\.js)$'
+    PCRE_PAT='(\.tsx?|(?<!\.min)\.jsx?)$'
     CONFIG_SRC="$(
       cat <<'EOF'
 {
