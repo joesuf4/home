@@ -139,6 +139,14 @@ EOT
        "customSyntax": "postcss-lit"
     },
     {
+      "files": ["*.html", "**/*.html"],
+       "customSyntax": "postcss-html"
+    },
+    {
+      "files": ["*.md", "**/*.md"],
+       "customSyntax": "postcss-markdown"
+    },
+    {
       "files": ["*.scss", "**/*.scss"],
       "customSyntax": "postcss-scss"
     }
