@@ -1,5 +1,5 @@
 # -*- sh -*-
-# Licensed to Opswright for internal use only
+
 case "$LINTER" in
   # make sure the only lines that end in a closing parenthesis
   # are these (simple) case matches for executables,
