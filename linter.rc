@@ -135,11 +135,11 @@ EOT
   "extends": ["stylelint-config-standard"],
   "overrides": [
     {
-      "files": ["*.js"],
+      "files": ["*.js", "**/*.js"],
        "customSyntax": "postcss-lit"
     },
     {
-      "files": ["*.scss"],
+      "files": ["*.scss", "**/*.scss"],
       "customSyntax": "postcss-scss"
     }
   ]
