@@ -1,5 +1,4 @@
 # -*- sh -*-
-
 case "$LINTER" in
   # make sure the only lines that end in a closing parenthesis
   # are these (simple) case matches for executables,
@@ -8,7 +7,7 @@ case "$LINTER" in
   yamllint)
     PCRE_PAT='\.ya?ml$'
     CONFIG_SRC="$(
-      cat <<EOF
+      cat <<EOT
 ---
 yaml-files:
   - '*.yaml'
@@ -41,7 +40,7 @@ rules:
   octal-values: disable
   quoted-strings: disable
   comments: disable
-EOF
+EOT
     )"
     LINTER+=' $([ -f .yamllint* ] || echo "-c" "$CONFIG_TMP_FILE")'
     ;;
@@ -90,7 +89,7 @@ EOF
   eslint)
     PCRE_PAT='(\.tsx?|(?<!\.min)\.[cm]?jsx?)$'
     CONFIG_SRC="$(
-      cat <<'EOF'
+      cat <<'EOT'
 {
   "root": true,
   "parser": '@typescript-eslint/parser',
@@ -121,9 +120,32 @@ EOF
     },
   ]
 }
-EOF
+EOT
     )"
     LINTER+=' $([ -f .eslintrc.json ] || [ -f .eslintrc.y?ml ] || echo "-c" "$CONFIG_TMP_FILE")'
+    ;;
+
+  stylelint)
+    PCRE_PAT='(?<!\.min)(\.s?css|\.js)$'
+    TMP_FILE_FMT="XXXX.json"
+    LINTER+=' $([ -f .stylelint* ] || echo "-c" "$CONFIG_TMP_FILE")'
+    CONFIG_SRC="$(
+      cat <<'EOT'
+{
+  "extends": ["stylelint-config-standard"],
+  "overrides": [
+    {
+      "files": ["*.js"],
+       "customSyntax": "postcss-lit"
+    },
+    {
+      "files": ["*.scss"],
+      "customSyntax": "postcss-scss"
+    }
+  ]
+}
+EOT
+    )"
     ;;
 
   hadolint)
@@ -133,7 +155,7 @@ EOF
 
   remark)
     CONFIG_SRC="$(
-      cat <<EOT
+      cat <<'EOT'
 {
   "plugins": [
     "remark-preset-lint-consistent",
@@ -152,13 +174,13 @@ EOT
 
   tflint)
     CONFIG_SRC="$(
-      cat .tflint.hcl - 2>/dev/null <<EOF
+      cat .tflint.hcl - 2>/dev/null <<'EOT'
 plugin "aws" {
     enabled = true
     version = "0.7.2"
     source  = "github.com/terraform-linters/tflint-ruleset-aws"
 }
-EOF
+EOT
     )"
     PCRE_PAT='\.tf$'
     LINTER='sh -c "tflint --config "$CONFIG_TMP_FILE" --init && tflint --config $CONFIG_TMP_FILE \"\$@\" || [ \$? -eq 2 ]" --'

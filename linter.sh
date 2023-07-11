@@ -1,5 +1,4 @@
 #!/bin/bash
-
 : "${LINTER_DOCKER_IMAGE=schaefj/linter:latest}"
 
 if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
@@ -62,8 +61,8 @@ fi
 # prep the (temporary) config file
 
 trap 'rv=$?; rm -f "$CONFIG_TMP_FILE"; exit $rv' EXIT INT HUP TERM
-CONFIG_TMP_FILE="$(mktemp)"
-echo -e "$CONFIG_SRC" >"$CONFIG_TMP_FILE"
+CONFIG_TMP_FILE="$(mktemp /tmp/${TMP_FILE_FMT:-XXXXXX.cfg})"
+echo "$CONFIG_SRC" >"$CONFIG_TMP_FILE"
 
 # run the configured linter
 
