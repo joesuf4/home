@@ -126,7 +126,7 @@ EOT
     ;;
 
   stylelint)
-    PCRE_PAT='(?<!\.min)(\.s?css|\.js)$'
+    PCRE_PAT='(?<!\.min)(\.s?css|\.html|\.md|\.js)$'
     TMP_FILE_FMT="XXXX.json"
     LINTER+=' $([ -f .stylelint* ] || echo "-c" "$CONFIG_TMP_FILE")'
     CONFIG_SRC="$(
