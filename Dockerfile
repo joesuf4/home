@@ -20,7 +20,7 @@ RUN bash -c '. ~/.asdf/asdf.sh; mkdir -p ~ubuntu/bin; echo -e "#!/bin/bash\nexec
 RUN bash -c '. ~/.asdf/asdf.sh; . ~/.asdf/plugins/dotnet-core/set-dotnet-home.bash; dotnet tool install -g dotnet-format --version "7.*" --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json'
 USER root
 RUN pip3 install flake8 black
-RUN cpan -f install sealed Algorithm::Diff LCS::BV LCS::XS B::Lint IO::Select URI Term::ReadKey Perl::Critic YAML::XS HTML::Escape Cpanel::JSON::XS URI::Escape Digest::SHA1 FreezeThaw Dotiac::DTL::Addon::markup
+RUN cpan -f install sealed Algorithm::Diff LCS::BV LCS::XS B::Lint IO::Select URI Term::ReadKey Perl::Critic YAML::XS HTML::Escape Cpanel::JSON::XS URI::Escape Digest::SHA1 FreezeThaw Dotiac::DTL::Addon::markup Time::timegm
 USER ubuntu
 RUN bash -c '. ~/.asdf/asdf.sh; npm config set strict-ssl false && npm install -g eslint typescript navigator jsdom jquery @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-node stylelint stylelint-config-standard postcss-lit postcss-scss postcss-markdown postcss-html postcss-js remark remark-cli remark-preset-lint-consistent remark-lint-list-item-indent remark-validate-links remark-preset-lint-recommended remark-preset-lint-markdown-style-guide'
 USER root
