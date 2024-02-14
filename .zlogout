@@ -21,4 +21,5 @@ chmod 0600 "$UPGRADE_LOGFILE"
     echo "UPGRADES COMPLETE(wait=$?)."
   ' >"$UPGRADE_LOGFILE" 2>&1 </dev/null &
 )
+for f in blogs www; cd ~/src/$f && git svn rebase && git push --force
 sudo -k
