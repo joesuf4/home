@@ -64,7 +64,7 @@ EOT
     XARGS_MAX_FILES=1
     PCRE_PAT='\.p[ml]$'
     export STTY_NAME=0
-    LINTER+=' -I. -Iblib/lib -Ilib -Ilib/perl5 -c 3<&0'
+    LINTER+=' -T -I. -Iblib/lib -Ilib -Ilib/perl5 -c 3<&0'
     ;;
 
   perlcritic)
@@ -209,4 +209,9 @@ EOT
     PCRE_PAT='/templates/|\.ya?ml$'
     LINTER+=' --parse-only'
     ;;
+
+  lacheck)
+    PCRE_PAT='\.tex\b[^/]*$'
+    XARGS_MAX_FILES=1
+        
 esac
