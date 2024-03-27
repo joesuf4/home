@@ -17,6 +17,7 @@ zplug "joesuf4/zsh-history-filter"
 zplug "joesuf4/zsh-autosuggestions"
 #zplug "dracula/zsh", as:theme
 zplug "zplug/zplug", hook-build:"zplug --self-manage"
+zplug "docker/cli", use:contrib/completion/zsh
 
 # history settings
 
