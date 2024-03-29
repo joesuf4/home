@@ -1,13 +1,16 @@
 # -*- sh -*-
 cd
 echoon
+export USER=joe
+
+[[ $(~/bin/ttyname) =~ /dev/tty ]] && export TERM=vt100
 
 if [[ "$(uname)" != Linux ]]; then
   ptyd $SHELL
   exit $?
 fi
 
-export SSH_AGENT_PID="$(pgrep -u $USER ssh-agent)"
+export SSH_AGENT_PID="$(pgrep -u $USER -f ssh-agent)"
 if [[ -n "$SSH_AGENT_PID" ]]; then
   export SSH_AUTH_SOCK="$(ls -t /tmp/ssh-$USER/agent.* | head -n 1)"
 else

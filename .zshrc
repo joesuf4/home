@@ -503,7 +503,7 @@ setopt monitor 2>/dev/null
 complete -C aws_completer aws
 complete -o nospace -C terraform terraform
 
-for sfile in ~/.lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh ~/.ocirc; do
+for sfile in ~/lib/oci_autocomplete.sh ~/.ocirc; do
   [[ -f $sfile ]] && . $sfile
 done
 
@@ -511,3 +511,15 @@ command -v kubectl >/dev/null 2>&1 && . <(kubectl completion $(basename "$SHELL"
 . ~/.bcsrc
 . ~/.ec2rc
 . ~/.eksrc
+
+patch_swig_pl() {
+  for f in ~/src/svn-1.*/subversion/bindings/swig/perl/native/*.c; do
+    perl -i -0777 -pe 's#^(\s+if\(\(items [^}]+})#/*$1*/#gms' $f
+    perl -i -0777 -pe 's!^(#define SWIG_PERL_OBJECT_DECL)$!$1 pTHX_!' $f
+    perl -i -0777 -pe 's!^(#define SWIG_PERL_OBJECT_CALL)$!$1 aTHX_!' $f
+  done
+  for f in ~/src/svn-1.*/subversion/bindings/swig/perl/libsvn_swig_perl/swigutil_pl.c; do
+    svn revert $f
+    perl -i -0777 -pe 's#^((?!typedef)\w+\s+[^{]+{)#$1\n    dTHX;#msg' $f
+  done
+}

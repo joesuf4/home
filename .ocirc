@@ -64,8 +64,6 @@ _oci_post_sync () {
     for i in {1..$ad}
     do
         ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy $OCI_ZPOOL/x1/cms/wc
-        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld opc create,mount,snapshot,clone,destroy,hold $OCI_ZPOOL
-        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld opc create,mount,snapshot,clone,destroy,hold rpool1
     done
 
     echo Fixing up /etc/hosts and /x1/logs.
@@ -78,36 +76,10 @@ _oci_post_sync () {
     oci_region_upgrade $region $slice
     oci_region_ship_zones $region $slice
 
-    _oci_home_setup
-    _oci_pam_setup
-
     echo Post-sync prep complete: refreshing ssh connections to $region.
     oci_region_ssh_enable_gwp $region
     rm -f ~/.ssh/sockets/*.$region*
     ~/bin/ssh-refresh.sh
-}
-
-_oci_home_setup () {
-    echo Cloning home...
-    oci_region_exec $region rm -rf .git home
-    oci_region_exec $region GIT_SSL_NO_VERIFY=1 /usr/local/bin/git clone https://github.com/joesuf4/home
-    oci_region_exec $region mv home/.git .
-    oci_region_exec $region /usr/local/bin/git checkout solaris
-    oci_region_exec $region /usr/local/bin/git checkout .
-    oci_region_exec $region rm -rf home
-}
-
-_oci_pam_setup () {
-    echo Resetting PAM sudo policy for Orthrus OTP...
-    oci_region_exec $region /usr/local/bin/ortpasswd
-    for id in {1..$ad}
-    do
-        ssh $OCI_HOST_PREFIX-$id.$region chown root:root pam-policy
-        ssh -t $OCI_HOST_PREFIX-$id.$region sudo mkdir -p /etc/opt/pam-policy
-        ssh -t $OCI_HOST_PREFIX-$id.$region sudo cp pam-policy /etc/opt/pam-policy/opc
-        ssh -t $OCI_HOST_PREFIX-$id.$region sudo usermod -K pam_policy=/etc/opt/pam-policy/opc opc
-    done
-    oci_region_exec $region sed -i s/NOPASSWD:// /etc/sudoers.d/svc-system-config-user
 }
 
 oci_ship_zone () {
@@ -157,7 +129,9 @@ oci_region_ship_zones () {
     oci_region_exec $region dladm create-etherstub etherstub0
     oci_region_exec $region dladm create-vnic -l etherstub0 gz0
     oci_region_exec $region dladm create-vnic -l etherstub0 www0
+    oci_region_exec $region dladm create-vnic -l etherstub0 www1
     oci_region_exec $region dladm create-vnic -l etherstub0 cms0
+    oci_region_exec $region dladm create-vnic -l etherstub0 cms1
     oci_region_exec $region ipadm create-ip gz0
     oci_region_exec $region ipadm create-addr -T static -a 192.168.254.1/24 gz0
     oci_region_exec $region ipadm set-ifprop -p forwarding=on -m ipv4 net0
@@ -423,15 +397,6 @@ oci_region_upgrade () {
         ssh -t $OCI_HOST_PREFIX-$i.$region sh -c "'pkg update && reboot'"
         echo $OCI_HOST_PREFIX-$i.$region upgraded.
     done
-}
-
-oci_region_ssh_enable_gwp () {
-    local region=$1
-    oci_region_exec $region perl -i -pe "/GatewayPorts/...s/boolean/astring/" /lib/svc/manifest/network/ssh.xml
-    oci_region_exec $region sed -i -e "'s/bool_def GatewayPorts/def GatewayPorts/'" /lib/svc/stencils/sshd_config.stencil
-    oci_region_exec $region sudo svccfg -s network/ssh:default setprop config/GatewayPorts = astring: clientspecified
-    oci_region_exec $region svcadm restart manifest-import
-    oci_region_exec $region svcadm refresh ssh
 }
 
 oci_region_zlogin () {

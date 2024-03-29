@@ -49,7 +49,7 @@ if [[ -d ~/.asdf ]] && ! command -v asdf >/dev/null 2>&1; then
 fi
 
 # PATH
-for p in /sbin /usr/sbin "$(go env GOPATH 2>/dev/null)/bin" /usr/local/bin ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin
+for p in /sbin /usr/sbin "$(go env GOPATH 2>/dev/null)/bin" /usr/local/texlive/2023/bin/x86_64-solaris /usr/local/bin ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin
 do
   # fyi- this is not going to work if you use it on nested $p paths...
   [[ -d "$p" ]] && PATH="$p$(echo ":$PATH" | sed -e "s|:$p||g")"
@@ -74,6 +74,7 @@ ZFS_RPOOL_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt rpool/etc/mail rpool/et
 ZFS_EXPORTS=(${ZFS_TANK_EXPORTS[@]} ${ZFS_RPOOL_EXPORTS[@]})
 
 PKG_REPOS=http://127.0.0.1:9999/
+
 [[ -f ~/.cargo/env ]] && . ~/.cargo/env
 : "${TERM:=xterm-256color}"
 export GIT_SSL_NO_VERIFY=1

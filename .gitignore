@@ -232,3 +232,4 @@ op.sig
 .rustup
 snap/
 perl/
+.cookie
