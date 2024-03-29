@@ -27,23 +27,18 @@ _oci_pre_sync () {
     oci_region_exec $region svcadm disable firewall
     for id in {1..$ad}
     do
-        echo Opening pfzsh login shell for opc on $OCI_HOST_PREFIX-$id.region...
+        echo Opening pfzsh login shell for $USER on $OCI_HOST_PREFIX-$id.region...
         ssh -t $OCI_HOST_PREFIX-$id.$region
     done
 
-    echo Step 3. Create $OCI_ZPOOL, service accounts, permissions, and rm /etc/mail.
+    echo Step 3. Create $OCI_ZPOOL_MAP[tank], service accounts, permissions, and rm /etc/mail.
     for id in {1..$ad}
     do
-        for user in svn httpd ssh bb-master bb-worker
-        do
-            ssh $OCI_HOST_PREFIX-$id.$region sudo useradd -m -g 1 $user
-        done
-        ssh $OCI_HOST_PREFIX-$id.$region sudo iscsiadm modify discovery -s enable
-        sleep 2
-        ssh $OCI_HOST_PREFIX-$id.$region sudo zpool create $OCI_ZPOOL c2t0d0
-        ssh $OCI_HOST_PREFIX-$id.$region sudo zfs create -o mountpoint=/x1 $OCI_ZPOOL/x1
-        ssh $OCI_HOST_PREFIX-$id.$region sudo usermod -K defaultpriv=basic,!proc_session $user
-        ssh $OCI_HOST_PREFIX-$id.$region sudo rm -rf /etc/mail
+      ssh $OCI_HOST_PREFIX-$id.$region sudo iscsiadm modify discovery -s enable
+      sleep 2
+      ssh $OCI_HOST_PREFIX-$id.$region sudo zpool create $OCI_ZPOOL_MAP[tank] c2t0d0
+      ssh $OCI_HOST_PREFIX-$id.$region sudo zfs create -o mountpoint=/x1 $OCI_ZPOOL_MAP[tank]/x1
+      ssh $OCI_HOST_PREFIX-$id.$region sudo rm -rf /etc/mail
     done
     echo Pre-sync prep complete.
 }
@@ -63,7 +58,7 @@ _oci_post_sync () {
     echo Delegating zfs permissions.
     for i in {1..$ad}
     do
-        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy $OCI_ZPOOL/x1/cms/wc
+        ssh $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy $OCI_ZPOOL_MAP[tank]/x1/cms/wc
     done
 
     echo Fixing up /etc/hosts and /x1/logs.
@@ -71,15 +66,14 @@ _oci_post_sync () {
     oci_region_exec $region sudo mkdir -p /x1/logs/httpd /x1/logs/svnpubsub
 
     echo 'Importing svc:site/*'
-    oci_region_exec $region sudo svccfg import /etc/svc/manifest/site
+    # oci_region_exec $region sudo svccfg import /etc/svc/manifest/site
 
-    oci_region_upgrade $region $slice
-    oci_region_ship_zones $region $slice
+    # oci_region_upgrade $region $slice
+    # oci_region_ship_zones $region $slice
 
     echo Post-sync prep complete: refreshing ssh connections to $region.
-    oci_region_ssh_enable_gwp $region
     rm -f ~/.ssh/sockets/*.$region*
-    ~/bin/ssh-refresh.sh
+    ptyd ~/bin/ssh-refresh.sh
 }
 
 oci_ship_zone () {
@@ -154,7 +148,6 @@ oci_region_ship_zones () {
     for id in {1..$ad}
     do
         [[ -z "$slice" || $slice -eq $id ]] || continue
-        ssh $OCI_HOST_PREFIX-$id.$region pkg install sendmail uvfs udfs diagnostic/cpu-counters service/file-system/nfs >/dev/null 2>&1
         ssh $OCI_HOST_PREFIX-$id.$region useradd $USER
         ssh $OCI_HOST_PREFIX-$id.$region svcadm disable smtp:sendmail
 
@@ -205,7 +198,7 @@ oci_region_setup () {
         do
             local vol=${volume#*/}
             local dst_mount=$vol
-            local dst_pool=$OCI_ZPOOL
+            local dst_pool=$OCI_ZPOOL_MAP[${volume%/**}]
             local TMPFILE="/tmp/oci-$(basename $vol)-$LAST.zfs.gz"
             [[ -f $TMPFILE ]] || zfs send -rc $volume@$LAST | gzip -c > $TMPFILE
 
@@ -244,11 +237,7 @@ oci_release () {
             do
                 local vol=${volume#*/}
 
-                local dst_pool=$OCI_ZPOOL
-                if echo $vol | grep -q VARSHARE
-                then
-                     dst_pool=rpool1
-                fi
+                local dst_pool=$OCI_ZPOOL_MAP[${volume%/**}]
 
                 local TMPFILE=/tmp/oci-$(basename $vol)-$ZULU.zfs.lzo
                 zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
@@ -279,6 +268,14 @@ oci_release () {
     fi
     rm /tmp/oci-*
     echo "Released $ZULU to OCI $slice"
+}
+
+oci_ship_image_src () {
+  for region in $OCI_BUCKET_SRC_REGIONS
+  do
+    oci os object put --bucket-name boot-images --file /rpool/dc/diskimage/media/solaris_diskimage.* --storage-tier InfrequentAccess --name oci-solaris-zeus --region $region &
+  done
+  wait
 }
 
 oci_ship_crons () {
@@ -348,7 +345,7 @@ oci_rollback () {
             for volume in ${ZFS_EXPORTS[@]}
             do
                 local vol=${volume#*/}
-                ssh $OCI_HOST_PREFIX-$id.$region zfs rollback -R $OCI_ZPOOL/vol@$TARGET
+                ssh $OCI_HOST_PREFIX-$id.$region zfs rollback -R $OCI_ZPOOL_MAP[${volume%/**}]/$vol@$TARGET
             done
 
             for zone in $(ls /system/zones)

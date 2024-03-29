@@ -66,8 +66,9 @@ declare -A OCI_AD
 OCI_AD=( )
 
 OCI_SITE_SVCS=(http:apache24 markdownd svnwcsub watchdog)
-OCI_HOST_PREFIX=HA-fileserver
-OCI_ZPOOL=HApool
+OCI_HOST_PREFIX=oci-fileserver
+declare -A OCI_ZPOOL_MAP=(rpool rpool1 tank tank)
+OCI_BUCKET_SRC_REGIONS=(us-ashburn-1 sa-saopaolo-1)
 
 ZFS_TANK_EXPORTS=(tank/x1/cms tank/x1/svnpubsub tank/x1/httpd)
 ZFS_RPOOL_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt rpool/etc/mail rpool/etc/svc/manifest/site)
