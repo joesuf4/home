@@ -266,14 +266,9 @@ for cmd in "${PTYON[@]}"; do
     if [[ $cmd == git ]]; then
       [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch|remote|commit|svn)\$' ]] && ptyon
     elif [[ $cmd == ssh ]] || [[ $cmd == scp ]]; then
-      setopt unset
-      local arg PEMFILE
-      PEMFILE=\"\$(mktemp /tmp/bastion-ec2-ssh-id-XXXXX.pem)\"
-      for arg; do [[ \"\$arg\" == \"\${arg#-}\" && \"\$EC2_ID[\${arg#*@}]\" =~ ^/ ]] && set -- -i \"\$PEMFILE\" \"\$@\" && break; done
-      [[ \"\$EC2_ID[\${arg#*@}]\" =~ ^/ ]] && pty -nie -- pty -d pty-driver.pl -- \$SHELL -ic 'ansible-vault decrypt --output \"\$@\"' -- \"\$PEMFILE\" \"\$EC2_ID[\$arg]\" </dev/null >/dev/null 2>&1
       if [[ \"\$1\" == \"\${1#*-}\" ]]; then
         ptyon
-        (sleep 6; ptyoff sleep 1 &)&
+        [[ \" \$@ \" =~ \" -t \" ]] || (sleep 6; ptyoff echo ptyoff on \$(hostname). &)
       fi
     elif [[ $cmd == svn ]]; then
       [[ \"\${1:-}\" -pcre-match '^(up|co|ci)' ]] && ptyon
