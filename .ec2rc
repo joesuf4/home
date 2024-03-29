@@ -77,7 +77,7 @@ _ec2_zsh_completion() {
 }
 
 for fcn in "${_bcs_cli_cmds[@]//-/_}" "${_ec2_cmds[@]//-/_}"; do
-  if [[ $(basename "$SHELL") == zsh ]]; then
+  if [[ $(basename "$SHELL") =~ zsh ]]; then
     compdef _ec2_zsh_inventory_hosts_completion ec2_$fcn
     compdef _ec2_zsh_inventory_hosts_completion ec2-${fcn//_/-}.sh
   else
@@ -91,14 +91,12 @@ _ec2_load_inventory() {
 
   : "${EC2_ID_SRC:=$(
     ec2-ssm-helper.sh | tr -dc "$BCS_ADMISSIBLE_CHARS" | while IFS='	' read -r host id; do
-    if [[ -n "$id" ]]; then
-        [[ "$(basename "$SHELL")" == zsh ]] && echo \"$host\" "$id" || echo [$host]="$id"
-    fi
-   done
+      [[ "$(basename "$SHELL")" =~ zsh ]] && echo \"$host\" "$id" || echo [$host]="$id"
+    done
   )}"
   eval "EC2_ID=( $EC2_ID_SRC )"
 
-  if [[ $(basename "$SHELL") == zsh ]]; then
+  if [[ $(basename "$SHELL") =~ zsh ]]; then
     eval '_ec2_hosts=("${(k)EC2_ID}")'
   else
     _ec2_hosts=("${!EC2_ID[@]}")
@@ -107,7 +105,7 @@ _ec2_load_inventory() {
 }
 
 ec2_list_inventory() {
-  ([[ "$(basename "$SHELL")" == zsh ]] && eval 'echo "${(k)EC2_ID}"' || echo "${!EC2_ID[@]}") |
+  ([[ "$(basename "$SHELL")" =~ zsh ]] && eval 'echo "${(k)EC2_ID}"' || echo "${!EC2_ID[@]}") |
     tr ' ' '\n' | sort | grep -Pe "${1-}"
 }
 

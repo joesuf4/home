@@ -216,7 +216,7 @@ _eks_zsh_completion() {
 }
 
 for fcn in "${_eks_cluster_cmds[@]//-/_}"; do
-  if [[ "$(basename "$SHELL")" == zsh ]]; then
+  if [[ "$(basename "$SHELL")" =~ zsh ]]; then
     compdef _eks_zsh_clusters_completion eks_$fcn
   else
     complete -W '${_eks_clusters[@]}' eks_$fcn
@@ -224,7 +224,7 @@ for fcn in "${_eks_cluster_cmds[@]//-/_}"; do
 done
 
 for fcn in "${_bcs_cmds[@]//-/_}" "${_eks_pod_cmds[@]//-/_}"; do
-  if [[ "$(basename "$SHELL")" == zsh ]]; then
+  if [[ "$(basename "$SHELL")" =~ zsh ]]; then
     compdef _eks_zsh_pod_container_completion eks_$fcn
   else
     complete -W '${_eks_pods[@]}' eks_$fcn
@@ -232,7 +232,7 @@ for fcn in "${_bcs_cmds[@]//-/_}" "${_eks_pod_cmds[@]//-/_}"; do
 done
 
 for fcn in "${_eks_node_cmds[@]//-/_}"; do
-  if [[ "$(basename "$SHELL")" == zsh ]]; then
+  if [[ "$(basename "$SHELL")" =~ zsh ]]; then
     compdef _eks_zsh_node_completion eks_$fcn
   else
     complete -W '${_eks_nodes[@]}' eks_$fcn
@@ -240,7 +240,7 @@ for fcn in "${_eks_node_cmds[@]//-/_}"; do
 done
 
 for fcn in "${_eks_trace_cmds[@]//-/_}"; do
-  if [[ "$(basename "$SHELL")" == zsh ]]; then
+  if [[ "$(basename "$SHELL")" =~ zsh ]]; then
     compdef _eks_zsh_trace_completion eks_$fcn
   else
     complete -W '${_eks_trace_objects[@]}' eks_$fcn
@@ -262,8 +262,8 @@ eks_list_namespaces() {
 eks_list_trace_ids() {
   local FILTER="${1-}"
   local field="${2-2}"
-  if [[ "$(basename "$SHELL")" == zsh ]]; then
-    eval "for k v in \${(@kv)EKS_TRACE_ID}; do echo \"\$k:\$v\"; done"
+  if [[ "$(basename "$SHELL")" =~ zsh ]]; then
+    eval "for k v in \${(kv)EKS_TRACE_ID}; do echo \"\$k:\$v\"; done"
   else
     for k in "${!EKS_TRACE_ID[@]}"; do echo "$k:${EKS_TRACE_ID[$k]}"; done
   fi |
@@ -394,18 +394,18 @@ _eks_load_trace_ids() {
   : "${EKS_TRACE_ID_SRC:=$(kubectl trace get -n "${EKS_NAMESPACE:-default}" "$@" | tr -dc "$BCS_ADMISSIBLE_CHARS" | (
     read -r _
     while read -r ns node name st age; do
-      [[ $(basename "$SHELL") == zsh ]] && echo "$node $name" || echo "[$node]=$name"
+      [[ $(basename "$SHELL") =~ zsh ]] && echo "$node $name" || echo "[$node]=$name"
     done
   ))}"
   local _eks_trace_pod_id
   declare -A _eks_trace_pod_id
-  for key in $(eval '[[ "$(basename "$SHELL")" == zsh ]] && echo "${(k)EKS_TRACE_ID}" || echo "${!EKS_TRACE_ID[@]}"'); do
+  for key in $(eval '[[ "$(basename "$SHELL")" =~ zsh ]] && echo "${(k)EKS_TRACE_ID}" || echo "${!EKS_TRACE_ID[@]}"'); do
     [[ "$key" == "${key#pod/}" ]] && continue
     [[ -z "$(eks_list_trace_objects $key)" ]] && continue
     : "${_eks_trace_pod_id[$key]=${EKS_TRACE_ID[$key]}}"
   done
   eval "EKS_TRACE_ID=($EKS_TRACE_ID_SRC)"
-  for key in $(eval '[[ "$(basename "$SHELL")" == zsh ]] && echo ${(k)_eks_trace_pod_id} || echo ${!_eks_trace_pod_id[@]}'); do
+  for key in $(eval '[[ "$(basename "$SHELL")" =~ zsh ]] && echo ${(k)_eks_trace_pod_id} || echo ${!_eks_trace_pod_id[@]}'); do
     : "${EKS_TRACE_ID[$key]:=${_eks_trace_pod_id[$key]}}"
   done
   return 0
