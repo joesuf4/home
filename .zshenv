@@ -74,4 +74,6 @@ ZFS_RPOOL_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt rpool/etc/mail rpool/et
 ZFS_EXPORTS=(${ZFS_TANK_EXPORTS[@]} ${ZFS_RPOOL_EXPORTS[@]})
 
 PKG_REPOS=http://127.0.0.1:9999/
-. "$HOME/.cargo/env"
+[[ -f ~/.cargo/env ]] && . ~/.cargo/env
+: "${TERM:=xterm-256color}"
+export GIT_SSL_NO_VERIFY=1
