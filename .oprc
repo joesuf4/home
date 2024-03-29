@@ -2,3 +2,4 @@
 command -v op >/dev/null && ~/bin/pty -d pty-driver.pl -- zsh -ic "op signin --account my.1password.com >/dev/null"
 export OP_AWS="OpsWright"
 export OP_TOTP="Zeus"
+alias lom='ssh -o "KexAlgorithms diffie-hellman-group1-sha1" -o "HostKeyAlgorithms ssh-rsa" root@lom.sunstarsys.com'
