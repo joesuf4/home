@@ -1,12 +1,11 @@
 # -*- sh -*-
 cd
 echoon
-export USER=joe
 
-[[ $(~/bin/ttyname) =~ /dev/tty ]] && export TERM=vt100
+
+[[ $(~/bin/ttyname) =~ /dev/tty ]] && export TERM=vt100 USER=joe
 
 if [[ "$(uname)" != Linux ]]; then
-  ptyd $SHELL
   exit $?
 fi
 
