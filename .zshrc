@@ -278,7 +278,7 @@ for cmd in "${PTYON[@]}"; do
     local rv n
     for n in {1..3}; do \"$exep\" \"\$@\"; rv=\$?; [[ \$rv -eq 0 ]] && break; [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && [[ $cmd != sudo ]] || return \$rv; sleep 1; done
     [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && sleep 1
-    [[ $cmd == ssh ]] && rm -rf \"\$PEMFILE\" && unsetopt unset
+    [[ $cmd == ssh ]] && unsetopt unset
     return \$rv
   }"
 done
