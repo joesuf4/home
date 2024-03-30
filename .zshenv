@@ -78,4 +78,4 @@ PKG_REPOS=http://127.0.0.1:9999/
 
 [[ -f ~/.cargo/env ]] && . ~/.cargo/env
 : "${TERM:=xterm-256color}"
-export GIT_SSL_NO_VERIFY=1
+export GIT_SSL_NO_VERIFY=1 LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64" CPPFLAGS=-I/usr/local/include
