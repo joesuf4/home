@@ -268,7 +268,7 @@ for cmd in "${PTYON[@]}"; do
     elif [[ $cmd == ssh ]] || [[ $cmd == scp ]]; then
       if [[ \"\$1\" == \"\${1#*-}\" ]]; then
         ptyon
-        [[ \" \$@ \" =~ \" -t \" ]] || (sleep 6; ptyoff echo ptyoff on \$(hostname). &)
+        [[ \" \$@ \" =~ \" -t \" ]] || (sleep 6; ptyoff echo ptyoff on \$(hostname). &)&
       fi
     elif [[ $cmd == svn ]]; then
       [[ \"\${1:-}\" -pcre-match '^(up|co|ci)' ]] && ptyon
