@@ -77,5 +77,5 @@ ZFS_EXPORTS=(${ZFS_TANK_EXPORTS[@]} ${ZFS_RPOOL_EXPORTS[@]})
 PKG_REPOS=http://127.0.0.1:9999/
 
 [[ -f ~/.cargo/env ]] && . ~/.cargo/env
-: "${TERM:=xterm-256color}"
+TERM="${TERM#screen.}"
 export GIT_SSL_NO_VERIFY=1 LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64" CPPFLAGS=-I/usr/local/include
