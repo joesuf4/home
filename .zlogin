@@ -5,7 +5,7 @@ echoon
 [[ $(~/bin/ttyname) =~ /dev/term/[ab] ]] && export TERM=vt100 USER=joe 
 export SSH_AGENT_PID="$(pgrep -u $USER -f ssh-agent)"
 
-if [[ "$(uname)" == SunOS ]]; then
+if [[ $TERM == vt100 || $(uname) == SunOS ]]; then
   if [[ -n "$SSH_AGENT_PID" ]]; then
     export SSH_AUTH_SOCK="$(ls -t /tmp/ssh-$USER/agent.* | head -n 1)"
   else
