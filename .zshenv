@@ -78,4 +78,4 @@ PKG_REPOS=http://127.0.0.1:9999/
 
 [[ -f ~/.cargo/env ]] && . ~/.cargo/env
 TERM="${TERM#screen.}"
-export GIT_SSL_NO_VERIFY=1 LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64" CPPFLAGS=-I/usr/local/include
+export CC=gcc LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib" CPPFLAGS=-I/usr/local/include
