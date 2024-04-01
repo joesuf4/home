@@ -2,17 +2,17 @@
 cd
 echoon
 
-[[ $(~/bin/ttyname) =~ /dev/tty ]] && export TERM=vt100 USER=joe
+[[ $(~/bin/ttyname) =~ /dev/term/[ab] ]] && export TERM=vt100 USER=joe 
 export SSH_AGENT_PID="$(pgrep -u $USER -f ssh-agent)"
 
-if [[ "$(uname)" != Linux ]]; then
+if [[ "$(uname)" == SunOS ]]; then
   if [[ -n "$SSH_AGENT_PID" ]]; then
     export SSH_AUTH_SOCK="$(ls -t /tmp/ssh-$USER/agent.* | head -n 1)"
   else
     pty-agent
     emacs --daemon
     eval "$(mkdir -m 0700 -p /tmp/ssh-$USER && ssh-agent -a /tmp/ssh-$USER/agent.$$)"
-    [[ -d vault ]] && zfs mount tank/x1/home/joe/vault 
+    [[ -d vault ]] && ptyd zfs mount tank/x1/home/joe/vault
     ptyd ssh-add
   fi
   reset
