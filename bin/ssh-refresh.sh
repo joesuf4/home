@@ -1,6 +1,4 @@
-#!/usr/local/bin/zsh
-
-. ~joe/.zshenv
+#!/usr/local/bin/zsh -l
 
 slice=1
 
