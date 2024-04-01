@@ -214,14 +214,14 @@ _bcs_title() {
   EKS_CLUSTER="$(eks_list_clusters "^\\Q${k8s_conf% *}\\E\$")"
   EKS_NAMESPACE="$([[ -n "$EKS_CLUSTER" ]] && echo "${k8s_conf#* }")"
 
-  [[ "$TERM" =~ xterm ]] || return 1
+  #[[ "$TERM" =~ xterm ]] || return 1
   local ptyon
   [[ -f /tmp/ptyon-$USER/$(basename "$(ttyname 0)") ]] && ptyon="<ptyon>"
 
   local zsh_script=$(
     cat <<'EOF'
     # screen title
-    [[ "$TERM" =~ screen ]] && \
+    #[[ "$TERM" =~ screen ]] && \
      print -Pn "\ek" && print -rn $@ && print -Pn "\e\\"
 
     # window title
