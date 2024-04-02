@@ -9,10 +9,11 @@ if [[ "$TERM" == vt100 || "$(/usr/bin/uname)" == SunOS ]]; then
   if [[ -n "$SSH_AGENT_PID" ]]; then
     export SSH_AUTH_SOCK="$(ls -t /tmp/ssh-$USER/agent.* | head -n 1)"
   else
+    echo Initializing pty-agent...
     pty-agent
     emacs --daemon
     eval "$(mkdir -m 0700 -p /tmp/ssh-$USER && ssh-agent -a /tmp/ssh-$USER/agent.$$)"
-    [[ -d vault ]] && ptyd zfs mount tank/x1/home/joe/vault
+    [[ -d ~/vault ]] && ptyd zfs mount tank/x1/home/joe/vault
     ptyd ssh-add
   fi
   reset
