@@ -67,7 +67,11 @@ alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
-alias oci='PATH=/usr/bin:$PATH oci'
+oci() {
+  sed -i -e s/fipsmodule.cnf/fipsmodule.cnf-ootw/ /usr/local/ssh/openssl.cnf
+  command oci $@
+  sed -i -e s/-ootw// /usr/local/openssl.cnf
+}
 
 ptyfix() {
   pkill pty-agent
