@@ -70,7 +70,7 @@ alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 oci() {
   sed -i -e s/fipsmodule.cnf/fipsmodule.cnf-ootw/ /usr/local/ssh/openssl.cnf
   command oci $@
-  sed -i -e s/-ootw// /usr/local/openssl.cnf
+  sed -i -e s/-ootw// /usr/local/ssh/openssl.cnf
 }
 
 ptyfix() {
