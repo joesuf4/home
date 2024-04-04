@@ -156,9 +156,9 @@ oci_region_ship_zones () {
             ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone halt
             ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone detach
             ssh $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone uninstall
-            ssh -t $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone delete -F
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone delete -F
             zonecfg -z $zone export | ssh $OCI_HOST_PREFIX-$id.$region sh -c "'cat > $zone.cfg'"
-            ssh -t $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
+            ssh $OCI_HOST_PREFIX-$id.$region sudo zonecfg -z $zone -f $zone.cfg
         done
 
         ssh $OCI_HOST_PREFIX-$id.$region zfs destroy -Rrf $target_vol

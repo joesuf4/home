@@ -1,14 +1,18 @@
-#!/usr/local/bin/zsh -i
+#!/usr/local/bin/zsh
+
+. ~/.zshenv
+
+slice=
 
 for region ad in ${(kv)OCI_AD}
 do
     for id in {1..$ad}
     do
         [[ -z "$slice" || $slice -eq $id ]] || continue
-	ssh $OCI_HOST_PREFIX-$id.$region echo $region reconnected
+	timeout 30 pty -nd pty-driver.pl -- zsh -ic "ssh $OCI_HOST_PREFIX-$id.$region zsh -ic \"sleep 6; ptyd timeout 10 sudo echo \\\$(hostname).$region connected.\"" &
     done
 done
 
-ssh 127.0.0.1 true
+pty -nd pty-driver.pl -- ssh 127.0.0.1 true
 wait
 
