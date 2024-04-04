@@ -18,7 +18,7 @@ if [[ "$TERM" == vt100 || "$(uname)" == SunOS ]]; then
   fi
   reset
 
-  if [[ "$(hostame)" =~ "^$OCI_PREFIX" ]]; then
+  if [[ "$(hostname)" =~ "^$OCI_HOST_PREFIX" ]]; then
     $SHELL
   else
     ptyd $SHELL

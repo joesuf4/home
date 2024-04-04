@@ -269,10 +269,10 @@ for cmd in "${PTYON[@]}"; do
   [[ $? -eq 0 ]] && eval "$cmd() {
     if [[ $cmd == git ]]; then
       [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch|remote|commit|svn)\$' ]] && ptyon
-    elif [[ $cmd == ssh ]] || [[ $cmd == scp ]]; then
+    elif [[ $cmd == ssh || $cmd == scp ]]; then
       if [[ \"\$1\" == \"\${1#*-}\" ]]; then
         ptyon
-        [[ \" \$@ \" =~ \" -t \" ]] || (sleep 6; ptyoff echo ptyoff on \$(hostname). &)&
+        [[ \"\$@\" =~ \"\$OCI_HOST_PREFIX\" ]] || (sleep 6; ptyoff echo ptyoff on \$(hostname). &)&
       fi
     elif [[ $cmd == svn ]]; then
       [[ \"\${1:-}\" -pcre-match '^(up|co|ci)' ]] && ptyon
