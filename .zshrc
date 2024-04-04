@@ -67,6 +67,8 @@ alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
+alias oci='PATH=/usr/bin:$PATH oci'
+
 ptyfix() {
   pkill pty-agent
   wsl.exe --user root nsenter -t $(pidof systemd) -p -m -r -C sudo -u $USER ~/bin/pty-agent
