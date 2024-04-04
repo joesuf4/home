@@ -17,7 +17,13 @@ if [[ "$TERM" == vt100 || "$(uname)" == SunOS ]]; then
     ptyd ssh-add
   fi
   reset
-  ptyd $SHELL
+
+  if [[ "$(hostame)" =~ "^$OCI_PREFIX" ]]; then
+    $SHELL
+  else
+    ptyd $SHELL
+  fi
+
   exit $?
 fi
 
