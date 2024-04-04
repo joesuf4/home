@@ -4,7 +4,7 @@ zmodload zsh/pcre
 # enable zplug and configure fun modules
 
 [[ -f ~/.zplug/init.zsh ]] || (
-  /usr/bin/curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh &&
+  curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh &&
     sleep 1
 ) && . ~/.zplug/init.zsh
 
@@ -100,9 +100,7 @@ alias lsof='sudo -v && ptyoff _bcs_title lsof; /usr/bin/sudo -Es /usr/bin/lsof'
 
 alias bpftrace='sudo -v && ptyoff _bcs_title bpftrace; /usr/bin/sudo -Es bpftrace'
 
-alias curl='/usr/bin/curl'
-
-alias screen='TERM=xterm-256color /usr/bin/screen -U'
+alias screen='screen -U'
 
 alias asdf='PATH="/usr/bin:$PATH" asdf'
 
