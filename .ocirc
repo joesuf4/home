@@ -72,7 +72,7 @@ oci_ship_zone () {
   zoneadm -z $zone attach
   zoneadm -z $zone boot
   
-  local TMPFILE="/tmp/oci-$(basename $vol)-$LAST.zfs.lzo"
+  local TMPFILE="/x1/tmp/oci-$(basename $vol)-$LAST.zfs.lzo"
   [[ -f $TMPFILE ]] || zfs send -rc rpool/$vol@$LAST | lzop -c > $TMPFILE
 
   for region ad in ${(kv)OCI_AD}
@@ -184,7 +184,7 @@ oci_region_setup () {
       local vol=${volume#*/}
       local dst_mount=$vol
       local dst_pool=$OCI_ZPOOL_MAP[${volume%%/*}]
-      local TMPFILE="/tmp/oci-$(basename $vol)-$LAST.zfs.gz"
+      local TMPFILE="/x1/tmp/oci-$(basename $vol)-$LAST.zfs.gz"
 
       echo Syncing /$dst_mount ...
       zfs snapshot -r $volume@$LAST >/dev/null 2>&1
@@ -224,7 +224,7 @@ oci_release () {
 	
         local dst_pool=$OCI_ZPOOL_MAP[${volume%%/*}]
 	
-        local TMPFILE=/tmp/oci-$(basename $vol)-$ZULU.zfs.lzo
+        local TMPFILE=/x1/tmp/oci-$(basename $vol)-$ZULU.zfs.lzo
         zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
 	
         [[ -f $TMPFILE ]] || zfs send -RcI $LAST $volume@$ZULU | lzop -c > $TMPFILE
@@ -251,7 +251,7 @@ oci_release () {
     ln -s -f $(realpath --relative-to ~ ~/.zulu-last) ~/.zulu-rollback
     ln -s -f .zulu-$ZULU ~/.zulu-last
   fi
-  rm /tmp/oci-*
+  rm /x1/tmp/oci-*
   echo "Released $ZULU to OCI $slice"
 }
 
