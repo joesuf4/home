@@ -68,9 +68,9 @@ alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 oci() {
-  sed -i -e s/fipsmodule.cnf/fipsmodule.cnf-ootw/ /usr/local/ssh/openssl.cnf >/dev/null 2>&1
+  sudo sed -i -e s/fipsmodule.cnf/fipsmodule.cnf-ootw/ /usr/local/ssl/openssl.cnf >/dev/null 2>&1
+  (sleep 5; sudo sed -i -e s/-ootw//g /usr/local/ssl/openssl.cnf >/dev/null 2>&1 &)&
   command oci $@
-  sed -i -e s/-ootw// /usr/local/ssh/openssl.cnf >/dev/null 2>&1
 }
 
 ptyfix() {

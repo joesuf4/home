@@ -58,7 +58,7 @@ _oci_post_sync () {
   
   echo Post-sync prep complete: refreshing ssh connections to $region.
   rm -f ~/.ssh/sockets/*.$region*
-  ptyon ~/bin/ssh-refresh.sh
+  ssh-refresh.sh
 }
 
 oci_ship_zone () {
@@ -259,9 +259,8 @@ oci_ship_image_src () {
   for region in $@
   do
     [[ -f /rpool/dc/diskimage/media/solaris_diskimage.vmdk ]] || sudo distro_const build ~/dc_diskimage_x86.xml
-    oci os object put --bucket-name boot-images --file /rpool/dc/diskimage/media/solaris_diskimage.vmdk --storage-tier InfrequentAccess --name oci-solaris-zeus --region $region &
+    oci os object put --bucket-name boot-images --file /rpool/dc/diskimage/media/solaris_diskimage.vmdk --storage-tier InfrequentAccess --name oci-solaris-zeus --region $region
   done
-  wait
 }
 
 oci_ship_crons () {
