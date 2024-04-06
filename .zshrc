@@ -108,8 +108,6 @@ alias bpftrace='sudo -v && ptyoff _bcs_title bpftrace; /usr/bin/sudo -Es bpftrac
 
 alias screen='screen -U'
 
-alias asdf='PATH="/usr/bin:$PATH" asdf'
-
 alias strace='sudo -s /usr/bin/strace'
 
 alias asdfu='asdf update && asdf plugin-update --all'
@@ -269,11 +267,9 @@ for cmd in "${PTYON[@]}"; do
   [[ $? -eq 0 ]] && eval "$cmd() {
     if [[ $cmd == git ]]; then
       [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch|remote|commit|svn)\$' ]] && ptyon
-    elif [[ $cmd == ssh || $cmd == scp ]]; then
-      if [[ \"\$1\" == \"\${1#*-}\" ]]; then
-        ptyon
-        [[ \"\$@\" =~ \"\$OCI_HOST_PREFIX\" ]] || (sleep 6; ptyoff echo ptyoff on \$(hostname). &)&
-      fi
+    elif [[ $cmd == ssh ]] || [[ $cmd == scp ]]; then
+      ptyon
+      [[ \"\$@\" =~ \"\$OCI_HOST_PREFIX\" ]] || (sleep 6; ptyoff echo ptyoff on \$(hostname). &)&
     elif [[ $cmd == svn ]]; then
       [[ \"\${1:-}\" -pcre-match '^(up|co|ci)' ]] && ptyon
     else
@@ -282,7 +278,6 @@ for cmd in "${PTYON[@]}"; do
     local rv n
     for n in {1..3}; do \"$exep\" \"\$@\"; rv=\$?; [[ \$rv -eq 0 ]] && break; [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && [[ $cmd != sudo ]] || return \$rv; sleep 1; done
     [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && sleep 1
-    [[ $cmd == ssh ]] && unsetopt unset
     return \$rv
   }"
 done

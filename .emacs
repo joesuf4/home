@@ -264,12 +264,12 @@
         company-idle-delay 0.500) ;; default is 0.2
   :commands lsp)
 
-(add-to-list 'lsp-language-id-configuration '(asy-mode . "asymptote"))
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection '("asy" "-lsp"))
-                  :activation-fn (lsp-activate-on "asymptote")
-                  :major-modes '(asy-mode)
-                  :server-id 'asyls))
+;(add-to-list 'lsp-language-id-configuration '(asy-mode . "asymptote"))
+;(lsp-register-client
+; (make-lsp-client :new-connection (lsp-stdio-connection '("asy" "-lsp"))
+;                  :activation-fn (lsp-activate-on "asymptote")
+;                  :major-modes '(asy-mode)
+;                  :server-id 'asyls))
 (add-to-list 'auto-mode-alist '("\\.asy\\'" . asy-mode))
 
 (global-auto-complete-mode t)
