@@ -15,17 +15,18 @@ _oci_pre_sync () {
   do
     echo Opening $SHELL login shell for $USER on $OCI_HOST_PREFIX-$id.region...
     ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c 'echo "PATH=\"$PATH\"" > .zshenv'
+    ssh $OCI_HOST_PREFIX-$id.$region sudo iscsiadm modify discovery -s enable
     ssh $OCI_HOST_PREFIX-$id.$region
   done
 
   echo Step 3. Create $OCI_ZPOOL_MAP[tank], service accounts, permissions, and rm /etc/mail.
   for id in {1..$ad}
   do
-    ssh $OCI_HOST_PREFIX-$id.$region sudo iscsiadm modify discovery -s enable
     sleep 2
     ssh $OCI_HOST_PREFIX-$id.$region sudo zpool create $OCI_ZPOOL_MAP[tank] c2t0d0s2
     ssh $OCI_HOST_PREFIX-$id.$region sudo zfs allow -ld joe create,mount,snapshot,clone,destroy,hold,keysource,checksum,encryption $OCI_ZPOOL_MAP[tank]
     ssh $OCI_HOST_PREFIX-$id.$region zfs create -o mountpoint=/x1 $OCI_ZPOOL_MAP[tank]/x1
+    ssh $OCI_HOST_PREFIX-$id.$region sudo -s "'mkdir /x1/tmp && chmod a+rwxt /x1/tmp'"
     ssh $OCI_HOST_PREFIX-$id.$region sudo rm -rf /etc/mail
   done
   echo Pre-sync prep complete.
