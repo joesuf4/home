@@ -267,7 +267,7 @@ for cmd in "${PTYON[@]}"; do
   [[ $? -eq 0 ]] && eval "$cmd() {
     if [[ $cmd == git ]]; then
       [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch|remote|commit|svn)\$' ]] && ptyon
-    elif [[ $cmd == ssh ]] || [[ $cmd == scp ]]; then
+    elif [[ $cmd == ssh ]]; then
       ptyon
       [[ \"\$@\" =~ \"\$OCI_HOST_PREFIX\" ]] || (sleep 6; ptyoff echo ptyoff on \$(hostname). &)&
     elif [[ $cmd == svn ]]; then

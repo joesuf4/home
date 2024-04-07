@@ -187,7 +187,7 @@ oci_region_setup () {
       echo Syncing /$dst_mount ...
       zfs snapshot -r $volume@$LAST >/dev/null 2>&1
       [[ -f "$TMPFILE" ]] || (zfs send -rc $volume@$LAST | gzip -c > $TMPFILE)
-      for tries in {1..100}
+      for tries in {1..10}
       do
         rsync --progress --stats --partial --inplace $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'(sudo zfs destroy -Rr $dst_pool/$vol; sudo zfs create -p $dst_pool/$vol) >/dev/null 2>&1; gzip -d <$TMPFILE | sudo zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol && rm $TMPFILE'" && break
       done
