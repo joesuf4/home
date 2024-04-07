@@ -23,10 +23,11 @@ _oci_pre_sync () {
   for id in {1..$ad}
   do
     sleep 2
+    ssh $OCI_HOST_PREFIX-$id.$region sudo pkg install network/rsync
     ssh $OCI_HOST_PREFIX-$id.$region sudo zpool create $OCI_ZPOOL_MAP[tank] c2t0d0s2
     ssh $OCI_HOST_PREFIX-$id.$region sudo zfs allow -ld joe create,mount,snapshot,clone,destroy,hold,keysource,checksum,encryption $OCI_ZPOOL_MAP[tank]
     ssh $OCI_HOST_PREFIX-$id.$region zfs create -o mountpoint=/x1 $OCI_ZPOOL_MAP[tank]/x1
-    ssh $OCI_HOST_PREFIX-$id.$region sudo -s "'mkdir /x1/tmp && chmod a+rwxt /x1/tmp'"
+    ssh $OCI_HOST_PREFIX-$id.$region sudo -s "mkdir /x1/tmp && chmod a+rwxt /x1/tmp"
     ssh $OCI_HOST_PREFIX-$id.$region sudo rm -rf /etc/mail
   done
   echo Pre-sync prep complete.
@@ -49,7 +50,7 @@ _oci_post_sync () {
   done
 
   echo Fixing up /etc/hosts and /x1/logs.
-  oci_region_exec $region sudo sh -c '"echo 127.0.0.1 localhost.localdomain localhost $(hostname) >> /etc/hosts"'
+  oci_region_exec $region sudo -s 'echo 127.0.0.1 localhost.localdomain localhost $(hostname) >> /etc/hosts'
   oci_region_exec $region sudo mkdir -p /x1/logs/httpd /x1/logs/svnpubsub /x1/tmp /x1/repos/svn-auth
   oci_region_exec $region sudo chown svn:other /x1/repos/svn-auth
   oci_region_exec $region sudo chmod a+rwxt /x1/tmp
@@ -104,7 +105,7 @@ oci_region_ship_zones () {
   local vol=rpool/VARSHARE/zones
   local target_vol=rpool1/VARSHARE/zones
 
-  oci_region_exec $region sudo pkg install service/file-system/nfs network/rsync
+  oci_region_exec $region sudo pkg install service/file-system/nfs
   oci_region_exec $region sudo dladm create-etherstub etherstub0
   oci_region_exec $region sudo dladm create-vnic -l etherstub0 gz0
   oci_region_exec $region sudo dladm create-vnic -l etherstub0 www0
@@ -158,7 +159,7 @@ oci_region_ship_zones () {
   done
 
   zfs destroy -r $vol@$LAST
-  rm -f /x1/tmp/oci-*
+  rm -f /x1/tmp/oci-zone-*
   echo All zones synced to $region.
 }
 
@@ -187,9 +188,10 @@ oci_region_setup () {
       echo Syncing /$dst_mount ...
       zfs snapshot -r $volume@$LAST >/dev/null 2>&1
       [[ -f "$TMPFILE" ]] || (zfs send -rc $volume@$LAST | gzip -c > $TMPFILE)
+      ssh $OCI_HOST_PREFIX-$id.$region touch $TMPFILE
       for tries in {1..10}
       do
-        rsync --progress --stats --partial --inplace $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'(sudo zfs destroy -Rr $dst_pool/$vol; sudo zfs create -p $dst_pool/$vol) >/dev/null 2>&1; gzip -d <$TMPFILE | sudo zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol && rm $TMPFILE'" && break
+        rsync -vv --progress --stats --partial --inplace $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'(sudo zfs destroy -Rr $dst_pool/$vol; sudo zfs create -p $dst_pool/$vol) >/dev/null 2>&1; gzip -d <$TMPFILE | sudo zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol && rm $TMPFILE'" && break
       done
       echo Done with /$vol on $OCI_HOST_PREFIX-$id.$region after $tries tries: zfs receive exit status=$?.
     done
@@ -382,7 +384,7 @@ oci_region_upgrade () {
     [[ -z "$slice" || $slice -eq $id ]] || continue
     ssh $OCI_HOST_PREFIX-$i.$region sudo pkg set-publisher -G "'*'" -g "$PKG_REPOS" solaris
     ssh $OCI_HOST_PREFIX-$i.$region sudo pkg refresh
-    ssh $OCI_HOST_PREFIX-$i.$region sudo sh -c "'pkg update && reboot'"
+    ssh $OCI_HOST_PREFIX-$i.$region sudo -s "pkg update && reboot"
     echo $OCI_HOST_PREFIX-$i.$region upgraded.
   done
 }
