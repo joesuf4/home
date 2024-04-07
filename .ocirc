@@ -260,9 +260,10 @@ oci_release () {
 oci_ship_image_src () {
   for region in $@
   do
-    local path=/rpool/dc/diskimage/media/solaris_diskimage.vmdk
-    [[ -f $path ]] && sudo chmod o+r $path || sudo distro_const build ~/dc_diskimage_x86.xml
-    oci os object put --bucket-name boot-images --file /rpool/dc/diskimage/media/solaris_diskimage.vmdk --storage-tier InfrequentAccess --name oci-solaris-zeus --region $region
+    local filepath=/rpool/dc/diskimage/media/solaris_diskimage.vmdk
+    [[ -f $filepath ]] || sudo distro_const build ~/dc_diskimage_x86.xml
+    sudo chown joe:adm $filepath
+    oci os object put --bucket-name boot-images --file $filepath --storage-tier InfrequentAccess --name oci-solaris-zeus --region $region
   done
 }
 
