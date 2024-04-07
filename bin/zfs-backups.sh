@@ -1,5 +1,5 @@
 #!/usr/local/bin/zsh
-PATH=/usr/local/bin:/sbin:/usr/bin
+PATH=$HOME/bin:/usr/local/bin:/sbin:/usr/bin
 
 ZULU=$(date -Iseconds | tr '+' 'Z')
 
@@ -18,3 +18,5 @@ do
     zfs snapshot tank$svn_repo@$ZULU
     zfs send -D -Rci $LAST tank$svn_repo@$ZULU > $TMPFILE
 done
+
+tarsnap -c -f $hostname-$ZULU --print-stats /x1/backups

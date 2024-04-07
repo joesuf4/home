@@ -104,7 +104,7 @@ oci_region_ship_zones () {
   local vol=rpool/VARSHARE/zones
   local target_vol=rpool1/VARSHARE/zones
 
-  oci_region_exec $region sudo pkg install service/file-system/nfs
+  oci_region_exec $region sudo pkg install service/file-system/nfs network/rsync
   oci_region_exec $region sudo dladm create-etherstub etherstub0
   oci_region_exec $region sudo dladm create-vnic -l etherstub0 gz0
   oci_region_exec $region sudo dladm create-vnic -l etherstub0 www0
@@ -187,7 +187,11 @@ oci_region_setup () {
       echo Syncing /$dst_mount ...
       zfs snapshot -r $volume@$LAST >/dev/null 2>&1
       [[ -f "$TMPFILE" ]] || (zfs send -rc $volume@$LAST | gzip -c > $TMPFILE)
-      scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'(sudo zfs destroy -Rr $dst_pool/$vol; sudo zfs create -p $dst_pool/$vol) >/dev/null 2>&1; gzip -d <$TMPFILE | sudo zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol && rm $TMPFILE'"
+      for tries in {1..10}
+      do
+        rsync --progress --stats --partial --inplace $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh $OCI_HOST_PREFIX-$id.$region pfzsh -c "'(sudo zfs destroy -Rr $dst_pool/$vol; sudo zfs create -p $dst_pool/$vol) >/dev/null 2>&1; gzip -d <$TMPFILE | sudo zfs receive -F -o mountpoint=/$dst_mount $dst_pool/$vol && rm $TMPFILE'"
+        [[ $? == 0 ]] && break
+      done
       echo Done with /$vol on $OCI_HOST_PREFIX-$id.$region: zfs receive exit status=$?.
     done
   done
