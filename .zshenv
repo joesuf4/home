@@ -29,7 +29,9 @@ for ed in EDITOR VISUAL; do
 done
 
 # ptyd's URL engine relies on this setting
-export MOZILLA="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
+
+[[ "$(uname)" == Linux ]] && export MOZILLA="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
+
 # whitelist of "password-sensitive" executables for enabling pty-driver.pl (within `sps` or just `ptyd zsh`)
 PTYON=(sudo git svn gpg op ssh scp rsync ansible-vault ortpasswd otp-sha1 zpool zfs svccfg svcadm zonecfg zoneadm bootadm reboot)
 
@@ -63,7 +65,7 @@ done
 
 declare -A OCI_AD
 # do not edit the next line manually!
-OCI_AD=( [ap-hyderabad-1]=1 [us-ashburn-1]=1 )
+OCI_AD=( [ap-seoul-1]=1 [ap-sydney-1]=1 [sa-saopaulo-1]=1 [us-phoenix-1]=1 [eu-frankfurt-1]=1 [ap-hyderabad-1]=1 [us-ashburn-1]=1 )
 OCI_ZONES=( cms-public www-public )
 OCI_SITE_SVCS=(http:apache24 markdownd svnwcsub watchdog)
 OCI_HOST_PREFIX=oci-fileserver

@@ -2,12 +2,12 @@
 cd
 echoon
 
-[[ $(~/bin/ttyname) =~ /dev/term/[ab] ]] && export TERM=vt100 USER=joe 
+[[ $(~/bin/ttyname) =~ /dev/term/[ab] ]] && export TERM=vt100 USER=joe
 export SSH_AGENT_PID="$(pgrep -u $USER -f ssh-agent)"
 
 if [[ "$TERM" == vt100 || "$(uname)" == SunOS ]]; then
   if [[ -n "$SSH_AGENT_PID" ]]; then
-    export SSH_AUTH_SOCK="$(ls -t /tmp/ssh-$USER/agent.* | head -n 1)"
+    export SSH_AUTH_SOCK="$(command ls -t /tmp/ssh-$USER/agent.* | head -n 1)"
   else
     echo Initializing pty-agent...
     pty-agent
@@ -28,7 +28,7 @@ if [[ "$TERM" == vt100 || "$(uname)" == SunOS ]]; then
 fi
 
 if [[ -n "$SSH_AGENT_PID" ]]; then
-  export SSH_AUTH_SOCK="$(ls -t /tmp/ssh-$USER/agent.* | head -n 1)"
+  export SSH_AUTH_SOCK="$(command ls -t /tmp/ssh-$USER/agent.* | head -n 1)"
 else
   pty-agent
   ptyd sudo zsh -c '
