@@ -34,19 +34,18 @@ _oci_pre_sync () {
 }
 
 oci_ship_wc () {
-  echo Delegating zfs permissions.
   local vol=x1/wc
   zfs destroy -Rr tank/$vol@baseline
-  zfs snapshot -rc tank/$vol@baseline >/dev/null 2>&1
-  local TMPFILE="/x1/tmp/oci-$(basename $vol)-$LAST.zfs.lzo"
+  zfs snapshot -r tank/$vol@baseline
+  local TMPFILE="/x1/tmp/oci-$(basename $vol)-baseline.zfs.lzo"
   [[ -f $TMPFILE ]] || zfs send -rc tank/$vol@baseline | lzop -c > $TMPFILE
   for region ad in ${(kv)OCI_AD}
   do
-    for i in {1..$ad}
+    for id in {1..$ad}
     do
       for tries in {1..10}; rsync --stats --progress --partial --inplace $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && break
-      ssh -t $OCI_HOST_PREFIX-$id.$region sudo -s "zfs destroy -rR $OCI_ZPOOL_MAP[tank]/$vol; /usr/local/bin/lzop -d <$TMPFILE | zfs receive -F $OCI_ZPOOL_MAP[tank]/$vol && rm $TMPFILE"
-      ssh -t $OCI_HOST_PREFIX-$i.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy $OCI_ZPOOL_MAP[tank]/$vol
+      ssh -t $OCI_HOST_PREFIX-$id.$region sudo -s "zfs destroy -rR $OCI_ZPOOL_MAP[tank]/$vol; zfs create -p $OCI_ZPOOL_MAP[tank]/$vol; /usr/local/bin/lzop -d <$TMPFILE | zfs receive -F $OCI_ZPOOL_MAP[tank]/$vol && rm $TMPFILE"
+      ssh -t $OCI_HOST_PREFIX-$id.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy $OCI_ZPOOL_MAP[tank]/$vol
     done
   done
 }
@@ -229,7 +228,7 @@ oci_release () {
 
       for svc in ${OCI_SITE_SVCS[@]}
       do
-        ssh -t $OCI_HOST_PREFIX-$id.$region svcadm disable site/$svc
+        ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm disable site/$svc
       done
 
       for volume in ${ZFS_EXPORTS[@]}
@@ -242,17 +241,18 @@ oci_release () {
         zfs snapshot -r $volume@$ZULU >/dev/null 2>&1
 
         [[ -f $TMPFILE ]] || zfs send -RcI $LAST $volume@$ZULU | lzop -c > $TMPFILE
-        scp $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && ssh -t $OCI_HOST_PREFIX-$id.$region pfzsh -c "'/usr/local/bin/lzop -d <$TMPFILE | zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
+        for tries in {1..10}; rsync --stats --progress --partial --inplace $TMPFILE $OCI_HOST_PREFIX-$id.$region:$TMPFILE && break
+        ssh -t $OCI_HOST_PREFIX-$id.$region pfzsh -c "'/usr/local/bin/lzop -d <$TMPFILE | sudo zfs receive -F $dst_pool/$vol && rm $TMPFILE'" || return $?
       done
 
-      for zone in $(ls /system/zones)
+      for zone in $OCI_ZONES[@]
       do
         ssh -t $OCI_HOST_PREFIX-$id.$region zoneadm -z $zone reboot
       done
 
       for svc in ${OCI_SITE_SVCS[@]}
       do
-        ssh -t $OCI_HOST_PREFIX-$id.$region svcadm enable site/$svc
+        ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm enable site/$svc
       done
 
       echo $OCI_HOST_PREFIX-$id.$region $ZULU release complete.
