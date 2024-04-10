@@ -1,7 +1,7 @@
 [user]
 	name = Joseph Schaefer
 	email = joe@sunstarsys.com
-	signingkey = /x1/home/joe/.ssh/id_ed25519.pub
+	signingkey = ~/.ssh/id_ed25519.pub
 [clean]
 	requireForce = 1
 [push]
@@ -12,8 +12,9 @@
 	rebase = true
 [commit]
 	gpgsign = true
-#	gpgsign = true
 [http]
         sslCAinfo = /etc/certs/ca-certificates.crt
 [gpg]
 	format = ssh
+[gpg "ssh"]
+	allowedSignersFile = ~/.ssh/allowed-signers
