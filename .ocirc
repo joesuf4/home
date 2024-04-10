@@ -255,6 +255,8 @@ oci_release () {
         ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm enable site/$svc
       done
 
+      ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm restart site/ssh
+
       echo $OCI_HOST_PREFIX-$id.$region $ZULU release complete.
     done
   done
