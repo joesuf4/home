@@ -69,7 +69,7 @@ OCI_AD=( [ap-seoul-1]=1 [ap-sydney-1]=1 [sa-saopaulo-1]=1 [us-phoenix-1]=1 [eu-f
 OCI_ZONES=( cms-public www-public )
 OCI_SITE_SVCS=(markdownd svnwcsub watchdog)
 OCI_HOST_PREFIX=oci-fileserver
-declare -A OCI_ZPOOL_MAP=(rpool rpool1 tank tank)
+declare -A OCI_ZPOOL_MAP=([rpool]=rpool1 [tank]=tank)
 
 ZFS_TANK_EXPORTS=(tank/x1/cms tank/x1/svnpubsub tank/x1/httpd)
 ZFS_RPOOL_EXPORTS=(rpool/usr/local rpool/etc/letsencrypt rpool/etc/mail rpool/etc/svc/manifest/site)
