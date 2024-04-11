@@ -225,6 +225,7 @@ oci_release () {
     do
       [[ -z "$slice" || $slice -eq $id ]] || continue
       echo Releasing $ZULU to $OCI_HOST_PREFIX-$id.$region...
+      ssh -t $OCI_HOST_PREFIX-$id.$region sudo touch /etc/nocommit
 
       for svc in ${OCI_SITE_SVCS[@]}
       do
@@ -255,6 +256,8 @@ oci_release () {
         ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm enable site/$svc
       done
 
+      ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm restart site/http:apache24
+      ssh -t $OCI_HOST_PREFIX-$id.$region sudo rm /etc/nocommit
       ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm restart site/ssh
 
       echo $OCI_HOST_PREFIX-$id.$region $ZULU release complete.

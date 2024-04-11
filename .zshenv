@@ -67,7 +67,7 @@ declare -A OCI_AD
 # do not edit the next line manually!
 OCI_AD=( [ap-seoul-1]=1 [ap-sydney-1]=1 [sa-saopaulo-1]=1 [us-phoenix-1]=1 [eu-frankfurt-1]=1 [ap-hyderabad-1]=1 [us-ashburn-1]=1 )
 OCI_ZONES=( cms-public www-public )
-OCI_SITE_SVCS=(http:apache24 markdownd svnwcsub watchdog)
+OCI_SITE_SVCS=(markdownd svnwcsub watchdog)
 OCI_HOST_PREFIX=oci-fileserver
 declare -A OCI_ZPOOL_MAP=(rpool rpool1 tank tank)
 
