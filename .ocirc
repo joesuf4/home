@@ -62,7 +62,7 @@ _oci_post_sync () {
 
 
   echo Fixing up /etc/hosts and /x1/logs.
-  oci_region_exec $region sudo -s 'echo 127.0.0.1 localhost.localdomain localhost $(hostname) >> /etc/hosts'
+  oci_region_exec $region sudo -s 'echo 127.0.0.1 localhost.localdomain localhost $(hostname) > /etc/hosts'
   oci_region_exec $region sudo mkdir -p /x1/logs/httpd /x1/logs/svnpubsub /x1/tmp /x1/repos/svn-auth
   oci_region_exec $region sudo chown svn:other /x1/repos/svn-auth
   oci_region_exec $region sudo chmod a+rwxt /x1/tmp
