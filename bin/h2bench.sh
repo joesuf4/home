@@ -72,7 +72,7 @@ benchmark Static
 
 URL_ENC=(
     # simple modperl registry script
-    'www.sunstarsys.com/cgi-bin/enquiry.pl?lang=.en' br
+    'www.sunstarsys.com/dynamic/enquiry.pl?lang=.en' br
 
     # tiny admin bar graphic
     'joesuf4.wordpress.com/wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=184609717' gzip
