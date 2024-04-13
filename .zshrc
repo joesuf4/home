@@ -251,7 +251,7 @@ else
       alias ls='ls --color'
       alias grep='grep --color=auto'
       alias perlfreq="dtrace -qZn 'sub-entry { @[strjoin(strjoin(copyinstr(arg3),\"::\"),copyinstr(arg0))] = count() } END {trunc(@, 10)}'"
-
+      alias perlperf="dtrace -qFZn 'sub-entry { start[strjoin(strjoin(copyinstr(arg3),\"::\"),copyinstr(arg0))] = timestamp } sub-return { @[strjoin(strjoin(copyinstr(arg3),\"::\"),copyinstr(arg0))] = quantize((timestamp - start[strjoin(strjoin(copyinstr(arg3),\"::\"),copyinstr(arg0))])/1000); } END {trunc(@, 100)}'"
       alias perlop="dtrace -qZn 'sub-entry { self->fqn = strjoin(copyinstr(arg3), strjoin(\"::\", copyinstr(arg0))) } op-entry /self->fqn != \"\"/ { @[self->fqn] = count() } END { trunc(@, 3) }'"
       alias solaris_ldflags='perl -ple '\''s/-L(\S+)/-L$1 -R$1/g'\'
       PROMPT=$'$PR_YELLOW%n@%m$PR_RESET:$PR_CYAN%~$PR_RESET%(?..($PR_BRIGHT_RED%?$PR_RESET%))$PR_YELLOW%#$PR_RESET '
