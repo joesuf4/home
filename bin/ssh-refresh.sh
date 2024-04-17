@@ -11,9 +11,9 @@ do
     for id in {1..$ad}
     do
         [[ -z "$slice" || $slice -eq $id ]] || continue
-	timeout 30 ssh $OCI_HOST_PREFIX-$id.$region true &
+	(timeout 30 ssh $OCI_HOST_PREFIX-$id.$region true || (rm -f ~/.ssh/sockets/$USER@$OCI_PREFIX-$id.$region:22 && timeout 20 ssh $OCI_HOST_PREFIX-$id.$region true))>/dev/null 2>&1 &
     done
 done
 
-ssh 127.0.0.1 true
+ssh 127.0.0.1 true >/dev/null 2>&1
 wait
