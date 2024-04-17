@@ -413,3 +413,13 @@ oci_region_zlogin () {
   shift; shift;
   oci_region_exec $region zlogin -l $USER $zone "$@"
 }
+
+oci_screen () {
+  for region ad in ${(kv)OCI_AD}; do
+    for id in {1..$ad}; do
+      local host=$OCI_HOST_PREFIX-$id.$region
+      screen -X screen pty -d pty-driver.pl -- "$SHELL" -ic \
+             "_bcs_title :$host: $@; ssh -t $host $SHELL -ic '\"sudo -Es $@\"'"
+    done
+  done
+}
