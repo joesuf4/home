@@ -37,7 +37,7 @@ oci_ship_wc () {
   local vol=x1/wc
   zfs destroy -Rr tank/$vol@baseline
   zfs snapshot -r tank/$vol@baseline
-  local TMPFILE="/x1/tmp/oci-$(basename $vol)-baseline.zfs.lzo"
+  local TMPFILE="/x1/tmp/wc-baseline.zfs.lzo"
   [[ -f $TMPFILE ]] || zfs send -rc tank/$vol@baseline | lzop -c > $TMPFILE
   for region ad in ${(kv)OCI_AD}
   do
@@ -48,6 +48,7 @@ oci_ship_wc () {
       ssh -t $OCI_HOST_PREFIX-$id.$region sudo zfs allow -ld httpd create,mount,snapshot,clone,destroy $OCI_ZPOOL_MAP[tank]/$vol
     done
   done
+  rm -rf /x1/tmp/wc-*
 }
 
 _oci_post_sync () {
