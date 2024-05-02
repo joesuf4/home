@@ -19,4 +19,4 @@ do
     zfs send -D -Rci $LAST tank$svn_repo@$ZULU > $TMPFILE
 done
 
-tarsnap -c -f $hostname-$ZULU --print-stats /x1/backups
+tarsnap -c -f $(hostname)-$ZULU --print-stats /x1/backups
