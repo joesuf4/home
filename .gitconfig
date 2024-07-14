@@ -1,6 +1,6 @@
 [user]
-	name = Joseph Schaefer
-	email = joe@sunstarsys.com
+	name = Joe Schaefer
+	email = jschaefer@cleardemand.com
 	signingkey = ~/.ssh/id_ed25519.pub
 [clean]
 	requireForce = 1
