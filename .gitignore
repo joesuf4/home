@@ -234,3 +234,4 @@ snap/
 perl/
 .cookie
 .config/go/
+.config/gcloud/
