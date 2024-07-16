@@ -487,6 +487,7 @@ autoload -Uz bashcompinit
 bashcompinit -i
 
 [[ -d ~/.asdf ]] && . ~/.asdf/completions/asdf.bash
+. $(asdf where gcloud)/completion.zsh.inc
 
 # enable job control (something's turned it off somewhere on Ubuntu-21.04)
 
