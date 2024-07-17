@@ -341,7 +341,7 @@ _eks_load_clusters() {
     EKS_TRACE_ID_SRC=
   fi
 
-  : "${EKS_CLUSTERS_SRC:=$(aws eks list-clusters --output text | awk '{print $2}' | tr -dc "$BCS_ADMISSIBLE_CHARS")}"
+  : "${EKS_CLUSTERS_SRC:=$(gcloud container clusters list | (read _; cat) | awk '{print $1}' | tr -dc "$BCS_ADMISSIBLE_CHARS")}"
   eval "_eks_clusters=($EKS_CLUSTERS_SRC)"
   _eks_load_namespaces 2>/dev/null
   _eks_load_nodes 2>/dev/null
@@ -413,7 +413,7 @@ _eks_load_trace_ids() {
 
 eks_update_kubeconfig() {
   [[ $# -gt 0 ]] || set "$(kubectl config get-contexts | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
-  aws eks update-kubeconfig --name "$1"
+  aws eks update-kubeconfig --name "$1" >/dev/null 2>&1 || gcloud container clusters get-credentials "$1"
   local rv=$?
   shift
   EKS_NS_SRC=
