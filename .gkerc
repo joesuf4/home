@@ -34,8 +34,8 @@ update-kubeconfig          Select current kubernetes cluster/context.
                              1. Name of cluster
                            Notes: Defaults to currently selected cluster
                            (shown in your xterm window), which effectively
-                           reloads the AWS eks config and its pod inventory.
-                             2. EKS Namespace (optional)
+                           reloads the AWS gke config and its pod inventory.
+                             2. GKE Namespace (optional)
                            Notes: Leaving this unset will cause \$GKE_NAMESPACE
                            to default to the empty (default) namespace.
 
@@ -92,7 +92,7 @@ node-*                     "COMMON CLI" node-prefixed commands.
 
                            ===
 
-list-trace-objects         List the strings admissible for the eks trace-* cmds.
+list-trace-objects         List the strings admissible for the gke trace-* cmds.
                            [<args>]
                              1. PCRE filter (optional)
 
@@ -140,14 +140,14 @@ EOF
 _gke_zsh_clusters_completion() {
   local state
 
-  _arguments '1: :->eks_cluster' '2: :->eks_namespace'
+  _arguments '1: :->gke_cluster' '2: :->gke_namespace'
 
   case $state in
-    eks_cluster)
-      _arguments "1:eks_cluster:($_gke_clusters)"
+    gke_cluster)
+      _arguments "1:gke_cluster:($_gke_clusters)"
       ;;
-    eks_namespace)
-      _arguments "1:eks_namespace:$(_gke_namespaces)"
+    gke_namespace)
+      _arguments "1:gke_namespace:$(_gke_namespaces)"
       ;;
   esac
 }
@@ -155,13 +155,13 @@ _gke_zsh_clusters_completion() {
 _gke_zsh_pod_container_completion() {
   local state
 
-  _arguments '1: :->eks_pod' '2: :->eks_container'
+  _arguments '1: :->gke_pod' '2: :->gke_container'
 
   case $state in
-    eks_pod)
-      _arguments "1:eks_pod:($_gke_pods)"
+    gke_pod)
+      _arguments "1:gke_pod:($_gke_pods)"
       ;;
-    eks_container)
+    gke_container)
       compadd "$@" $(gke_list_pod_containers "${words[2]}")
       ;;
   esac
@@ -169,42 +169,42 @@ _gke_zsh_pod_container_completion() {
 
 _gke_zsh_completion() {
   local state
-  _arguments '1: :->eks_cmd' '2: :->eks_first' '3: :->eks_second' '*: :->*'
+  _arguments '1: :->gke_cmd' '2: :->gke_first' '3: :->gke_second' '*: :->*'
 
   case $state in
-    eks_cmd)
-      _arguments "1:eks_cmd:($_gke_cmds $_bcs_cli_cmds)"
+    gke_cmd)
+      _arguments "1:gke_cmd:($_gke_cmds $_bcs_cli_cmds)"
       ;;
-    eks_first)
+    gke_first)
       if [[ "${words[2]}" == list-clusters || "${words[2]}" == update-kubeconfig ]]; then
-        _arguments "2:eks_cluster:($_gke_clusters)"
+        _arguments "2:gke_cluster:($_gke_clusters)"
       elif [[ "${words[2]}" == list-namespaces || "${words[2]}" == set-namespace ]]; then
-        _arguments "2:eks_namespace:($_gke_namespaces)"
+        _arguments "2:gke_namespace:($_gke_namespaces)"
       elif [[ "${words[2]}" != "${words[2]#node-}" || "${words[2]}" == list-nodes ]]; then
-        _arguments "2:eks_node:($_gke_nodes)"
+        _arguments "2:gke_node:($_gke_nodes)"
       elif [[ "${words[2]}" != "${words[2]#trace-}" ]]; then
-        _arguments "2:eks_trace_action:($_gke_trace_actions)"
+        _arguments "2:gke_trace_action:($_gke_trace_actions)"
       elif [[ "${words[2]}" == list-trace-objects ]]; then
-        _arguments "2:eks_trace_objects:($_gke_trace_objects)"
+        _arguments "2:gke_trace_objects:($_gke_trace_objects)"
       elif [[ "${words[2]}" == report ]]; then
-        _arguments "2:eks_report:($_gke_reports)"
+        _arguments "2:gke_report:($_gke_reports)"
       elif [[ "${words[2]}" == run-global ]]; then
-        _arguments "2:eks_global_type:($_gke_global_report_cmds)"
+        _arguments "2:gke_global_type:($_gke_global_report_cmds)"
       else
-        _arguments "2:eks_pod:($_gke_pods)"
+        _arguments "2:gke_pod:($_gke_pods)"
       fi
       ;;
-    eks_second)
+    gke_second)
       if [[ "${words[2]}" != "${words[2]#trace-}" ]]; then
         if [[ "${words[3]}" == run ]]; then
-          _arguments "3:eks_trace_objects:($_gke_trace_objects)"
+          _arguments "3:gke_trace_objects:($_gke_trace_objects)"
         else
-          _arguments "3:eks_trace_id_keys:($(eks_list_trace_ids "" 1))"
+          _arguments "3:gke_trace_id_keys:($(gke_list_trace_ids "" 1))"
         fi
       elif [[ "${words[2]}" == update-kubeconfig ]]; then
-        _arguments "3:eks_namespace:($_gke_namespaces)"
+        _arguments "3:gke_namespace:($_gke_namespaces)"
       elif [[ "${words[2]}" == report ]]; then
-        _arguments "3:eks_report_type:($(eks list-reports-by-subtype "${words[3]}"))"
+        _arguments "3:gke_report_type:($(gke list-reports-by-subtype "${words[3]}"))"
       else
         _arguments "3:bin:($(ls ~/bin))"
       fi
@@ -217,33 +217,33 @@ _gke_zsh_completion() {
 
 for fcn in "${_gke_cluster_cmds[@]//-/_}"; do
   if [[ "$(basename "$SHELL")" =~ zsh ]]; then
-    compdef _gke_zsh_clusters_completion eks_$fcn
+    compdef _gke_zsh_clusters_completion gke_$fcn
   else
-    complete -W '${_gke_clusters[@]}' eks_$fcn
+    complete -W '${_gke_clusters[@]}' gke_$fcn
   fi
 done
 
 for fcn in "${_bcs_cmds[@]//-/_}" "${_gke_pod_cmds[@]//-/_}"; do
   if [[ "$(basename "$SHELL")" =~ zsh ]]; then
-    compdef _gke_zsh_pod_container_completion eks_$fcn
+    compdef _gke_zsh_pod_container_completion gke_$fcn
   else
-    complete -W '${_gke_pods[@]}' eks_$fcn
+    complete -W '${_gke_pods[@]}' gke_$fcn
   fi
 done
 
 for fcn in "${_gke_node_cmds[@]//-/_}"; do
   if [[ "$(basename "$SHELL")" =~ zsh ]]; then
-    compdef _gke_zsh_node_completion eks_$fcn
+    compdef _gke_zsh_node_completion gke_$fcn
   else
-    complete -W '${_gke_nodes[@]}' eks_$fcn
+    complete -W '${_gke_nodes[@]}' gke_$fcn
   fi
 done
 
 for fcn in "${_gke_trace_cmds[@]//-/_}"; do
   if [[ "$(basename "$SHELL")" =~ zsh ]]; then
-    compdef _gke_zsh_trace_completion eks_$fcn
+    compdef _gke_zsh_trace_completion gke_$fcn
   else
-    complete -W '${_gke_trace_objects[@]}' eks_$fcn
+    complete -W '${_gke_trace_objects[@]}' gke_$fcn
   fi
 done
 
@@ -299,7 +299,7 @@ gke_list_trace_objects() {
 gke_list_pod_containers() {
   local PFILTER="${1-}"
   local pod c
-  set $(eks_list_pods "$PFILTER")
+  set $(gke_list_pods "$PFILTER")
   if [[ $# -le $GKE_POD_SEARCH_LIMIT ]]; then
     for pod; do
       for c in $(kubectl get pod $pod -n "${GKE_NAMESPACE:-default}" -o jsonpath="{.spec.containers[].name}"); do
@@ -401,7 +401,7 @@ _gke_load_trace_ids() {
   declare -A _gke_trace_pod_id
   for key in $(eval '[[ "$(basename "$SHELL")" =~ zsh ]] && echo "${(k)GKE_TRACE_ID}" || echo "${!GKE_TRACE_ID[@]}"'); do
     [[ "$key" == "${key#pod/}" ]] && continue
-    [[ -z "$(eks_list_trace_objects $key)" ]] && continue
+    [[ -z "$(gke_list_trace_objects $key)" ]] && continue
     : "${_gke_trace_pod_id[$key]=${GKE_TRACE_ID[$key]}}"
   done
   eval "GKE_TRACE_ID=($GKE_TRACE_ID_SRC)"
@@ -413,7 +413,7 @@ _gke_load_trace_ids() {
 
 gke_update_kubeconfig() {
   [[ $# -gt 0 ]] || set "$(kubectl config get-contexts | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
-  aws eks update-kubeconfig --name "$1" >/dev/null 2>&1 || gcloud container clusters get-credentials "$1"
+  gcloud container clusters get-credentials "$1"
   local rv=$?
   shift
   GKE_NS_SRC=
@@ -439,8 +439,8 @@ gke_tools_ship_bg() {
   local FILTER="$1"
 
   local pod c t
-  for pod in $(eks_list_pods "$FILTER"); do
-    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
+  for pod in $(gke_list_pods "$FILTER"); do
+    for c in $(gke_list_pod_containers "^\\Q$pod\\E\$"); do
       for t in "${_bcs_tools[@]}"; do
         time kubectl exec -i $pod -c $c -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
       done
@@ -457,7 +457,7 @@ gke_node_tools_ship_bg() {
   local FILTER="$1"
 
   local node t
-  for node in $(eks_list_nodes "$FILTER"); do
+  for node in $(gke_list_nodes "$FILTER"); do
     for t in "${_bcs_tools[@]}"; do
       time kubectl node-shell $node -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
       sleep 1
@@ -478,13 +478,13 @@ gke_shell() {
   [[ $# -eq 0 ]] && set sh
   local TMP
   if [[ ! -t 0 ]]; then
-    TMP="$(mktemp /tmp/eks-XXXX)"
+    TMP="$(mktemp /tmp/gke-XXXX)"
     cat >$TMP
   fi
 
   local pod c
-  for pod in $(eks_list_pods "$FILTER"); do
-    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
+  for pod in $(gke_list_pods "$FILTER"); do
+    for c in $(gke_list_pod_containers "^\\Q$pod\\E\$"); do
       _bcs_title :$pod/$c: "$@"
       if [[ -t 0 ]]; then
         kubectl exec -ti $pod -c $c -- sh -lc '[ -x /usr/bin/sudo ] && sudo ="sudo -Es"; eval script.sh -qa /tmp/typescript $sudo "$@"' -- "$@"
@@ -505,12 +505,12 @@ gke_node_shell() {
   [[ $# -eq 0 ]] && set bash
   local TMP
   if [[ ! -t 0 ]]; then
-    TMP="$(mktemp /tmp/eks-XXXX)"
+    TMP="$(mktemp /tmp/gke-XXXX)"
     cat >$TMP
   fi
 
   local node
-  for node in $(eks_list_nodes "$FILTER"); do
+  for node in $(gke_list_nodes "$FILTER"); do
     _bcs_title :$node: "$@"
     if [[ -t 0 ]]; then
       kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript "$@"' -- "$@"
@@ -531,7 +531,7 @@ gke_trace_shell() {
   shift
   local TMP
   if [[ ! -t 0 ]]; then
-    TMP="$(mktemp /tmp/eks-XXXX)"
+    TMP="$(mktemp /tmp/gke-XXXX)"
     cat >$TMP
     exec 0>&2
   fi
@@ -539,7 +539,7 @@ gke_trace_shell() {
   local obj key id
   case "$ACTION" in
     run)
-      for obj in $(eks_list_trace_objects "$FILTER"); do
+      for obj in $(gke_list_trace_objects "$FILTER"); do
         _bcs_title :$obj: trace $ACTION "$@"
         : "${GKE_TRACE_ID[$obj]:=}"
         GKE_TRACE_ID[$obj]+=" $(
@@ -550,7 +550,7 @@ gke_trace_shell() {
             if [[ "$pod" == "$obj" ]]; then
               kubectl trace $ACTION $obj "$@" -f <(bcs_sed_uprobe_shared_libs kubectl node-shell $obj -- <$TMP)
             else
-              local ctr="$(eks_list_pod_containers "^\\Q$pod\\E\$" | head -n 1)"
+              local ctr="$(gke_list_pod_containers "^\\Q$pod\\E\$" | head -n 1)"
               kubectl trace $ACTION $obj "$@" -c $ctr -f <(bcs_sed_uprobe_shared_libs kubectl exec $pod -c $ctr -- <$TMP)
             fi
           fi | tee -a /proc/self/fd/2 | awk '$3 == "created" {print $2}'
@@ -558,7 +558,7 @@ gke_trace_shell() {
       done
       ;;
     *)
-      for key in $(eks_list_trace_ids "$FILTER" 1); do
+      for key in $(gke_list_trace_ids "$FILTER" 1); do
         _bcs_title :$key: trace $ACTION $FILTER "$@"
         for id in ${GKE_TRACE_ID[$key]}; do
           [[ "$ACTION" == attach ]] && ! [[ -t 2 ]] && kubectl trace logs $id -f >&2 &
@@ -579,8 +579,8 @@ gke_htop_ship_config_bg() {
   shift
 
   local pod c
-  for pod in $(eks_list_pods "$FILTER"); do
-    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
+  for pod in $(gke_list_pods "$FILTER"); do
+    for c in $(gke_list_pod_containers "^\\Q$pod\\E\$"); do
       kubectl exec -i $pod -c $c -- sh -c \
         '[ -x /usr/bin/sudo ] && sudo="sudo -Es"; $sudo sh -c "mkdir -p ~/.config/htop && cat > ~/.config/htop/htoprc"' <~/.config/htop/htoprc &
     done
@@ -592,7 +592,7 @@ gke_node_htop_ship_config_bg() {
   local NFILTER="$1"
 
   local node
-  for node in $(eks_list_nodes "$NFILTER"); do
+  for node in $(gke_list_nodes "$NFILTER"); do
     kubectl node-shell $node -- sh -c \
       '[ -x /usr/bin/sudo ] && sudo="sudo -Es"; $sudo sh -c "mkdir -p ~/.config/htop && cat > ~/.config/htop/htoprc"' <~/.config/htop/htoprc &
     sleep 1
@@ -606,13 +606,13 @@ gke_screen() {
   [[ $# -gt 0 ]] || set sh
   local TMP
   if [[ ! -t 0 ]]; then
-    TMP="$(mktemp /tmp/eks-XXXX)"
+    TMP="$(mktemp /tmp/gke-XXXX)"
     cat >$TMP
   fi
 
   local pod c
-  for pod in $(eks_list_pods "$FILTER"); do
-    for c in $(eks_list_pod_containers "^\\Q$pod\\E\$"); do
+  for pod in $(gke_list_pods "$FILTER"); do
+    for c in $(gke_list_pod_containers "^\\Q$pod\\E\$"); do
       if [[ -t 0 ]]; then
         screen -X screen "$SHELL" -ic \
           "_bcs_title :$pod/$c: $@; kubectl exec -ti $pod -c $c -- sh -lc 'eval script.sh -qa /tmp/typescript $@\"'"
@@ -630,12 +630,12 @@ gke_node_screen() {
   [[ $# -gt 0 ]] || set bash
   local TMP
   if [[ ! -t 0 ]]; then
-    TMP="$(mktemp /tmp/eks-XXXX)"
+    TMP="$(mktemp /tmp/gke-XXXX)"
     cat >$TMP
   fi
 
   local node
-  for node in $(eks_list_nodes "$NFILTER"); do
+  for node in $(gke_list_nodes "$NFILTER"); do
     if [[ -t 0 ]]; then
       screen -X screen "$SHELL" -ic \
         "_bcs_title :$node: $@; kubectl node-shell $node -- sh -lc 'sleep 1;TERM=screen.xterm-256color eval script.sh -qa /tmp/typescript $@'"
@@ -660,10 +660,10 @@ gke_trace_screen() {
   local key id
   case "$ACTION" in
     get | run | delete)
-      eks_trace_shell $FILTER $ACTION "$@"
+      gke_trace_shell $FILTER $ACTION "$@"
       ;;
     *)
-      for key in $(eks_list_trace_ids "$FILTER" 1); do
+      for key in $(gke_list_trace_ids "$FILTER" 1); do
         for id in ${GKE_TRACE_ID[$key]}; do
           screen -X screen "$SHELL" -ic \
             "_bcs_title :$key/$id: trace $ACTION \"\$@\"; kubectl trace $ACTION $id \"\$@\"" -- "$@"
@@ -697,13 +697,13 @@ gke_batch() {
 
   local TMP
   if [[ ! -t 0 ]]; then
-    TMP="$(mktemp /tmp/eks-XXXX)"
+    TMP="$(mktemp /tmp/gke-XXXX)"
     cat >$TMP
   fi
 
   local pod ctr
-  for pod in $(eks_list_pods "$FILTER"); do
-    for ctr in $([[ "$FILTER" != "${FILTER#--}" ]] && eks_list_pod_containers "$FILTER" || eks_list_pod_containers "^\\Q$pod\\E\$"); do
+  for pod in $(gke_list_pods "$FILTER"); do
+    for ctr in $([[ "$FILTER" != "${FILTER#--}" ]] && gke_list_pod_containers "$FILTER" || gke_list_pod_containers "^\\Q$pod\\E\$"); do
       if [[ -t 0 ]]; then
         echo kubectl exec $pod -c $ctr -n "${GKE_NAMESPACE:-default}" -i -- \
           sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
@@ -738,12 +738,12 @@ gke_node_batch() {
 
   local TMP
   if [[ ! -t 0 ]]; then
-    TMP="$(mktemp /tmp/eks-XXXX)"
+    TMP="$(mktemp /tmp/gke-XXXX)"
     cat >$TMP
   fi
 
   local node
-  for node in $(eks_list_nodes "$NFILTER"); do
+  for node in $(gke_list_nodes "$NFILTER"); do
     if [[ -t 0 ]]; then
       echo kubectl node-shell $node -- \
         sh -lc '"([ -x /usr/bin/sudo ] && sudo=\"sudo -Es\"; eval \$sudo \"\$@\" || echo \"'"$errstr"':\" \"(\"\$@\")\" failed with status code \$?) 2>&1 | while read -r line; do echo \"'"$(eval "echo \"$prefix\"")"':\" \$line; done"' -- '"$@"'
@@ -780,10 +780,10 @@ gke_trace_batch() {
   local key id
   case "$ACTION" in
     run | delete | attach)
-      eks_trace_shell "$FILTER" "$ACTION" "$@"
+      gke_trace_shell "$FILTER" "$ACTION" "$@"
       ;;
     *)
-      for key in $(eks_list_trace_ids "$FILTER" 1); do
+      for key in $(gke_list_trace_ids "$FILTER" 1); do
         for id in ${GKE_TRACE_ID[$key]}; do
           echo '(' kubectl trace $ACTION $id "$@" '||' echo \""$errstr"\": "(trace $ACTION \"\$@\") failed with status code \$?" ')' '2>&1' '|' 'while IFS=";" read -r line; do echo '\"$prefix\"': $line; done'
         done |
