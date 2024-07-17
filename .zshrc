@@ -505,7 +505,7 @@ done
 command -v kubectl >/dev/null 2>&1 && . <(kubectl completion $(basename "$SHELL"))
 . ~/.bcsrc
 . ~/.ec2rc
-. ~/.eksrc
+. ~/.gkerc
 
 patch_swig_pl() {
   for f in ~/src/svn-1.*/subversion/bindings/swig/perl/native/*.c; do
