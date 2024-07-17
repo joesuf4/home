@@ -286,16 +286,16 @@ done
 
 for t in all cluster node namespace pod; do
   for n in all percent load actual cpu mem; do
-    eval "alias report_${t}_${n}_smag='_bcs_title \"$t-$n graphs for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; smag -n 10 \"eks report ${t//all/.} ${n//all/.} -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
-    eval "alias report_${t}_${n}_smag_diff='_bcs_title \"$t-$n diff graphs for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; smag -d -n 10 \"eks report ${t//all/.} ${n//all/.} -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
-    eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..100}; date && eks report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
+    eval "alias report_${t}_${n}_smag='_bcs_title \"$t-$n graphs for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; smag -n 10 \"gke report ${t//all/.} ${n//all/.} -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
+    eval "alias report_${t}_${n}_smag_diff='_bcs_title \"$t-$n diff graphs for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; smag -d -n 10 \"gke report ${t//all/.} ${n//all/.} -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
+    eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..100}; date && gke report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
     eval "alias report_${t}_${n}_forever='while :; do bcs_assume_role && report_${t}_${n}_loop_100; done'"
   done
 done
 unalias report_node_percent_smag report_node_percent_smag_diff
 
-alias report_node_percent_smag='_bcs_title "node-percent cpu/mem graphs for [$EKS_CLUSTER/$EKS_NAMESPACE]"; smag -n 10 "eks report node percent-cpu -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\"" "eks report node percent-mem -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\""'
-alias report_node_percent_smag_diff='_bcs_title "node-percent cpu/mem diff graphs for [$EKS_CLUSTER/$EKS_NAMESPACE]"; smag -d -n 10 "eks report node percent-cpu -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\"" "eks report node percent-mem -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\""'
+alias report_node_percent_smag='_bcs_title "node-percent cpu/mem graphs for [$EKS_CLUSTER/$EKS_NAMESPACE]"; smag -n 10 "gke report node percent-cpu -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\"" "gke report node percent-mem -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\""'
+alias report_node_percent_smag_diff='_bcs_title "node-percent cpu/mem diff graphs for [$EKS_CLUSTER/$EKS_NAMESPACE]"; smag -d -n 10 "gke report node percent-cpu -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\"" "gke report node percent-mem -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\""'
 
 for t in cluster node namespace; do
   for n in cpu mem fd; do
