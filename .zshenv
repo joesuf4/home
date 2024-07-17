@@ -37,7 +37,7 @@ PTYON=(sudo git svn gpg op ssh scp rsync ansible-vault ortpasswd otp-sha1 zpool 
 
 # top_10() customizations
 ANSI_COLOR_ID=2
-HIST_BLOCK="🐰"
+HIST_BLOCK="▬"
 HIST_ANCESTRY="🐰🍀🌷x✡♱☠❤❄◆▬■●▶"
 COL=30
 
