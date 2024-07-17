@@ -471,9 +471,9 @@ bcs_assume_role() {
     AWS_SESSION_TOKEN=$(echo "$arr" | jq -r .Credentials.SessionToken)
     BCS_PROFILE="$role@$account_identifier.$region"
     EC2_ID_SRC=
-    EKS_CLUSTERS_SRC=
+    GKE_CLUSTERS_SRC=
     _ec2_load_inventory
-    _eks_load_clusters
+    _gke_load_clusters
     _bcs_title
   else
     echo "No account id" >&2
@@ -485,7 +485,7 @@ bcs_assume_role() {
 bcs_clear_envs() {
   for varname in AWS_ACCESS_KEY_ID AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY \
     BCS_PROFILE _bcs_gur _bcs_mfa_arn _bcs_gstr \
-    EC2_ID_SRC EKS_CLUSTERS_SRC EKS_NODES_SRC EKS_TRACE_IDS_SRC EKS_NS_SRC EKS_PODS_SRC; do
+    EC2_ID_SRC GKE_CLUSTERS_SRC GKE_NODES_SRC GKE_TRACE_IDS_SRC GKE_NS_SRC GKE_PODS_SRC; do
     eval "$varname="
   done
 }
@@ -535,9 +535,9 @@ bcs_set_region() {
   AWS_DEFAULT_REGION=$region
   BCS_PROFILE="$role@$account_identifier.$region"
   EC2_ID_SRC=
-  EKS_CLUSTERS_SRC=
+  GKE_CLUSTERS_SRC=
   _ec2_load_inventory
-  _eks_load_clusters
+  _gke_load_clusters
   _bcs_title
 }
 
