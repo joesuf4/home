@@ -8,6 +8,8 @@
 	default = matching
 [github]
 	user = joesuf4
+[log]
+        showSignature = true
 [pull]
 	rebase = true
 [commit]
