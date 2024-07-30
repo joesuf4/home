@@ -98,9 +98,11 @@ gac() {
   [[ -n "$ts" ]] && git tag $(git branch --show-current)\|$ts
 }
 
+alias gpt='git push && git push --tags'
+
 gfm() {
-  git fetch $1 && git merge -s ours $1
-  $? && return $?
+  git fetch origin $1 && git merge -s ours $1
+  [[ $? == 0 ]] || return $?
   shift
   gac $@
 }
