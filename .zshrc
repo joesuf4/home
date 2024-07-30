@@ -102,7 +102,8 @@ alias gpt='git push && git push --tags'
 
 gfm() {
   git fetch origin $1 && git merge -s ours $1
-  [[ $? == 0 ]] || return $?
+  local rv=$?
+  [[ $rv == 0 ]] || return $rv
   shift
   [[ "$*" > 0 ]] && gac $@
 }
