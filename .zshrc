@@ -100,8 +100,8 @@ gac() {
 
 alias gpt='git push && git push --tags'
 
-gfm() {
-  git fetch origin $1 && git merge -s ours $1
+gpc() {
+  git pull --verify-signatures -s ours origin $1
   local rv=$?
   [[ $rv == 0 ]] || return $rv
   shift
