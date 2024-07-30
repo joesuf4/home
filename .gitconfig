@@ -12,6 +12,8 @@
         showSignature = true
 [pull]
 	rebase = true
+        strategy = ours
+        verifySignatures = true
 [commit]
 	gpgsign = true
 [http]

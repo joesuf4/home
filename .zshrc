@@ -101,7 +101,7 @@ gac() {
 alias gpt='git push && git push --tags'
 
 gpc() {
-  git pull --verify-signatures -s ours origin $1 || return $?
+  git pull origin $1 || return $?
   shift
   [[ "$*" > 0 ]] && gac $@
 }
