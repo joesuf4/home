@@ -98,10 +98,16 @@ gac() {
   [[ -n "$ts" ]] && git tag $(git branch --show-current)\|$ts
 }
 
-alias gpt='git push && git push --tags'
+alias gpush='git push && git push --tags'
 
-gpc() {
-  git pull --ff-only --verify-signatures origin $1 || return $?
+gcots() {
+  local branch="adam_dev" ts="$1"
+  [[ "${ts%E?T}" != "$ts" ]] && branch="joe_dev"
+  git checkout "$branch|${ts//:/-}"
+}
+
+gpull() {
+  git pull --verify-signatures origin $1 || return $?
   shift
   [[ "$*" > 0 ]] && gac $@
 }
