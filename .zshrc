@@ -104,7 +104,7 @@ gfm() {
   git fetch origin $1 && git merge -s ours $1
   [[ $? == 0 ]] || return $?
   shift
-  gac $@
+  [[ "$*" > 0 ]] && gac $@
 }
 
 alias strip_cr="sed -i -e 's/\\r//'"
