@@ -99,17 +99,12 @@ gac() {
 }
 
 alias gpush='git push && git push --tags'
+alias gpull='git pull -s ours origin'
 
 gcots() {
   local branch="adam_dev" ts="$1"
   [[ "${ts%E?T}" != "$ts" ]] && branch="joe_dev"
   git checkout "$branch|${ts//:/-}"
-}
-
-gpull() {
-  git pull --verify-signatures origin $1 || return $?
-  shift
-  [[ "$*" > 0 ]] && gac $@
 }
 
 alias strip_cr="sed -i -e 's/\\r//'"
