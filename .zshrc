@@ -101,6 +101,7 @@ gac() {
 alias gpush='git push && git push --tags'
 
 gpull () {
+  git pull
   git fetch origin $1
   git merge -Xours origin/$1
 }
