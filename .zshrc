@@ -93,15 +93,19 @@ alias dsign='DOCKER_CONTENT_TRUST=1 docker trust sign --local'
 
 # pre-commit-hook friendly version of 'git commit -a ...'
 gac() {
-  local ts="$([[ "${PWD%/rsim/*}" != "$PWD" ]] && bash -ci "cd ${PWD%%/rsim/*}/rsim && rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
+  local ts="$([[ "${PWD%/rsim*}" != "$PWD" ]] && bash -ci "cd ${PWD%%/rsim*}/rsim && rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
   git add -u && git commit $@
   [[ -n "$ts" ]] && git tag $(git branch --show-current)\|$ts
 }
 
 alias gpush='git push && git push --tags'
-alias gpull='git pull -s ours origin'
 
-gcots() {
+gpull () {
+  git fetch origin $1
+  git merge -Xours origin/$1
+}
+
+gcots () {
   local branch="adam_dev" ts="$1"
   [[ "${ts%E?T}" != "$ts" ]] && branch="joe_dev"
   git checkout "$branch|${ts//:/-}"
