@@ -101,9 +101,22 @@ gac() {
 alias gpush='git push && git push --tags'
 
 gpull () {
-  git pull
-  git fetch origin $1
-  git merge -Xours origin/$1
+  git pull || return $?
+
+  [[ "$#" > 0 ]] || return $?
+  local branch="$1"
+  shift
+  [[ $# > 0 ]] || set -- -m "merging origin/$branch into $(git branch --show-current)"
+
+  git fetch origin $branch || return $?
+  if ! git merge origin/$branch "$@"; then
+    for f in  rsim/src/{rsim.g,ClearPrice.src}
+    do
+      git checkout --ours "$f"
+      git add "$f"
+    done
+    git merge --continue "$@"
+  fi
 }
 
 gcots () {
