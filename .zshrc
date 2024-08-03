@@ -106,16 +106,15 @@ gpull () {
   [[ "$#" > 0 ]] || return $?
   local branch="$1"
   shift
-  [[ $# > 0 ]] || set -- -m "merging origin/$branch into $(git branch --show-current)"
+  [[ "$#" > 0 ]] || set -- -m "merging origin/$branch into $(git branch --show-current)"
 
   git fetch origin $branch || return $?
   if ! git merge origin/$branch "$@"; then
-    for f in  rsim/src/{rsim.g,ClearPrice.src}
-    do
-      git checkout --ours "$f"
-      git add "$f"
-    done
-    git merge --continue "$@"
+    git checkout --ours rsim/src/{rsim.g,ClearPrice.src}
+    local ts="$([[ "${PWD%/rsim*}" != "$PWD" ]] && bash -ci "cd ${PWD%%/rsim*}/rsim && rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
+    git add rsim/src/{rsim.g,ClearPrice.src}
+    git merge --continue "$@" || return $?
+    [[ -n "$ts" ]] && git tag $(git branch --show-current)\|$ts
   fi
 }
 
