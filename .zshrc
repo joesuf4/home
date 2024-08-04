@@ -114,7 +114,7 @@ gpull () {
   shift
 
   git fetch origin $branch || return $?
-  [[ "$#" > 0 ]] || set -- -m "merging 'origin/$branch' into $(git branch --show-current)"
+  set -- -m "merging 'origin/$branch' into $(git branch --show-current)" "$@"
 
   git merge origin/$branch "$@"
   local rv=$?
