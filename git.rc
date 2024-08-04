@@ -19,15 +19,15 @@ _gtag() {
     git checkout --"${merge_strategy[$1]}" rsim/src/{rsim.g,ClearPrice.src}
   fi
 
-  ts="$(bash -ci "rsim-version timestamp" 2>/dev/null | awk '/updated with/ {print $4}' | tr -d . | tr : - | head -n 1)"
+  ts="$(bash -ci "rsim-version timestamp" 2>/dev/null | awk '/updated with/ {print $4}' | tr : - | head -n 1)"
   git add rsim/src/{rsim.g,ClearPrice.src}
 
-  popd || return $?
+  popd || return "$?"
 
   git "$@"
   rv="$?"
 
-  [[ "$rv" == 0 && -n "$ts" ]] && git tag "$(git branch --show-current).$ts"
+  [[ "$rv" == 0 && -n "$ts" ]] && git tag "${ts%.}"
   return "$rv"
 }
 
@@ -70,5 +70,6 @@ gcots() {
   [[ "$#" -eq 0 ]] && echo "USAGE: gcots <timestamp>" >&2 && return 1
   local branch="adam_dev" ts="$1"
   [[ "${ts%E?T}" != "$ts" ]] && branch="joe_dev"
-  git checkout "$branch.${ts//:/-}"
+  [[ "${ts#*.}" == "$ts" ]] && ts="$branch.$ts"
+  git checkout "${ts//:/-}"
 }
