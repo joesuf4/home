@@ -99,7 +99,7 @@ declare -A merge_strategy=([rebase]=ours [merge]=theirs)
 
 _gtag () {
   local ts rv
-  [[ "$#" == 0 ]] && echo "USAGE: gtag <gitcmd> [<args> ...]" >&2 && return 1
+  [[ "$#" == 0 ]] && echo "USAGE: _gtag <gitcmd> [<args> ...]" >&2 && return 1
 
   if ! pushd "${PWD%%/rsim*}/rsim" >/dev/null 2>&1
   then
@@ -134,9 +134,9 @@ gpull () {
     return 1
   fi
 
-  local branch="$(git branch --show-current)" rv
-  git fetch origin "$branch" || return $?
-  git rebase "origin/$branch" "${@:2:$#}"
+  local my_branch="$(git branch --show-current)" rv
+  git fetch origin "$my_branch" || return $?
+  git rebase "origin/$my_branch" "${@:2:$#}"
   rv="$?"
 
   if [[ "$rv" > 0 && "${PWD%/rsim*}" != "$PWD" ]]
@@ -146,11 +146,11 @@ gpull () {
   fi
 
   [[ "$#" > 0 ]] || return "$rv"
-  branch="$1"
+  local their_branch="$1"
   shift
 
-  git fetch origin "$branch" || return "$?"
-  git merge "origin/$branch" --verify-signatures "$@"
+  git fetch origin "$their_branch" || return "$?"
+  git merge "origin/$their_branch" --verify-signatures -m "merging 'origin/$their_branch' into $my_branch" "$@"
   rv="$?"
 
   if [[ "$rv" > 0 && "${PWD%/rsim*}" != "$PWD" ]]
