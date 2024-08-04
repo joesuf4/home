@@ -88,86 +88,7 @@ ptyfix() {
 
 # translate between big-endian and little-endian objdumps.
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
-
 alias dsign='DOCKER_CONTENT_TRUST=1 docker trust sign --local'
-
-alias gac='git add -u && _gtag commit'
-
-alias gpush='git push; git push --tags'
-
-declare -A merge_strategy=([rebase]=ours [merge]=theirs)
-
-_gtag() {
-  local ts rv
-  [[ "$#" == 0 ]] && echo "USAGE: _gtag <gitcmd> [<args> ...]" >&2 && return 1
-
-  if ! pushd "${PWD%%/rsim*}/rsim" >/dev/null 2>&1
-  then
-    git "$@"
-    return "$?"
-  fi
-
-  if [[ -n "${merge_strategy[$1]-}" ]]
-  then
-     git checkout --"${merge_strategy[$1]}" rsim/src/{rsim.g,ClearPrice.src}
-  fi
-
-  ts="$(bash -ci "rsim-version timestamp" 2>/dev/null | awk '/updated with/ {print $4}' | tr -d . | tr : - | head -n 1)"
-  git add rsim/src/{rsim.g,ClearPrice.src}
-
-  popd || return $?
-
-  git "$@"
-  rv="$?"
-
-  [[ "$rv" == 0 && -n "$ts" ]] && git tag "$(git branch --show-current)|$ts"
-  return "$rv"
-}
-
-gpull() {
-  # USAGE: gpull [<branch> [<(merge|rebase)-arguments>...]]
-
-  if [[ -n "$(git status --porcelain --untracked-files=no 2>/dev/null)" || "$?" -gt 0 ]]
-  then
-    echo "Working copy has uncommitted modifications ..." >&2
-    git status --untracked-files=no
-    return 1
-  fi
-
-  local my_branch="$(git branch --show-current)" rv
-  git fetch origin "$my_branch" || return $?
-  git rebase "origin/$my_branch" "${@:2:$#}"
-  rv="$?"
-
-  if [[ "$rv" -gt 0 && "${PWD%/rsim*}" != "$PWD" ]]
-  then
-    _gtag rebase --continue
-    rv="$?"
-  fi
-
-  [[ "$#" -gt 0 ]] || return "$rv"
-  local their_branch="$1"
-  shift
-
-  git fetch origin "$their_branch" || return "$?"
-  git merge "origin/$their_branch" --verify-signatures -m "merging 'origin/$their_branch' into '$my_branch'" "$@"
-  rv="$?"
-
-  if [[ "$rv" -gt 0 && "${PWD%/rsim*}" != "$PWD" ]]
-  then
-    _gtag merge --continue
-    rv="$?"
-  fi
-
-  return "$rv"
-}
-
-gcots() {
-  [[ "$#" == 0 ]] && echo "USAGE: gcots <timestamp>" >&2 && return 1
-  local branch="adam_dev" ts="$1"
-  [[ "${ts%E?T}" != "$ts" ]] && branch="joe_dev"
-  git checkout "$branch|${ts//:/-}"
-}
 
 alias strip_cr="sed -i -e 's/\\r//'"
 
@@ -581,6 +502,7 @@ command -v kubectl >/dev/null 2>&1 && . <(kubectl completion $(basename "$SHELL"
 . ~/.bcsrc
 . ~/.ec2rc
 . ~/.gkerc
+. ~/git.rc
 
 patch_swig_pl() {
   for f in ~/src/svn-1.*/subversion/bindings/swig/perl/native/*.c; do
