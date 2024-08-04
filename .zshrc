@@ -98,7 +98,7 @@ gac () {
   # special timestamp-generation sauce for rsim
 
   local ts="$([[ "${PWD%/rsim*}" != "$PWD" ]] && bash -ci "cd '${PWD%%/rsim*}/rsim' && rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
-  git add -u && git commit $@ || return $?
+  git add -u && git commit "$@" || return $?
   [[ -n "$ts" ]] && git tag "$(git branch --show-current)|$ts"
 }
 
