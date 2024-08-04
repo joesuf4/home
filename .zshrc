@@ -125,7 +125,7 @@ gpull () {
 
     pushd "${PWD%%/rsim*}/rsim"* || return "$?"
 
-    git checkout --ours rsim/src/{rsim.g,ClearPrice.src}
+    git checkout --theirs rsim/src/{rsim.g,ClearPrice.src}
     local ts="$(bash -ci "rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
     git add rsim/src/{rsim.g,ClearPrice.src}
 
