@@ -91,57 +91,79 @@ alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"
 
 alias dsign='DOCKER_CONTENT_TRUST=1 docker trust sign --local'
 
-gac () {
-  # USAGE: gac [<commit(-log)-arguments> ...]
+alias gac='git add -u && _gtag commit'
 
-  # pre-commit-hook friendly version of 'git commit -a ...'
-  # special timestamp-generation sauce for rsim
+alias gpush='git push; git push --tags'
 
-  local ts="$([[ "${PWD%/rsim*}" != "$PWD" ]] && bash -ci "cd '${PWD%%/rsim*}/rsim' && rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
-  git add -u && git commit "$@" || return $?
-  [[ -n "$ts" ]] && git tag "$(git branch --show-current)|$ts"
+declare -A merge_strategy=([rebase]=ours [merge]=theirs)
+
+_gtag () {
+  local ts rv
+  [[ "$#" == 0 ]] && echo "USAGE: gtag <gitcmd> [<args> ...]" >&2 && return 1
+
+  if ! pushd "${PWD%%/rsim*}/rsim"
+  then
+    git "$@"
+    return "$?"
+  fi
+
+  if [[ -n "${merge_strategy[$1]-}" ]]
+  then
+     git checkout --"${merge_strategy[$1]}" rsim/src/{rsim.g,ClearPrice.src}
+  fi
+
+  ts="$(bash -ci "rsim-version timestamp" 2>/dev/null | awk '/updated with/ {print $4}' | tr -d . | tr : - | head -n 1)"
+  git add rsim/src/{rsim.g,ClearPrice.src}
+
+  popd
+
+  git "$@"
+  rv="$?"
+
+  [[ "$rv" == 0 && -n "$ts" ]] && git tag "$(git branch --show-current)|$ts"
+  return "$rv"
 }
 
-alias gpush='git push && git push --tags'
-
 gpull () {
-  # USAGE: gpull [<branch> [<merge(-log)-arguments>...]]
+  # USAGE: gpull [<branch> [<(merge|rebase)-arguments>...]]
 
-  git pull || return "$?"
+  if [[ -n "$(git status --porcelain --untracked-files=no 2>/dev/null)" || "$?" > 0 ]]
+  then
+    echo "Working copy has uncommitted modifications ..." >&2
+    git status --untracked-files=no
+    return 1
+  fi
 
-  [[ "$#" > 0 ]] || return 0
-  local branch="$1"
-  shift
-
-  git fetch origin "$branch" || return "$?"
-  set -- -m "merging 'origin/$branch' into $(git branch --show-current)" "$@"
-
-  git merge origin/$branch "$@"
-  local rv="$?"
+  local branch="$(git branch --show-current)" rv
+  git fetch origin "$branch" || return $?
+  git rebase "origin/$branch" -m "rebasing '$branch' from upstream origin" "${@:2:$#}"
+  rv="$?"
 
   if [[ "$rv" > 0 && "${PWD%/rsim*}" != "$PWD" ]]
   then
-    # in an rsim repo; try to automate repair of timestamp-related conflicts
-
-    pushd "${PWD%%/rsim*}/rsim"* || return "$?"
-
-    git checkout --theirs rsim/src/{rsim.g,ClearPrice.src}
-    local ts="$(bash -ci "rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
-    git add rsim/src/{rsim.g,ClearPrice.src}
-
-    git merge --continue "$@"
+    _gtag rebase --continue
     rv="$?"
+  fi
 
-    popd
-    [[ "$rv" == 0 && -n "$ts" ]] && git tag "$(git branch --show-current)|$ts"
+  [[ "$#" > 0 ]] || return "$rv"
+  branch="$1"
+  shift
+
+  git fetch origin "$branch" || return "$?"
+  git merge "origin/$branch" --verify-signatures -m "merging 'origin/$branch' into $(git branch --show-current)" "$@"
+  rv="$?"
+
+  if [[ "$rv" > 0 && "${PWD%/rsim*}" != "$PWD" ]]
+  then
+    _gtag merge --continue
+    rv="$?"
   fi
 
   return "$rv"
 }
 
 gcots () {
-  # USAGE: gcots <timestamp>
-
+  [[ "$#" == 0 ]] && echo "USAGE: gcots <timestamp>" >&2 && return 1
   local branch="adam_dev" ts="$1"
   [[ "${ts%E?T}" != "$ts" ]] && branch="joe_dev"
   git checkout "$branch|${ts//:/-}"
