@@ -101,7 +101,7 @@ _gtag () {
   local ts rv
   [[ "$#" == 0 ]] && echo "USAGE: gtag <gitcmd> [<args> ...]" >&2 && return 1
 
-  if ! pushd "${PWD%%/rsim*}/rsim"
+  if ! pushd "${PWD%%/rsim*}/rsim" >/dev/null 2>&1
   then
     git "$@"
     return "$?"
