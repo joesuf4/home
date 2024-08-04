@@ -107,36 +107,36 @@ alias gpush='git push && git push --tags'
 gpull () {
   # USAGE: gpull [<branch> [<merge(-log)-arguments>...]]
 
-  git pull || return $?
+  git pull || return "$?"
 
   [[ "$#" > 0 ]] || return 0
   local branch="$1"
   shift
 
-  git fetch origin $branch || return $?
+  git fetch origin "$branch" || return "$?"
   set -- -m "merging 'origin/$branch' into $(git branch --show-current)" "$@"
 
   git merge origin/$branch "$@"
-  local rv=$?
+  local rv="$?"
 
   if [[ "$rv" > 0 && "${PWD%/rsim*}" != "$PWD" ]]
   then
     # in an rsim repo; try to automate repair of timestamp-related conflicts
 
-    pushd "${PWD%%/rsim*}/rsim"* || return $?
+    pushd "${PWD%%/rsim*}/rsim"* || return "$?"
 
     git checkout --ours rsim/src/{rsim.g,ClearPrice.src}
     local ts="$(bash -ci "rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
     git add rsim/src/{rsim.g,ClearPrice.src}
 
     git merge --continue "$@"
-    rv=$?
+    rv="$?"
 
     popd
     [[ "$rv" == 0 && -n "$ts" ]] && git tag "$(git branch --show-current)|$ts"
   fi
 
-  return $rv
+  return "$rv"
 }
 
 gcots () {
