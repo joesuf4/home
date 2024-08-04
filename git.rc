@@ -27,7 +27,7 @@ _gtag() {
   git "$@"
   rv="$?"
 
-  [[ "$rv" == 0 && -n "$ts" ]] && git tag "$(git branch --show-current)|$ts"
+  [[ "$rv" == 0 && -n "$ts" ]] && git tag "$(git branch --show-current).$ts"
   return "$rv"
 }
 
@@ -40,10 +40,10 @@ gpull() {
     return 1
   fi
 
-  local my_branch="$(git branch --show-current)" rv
+  local my_branch="$(git branch --show-current)"
   git fetch origin "$my_branch" || return $?
   git rebase "origin/$my_branch" "${@:2:$#}"
-  rv="$?"
+  local rv="$?"
 
   if [[ "$rv" -gt 0 && "${PWD%/rsim*}" != "$PWD" ]]; then
     _gtag rebase --continue
@@ -70,5 +70,6 @@ gcots() {
   [[ "$#" -eq 0 ]] && echo "USAGE: gcots <timestamp>" >&2 && return 1
   local branch="adam_dev" ts="$1"
   [[ "${ts%E?T}" != "$ts" ]] && branch="joe_dev"
-  git checkout "$branch|${ts//:/-}"
+  git checkout "$branch.${ts//:/-}" >/dev/null 2>&1 || \
+    git checkout "$branch|${ts//:-}"
 }
