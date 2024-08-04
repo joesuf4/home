@@ -500,7 +500,6 @@ done
 
 command -v kubectl >/dev/null 2>&1 && . <(kubectl completion $(basename "$SHELL"))
 . ~/.bcsrc
-. ~/.ec2rc
 . ~/.gkerc
 . ~/git.rc
 
