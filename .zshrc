@@ -97,7 +97,7 @@ alias gpush='git push; git push --tags'
 
 declare -A merge_strategy=([rebase]=ours [merge]=theirs)
 
-_gtag () {
+_gtag() {
   local ts rv
   [[ "$#" == 0 ]] && echo "USAGE: _gtag <gitcmd> [<args> ...]" >&2 && return 1
 
@@ -115,7 +115,7 @@ _gtag () {
   ts="$(bash -ci "rsim-version timestamp" 2>/dev/null | awk '/updated with/ {print $4}' | tr -d . | tr : - | head -n 1)"
   git add rsim/src/{rsim.g,ClearPrice.src}
 
-  popd
+  popd || return $?
 
   git "$@"
   rv="$?"
@@ -124,10 +124,10 @@ _gtag () {
   return "$rv"
 }
 
-gpull () {
+gpull() {
   # USAGE: gpull [<branch> [<(merge|rebase)-arguments>...]]
 
-  if [[ -n "$(git status --porcelain --untracked-files=no 2>/dev/null)" || "$?" > 0 ]]
+  if [[ -n "$(git status --porcelain --untracked-files=no 2>/dev/null)" || "$?" -gt 0 ]]
   then
     echo "Working copy has uncommitted modifications ..." >&2
     git status --untracked-files=no
@@ -139,21 +139,21 @@ gpull () {
   git rebase "origin/$my_branch" "${@:2:$#}"
   rv="$?"
 
-  if [[ "$rv" > 0 && "${PWD%/rsim*}" != "$PWD" ]]
+  if [[ "$rv" -gt 0 && "${PWD%/rsim*}" != "$PWD" ]]
   then
     _gtag rebase --continue
     rv="$?"
   fi
 
-  [[ "$#" > 0 ]] || return "$rv"
+  [[ "$#" -gt 0 ]] || return "$rv"
   local their_branch="$1"
   shift
 
   git fetch origin "$their_branch" || return "$?"
-  git merge "origin/$their_branch" --verify-signatures -m "merging 'origin/$their_branch' into $my_branch" "$@"
+  git merge "origin/$their_branch" --verify-signatures -m "merging 'origin/$their_branch' into '$my_branch'" "$@"
   rv="$?"
 
-  if [[ "$rv" > 0 && "${PWD%/rsim*}" != "$PWD" ]]
+  if [[ "$rv" -gt 0 && "${PWD%/rsim*}" != "$PWD" ]]
   then
     _gtag merge --continue
     rv="$?"
@@ -162,7 +162,7 @@ gpull () {
   return "$rv"
 }
 
-gcots () {
+gcots() {
   [[ "$#" == 0 ]] && echo "USAGE: gcots <timestamp>" >&2 && return 1
   local branch="adam_dev" ts="$1"
   [[ "${ts%E?T}" != "$ts" ]] && branch="joe_dev"
