@@ -235,3 +235,10 @@ perl/
 .cookie
 .config/go/
 .config/gcloud/
+.adam
+.counter
+.logs/
+bin/adam
+bin/remove
+old/
+rsi.lis
