@@ -91,34 +91,57 @@ alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"
 
 alias dsign='DOCKER_CONTENT_TRUST=1 docker trust sign --local'
 
-# pre-commit-hook friendly version of 'git commit -a ...'
-gac() {
-  local ts="$([[ "${PWD%/rsim*}" != "$PWD" ]] && bash -ci "cd ${PWD%%/rsim*}/rsim && rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
+gac () {
+  # USAGE: gac [<commit(-log)-arguments> ...]
+
+  # pre-commit-hook friendly version of 'git commit -a ...'
+  # special timestamp-generation sauce for rsim
+
+  local ts="$([[ "${PWD%/rsim*}" != "$PWD" ]] && bash -ci "cd '${PWD%%/rsim*}/rsim' && rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
   git add -u && git commit $@ || return $?
-  [[ -n "$ts" ]] && git tag $(git branch --show-current)\|$ts
+  [[ -n "$ts" ]] && git tag "$(git branch --show-current)|$ts"
 }
 
 alias gpush='git push && git push --tags'
 
 gpull () {
+  # USAGE: gpull [<branch> [<merge(-log)-arguments>...]]
+
   git pull || return $?
 
-  [[ "$#" > 0 ]] || return $?
+  [[ "$#" > 0 ]] || return 0
   local branch="$1"
   shift
-  [[ "$#" > 0 ]] || set -- -m "merging origin/$branch into $(git branch --show-current)"
 
   git fetch origin $branch || return $?
-  if ! git merge origin/$branch "$@"; then
+  [[ "$#" > 0 ]] || set -- -m "merging 'origin/$branch' into $(git branch --show-current)"
+
+  git merge origin/$branch "$@"
+  local rv=$?
+
+  if [[ "$rv" > 0 && "${PWD%/rsim*}" != "$PWD" ]]
+  then
+    # in an rsim repo; try to automate repair of timestamp-related conflicts
+
+    pushd "${PWD%%/rsim*}/rsim"* || return $?
+
     git checkout --ours rsim/src/{rsim.g,ClearPrice.src}
-    local ts="$([[ "${PWD%/rsim*}" != "$PWD" ]] && bash -ci "cd ${PWD%%/rsim*}/rsim && rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
+    local ts="$(bash -ci "rsim-version timestamp" 2>/dev/null | awk "/updated with/ {print \$4}" | tr -d . | tr : - | head -n 1)"
     git add rsim/src/{rsim.g,ClearPrice.src}
-    git merge --continue "$@" || return $?
-    [[ -n "$ts" ]] && git tag $(git branch --show-current)\|$ts
+
+    git merge --continue "$@"
+    rv=$?
+
+    popd
+    [[ "$rv" == 0 && -n "$ts" ]] && git tag "$(git branch --show-current)|$ts"
   fi
+
+  return $rv
 }
 
 gcots () {
+  # USAGE: gcots <timestamp>
+
   local branch="adam_dev" ts="$1"
   [[ "${ts%E?T}" != "$ts" ]] && branch="joe_dev"
   git checkout "$branch|${ts//:/-}"
