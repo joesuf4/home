@@ -136,7 +136,7 @@ gpull () {
 
   local branch="$(git branch --show-current)" rv
   git fetch origin "$branch" || return $?
-  git rebase "origin/$branch" -m "rebasing '$branch' from upstream origin" "${@:2:$#}"
+  git rebase "origin/$branch" "${@:2:$#}"
   rv="$?"
 
   if [[ "$rv" > 0 && "${PWD%/rsim*}" != "$PWD" ]]
@@ -150,7 +150,7 @@ gpull () {
   shift
 
   git fetch origin "$branch" || return "$?"
-  git merge "origin/$branch" --verify-signatures -m "merging 'origin/$branch' into $(git branch --show-current)" "$@"
+  git merge "origin/$branch" --verify-signatures "$@"
   rv="$?"
 
   if [[ "$rv" > 0 && "${PWD%/rsim*}" != "$PWD" ]]
