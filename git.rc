@@ -19,7 +19,7 @@ _gtag() {
     git checkout --"${merge_strategy[$1]}" rsim/src/{rsim.g,ClearPrice.src}
   fi
 
-  ts="$(bash -ci "rsim-version timestamp" 2>/dev/null | awk '/updated with/ {print $4}' | tr : - | head -n 1)"
+  ts="$(bash -ci ". '$PWD'/scripts/rsim-version.sh timestamp" 2>/dev/null | awk '/updated with/ {print $4}' | tr : - | head -n 1)"
   git add rsim/src/{rsim.g,ClearPrice.src}
 
   popd || return "$?"
