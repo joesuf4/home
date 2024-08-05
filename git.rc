@@ -52,7 +52,7 @@ gpull() {
     rv="$?"
   fi
 
-  [[ "$#" -gt 0 ]] || return "$rv"
+  [[ "$rv" -eq 0 && "$#" -gt 0 ]] || return "$rv"
   local their_branch="$1"
   shift
 
