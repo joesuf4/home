@@ -7,7 +7,7 @@ alias gpush='git push; git push --tags'
 declare -A merge_strategy=([rebase]=ours [merge]=theirs)
 
 _gtag() {
-  local ts rv
+  local ts rv branch="$(git branch --show-current)"
   [[ "$#" -eq 0 ]] && echo "USAGE: _gtag <gitcmd> [<args> ...]" >&2 && return 1
 
   if ! pushd "${PWD%%/rsim*}/rsim" >/dev/null 2>&1; then
@@ -22,7 +22,8 @@ _gtag() {
   ts="$(bash -ci ". '$PWD'/scripts/rsim-version.sh timestamp" 2>/dev/null |
     awk '/updated with/ {print $4}' | tr : - | head -n 1)"
   git add rsim/src/{rsim.g,ClearPrice.src}
-  git commit -m "rebasing 'origin/$my_branch' into '$my_branch'" "$@"
+  [[ -n "${merge_strategy[$1]-}" ]] &&
+    git commit -m "rebasing 'origin/$branch' into '$branch'" "$@"
 
   popd || return "$?"
 
