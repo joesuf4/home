@@ -219,8 +219,9 @@
      ("melpa" . "https://melpa.org/packages/")
      ("melpa-stable" . "https://stable.melpa.org/packages/")))
  '(package-selected-packages
-   '(editorconfig rust-mode flycheck-rust mermaid-mode lsp-jedi dockerfile-mode kubernetes kubectx-mode terraform-doc terraform-mode lsp-python-ms go-mode yasnippet csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))
+   '(shfmt editorconfig rust-mode flycheck-rust mermaid-mode lsp-jedi dockerfile-mode kubernetes kubectx-mode terraform-doc terraform-mode lsp-python-ms go-mode yasnippet csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))
  '(sh-basic-offset 2)
+ '(shfmt-command "shfmt -i 2 -ci")
  '(visible-bell t)
  '(warning-suppress-log-types '(((unlock-file)))))
 
@@ -229,11 +230,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :extend nil :stipple nil :background
-                         "DarkSlateGray" :foreground "White" :inverse-video nil
-                         :box nil :strike-through nil :overline nil :underline
-                         nil :slant normal :weight normal :height 150 :width
-                         normal :foundry "outline" :family "Cascadia Code NF Regular")))))
+ '(default ((t (:inherit nil :extend nil :stipple nil :background "DarkSlateGray" :foreground "White" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 150 :width normal :foundry "outline" :family "Cascadia Code NF Regular")))))
 
 
 ;;--------------------------------------------------
@@ -306,6 +303,10 @@
 (require 'bpftrace-mode)
 (require 'dtrace-script-mode)
 (add-to-list 'auto-mode-alist '("\\.d\\'" . dtrace-script-mode))
+
+
+(require 'shfmt)
+(add-hook 'sh-mode-hook 'shfmt-on-save-mode)
 
 ;;--------------------------------------------------
 ;; ccls: nice LSP app for emacs integration

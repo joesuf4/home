@@ -242,3 +242,4 @@ bin/adam
 bin/remove
 old/
 rsi.lis
+bin/shfmt

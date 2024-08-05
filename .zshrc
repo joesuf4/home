@@ -134,7 +134,7 @@ alias log_2='perl -le "print int log_2 \$_ for @ARGV"'
 
 alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 
-alias sdexec='sudo -E nsenter -t $(pidof systemd) -p -m -r -C'
+alias sdexec='sudo -E nsenter -t $(pidof systemd | awk "{print \$1}") -p -m -r -C'
 
 alias sbei='seed_bastion_ec2_inventory ~/src/*-deployer'
 
