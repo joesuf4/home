@@ -22,6 +22,7 @@ _gtag() {
   ts="$(bash -ci ". '$PWD'/scripts/rsim-version.sh timestamp" 2>/dev/null |
     awk '/updated with/ {print $4}' | tr : - | head -n 1)"
   git add rsim/src/{rsim.g,ClearPrice.src}
+  git commit -m "rebasing 'origin/$my_branch' into '$my_branch'" "$@"
 
   popd || return "$?"
 
