@@ -5,7 +5,7 @@
 [clean]
 	requireForce = 1
 [push]
-	default = matching
+	default = current
 [github]
 	user = joesuf4
 [log]
