@@ -19,7 +19,8 @@ _gtag() {
     git checkout --"${merge_strategy[$1]}" rsim/src/{rsim.g,ClearPrice.src}
   fi
 
-  ts="$(bash -ci ". '$PWD'/scripts/rsim-version.sh timestamp" 2>/dev/null | awk '/updated with/ {print $4}' | tr : - | head -n 1)"
+  ts="$(bash -ci ". '$PWD'/scripts/rsim-version.sh timestamp" 2>/dev/null |
+    awk '/updated with/ {print $4}' | tr : - | head -n 1)"
   git add rsim/src/{rsim.g,ClearPrice.src}
 
   popd || return "$?"
@@ -34,7 +35,8 @@ _gtag() {
 gpull() {
   # USAGE: gpull [<branch> [<(merge|rebase)-arguments>...]]
 
-  if [[ -n "$(git status --porcelain --untracked-files=no 2>/dev/null)" || "$?" -gt 0 ]]; then
+  if [[ -n "$(git status --porcelain --untracked-files=no 2>/dev/null)" ||
+  "$?" -gt 0 ]]; then
     echo "Working copy has uncommitted modifications ..." >&2
     git status --untracked-files=no
     return 1
@@ -55,7 +57,8 @@ gpull() {
   shift
 
   git fetch origin "$their_branch" || return "$?"
-  git merge "origin/$their_branch" --verify-signatures -m "merging 'origin/$their_branch' into '$my_branch'" "$@"
+  git merge "origin/$their_branch" --verify-signatures \
+    -m "merging 'origin/$their_branch' into '$my_branch'" "$@"
   rv="$?"
 
   if [[ "$rv" -gt 0 && "${PWD%/rsim*}" != "$PWD" ]]; then
