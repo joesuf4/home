@@ -221,7 +221,8 @@
  '(package-selected-packages
    '(shfmt editorconfig rust-mode flycheck-rust mermaid-mode lsp-jedi dockerfile-mode kubernetes kubectx-mode terraform-doc terraform-mode lsp-python-ms go-mode yasnippet csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))
  '(sh-basic-offset 2)
- '(shfmt-command "shfmt -i 2 -ci")
+ '(shfmt-command "shfmt")
+ '(shfmt-arguments '("-i" "2" "-ci"))
  '(visible-bell t)
  '(warning-suppress-log-types '(((unlock-file)))))
 
