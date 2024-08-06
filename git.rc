@@ -1,8 +1,6 @@
 # -*- sh -*-
 
-alias gac='git add -u && _gtag commit'
-
-alias gcommit='gac'
+alias gcommit='git add -u && _gtag commit'
 
 alias gpush='git push; git push --tags'
 
