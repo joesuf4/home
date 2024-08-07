@@ -379,6 +379,7 @@
 
 (add-hook 'c-mode-common-hook
 	  '(lambda ()
+             (add-to-list 'c-offsets-alist '(substatement-open . 0))
              (c-basic-offset . 2)
              (c-set-style "stroustrup")
 	     ))
