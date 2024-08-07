@@ -51,22 +51,20 @@ if [[ -d ~/.asdf ]] && ! command -v asdf >/dev/null 2>&1; then
 fi
 
 # PATH
-for p in /sbin /usr/sbin "$(asdf where gcloud)/bin" "$(go env GOPATH 2>/dev/null)/bin" /usr/local/texlive/2023/bin/x86_64-solaris /usr/local/bin ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin
-do
+for p in /sbin /usr/sbin "$(asdf where gcloud)/bin" "$(go env GOPATH 2>/dev/null)/bin" /usr/local/texlive/2023/bin/x86_64-solaris /usr/local/bin ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin; do
   # fyi- this is not going to work if you use it on nested $p paths...
   [[ -d "$p" ]] && PATH="$p$(echo ":$PATH" | sed -e "s|:$p||g")"
 done
 
 # KUBECONFIG
-[[ -z "$KUBECONFIG" ]] && for f in ~/.kube/* ~/.kube/config
-do
+[[ -z "$KUBECONFIG" ]] && for f in ~/.kube/* ~/.kube/config; do
   [[ -f "$f" ]] && KUBECONFIG="$f$(echo "${KUBECONFIG:+:$KUBECONFIG}" | sed -e "s|:$f||g")"
 done
 
 declare -A OCI_AD
 # do not edit the next line manually!
-OCI_AD=( [ap-seoul-1]=1 [ap-sydney-1]=1 [sa-saopaulo-1]=1 [us-phoenix-1]=1 [eu-frankfurt-1]=1 [ap-hyderabad-1]=1 [us-ashburn-1]=1 )
-OCI_ZONES=( cms-public www-public )
+OCI_AD=([ap - seoul - 1]=1 [ap - sydney - 1]=1 [sa - saopaulo - 1]=1 [us - phoenix - 1]=1 [eu - frankfurt - 1]=1 [ap - hyderabad - 1]=1 [us - ashburn - 1]=1)
+OCI_ZONES=(cms-public www-public)
 OCI_SITE_SVCS=(markdownd svnwcsub watchdog)
 OCI_HOST_PREFIX=oci-fileserver
 declare -A OCI_ZPOOL_MAP=([rpool]=rpool1 [tank]=tank)
@@ -79,4 +77,4 @@ PKG_REPOS=http://127.0.0.1:9999/
 
 [[ -f ~/.cargo/env ]] && . ~/.cargo/env
 [[ "$(uname)" == SunOS && "$TERM" != screen && "$TERM" != vt100 ]] && TERM=xterm-256color
-export CC=gcc LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib" CPPFLAGS=-I/usr/local/include
+export CC=gcc LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib" CPPFLAGS=-I/usr/local/include FIXIT=1

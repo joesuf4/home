@@ -89,8 +89,6 @@ ptyfix() {
   #(seed_vault_pass >/dev/null 2>&1 </dev/null &)
 }
 
-alias gac='git add -u && git commit'
-
 # translate between big-endian and little-endian objdumps.
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
 alias dsign='DOCKER_CONTENT_TRUST=1 docker trust sign --local'
