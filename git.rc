@@ -2,6 +2,8 @@
 
 alias gcommit='git add -u && _gtag commit'
 
+alias gac='git add -u && git commit'
+
 alias gpush='git push; git push --tags'
 
 declare -A merge_strategy=([rebase]=theirs [merge]=theirs)

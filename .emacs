@@ -377,6 +377,10 @@
 ; still using 80-column terminals (at times)
 (setq-default fill-column 79)
 
+(add-hook 'markdown-mode-hook
+          '(lambda ()
+             (setq fill-column 'nil)))
+
 (add-hook 'c-mode-common-hook
 	  '(lambda ()
              (add-to-list 'c-offsets-alist '(substatement-open . 0))
