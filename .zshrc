@@ -69,7 +69,10 @@ alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 oci() {
   sudo sed -i -e s/fipsmodule.cnf/fipsmodule.cnf-ootw/ /usr/local/ssl/openssl.cnf >/dev/null 2>&1
-  (sleep 5; sudo sed -i -e s/-ootw//g /usr/local/ssl/openssl.cnf >/dev/null 2>&1 &)&
+  (
+    sleep 5
+    sudo sed -i -e s/-ootw//g /usr/local/ssl/openssl.cnf >/dev/null 2>&1 &
+  ) &
   command oci $@
 }
 
@@ -85,6 +88,8 @@ ptyfix() {
   /usr/bin/sudo -k && ptyd sudo -v
   #(seed_vault_pass >/dev/null 2>&1 </dev/null &)
 }
+
+alias gac='git add -u && git commit'
 
 # translate between big-endian and little-endian objdumps.
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
