@@ -219,7 +219,7 @@
      ("melpa" . "https://melpa.org/packages/")
      ("melpa-stable" . "https://stable.melpa.org/packages/")))
  '(package-selected-packages
-   '(shfmt editorconfig rust-mode flycheck-rust mermaid-mode lsp-jedi dockerfile-mode kubernetes kubectx-mode terraform-doc terraform-mode lsp-python-ms go-mode yasnippet csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))
+   '(flymake-hadolint flymake flymake-yamllint shfmt editorconfig rust-mode flycheck-rust mermaid-mode lsp-jedi dockerfile-mode kubernetes kubectx-mode terraform-doc terraform-mode lsp-python-ms go-mode yasnippet csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))
  '(sh-basic-offset 2)
  '(shfmt-arguments '("-i" "2" "-ci"))
  '(shfmt-command "shfmt")
@@ -256,8 +256,6 @@
   (add-hook 'js-mode-hook #'lsp)
   (add-hook 'typescript-mode-hook #'lsp)
   (add-hook 'json-mode-hook #'lsp)
-  (add-hook 'yaml-mode-hook #'lsp)
-  (add-hook 'dockerfile-mode-hook #'lsp)
   (add-hook 'shell-mode-hook #'lsp)
   (add-hook 'css-mode-hook #'lsp)
 
@@ -280,7 +278,9 @@
 (use-package company-lsp :commands company-lsp)
 (use-package helm-lsp :commands helm-lsp-workspace-symbol)
 (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
-
+(use-package flymake)
+(use-package flymake-yamllint)
+(use-package flymake-hadolint)
 (use-package dap-mode)
 (use-package dap-lldb)
 
@@ -307,8 +307,9 @@
 
 
 (require 'shfmt)
-(add-hook 'sh-mode-hook 'shfmt-on-save-mode)
-
+;(add-hook 'sh-mode-hook 'shfmt-on-save-mode)
+(add-hook 'yaml-mode-hook 'flymake-yamllint-setup)
+(add-hook 'dockerfile-mode-hook 'flymake-hadolint-setup)
 ;;--------------------------------------------------
 ;; ccls: nice LSP app for emacs integration
 (use-package ccls
@@ -375,7 +376,7 @@
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 
 ; still using 80-column terminals (at times)
-(setq-default fill-column 79)
+(setq-default fill-column 72)
 
 (add-hook 'markdown-mode-hook
           '(lambda ()

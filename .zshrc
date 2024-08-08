@@ -90,7 +90,9 @@ ptyfix() {
 }
 
 # translate between big-endian and little-endian objdumps.
+
 alias rev_hex32='perl -ple "s/([a-f\\d]{8})/join q(), reverse \$1 =~ m!..!g/ige"'
+
 alias dsign='DOCKER_CONTENT_TRUST=1 docker trust sign --local'
 
 alias strip_cr="sed -i -e 's/\\r//'"
