@@ -8,11 +8,11 @@
 
 # top_10() customizations
 : "${ANSI_COLOR_ID:=2}"
-: "${HIST_BLOCK:="▬"}"
-: "${HIST_ANCESTRY:="🐰🍀🌷x✡♱☠❤❄◆▬■●▶"}"
+: "${HIST_BLOCK:=▬}"
+: "${HIST_ANCESTRY:=🐰🍀🌷x✡♱☠❤❄◆▬■●▶}"
 : "${COL:=30}"
 
-perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; }
+perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; sub log_2 (\$) {log(shift)/log(2)} }
               END {
                 \$DIV = \$KB**(\$UNIT);
                 for (sort {\$h{\$b} <=> \$h{\$a}} keys %h) {
