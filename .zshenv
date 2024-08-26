@@ -35,12 +35,6 @@ done
 # whitelist of "password-sensitive" executables for enabling pty-driver.pl (within `sps` or just `ptyd zsh`)
 PTYON=(sudo git svn gpg op ssh scp rsync ansible-vault ortpasswd otp-sha1 zpool zfs svccfg svcadm zonecfg zoneadm bootadm reboot)
 
-# top_10() customizations
-ANSI_COLOR_ID=2
-HIST_BLOCK="▬"
-HIST_ANCESTRY="🐰🍀🌷x✡♱☠❤❄◆▬■●▶"
-COL=30
-
 # report_node_inventory_static() (hi-speed) setting
 PLACEHOLDER=n/a
 
@@ -77,4 +71,4 @@ PKG_REPOS=http://127.0.0.1:9999/
 
 [[ -f ~/.cargo/env ]] && . ~/.cargo/env
 [[ "$(uname)" == SunOS && "$TERM" != screen && "$TERM" != vt100 ]] && TERM=xterm-256color
-export CC=gcc LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib" CPPFLAGS=-I/usr/local/include LINTER_FIXIT=1
+export CC=gcc LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib" CPPFLAGS=-I/usr/local/include

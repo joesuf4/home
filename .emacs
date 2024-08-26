@@ -337,7 +337,6 @@
                 (")" . dired-git-info-mode)
                 ("M-s s" . magit-status)))
 
-
 ;;-perlcritic
 ;;(require 'flymake-perlcritic)
 
