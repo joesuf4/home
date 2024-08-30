@@ -423,7 +423,7 @@
 (add-hook 'go-mode-hook #'yas-minor-mode)
 
 ;; make fun
-(setq compile-command "wsl make -kj ")
+(setq compile-command "make -kj ")
 
 ;; python fun
 (use-package lsp-jedi
