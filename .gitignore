@@ -245,3 +245,4 @@ rsi.lis
 bin/shfmt
 .config/gh
 save/
+.cifs
