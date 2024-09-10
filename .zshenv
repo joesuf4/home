@@ -33,7 +33,7 @@ done
 [[ "$(uname)" == Linux ]] && export MOZILLA="/mnt/c/Program Files (X86)/Microsoft/Edge/Application/msedge.exe"
 
 # whitelist of "password-sensitive" executables for enabling pty-driver.pl (within `sps` or just `ptyd zsh`)
-PTYON=(sudo git svn gpg op ssh scp rsync ansible-vault ortpasswd otp-sha1 zpool zfs svccfg svcadm zonecfg zoneadm bootadm reboot)
+PTYON=(sudo git svn gpg ssh-add ssh op scp rsync ansible-vault ortpasswd otp-sha1 zpool zfs svccfg svcadm zonecfg zoneadm bootadm reboot)
 
 # report_node_inventory_static() (hi-speed) setting
 PLACEHOLDER=n/a
