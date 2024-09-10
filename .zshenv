@@ -30,7 +30,7 @@ done
 
 # ptyd's URL engine relies on this setting
 
-[[ "$(uname)" == Linux ]] && export MOZILLA="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
+[[ "$(uname)" == Linux ]] && export MOZILLA="/mnt/c/Program Files (X86)/Microsoft/Edge/Application/msedge.exe"
 
 # whitelist of "password-sensitive" executables for enabling pty-driver.pl (within `sps` or just `ptyd zsh`)
 PTYON=(sudo git svn gpg op ssh scp rsync ansible-vault ortpasswd otp-sha1 zpool zfs svccfg svcadm zonecfg zoneadm bootadm reboot)
@@ -71,4 +71,4 @@ PKG_REPOS=http://127.0.0.1:9999/
 
 [[ -f ~/.cargo/env ]] && . ~/.cargo/env
 [[ "$(uname)" == SunOS && "$TERM" != screen && "$TERM" != vt100 ]] && TERM=xterm-256color
-export CC=gcc LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib" CPPFLAGS=-I/usr/local/include
+export CC=gcc LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib" CPPFLAGS=-I/usr/local/include BCS_PROFILE="$(gcloud config get account)"

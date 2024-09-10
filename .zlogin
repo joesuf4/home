@@ -31,13 +31,7 @@ if [[ -n "$SSH_AGENT_PID" ]]; then
   export SSH_AUTH_SOCK="$(command ls -t /tmp/ssh-$USER/agent.* | head -n 1)"
 else
   pty-agent
-  ptyd sudo zsh -c '
-umount /tmp/.X11-unix;
-daemonize /usr/bin/unshare --fork --pid --mount-proc /lib/systemd/systemd --system-unit=basic.target;
-update-binfmts --disable cli;
-mkdir -p /run/user/1000/dconf;
-chown -R jschaefer:jschaefer /run/user/1000;
-'
+  ptyd sudo zsh -c 'umount /tmp/.X11-unix;daemonize /usr/bin/unshare --fork --pid --mount-proc /lib/systemd/systemd --system-unit=basic.target;update-binfmts --disable cli;mkdir -p /run/user/1000/dconf;chown -R jschaefer:jschaefer /run/user/1000'
   sleep 3
   mkdir -m 0700 -p /tmp/ptyon-$USER
   ln -s -f /mnt/wslg/.X11-unix/X0 /tmp/.X11-unix/X0
