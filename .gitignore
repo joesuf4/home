@@ -246,3 +246,4 @@ bin/shfmt
 .config/gh
 save/
 .cifs
+.texlive2021/
