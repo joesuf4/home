@@ -1,4 +1,4 @@
-setopt prompt_subst extendedglob unset
+setopt prompt_subst extendedglob unset interactivecomments
 zmodload zsh/pcre
 
 # enable zplug and configure fun modules
@@ -53,6 +53,7 @@ nd sd ~/src/service-deployer
 
 # utilities
 
+
 alias reset='reset; echoon'
 
 alias wingit_pull='(~winhome && git pull)'
@@ -66,6 +67,11 @@ alias pptyd='pty -- pty -d pty-driver.pl -- 2>&1'
 alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
+
+alias :p='pon;: p'
+
+pon() { ptyon; sleep 1; setopt unset }
+poff() { ptyoff; sleep 1 }
 
 oci() {
   sudo sed -i -e s/fipsmodule.cnf/fipsmodule.cnf-ootw/ /usr/local/ssl/openssl.cnf >/dev/null 2>&1
@@ -101,11 +107,11 @@ alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
-alias htop='sudo -v && ptyoff _bcs_title htop; /usr/bin/sudo -E /usr/bin/htop'
+alias htop='sudo -v && pon; _bcs_title htop; /usr/bin/sudo -E /usr/bin/htop'
 
-alias lsof='sudo -v && ptyoff _bcs_title lsof; /usr/bin/sudo -Es /usr/bin/lsof'
+alias lsof='sudo -v && pon; _bcs_title lsof; /usr/bin/sudo -Es /usr/bin/lsof'
 
-alias bpftrace='sudo -v && ptyoff _bcs_title bpftrace; /usr/bin/sudo -Es bpftrace'
+alias bpftrace='sudo -v && pon; _bcs_title bpftrace; /usr/bin/sudo -Es bpftrace'
 
 alias screen='screen -U'
 
@@ -115,9 +121,9 @@ alias asdfu='asdf update && asdf plugin-update --all'
 
 alias zplugu='setopt unset && zplug update; unsetopt unset'
 
-alias npmu='sudo -v && ptyoff /usr/bin/sudo -Es npm update --location=global'
+alias npmu='sudo -v && poff; /usr/bin/sudo -Es npm update --location=global'
 
-alias pip3u='sudo -v && ptyoff pip3 freeze | cut -d= -f1 | /usr/bin/sudo -Es xargs pip3 install -U'
+alias pip3u='sudo -v && poff; pip3 freeze | cut -d= -f1 | /usr/bin/sudo -Es xargs pip3 install -U'
 
 alias gpgr='gpg --refresh-keys'
 
@@ -212,6 +218,7 @@ precmd() {
   fi
 
   vcs_info 2>/dev/null
+  unsetopt unset;
 }
 
 preexec() {
