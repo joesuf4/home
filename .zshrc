@@ -69,6 +69,7 @@ alias ptyon='touch /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 alias :p='pon;: p'
+alias :P='pon;: P'
 
 pon() { ptyon; sleep 1; setopt unset }
 poff() { ptyoff; sleep 1 }
