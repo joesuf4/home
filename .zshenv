@@ -45,7 +45,7 @@ if [[ -d ~/.asdf ]] && ! command -v asdf >/dev/null 2>&1; then
 fi
 
 # PATH
-for p in /sbin /usr/sbin "$(asdf where gcloud)/bin" "$(go env GOPATH 2>/dev/null)/bin" /usr/local/texlive/2023/bin/x86_64-solaris /usr/local/bin ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin; do
+for p in /sbin /usr/sbin "$(asdf where gcloud 2>/dev/null)/bin" "$(go env GOPATH 2>/dev/null)/bin" /usr/local/texlive/2023/bin/x86_64-solaris /usr/local/bin ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin; do
   # fyi- this is not going to work if you use it on nested $p paths...
   [[ -d "$p" ]] && PATH="$p$(echo ":$PATH" | sed -e "s|:$p||g")"
 done
@@ -71,4 +71,4 @@ PKG_REPOS=http://127.0.0.1:9999/
 
 [[ -f ~/.cargo/env ]] && . ~/.cargo/env
 [[ "$(uname)" == SunOS && "$TERM" != screen && "$TERM" != vt100 ]] && TERM=xterm-256color
-export CC=gcc LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib" CPPFLAGS=-I/usr/local/include BCS_PROFILE="$(gcloud config get account)"
+export CC=gcc LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib" CPPFLAGS=-I/usr/local/include BCS_PROFILE="$(gcloud config get account 2>/dev/null)"
