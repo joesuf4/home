@@ -45,7 +45,7 @@ if [[ -d ~/.asdf ]] && ! command -v asdf >/dev/null 2>&1; then
 fi
 
 # PATH
-for p in /sbin /usr/sbin "$(asdf where gcloud 2>/dev/null)/bin" "$(go env GOPATH 2>/dev/null)/bin" /usr/local/texlive/2023/bin/x86_64-solaris /usr/local/bin ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin; do
+for p in /sbin /usr/sbin /usr/local/cuda-12.6 "$(asdf where gcloud 2>/dev/null)/bin" "$(go env GOPATH 2>/dev/null)/bin" /usr/local/texlive/2023/bin/x86_64-solaris /usr/local/bin ~/{.local,.krew}/bin ~/.dotnet/tools ~/bin; do
   # fyi- this is not going to work if you use it on nested $p paths...
   [[ -d "$p" ]] && PATH="$p$(echo ":$PATH" | sed -e "s|:$p||g")"
 done
