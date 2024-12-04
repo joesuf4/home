@@ -247,3 +247,4 @@ bin/shfmt
 save/
 .cifs
 .texlive2021/
+.nv/ .perldl_hist
