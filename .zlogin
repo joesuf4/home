@@ -9,6 +9,7 @@ if [[ "$TERM" == vt100 || "$(uname)" == SunOS ]]; then
   if [[ -n "$SSH_AGENT_PID" ]]; then
     export SSH_AUTH_SOCK="$(command ls -t /tmp/ssh-$USER/agent.* | head -n 1)"
   else
+    sudo mount -a
     echo Initializing pty-agent...
     pty-agent
     emacs --daemon
@@ -36,7 +37,7 @@ else
     mkdir -p /run/user/1000/dconf;chown -R jschaefer:jschaefer /run/user/1000;
     daemonize /usr/bin/unshare --fork --pid --mount-proc /lib/systemd/systemd --system-unit=basic.target;
     update-binfmts --disable cli
-  '
+    modprobe -a $(cd /lib/modules/$(uname -r) && find . -type f -name "*.ko*" | sed -e "s!.*/!!" -e "s!\.ko.*!!")  '
   sleep 3
   mkdir -m 0700 -p /tmp/ptyon-$USER
   ln -s -f /mnt/wslg/.X11-unix/X0 /tmp/.X11-unix/X0
