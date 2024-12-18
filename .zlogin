@@ -38,7 +38,7 @@ else
     daemonize /usr/bin/unshare --fork --pid --mount-proc /lib/systemd/systemd --system-unit=basic.target;
     update-binfmts --disable cli
     modprobe -a $(cd /lib/modules/$(uname -r) && find . -type f -name "*.ko*" | sed -e "s!.*/!!" -e "s!\.ko.*!!")  '
-  sleep 3
+  /mnt/c/Program\ Files/Docker/Docker/Docker\ Desktop.exe
   mkdir -m 0700 -p /tmp/ptyon-$USER
   ln -s -f /mnt/wslg/.X11-unix/X0 /tmp/.X11-unix/X0
   [[ -f /etc/wsl.conf ]] || ptyd sudo zsh -c "rm /etc/resolv.conf && cp /mnt/wsl/resolv.conf /etc"
