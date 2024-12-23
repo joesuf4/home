@@ -45,7 +45,7 @@ else
   [[ -f /etc/wsl.conf ]] || ptyd sudo zsh -c "rm /etc/resolv.conf && cp /mnt/wsl/resolv.conf /etc"
   eval "$(mkdir -m 0700 -p /tmp/ssh-$USER && ssh-agent.exe -a \\wsl.localhost\\Ubuntu\\tmp\\ssh-$USER\\agent.$$)"
   emacs --daemon
-  ptyd ssh-add.exe ~/.ssh/id_ed25519 ~/.ssh/id_ed25519_sk
+  ptyd ssh-add.exe
   ptyd zsh -ic 'echo foo | gpg --clear-sign --armor >/dev/null 2>&1'
 #  wsl.exe -d wsl-vpnkit --cd /app service wsl-vpnkit start
 fi
