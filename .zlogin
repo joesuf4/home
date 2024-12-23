@@ -29,7 +29,7 @@ if [[ "$TERM" == vt100 || "$(uname)" == SunOS ]]; then
 fi
 
 if pgrep pty-agent >/dev/null 2>&1; then
-  export SSH_AUTH_SOCK="$(command ls -t /mnt/c/Users/jschaefer/AppData/Local/Temp/ssh-*/agent.* | head -n 1)"
+  export SSH_AUTH_SOCK="$(command ls -t /mnt/c/Users/$USER/AppData/Local/Temp/ssh-*/agent.* | head -n 1)"
   export SSH_AGENT_PID="$(echo $SSH_AUTH_SOCK | cut -f2 -d.)"
 else
   pty-agent
