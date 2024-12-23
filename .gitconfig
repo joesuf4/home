@@ -26,5 +26,3 @@
 [credential "https://github.com"]
 	helper =
 	helper = !/usr/bin/gh auth git-credential
-[safe]
-	directory = %(prefix)///wsl.localhost/Ubuntu/home/jschaefer
