@@ -34,16 +34,17 @@ if pgrep pty-agent >/dev/null 2>&1; then
 else
   pty-agent
   ptyd sudo zsh -c '
-    umount /tmp/.X11-unix;
-    mkdir -p /run/user/1000/dconf;chown -R jschaefer:jschaefer /run/user/1000;
-    daemonize /usr/bin/unshare --fork --pid --mount-proc /lib/systemd/systemd --system-unit=basic.target;
+    umount /tmp/.X11-unix
+    mkdir -p /run/user/1000/dconf;chown -R jschaefer:jschaefer /run/user/1000
+    daemonize /usr/bin/unshare --fork --pid --mount-proc /lib/systemd/systemd --system-unit=basic.target
     update-binfmts --disable cli
-    modprobe -a $(cd /lib/modules/$(uname -r) && find . -type f -name "*.ko*" | sed -e "s!.*/!!" -e "s!\.ko.*!!")  '
+    modprobe -a $(cd /lib/modules/$(uname -r) && find . -type f -name "*.ko*" | sed -e "s!.*/!!" -e "s!\.ko.*!!")
+  '
   /mnt/c/Program\ Files/Docker/Docker/Docker\ Desktop.exe
   mkdir -m 0700 -p /tmp/ptyon-$USER
   ln -s -f /mnt/wslg/.X11-unix/X0 /tmp/.X11-unix/X0
   [[ -f /etc/wsl.conf ]] || ptyd sudo zsh -c "rm /etc/resolv.conf && cp /mnt/wsl/resolv.conf /etc"
-  eval "$(mkdir -m 0700 -p /tmp/ssh-$USER && ssh-agent.exe -a \\wsl.localhost\\Ubuntu\\tmp\\ssh-$USER\\agent.$$)"
+#  eval "$(mkdir -m 0700 -p /tmp/ssh-$USER && ssh-agent.exe -a \\wsl.localhost\\Ubuntu\\tmp\\ssh-$USER\\agent.$$)"
   emacs --daemon
   ptyd ssh-add.exe
   ptyd zsh -ic 'echo foo | gpg --clear-sign --armor >/dev/null 2>&1'
