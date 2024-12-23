@@ -1,0 +1,8 @@
+#!/bin/sh
+echoon <&2 >/dev/null 2>&1
+
+if command -v ssh.exe >/dev/null 2>&1; then
+  exec ssh.exe "$@"
+fi
+
+exec /usr/bin/ssh "$@"

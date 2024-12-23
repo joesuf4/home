@@ -28,8 +28,9 @@ if [[ "$TERM" == vt100 || "$(uname)" == SunOS ]]; then
   exit $?
 fi
 
-if [[ -n "$SSH_AGENT_PID" ]]; then
-  export SSH_AUTH_SOCK="$(command ls -t /tmp/ssh-$USER/agent.* | head -n 1)"
+if pgrep pty-agent >/dev/null 2>&1; then
+  export SSH_AUTH_SOCK="$(command ls -t /mnt/c/Users/jschaefer/AppData/Local/Temp/ssh-*/agent.* | head -n 1)"
+  export SSH_AGENT_PID="$(echo $SSH_AUTH_SOCK | cut -f2 -d.)"
 else
   pty-agent
   ptyd sudo zsh -c '
@@ -42,9 +43,9 @@ else
   mkdir -m 0700 -p /tmp/ptyon-$USER
   ln -s -f /mnt/wslg/.X11-unix/X0 /tmp/.X11-unix/X0
   [[ -f /etc/wsl.conf ]] || ptyd sudo zsh -c "rm /etc/resolv.conf && cp /mnt/wsl/resolv.conf /etc"
-  eval "$(mkdir -m 0700 -p /tmp/ssh-$USER && ssh-agent -a /tmp/ssh-$USER/agent.$$)"
+  eval "$(mkdir -m 0700 -p /tmp/ssh-$USER && ssh-agent.exe -a \\wsl.localhost\\Ubuntu\\tmp\\ssh-$USER\\agent.$$)"
   emacs --daemon
-  ptyd ssh-add
+  ptyd ssh-add.exe ~/.ssh/id_ed25519 ~/.ssh/id_ed25519_sk
   ptyd zsh -ic 'echo foo | gpg --clear-sign --armor >/dev/null 2>&1'
 #  wsl.exe -d wsl-vpnkit --cd /app service wsl-vpnkit start
 fi

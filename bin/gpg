@@ -2,7 +2,7 @@
 echoon <&2 >/dev/null 2>&1
 
 if command -v gpg.exe >/dev/null 2>&1; then
-  exec gpg.exe "$@"
+  exec gpg.exe --enable-ssh-support "$@"
 fi
 
 exec /usr/bin/gpg --pinentry-mode loopback "$@"
