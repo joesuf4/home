@@ -1,7 +1,7 @@
 [user]
 	name = Joe Schaefer
 	email = jschaefer@cleardemand.com
-	signingkey = C:\\Users\\jschaefer\\.ssh\\id_ed25519_sk.pub
+	signingkey = ~/.ssh/id_ed25519_sk.pub
 [clean]
 	requireForce = 1
 [push]
