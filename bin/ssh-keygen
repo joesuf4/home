@@ -2,7 +2,8 @@
 echoon <&2 >/dev/null 2>&1
 
 if command -v ssh-keygen.exe >/dev/null 2>&1; then
-  exec ssh-keygen.exe "$@"
+  ssh-keygen.exe "$@" | tr -d '\r'
+  exit $?
 fi
 
 exec /usr/bin/ssh-keygen "$@"
