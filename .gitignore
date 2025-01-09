@@ -250,3 +250,4 @@ save/
 .nv/
 .perldl_hist
 .lesshsQ
+.vscode-server/
