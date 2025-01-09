@@ -34,7 +34,7 @@ if ! pgrep pty-agent >/dev/null 2>&1; then
   pty-agent
   ptyd sudo zsh -c '
     umount /tmp/.X11-unix
-    mkdir -p /run/user/1000/dconf;chown -R jschaefer:jschaefer /run/user/1000
+    mkdir -p /run/user/1000/dconf;chown -R $USER:$USER /run/user/1000
 #    mount -a
     daemonize /usr/bin/unshare --fork --pid --mount-proc /lib/systemd/systemd --system-unit=basic.target
     update-binfmts --disable cli
