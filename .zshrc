@@ -212,7 +212,7 @@ eval "$(dircolors <(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/'))"
 precmd() {
   setopt monitor
   ptyoff
-  _bcs_title
+  [[ -z "$VSCODE_INJECTION" ]] && _bcs_title
 
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
     zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}[${PR_RESET}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_BLACK}]${PR_RESET}"
@@ -225,7 +225,7 @@ precmd() {
 }
 
 preexec() {
-  _bcs_title $2
+  [[ -z "$VSCODE_INJECTION" ]] && _bcs_title $2
 }
 
 # VCS status RPROMPT
