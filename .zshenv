@@ -70,5 +70,5 @@ ZFS_EXPORTS=(${ZFS_TANK_EXPORTS[@]} ${ZFS_RPOOL_EXPORTS[@]})
 PKG_REPOS=http://127.0.0.1:9999/
 
 [[ -f ~/.cargo/env ]] && . ~/.cargo/env
-[[ "$(uname)" == SunOS && "$TERM" != screen && "$TERM" != vt100 ]] && TERM=xterm-256color
-export CC=gcc LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib" CPPFLAGS=-I/usr/local/include BCS_PROFILE="$(gcloud config get account 2>/dev/null)" R=~/src/rsim C=~/src/ceval
+[[ "$(uname)" == SunOS && "$TERM" != screen && "$TERM" != vt100 ]] && export TERM=xterm-256color LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib"
+export CC=gcc CPPFLAGS=-I/usr/local/include BCS_PROFILE="$(gcloud config get account 2>/dev/null)" R=~/src/rsim C=~/src/ceval
