@@ -110,11 +110,11 @@ alias git_diff_branch='git diff $(git show-branch --merge-base 2>/dev/null)~1'
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
-alias htop='sudo -v && pon; _bcs_title htop; /usr/bin/sudo -E /usr/bin/htop'
+alias htop='sudo -v && poff; _bcs_title htop; /usr/bin/sudo -E /usr/bin/htop'
 
-alias lsof='sudo -v && pon; _bcs_title lsof; /usr/bin/sudo -Es /usr/bin/lsof'
+alias lsof='sudo -v && poff; _bcs_title lsof; /usr/bin/sudo -Es /usr/bin/lsof'
 
-alias bpftrace='sudo -v && pon; _bcs_title bpftrace; /usr/bin/sudo -Es bpftrace'
+alias bpftrace='sudo -v && poff; _bcs_title bpftrace; /usr/bin/sudo -Es bpftrace'
 
 alias screen='screen -U'
 

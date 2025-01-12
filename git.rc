@@ -6,6 +6,8 @@ alias gac='git add -u && git commit'
 
 alias gpush='git push; git push --tags'
 
+alias glogs='git log --show-signature'
+
 declare -A merge_strategy=([rebase]=theirs [merge]=theirs)
 
 _gtag() {
