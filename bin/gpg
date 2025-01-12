@@ -1,8 +1,12 @@
-#!/bin/sh
+#!/usr/bin/zsh
 echoon <&2 >/dev/null 2>&1
 
 if command -v gpg.exe >/dev/null 2>&1; then
-  exec gpg.exe "$@"
+  if [[ -t 2 ]]; then
+    exec gpg.exe "$@"
+  else
+    gpg.exe "$@" 2>>(tr -d '\r' >&2)
+    exit $?
+  fi
 fi
-
 exec /usr/bin/gpg --pinentry-mode loopback "$@"

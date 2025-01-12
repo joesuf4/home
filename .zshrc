@@ -104,7 +104,7 @@ alias dsign='DOCKER_CONTENT_TRUST=1 docker trust sign --local'
 
 alias strip_cr="sed -i -e 's/\\r//'"
 
-alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)~1'
+alias git_diff_branch='git diff $(git show-branch --merge-base 2>/dev/null)~1'
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
