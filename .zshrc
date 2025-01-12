@@ -49,7 +49,9 @@ alias dh='dirs -v'
 
 nd winhome /mnt/c/Users/$USER
 nd winsrc ~winhome/src
-nd sd ~/src/service-deployer
+nd winssh ~winhome/.ssh
+nd r ~/src/rsim
+nd c ~/src/ceval
 
 # utilities
 
