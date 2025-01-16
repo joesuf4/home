@@ -46,7 +46,7 @@ if ! pgrep pty-agent >/dev/null 2>&1; then
   emacs --daemon
   ptyd ssh-add.exe
   ptyd zsh -ic 'echo foo | gpg --clear-sign --armor >/dev/null 2>&1'
-  for d in ~/src/gha-runner/*; cd $d && gha-run.sh
+  for d in ~/src/gha-runner/*; cd $d && ptyd gha-run.sh
 #  wsl.exe -d wsl-vpnkit --cd /app service wsl-vpnkit start
 fi
 
