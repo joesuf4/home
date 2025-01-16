@@ -12,6 +12,8 @@
 : "${HIST_ANCESTRY:=🐰🍀🌷x✡♱☠❤❄◆▬■●▶}"
 : "${COL:=30}"
 
+: "${TPUT:=tput}"
+
 perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; sub log_2 (\$) {log(shift)/log(2)} }
               END {
                 \$DIV = \$KB**(\$UNIT);
@@ -23,7 +25,7 @@ perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; sub log_2 (\$) {log(shift)/log(2
                   };
                   printf \"%${COL-40}s %s %s%s\\n\",
                     \$_,
-                    \"$(tput bold)$(tput setaf ${ANSI_COLOR_ID-1})${HIST_BLOCK-x}$(tput sgr0)\" x
+                    \"$($TPUT bold)$($TPUT setaf ${ANSI_COLOR_ID-1})${HIST_BLOCK-x}$($TPUT sgr0)\" x
                       eval \"\$SCALE(\$h{\$_}/\$DIV)\",
                     (eval          \"\$h{\$_}/\$DIV\"),
                     (\"\", map \" \$_\".(\$KB==1024 && 'i').(\"\", \"B\", \"s\")[\$UNIT<=>0],
@@ -49,4 +51,4 @@ perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; sub log_2 (\$) {log(shift)/log(2
                 \$_ = eval
               }
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join \" \", grep !/^(?:\Q$(tput bold)\E[^$HIST_ANCESTRY]+?[$HIST_ANCESTRY]\Q$(tput sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "${@:-${TOP_10_ARGS:--10}}"
+              \$h{+join \" \", grep !/^(?:\Q$($TPUT bold)\E[^$HIST_ANCESTRY]+?[$HIST_ANCESTRY]\Q$($TPUT sgr0)\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "${@:-${TOP_10_ARGS:--10}}"
