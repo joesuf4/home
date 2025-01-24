@@ -51,4 +51,4 @@ perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; sub log_2 (\$) {log(shift)/log(2
                 \$_ = eval
               }
               \$UNIT = \$unit if \$unit > \$UNIT;
-              \$h{+join \" \", grep !/^(?:\\Q$($TPUT bold)\\E[^$HIST_ANCESTRY]*?[$HIST_ANCESTRY]\\Q$($TPUT sgr0)\\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "${@:-${TOP_10_ARGS:--10}}"
+              \$h{+join \" \", grep !/^(?:\\Q$($TPUT bold)\\E[^$HIST_ANCESTRY]*?[$HIST_ANCESTRY]*\\Q$($TPUT sgr0)\\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "${@:-${TOP_10_ARGS:--10}}"
