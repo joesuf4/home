@@ -296,12 +296,19 @@ done
 # report_* aliases
 
 for t in all cluster node namespace pod; do
-  for n in all percent load actual cpu mem; do
+  for n in all percent load cpu mem; do
     eval "alias report_${t}_${n}_smag='_bcs_title \"$t-$n graphs for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; smag -n 10 \"gke report ${t//all/.} ${n//all/.} -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
     eval "alias report_${t}_${n}_smag_diff='_bcs_title \"$t-$n diff graphs for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; smag -d -n 10 \"gke report ${t//all/.} ${n//all/.} -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
     eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; for i in {1..100}; date && gke report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
     eval "alias report_${t}_${n}_forever='while :; do bcs_assume_role && report_${t}_${n}_loop_100; done'"
   done
+
+  n=actual
+  eval "alias report_${t}_${n}_smag='_bcs_title \"$t-$n graphs for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; smag -n 10 \"gke report ${t//all/.} ${n}-cpu -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\" \"gke report ${t//all/.} ${n}-mem -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
+  eval "alias report_${t}_${n}_smag_diff='_bcs_title \"$t-$n diff graphs for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; smag -d -n 10 \"gke report ${t//all/.} ${n}-cpu -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\" \"gke report ${t//all/.} ${n}-mem -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
+  eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; for i in {1..100}; date && gke report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
+  eval "alias report_${t}_${n}_forever='while :; do bcs_assume_role && report_${t}_${n}_loop_100; done'"
+
 done
 unalias report_node_percent_smag report_node_percent_smag_diff
 
@@ -485,3 +492,5 @@ patch_swig_pl() {
     perl -i -0777 -pe 's#^((?!typedef)\w+\s+[^{]+{)#$1\n    dTHX;#msg' $f
   done
 }
+
+GKE_KZONE=([identity-db-cluster]=us-west1)

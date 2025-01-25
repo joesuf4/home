@@ -7,16 +7,16 @@ declare -ax _gke_trace_cmds=(list-trace-objects list-trace-ids "${_bcs_cli_cmds[
 declare -ax _gke_report_cmds=(list-reports list-reports-by-subtype report)
 declare -ax _gke_global_report_cmds=(clusters nodes namespaces)
 declare -ax _gke_cluster_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu actual-mem actual-cpu)
-declare -ax _gke_pod_report_cmds=(actual-mem actual-cpu datadog-fd)
-declare -ax _gke_node_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu load-mem load-cpu actual-mem actual-cpu percent-mem percent-cpu age docker-fd ec2-linux-price ec2-windows-price)
-declare -ax _gke_namespace_report_cmds=(actual-mem actual-cpu datadog-fd)
+declare -ax _gke_pod_report_cmds=(actual-mem actual-cpu)
+declare -ax _gke_node_report_cmds=(provisioned-mem provisioned-cpu requests-mem requests-cpu limits-mem limits-cpu load-mem load-cpu actual-mem actual-cpu percent-mem percent-cpu age docker-fd)
+declare -ax _gke_namespace_report_cmds=(actual-mem actual-cpu)
 declare -ax _gke_reports=(global cluster node namespace pod)
 declare -ax _gke_namespace_cmds=(list-namespaces set-namespace)
 declare -ax _gke_cluster_cmds=(list-clusters update-kubeconfig)
 declare -ax _gke_cmds=("${_gke_pod_cmds[@]}" "${_gke_trace_cmds[@]}" "${_gke_node_cmds[@]}" "${_gke_namespace_cmds[@]}" "${_gke_cluster_cmds[@]}" "${_gke_report_cmds[@]}" run-global)
 declare -ax _gke_pods_flags=("--selector=") _gke_trace_actions=(attach delete get run logs)
 
-declare -A GKE_TRACE_ID _ec2_linux_price _ec2_windows_price
+declare -A GKE_TRACE_ID GKE_KZONE _ec2_linux_price _ec2_windows_price
 
 export GKE_CLUSTERS_SRC GKE_NODES_SRC GKE_NS_SRC GKE_PODS_SRC GKE_POD_SEARCH_LIMIT GKE_CFILTER GKE_CLUSTER GKE_NAMESPACE GKE_TRACE_ID_SRC
 
@@ -411,7 +411,16 @@ _gke_load_trace_ids() {
   return 0
 }
 
+gke_set_zone() {
+  local zone="${1#--zone}"
+  [[ -z "$zone" ]] && zone="$2"
+  gcloud config unset compute/zone
+  export CLOUDSDK_COMPUTE_ZONE="${zone#=}"
+}
+
 gke_update_kubeconfig() {
+  [[ $# -gt 2 ]] && gke_set_zone "${@:3:#}"
+  [[ $# == 1 ]] && gke_set_zone "${GKE_KZONE[$1]:-us-west1-a}"
   [[ $# -gt 0 ]] || set "$(kubectl config get-contexts | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
   gcloud container clusters get-credentials "$1"
   local rv=$?
@@ -420,7 +429,7 @@ gke_update_kubeconfig() {
   GKE_NODES_SRC=
   _gke_load_namespaces
   _gke_load_nodes
-  gke_set_namespace "$@"
+  gke_set_namespace "${2-}"
   return $rv
 }
 
@@ -813,7 +822,7 @@ gke_report() {
       echo -e "\nRunning $r $s report...\n"
       eval "_gke_report_${r}_${s//-/_} | top_10 $@"
     done
-    [[ "$r" == cluster ]] && unset _k_describe_node _k_top_node _k_top_pod && gke update-kubeconfig $_gke_cluster $_gke_ns >/dev/null 2>&1
+    [[ "$r" == cluster ]] && unset _k_describe_node _k_top_node _k_top_pod && gke update-kubeconfig $_gke_cluster $_gke_ns ${ZONE:-}>/dev/null 2>&1
   done
 
   return 0
