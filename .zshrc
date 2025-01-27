@@ -477,7 +477,7 @@ done
 
 command -v kubectl >/dev/null 2>&1 && . <(kubectl completion $(basename "$SHELL"))
 . ~/.bcsrc
-. ~/.eksrc
+#. ~/.eksrc
 . ~/.gkerc
 . ~/git.rc
 

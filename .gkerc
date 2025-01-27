@@ -414,7 +414,7 @@ _gke_load_trace_ids() {
 gke_set_zone() {
   local zone="${1#--zone}"
   [[ -z "$zone" ]] && zone="$2"
-  gcloud config unset compute/zone
+  CLOUDSDK_COMPUTE_ZONE= gcloud config set compute/zone "${zone#=}"
   export CLOUDSDK_COMPUTE_ZONE="${zone#=}"
 }
 
