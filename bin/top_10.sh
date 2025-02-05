@@ -10,7 +10,7 @@
 : "${ANSI_COLOR_ID:=2}"
 : "${HIST_BLOCK:=▬}"
 : "${HIST_ANCESTRY:=🐰🍀🌷x✡♱☠❤❄◆▬■●▶}"
-: "${COL:=60}"
+: "${COL:=70}"
 
 : "${TPUT:=tput}"
 
