@@ -22,6 +22,17 @@ export GKE_CLUSTERS_SRC GKE_NODES_SRC GKE_NS_SRC GKE_PODS_SRC GKE_POD_SEARCH_LIM
 
 : "${GKE_POD_SEARCH_LIMIT:=4}" "${GKE_CFILTER:=.}"
 
+NODE_SHELL_PREFIX='
+export PATH="/run/bin:$PATH" LANG=en_US.UTF-8 TERM=xterm-256color TERMINFO=/tmp/terminfo
+for cmd in ls grep; do
+  alias $cmd="$cmd --color=always"
+done
+alias screen="screen -U"
+top_10() {
+  sort -k\${F:-2}nr | head "$@"
+}
+'
+
 _gke_usage() {
   cat <<EOF
 list-clusters              Show available AWS kubernetes clusters for the
@@ -454,8 +465,8 @@ gke_tools_ship_bg() {
         time kubectl exec -i $pod -c $c -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
       done
       kubectl exec $pod -c $c -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
-      kubectl exec $pod -c $c -- sh -c "mkdir -p /tmp/terminfo/x; cat >/tmp/terminfo/x/xterm-256color" </lib/terminfo/x/xterm-256color &
-      kubectl exec $pod -c $c -- sh -c "mkdir -p /tmp/terminfo/s; cat >/tmp/terminfo/s/screen.xterm-256color" </lib/terminfo/s/screen.xterm-256color &
+      kubectl exec $pod -c $c -- sh -c "mkdir -p /tmp/terminfo/x; cat >/tmp/terminfo/x/xterm-256color" </usr/share/terminfo/x/xterm-256color &
+      kubectl exec $pod -c $c -- sh -c "mkdir -p /tmp/terminfo/s; cat >/tmp/terminfo/s/screen.xterm-256color" </usr/share/terminfo/s/screen.xterm-256color &
       wait
       echo "Shipped ${stype-tools} to $pod/$c."
     done
@@ -468,14 +479,14 @@ gke_node_tools_ship_bg() {
   local node t
   for node in $(gke_list_nodes "$FILTER"); do
     for t in "${_bcs_tools[@]}"; do
-      time kubectl node-shell $node -- sh -c "mkdir -p /tmp/bin && cat >/tmp/bin/$t && chmod +x /tmp/bin/$t" <~/bin/$t &
+      time kubectl node-shell $node -- sh -c "mkdir -p /run/bin && cat >/run/bin/$t && chmod +x /run/bin/$t" <~/bin/$t &
       sleep 1
     done
     time kubectl node-shell $node -- sh -c "$BCS_REMOTE_PROFILE_CREATION_SCRIPT" &
     sleep 1
-    time kubectl node-shell $node -- sh -c "mkdir -p /tmp/terminfo/x; cat >/tmp/terminfo/x/xterm-256color" </lib/terminfo/x/xterm-256color &
+    time kubectl node-shell $node -- sh -c "mkdir -p /tmp/terminfo/x; cat >/tmp/terminfo/x/xterm-256color" </usr/share/terminfo/x/xterm-256color &
     sleep 1
-    time kubectl node-shell $node -- sh -c "mkdir -p /tmp/terminfo/s; cat >/tmp/terminfo/s/screen.xterm-256color" </lib/terminfo/s/screen.xterm-256color &
+    time kubectl node-shell $node -- sh -c "mkdir -p /tmp/terminfo/s; cat >/tmp/terminfo/s/screen.xterm-256color" </usr/share/terminfo/s/screen.xterm-256color &
     wait
     echo "Shipped ${stype-tools} to $node."
   done
@@ -522,9 +533,9 @@ gke_node_shell() {
   for node in $(gke_list_nodes "$FILTER"); do
     _bcs_title :$node: "$@"
     if [[ -t 0 ]]; then
-      kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript "$@"' -- "$@"
+      kubectl node-shell $node -- sh -lc "$NODE_SHELL_PREFIX"'eval script.sh -qa /tmp/typescript "$@"' -- "$@"
     else
-      bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc 'eval script.sh -qa /tmp/typescript "$@"' -- "$@"
+      bcs_sed_uprobe_shared_libs kubectl node-shell $node -- <$TMP | kubectl node-shell $node -- sh -lc "$NODE_SHELL_PREFIX"'eval script.sh -qa /tmp/typescript "$@"' -- "$@"
     fi
   done
   local rv=$?
