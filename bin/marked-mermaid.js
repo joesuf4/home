@@ -46,9 +46,9 @@ process.stdin.on('end', () => {
         for (var i = 0; i < collection.length; ++i) {
           var node = collection[i];
           var mode = node.className.replace("language-","");
-          if (mode == "c") mode="text/x-csrc";
+          if (mode == "c") mode = "text/x-csrc";
           if ($(node).hasClass("cm-s-solarized") || !mode) continue;
-          var text =$(node).text();
+          var text = $(node).text();
           node.innerHTML = ""
           CodeMirror.runMode(text, mode, node);
           node.className += " cm-s-solarized";
