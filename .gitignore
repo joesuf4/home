@@ -253,3 +253,4 @@ save/
 .vscode-server/
 .config/GitHub/
 .config/mimeapps.list
+.config/htop/
