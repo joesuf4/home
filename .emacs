@@ -203,6 +203,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(browse-url-browser-function 'browse-url-chrome)
+ '(browse-url-chrome-program "chrome.exe")
  '(dired-use-ls-dired nil)
  '(diredfl-global-mode t nil (diredfl))
  '(exec-suffixes '(".exe" ".com" ".bat" ".cmd" ".btm" ".ps1" ""))
@@ -212,6 +214,7 @@
  '(lsp-enable-file-watchers nil)
  '(lsp-file-watch-threshold nil)
  '(lsp-log-io t)
+ '(markdown-command "marked-mermaid.js")
  '(message-send-mail-partially-limit 100000000)
  '(message-sendmail-f-is-evil t)
  '(package-archives
@@ -219,7 +222,7 @@
      ("melpa" . "https://melpa.org/packages/")
      ("melpa-stable" . "https://stable.melpa.org/packages/")))
  '(package-selected-packages
-   '(flymake-hadolint flymake flymake-yamllint shfmt editorconfig rust-mode flycheck-rust mermaid-mode lsp-jedi dockerfile-mode kubernetes kubectx-mode terraform-doc terraform-mode lsp-python-ms go-mode yasnippet csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))
+   '(markdown-preview-mode flymake-hadolint flymake flymake-yamllint shfmt editorconfig rust-mode flycheck-rust mermaid-mode lsp-jedi dockerfile-mode kubernetes kubectx-mode terraform-doc terraform-mode lsp-python-ms go-mode yasnippet csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))
  '(sh-basic-offset 2)
  '(shfmt-arguments '("-i" "2" "-ci"))
  '(shfmt-command "shfmt")
@@ -373,6 +376,15 @@
 (add-hook 'emacs-lisp-mode-hook 'turn-on-auto-fill)
 (add-hook 'shell-script-mode-hook 'turn-on-auto-fill)
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
+
+; markdown-preview
+(require 'markdown-preview-mode)
+
+(setq markdown-preview-stylesheets (list
+				    "http://thomasf.github.io/solarized-css/solarized-light.min.css"
+                                    "https://www.sunstarsys.com/editor.md/lib/codemirror/codemirror.min.css"
+                                    "https://www.sunstarsys.com/editor.md/lib/codemirror/theme/solarized.css"
+                                    "https://www.sunstarsys.com/css/mermaid.min.css"))
 
 ; still using 80-column terminals (at times)
 (setq-default fill-column 72)
