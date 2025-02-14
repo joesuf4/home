@@ -49,8 +49,14 @@ fi
 # punt to docker if appropriate
 
 if [[ "$0" != "${0%.git/hooks/pre-commit}" ]] && command -v docker >/dev/null 2>&1; then
-  exec docker run -t -v "$PWD":/src:ro --rm --entrypoint= "$LINTER_DOCKER_IMAGE" bash -c \
+  exec docker run -t -v "$PWD":/src -v /usr/include:/usr/include:ro --rm ${LINTER_FIXIT+-e LINTER_FIXIT=1} --entrypoint= "$LINTER_DOCKER_IMAGE" bash -c \
     ". ~/.asdf/asdf.sh; grep '[)]\$' linter.rc | awk '{print \$1}' | cut -d')' -f1 | xargs -P$(nproc) -d'\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $*'"
+fi
+
+# hack
+
+if [[ "$LINTER" == clang-tidy && -f compile_commands.json ]]; then
+  mv compile_commands.json compile_commands-ootw.json
 fi
 
 # load associated rcfile
@@ -71,7 +77,7 @@ if [[ "$0" == "${0%.git/hooks/pre-commit}" ]]; then
     cat
   else
     [[ $# -gt 0 ]] && shift
-    find "${@:-.}" -type f
+    find "${@:-.}" -name .ccls-cache -prune -o -type f
   fi
 else
   # using (installed ".git/hooks/pre-commit" suffix) path,
@@ -80,3 +86,13 @@ else
 fi | if [[ "${LINT_TEMPLATES:-}" == yes ]]; then cat; else grep -v /templates/; fi | grep -Pe "$PCRE_PAT" |
   while read -r line; do [[ -f "$line" ]] && echo "$line"; done |
   eval "xargs -rd'\n' -P${XARGS_WORKERS:-$(nproc)} -n${XARGS_MAX_FILES:-256} $LINTER"
+
+rv=$?
+
+# hack
+
+if [[ "${LINTER#clang-tidy}" != "$LINTER" && -f compile_commands-ootw.json ]]; then
+  mv compile_commands-ootw.json compile_commands.json
+fi
+
+exit $rv

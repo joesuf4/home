@@ -8,7 +8,6 @@ case "$LINTER" in
     PCRE_PAT='\.ya?ml$'
     CONFIG_SRC="$(
       cat <<EOT
----
 yaml-files:
   - '*.yaml'
   - '*.yml'
@@ -47,17 +46,18 @@ EOT
 
   shellcheck)
     PCRE_PAT='(\.sh|^\.?\w+\.?rc)$'
-    LINTER+=' -x -P . -s bash -e SC1004,SC2016,SC2034,SC2046,SC2128,SC2155,SC2181,SC2207,SC2145,SC2088,SC2015,SC2086,SC2154,SC2199,SC2120,SC2119,SC2142,SC1090,SC2206,SC2012,SC2174,SC1117,SC2035,SC2139,SC2030,SC2031'
+    LINTER+=' -x -P . -s bash -e SC1004,SC2016,SC2034,SC2046,SC2128,SC2155,SC2181,SC2207,SC2145,SC2088,SC2015,SC2086,SC2154,SC2199,SC2120,SC2119,SC2142,SC1090,SC2206,SC2012,SC2174,SC1117,SC2035,SC2139,SC2030,SC2031,SC2164,SC1091,SC2185,SC2317'
     ;;
 
   shfmt)
     PCRE_PAT='(\.sh|^\.?\w+\.?rc)$'
-    LINTER+=' -d -i 2 -ci'
+    LINTER+=' -d -i 2 -ci ${LINTER_FIXIT+-w}'
     ;;
 
   clang-tidy)
+    : "${XARGS_MAX_FILES:=16}"
     PCRE_PAT='\.(cc?|cpp|hh?)$'
-    LINTER+=' --extra-arg-before -DVERSION=\"0.0\"'
+    LINTER+=' ${LINTER_FIXIT+--warnings-as-errors="*" --fix --fix-errors}'
     ;;
 
   perl)
@@ -71,14 +71,9 @@ EOT
     PCRE_PAT='\.p[ml]$'
     ;;
 
-  flake8)
+  ruff)
     PCRE_PAT='\.py$'
-    LINTER+=' --select=E999,E902'
-    ;;
-
-  black)
-    PCRE_PAT='\.py$'
-    LINTER+=' --check --diff --color'
+    LINTER+=' check ${LINTER_FIXIT+--fix}'
     ;;
 
   tidy)
@@ -88,6 +83,7 @@ EOT
 
   eslint)
     PCRE_PAT='(\.tsx?|(?<!\.min)\.[cm]?jsx?)$'
+    TMP_FILE_FMT="XXXX.json"
     CONFIG_SRC="$(
       cat <<'EOT'
 {
@@ -126,7 +122,7 @@ EOT
     ;;
 
   stylelint)
-    PCRE_PAT='(?<!\.min)(\.s?css|\.html|\.md|\.js)$'
+    PCRE_PAT='(?<!\.min)(\.s?css|\.html|\.md|\.js)(?:\.[\w-]+)?\$'
     TMP_FILE_FMT="XXXX.json"
     LINTER+=' $([ -f .stylelint* ] || echo "-c" "$CONFIG_TMP_FILE")'
     CONFIG_SRC="$(
@@ -177,7 +173,7 @@ EOT
 EOT
     )"
     PCRE_PAT='\.md(?:text)?(?:\.|$)'
-    LINTER+=' --no-stdout --quiet $([ -f .remarkrc.* ] || echo "-r" "$CONFIG_TMP_FILE")'
+    LINTER+=' ${LINTER_FIXIT+-o} --no-stdout --quiet $([ -f .remarkrc.* ] || echo "-r" "$CONFIG_TMP_FILE")'
     ;;
 
   tflint)
@@ -191,27 +187,32 @@ plugin "aws" {
 EOT
     )"
     PCRE_PAT='\.tf$'
-    LINTER='sh -c "tflint --config "$CONFIG_TMP_FILE" --init && tflint --config $CONFIG_TMP_FILE \"\$@\" || [ \$? -eq 2 ]" --'
+    LINTER='sh -c "tflint ${LINTER_FIXIT+--fix} --config "$CONFIG_TMP_FILE" --init && tflint --config $CONFIG_TMP_FILE \"\$@\" || [ \$? -eq 2 ]" --'
     ;;
 
   csharp)
     PCRE_PAT='\.cs$'
-    LINTER='bash -c ". ~/.asdf/plugins/dotnet-core/set-dotnet-home.bash; dotnet format --no-restore --include \"\$@\"" --'
+    if [[ -n "$LINTER_FIXIT" ]]; then
+      LINTER_FIXIT=""
+    else
+      LINTER_FIXIT="--verify-no-changes"
+    fi
+    LINTER='bash -c ". ~/.asdf/plugins/dotnet-core/set-dotnet-home.bash; dotnet format --no-restore $LINTER_FIXIT --include \"\$@\"" --'
     ;;
 
   golangci-lint)
     PCRE_PAT='\.go(?:lang)?$'
-    LINTER+=' run'
+    LINTER+=' run ${LINTER_FIXIT+--fix}'
     ;;
 
   jinjalint)
     LINT_TEMPLATES=yes
     PCRE_PAT='/templates/|\.ya?ml$'
-    LINTER+=' --parse-only'
+    [[ -n "${LINTER_FIXIT-}" ]] || LINTER+=' --parse-only'
     ;;
 
   lacheck)
     PCRE_PAT='\.tex\b[^/]*$'
     XARGS_MAX_FILES=1
-        
+    ;;
 esac
