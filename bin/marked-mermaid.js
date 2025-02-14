@@ -14,7 +14,7 @@ process.stdin.on('data', (chunk) => {
 })
 process.stdin.on('end', () => {
     data = data.toString() + `
-<script>
+<script type="text/javascript">
   MathJax = {
     loader: {
       load: [
@@ -59,6 +59,6 @@ process.stdin.on('end', () => {
     render();
   </script>
 `
-    data = marked.parse(data,{gfm:true})
+    data = marked.parse(data,{gfm: true, breaks: true})
     process.stdout.write(data)
 })
