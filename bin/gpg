@@ -2,6 +2,6 @@
 echoon <&2 >/dev/null 2>&1
 
 if command -v gpg.exe >/dev/null 2>&1; then
-  exec gpg.exe --pinentry-mode loopback "$@" 2>>(tr -d '\r' >&2) 1>>(tr -d '\r')
+  exec gpg.exe "$@" 2>>(tr -d '\r' >&2) 1>>(tr -d '\r')
 fi
 exec /usr/bin/gpg --pinentry-mode loopback "$@"
