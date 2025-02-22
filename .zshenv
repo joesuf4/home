@@ -38,12 +38,6 @@ PTYON=(sudo git svn gpg ssh-add ssh op scp rsync ansible-vault ortpasswd otp-sha
 # report_node_inventory_static() (hi-speed) setting
 PLACEHOLDER=n/a
 
-# asdf setup
-if [[ -d ~/.asdf ]] && ! command -v asdf >/dev/null 2>&1; then
-  . ~/.asdf/asdf.sh
-  . ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh >/dev/null 2>&1
-fi
-
 export ASDF_DATA_DIR=~/.asdf
 
 # PATH
