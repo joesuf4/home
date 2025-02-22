@@ -254,3 +254,4 @@ save/
 .config/GitHub/
 .config/mimeapps.list
 .config/htop/
+.gsutil/
