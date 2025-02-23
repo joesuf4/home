@@ -50,7 +50,7 @@ fi
 
 if [[ "$0" != "${0%.git/hooks/pre-commit}" ]] && command -v docker >/dev/null 2>&1; then
   exec docker run -t -v "$PWD":/src -v /usr/include:/usr/include:ro --rm ${LINTER_FIXIT+-e LINTER_FIXIT=1} --entrypoint= "$LINTER_DOCKER_IMAGE" bash -c \
-    ". ~/.asdf/asdf.sh; grep '[)]\$' linter.rc | awk '{print \$1}' | cut -d')' -f1 | xargs -P$(nproc) -d'\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $*'"
+    "grep '[)]\$' linter.rc | awk '{print \$1}' | cut -d')' -f1 | xargs -P$(nproc) -d'\n' -i sh -c 'LINTER={} bash .git/hooks/pre-commit $*'"
 fi
 
 # hack

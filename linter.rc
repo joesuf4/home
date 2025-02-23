@@ -83,7 +83,6 @@ EOT
 
   eslint)
     PCRE_PAT='(\.tsx?|(?<!\.min)\.[cm]?jsx?)$'
-    TMP_FILE_FMT="XXXX.json"
     CONFIG_SRC="$(
       cat <<'EOT'
 {
