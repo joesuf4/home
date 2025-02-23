@@ -1,9 +1,9 @@
 cat <<'EOBCSRC' | sed -e 's/### VERSION ###/3.0/' -e 's/### CLI ###/bcs gke/' > ~/.bcsrc
 # -*- sh -*-
 declare -ax words REQUIRED_ASDF_UTILITIES=(aws terraform gcloud kubectl go node k9s tflint dotnet golangci-lint) \
-REQUIRED_APT_UTILITIES=(jq xsltproc gcc clang zsh tmux pip3 pylint yamllint clang-tidy cmake clang clang-format daemonize alpine pdfgrep bpftrace htop) \
-REQUIRED_PIP3_UTILITIES=(ansible flake8 black virtualenv) \
-REQUIRED_NPM_UTILITIES=(eslint serverless) \
+REQUIRED_APT_UTILITIES=(unzip jq xsltproc make cmake gcc clang zsh tmux pip3 pylint yamllint clang-tidy clang-format daemonize alpine pdfgrep bpftrace htop lzop) \
+REQUIRED_PIP3_UTILITIES=(ansible ruff virtualenv pytest ipython) \
+REQUIRED_NPM_UTILITIES=(eslint serverless stylelint remark-cli) \
 _bcs_tools=(pty script.sh pffxg.sh smag yq) \
 _bcs_accounts=($(grep -P '[\w-]+\s*\).*;;' ~/.bcsrc | sed -Ee 's/\) [^;]*;;//g')) \
 _bcs_roles=($USER) \
@@ -278,8 +278,9 @@ _bcs_check_shell_requirements() {
     for req in $(eval echo "\${${UTILS}[@]}"); do
       if ! _bcs_command_exists "$req"; then
         echo "Missing required utility: $req; installing w/ $pm" >&2
-        [[ "$pm" == apt ]]     && req+=" llvm-dev libcairo2-dev libgirepository1.0-dev"
-        [[ "$pm" == pip3 ]]    && req+=" --break-system-packages"
+        [[ "$pm" == apt ]]     && req="-y -qq $req locales llvm-dev libcairo2-dev libgirepository1.0-dev libbsd-dev libgsl-dev libpng-dev zlib uuid-dev libx11-dev ansible-lint"
+        [[ "$req" == pip3 ]]   && req="python3-pip"
+        [[ "$pm" == pip3 ]]    && req+=" pytest-tap cffi numpy pandas --break-system-packages"
         [[ "$req" == eslint ]] && req+=' typescript typescript-eslint'
         [[ "$pm" == npm ]]     && req="-g $req"
         [[ "$pm" == pip3 || "$pm" == apt ]] && sudo -Es $pm install $req || $pm install req || return $?
@@ -460,7 +461,6 @@ bcs_clear_envs() {
 
 _bcs_generate_cli() {
   for ns; do
-    [[ "$ns" == bcs ]] || . ~/.${ns}rc
     eval "$ns() {
       local cmd=\"\$1\"
       shift

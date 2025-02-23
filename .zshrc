@@ -452,6 +452,7 @@ done
 command -v kubectl >/dev/null 2>&1 && . <(kubectl completion $(basename "$SHELL"))
 
 . ~/.bcsrc
+. ~/.gkerc
 . ~/git.rc
 
 patch_swig_pl() {
@@ -466,4 +467,4 @@ patch_swig_pl() {
   done
 }
 
-GKE_KZONE=(identity-db-cluster us-west1)
+GKE_KZONE=([identity-db-cluster]=us-west1)
