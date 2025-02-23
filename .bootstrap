@@ -1,13 +1,13 @@
-cat <<'EOBCSRC' | sed -e 's/### VERSION ###/2.0-beta/' -e 's/### CLI ###/bcs ec2 eks/' > ~/.bcsrc
+cat <<'EOBCSRC' | sed -e 's/### VERSION ###/3.0/' -e 's/### CLI ###/bcs gke/' > ~/.bcsrc
 # -*- sh -*-
 declare -ax words REQUIRED_ASDF_UTILITIES=(aws terraform kubectl go node k9s tflint dotnet golangci-lint) \
 REQUIRED_APT_UTILITIES=(jq xsltproc gcc clang zsh tmux pip3 pylint yamllint clang-tidy daemonize) \
 REQUIRED_PIP3_UTILITIES=(ansible flake8 black virtualenv) \
 REQUIRED_NPM_UTILITIES=(eslint serverless) \
-_bcs_tools=(htop lsof strace curl pty script.sh screen pffxg.sh smag yq) \
+_bcs_tools=(pty script.sh pffxg.sh smag yq) \
 _bcs_accounts=($(grep -P '[\w-]+\s*\).*;;' ~/.bcsrc | sed -Ee 's/\) [^;]*;;//g')) \
-_bcs_roles=(SRE HonorarySRE Developer) \
-_bcs_regions=(us-east-1) \
+_bcs_roles=($USER) \
+_bcs_zones=(us-west1 us-west1-a) \
 _bcs_cli_cmds=(shell batch screen tools-ship-bg htop-ship-config-bg help version) \
 _bcs_cmds=(get-account-name get-account-number assume-role mfa-session clear-envs set-region pty-screen help version)
 
@@ -147,7 +147,7 @@ assume-role                Assume an AWS spoke role via your BX Root role with
                              4. mfa_token  (optional; will prompt when missing)
                            Example usage:
                              $ bcs assume-role platform-nonprod bx_admin us-east-1
-                             $ bcs assume-role 072292405059 bx_eks_admin us-east-2
+                             $ bcs assume-role 072292405059 bx_gke_admin us-east-2
 
                             If the mfa_token is not given on the command line, you
                             will be prompted interactively
@@ -187,15 +187,15 @@ EOF
 
 _bcs_zsh_completion() {
   local state
-  _arguments '1: :->bcs_cmd' '2: :->bcs_account' '3: :->bcs_role' '4: :->bcs_region'
+  _arguments '1: :->bcs_cmd' '2: :->bcs_account' '3: :->bcs_role' '4: :->bcs_zone'
 
   case $state in
     bcs_cmd)
       _arguments "1:bcs_cmd:($_bcs_cmds)"
       ;;
     bcs_account)
-      if [[ "${words[2]}" == set-region ]]; then
-        _arguments "2:bcs_region:($_bcs_regions)"
+      if [[ "${words[2]}" == set-zone ]]; then
+        _arguments "2:bcs_zone:($_bcs_zones)"
       else
         _arguments "2:bcs_account:($_bcs_accounts)"
       fi
@@ -203,16 +203,16 @@ _bcs_zsh_completion() {
     bcs_role)
       _arguments "3:bcs_role:($_bcs_roles)"
       ;;
-    bcs_region)
-      _arguments "4:bcs_region:($_bcs_regions)"
+    bcs_zone)
+      _arguments "4:bcs_zone:($_bcs_zones)"
       ;;
   esac
 }
 
 _bcs_title() {
-  local k8s_conf="$(kubectl config get-contexts | awk '/^\*/ { print $2,$5 }' | cut -d/ -f2)"
-  EKS_CLUSTER="$(eks_list_clusters "^\\Q${k8s_conf% *}\\E\$")"
-  EKS_NAMESPACE="$([[ -n "$EKS_CLUSTER" ]] && echo "${k8s_conf#* }")"
+  local k8s_conf="$(kubectl config get-contexts | awk '/^\*/ { print $2,$5 }' | cut -d_ -f4)"
+  GKE_CLUSTER="$(gke_list_clusters "^\\Q${k8s_conf% *}\\E\$")"
+  GKE_NAMESPACE="$([[ -n "$GKE_CLUSTER" ]] && echo "${k8s_conf#* }")"
 
   #[[ "$TERM" =~ xterm ]] || return 1
   local ptyon
@@ -222,10 +222,10 @@ _bcs_title() {
     cat <<'EOF'
     # screen title
     #[[ "$TERM" =~ screen ]] && \
-     print -Pn "\ek" && print -rn $@ && print -Pn "\e\\"
+    print -Pn "\ek" && print -rn $@ && print -Pn "\e\\"
 
     # window title
-    print -Pn "\e]0;$BCS_PROFILE\[$EKS_CLUSTER/$EKS_NAMESPACE\]: "
+    print -Pn "\e]0;$BCS_PROFILE\[$GKE_CLUSTER/$GKE_NAMESPACE\]: "
     print -rn $@
     print -Pn " [%j]\a"
 EOF
@@ -236,9 +236,9 @@ EOF
     # screen title
     [[ "$TERM" =~ screen ]] && \
      echo -en '\ek' && echo -n $@ && echo -en '\e\\'
-
+     [[ -n "$VSCODE_IPC_HOOK_CLI" ]] && return
     # window title
-    echo -en '\e]0;'"$BCS_PROFILE[$EKS_CLUSTER/$EKS_NAMESPACE]: "
+    echo -en '\e]0;'"$BCS_PROFILE[$GKE_CLUSTER/$GKE_NAMESPACE]: "
     echo -n $@
     echo -en ' ['$(jobs | wc -l)']\a'
 EOF
@@ -270,8 +270,8 @@ _bcs_check_shell_requirements() {
       [[ "$req" == node ]] && req+=js
       [[ "$req" == dotnet ]] && req+=-core
       echo "Missing required utility: $req; installing w/ asdf" >&2
-      asdf plugin-add "$req" || return $?
-      local version="$(asdf list-all "$req" | tail -n 1)"
+      asdf plugin add "$req" || return $?
+      local version="$(asdf list all "$req" | tail -n 2 | head -n 1)"
       PATH="/usr/bin:$PATH" asdf install "$req" "$version" || return $?
       echo "$req" "$version" >>~/.tool-versions
     fi
@@ -285,7 +285,7 @@ _bcs_check_shell_requirements() {
         [[ "$req" == pip3 ]] && req=python3-pip
         [[ "$req" == eslint ]] && req+=' typescript typescript-eslint'
         [[ "$pm" == npm ]] && req="-g $req"
-        sudo -Es $pm install $req || return $?
+        [[ "$req" == pip3 ]] && sudo -Es $pm install -U $req --ignore-installed --break-system-packages || $pm install req || return $?
       fi
     done
   done
@@ -327,25 +327,13 @@ bcs_sed_uprobe_shared_libs() {
 bcs_get_account_number() {
   local account_identifier="$1"
 
-  # Short circuit if the account_identifier is an AWS account ID
-  if [[ "$account_identifier" =~ ^[0-9]{12}$ ]]; then
-    echo "$account_identifier"
-    return 0
-  fi
-
   case "$account_identifier" in
-    ### XSLTPROC ###
+    datacenter-staging) echo datacenter-staging;;
+    retail-science-985764) echo retail-science-985764;;
   esac
 }
 
-bcs_get_account_name() {
-  local account_identifier="$1"
-  [[ "$account_identifier" =~ ^[0-9]{12}$ ]] || return 1
-
-  case "$account_identifier" in
-    ### XSLTPROCREV ###
-  esac
-}
+alias bcs_get_account_name='bcs_get_account_number'
 
 _bcs_set_access_key_id() {
   local access_key_id_set=1
@@ -445,34 +433,17 @@ bcs_assume_role() {
 
   local account_identifier="${1-$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f1)}"
   local role="${2-$(echo "$BCS_PROFILE" | cut -d@ -f1)}"
-  local region="${3-$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f2)}"
-  : "${region:=$AWS_DEFAULT_REGION}"
+  local zone="${3-$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f2)}"
+  : "${zone:=${CLOUDSDK_COMPUTE_ZONE:us-west1}}"
 
   local account_id=$(bcs_get_account_number "$account_identifier")
-  if [[ ${#account_id} -ne 12 ]]; then
-    echo "Account ID is not 12 digits long" >&2
-    return 2
-  fi
 
   if [[ -n "$account_id" ]]; then
-    bcs_mfa_session "${4-}"
-    local arr # assume role response
-    arr="$(aws sts assume-role --role-arn arn:aws:iam::"$account_id":role/"$role" --role-session-name "bcsli-$BCS_VERSION")"
-
-    if [[ $? -ne 0 ]]; then
-      [[ -n "${BCS_ABORT_LOGIN:-}" ]] && return 1
-      echo Retrying "$role@$account_identifier.$region" w/ new mfa-session...
-      bcs_clear_envs
-      bcs_assume_role "$account_identifier" "$role" "$region"
-      return $?
-    fi
-    AWS_ACCESS_KEY_ID=$(echo "$arr" | jq -r .Credentials.AccessKeyId)
-    AWS_SECRET_ACCESS_KEY=$(echo "$arr" | jq -r .Credentials.SecretAccessKey)
-    AWS_SESSION_TOKEN=$(echo "$arr" | jq -r .Credentials.SessionToken)
-    BCS_PROFILE="$role@$account_identifier.$region"
+    # bcs_mfa_session "${4-}"
+    local arr="$(gcloud config set project "$account_identifier")"
+    BCS_PROFILE="$role@$account_identifier.$zone"
     EC2_ID_SRC=
     GKE_CLUSTERS_SRC=
-    _ec2_load_inventory
     _gke_load_clusters
     _bcs_title
   else
@@ -528,12 +499,12 @@ bcs_pty_screen() {
   return $rv
 }
 
-bcs_set_region() {
+bcs_set_zone() {
   local account_identifier="$(echo "$BCS_PROFILE" | cut -d@ -f2 | cut -d. -f1)"
   local role="$(echo "$BCS_PROFILE" | cut -d@ -f1)"
-  local region=$1
-  AWS_DEFAULT_REGION=$region
-  BCS_PROFILE="$role@$account_identifier.$region"
+  local zone="$1"
+  export CLOUDSDK_COMPUTE_ZONE="${zone}"
+  BCS_PROFILE="$role@$account_identifier.$zone"
   EC2_ID_SRC=
   GKE_CLUSTERS_SRC=
   _ec2_load_inventory
@@ -546,7 +517,7 @@ bcs_set_region() {
 _bcs_zsh_assume_role_completion() {
   local state
 
-  _arguments '1: :->bcs_account' '2: :->bcs_role' '3: :->bcs_region'
+  _arguments '1: :->bcs_account' '2: :->bcs_role' '3: :->bcs_zone'
 
   case $state in
     bcs_account)
@@ -557,34 +528,34 @@ _bcs_zsh_assume_role_completion() {
       _arguments "2:bcs_role:($_bcs_roles)"
       ;;
 
-    bcs_region)
-      _arguments "3:bcs_region:($_bcs_regions)"
+    bcs_zone)
+      _arguments "3:bcs_zone:($_bcs_zones)"
       ;;
   esac
 }
 
-_bcs_zsh_set_region_completion() {
+_bcs_zsh_set_zone_completion() {
   local state
 
-  _arguments '1: :->bcs_region'
+  _arguments '1: :->bcs_zone'
 
   case $state in
-    bcs_region)
-      _arguments "1:bsc_region:($_bcs_regions)"
+    bcs_zone)
+      _arguments "1:bsc_zone:($_bcs_zones)"
       ;;
   esac
 }
 
 for fcn in "${_bcs_cmds[@]}"; do
   if [[ "$(basename "$SHELL")" == zsh ]]; then
-    if [[ "$fcn" == set-region ]]; then
-      compdef _bcs_zsh_set_region_completion bcs_${fcn//-/_}
+    if [[ "$fcn" == set-zone ]]; then
+      compdef _bcs_zsh_set_zone_completion bcs_${fcn//-/_}
     else
       compdef _bcs_zsh_assume_role_completion bcs_${fcn//-/_}
     fi
   else
-    if [[ "$fcn" == set-region ]]; then
-      complete -W '${_bcs_regions[@]}' bcs_${fcn//-/_}
+    if [[ "$fcn" == set-zone ]]; then
+      complete -W '${_bcs_zones[@]}' bcs_${fcn//-/_}
     else
       complete -W '${_bcs_accounts[@]}' bcs_${fcn//-/_}
     fi
