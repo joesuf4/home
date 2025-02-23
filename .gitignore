@@ -190,13 +190,9 @@ VirtualBox VMs/
 audio/
 bin/OmniSharp
 bin/emacs*
-bin/isatty
-bin/ttyname
 bin/nproc
 bin/op
-bin/oci
 bin/publish*
-bin/script.sh
 build/
 console.out
 crons/

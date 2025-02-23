@@ -278,7 +278,7 @@ _bcs_check_shell_requirements() {
     for req in $(eval echo "\${${UTILS}[@]}"); do
       if ! _bcs_command_exists "$req"; then
         echo "Missing required utility: $req; installing w/ $pm" >&2
-        [[ "$pm" == apt ]]     && req+=" llvm-dev libgirepository1.0-dev"
+        [[ "$pm" == apt ]]     && req+=" llvm-dev libcairo2-dev libgirepository1.0-dev"
         [[ "$pm" == pip3 ]]    && req+=" --break-system-packages"
         [[ "$req" == eslint ]] && req+=' typescript typescript-eslint'
         [[ "$pm" == npm ]]     && req="-g $req"
