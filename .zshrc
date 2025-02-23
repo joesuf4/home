@@ -271,6 +271,7 @@ for cmd in "${PTYON[@]}"; do
       ptyon
       local e='\$ENV{MOZILLA}=qq//'
       _bcs_title : q \$e
+      sleep 1
     else
       ptyon
     fi
