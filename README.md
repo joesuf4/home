@@ -1,17 +1,21 @@
 # TLDR - steps for installing this repo into your own home dir...
 
-1. Install <https://github.com/SunStarSys/pty>
-2. cd ~
+1. cd ~
 2. git clone https://github.com/joesuf4/home -b wsl
 3. cp -a home/.git .
-5. git checkout .
-6. rm -rf home
-7. ./bootstrap.sh
+4. git checkout .
+5. rm -rf home
+6. . ./bootstrap.sh
 
-That will get you the whole ball of wax, except for the XSLTPROC XSLTPROCREV replacement strings in .bcsrc to make the AWS interfaces work.
-Below documents what's involved in getting the `bcs assume-role $foo $bar` to function correctly for your workplace.
+That will get you the whole ball of wax.
 
-Post-Op:  The strings `### XSLTPROC ###` and `### XSLTPROCREV ###` in the
+
+Below documents what's involved in getting the `bcs assume-role $foo $bar`
+to function correctly for your workplace, assuming you aren't yet a colleague.
+
+## ASIDE
+
+Post-Op: (OBSOLETE) The strings `### XSLTPROC ###` and `### XSLTPROCREV ###` in the
 `.bootstrap`-produced `.bcsrc` script need to each reflect your
 
     $aws_account_name) echo $aws_account_id;; ...
@@ -24,13 +28,6 @@ reversed for `### XSLTPROCREV ###`:
 
 The other tunable is the `${_bcs_roles[@]}` array at the top of `.bcsrc`, to
 set the range of assumable AWS roles for your company.
-
-Finally, toss everything but the `[default]` block out of `~/.aws/config`.
-`bcs` will manage all your AWS logins and role assumptions from your default
-credentials in `~/.aws/credentials`.  Currently the `op` automation for MFA
-logins are disabled, but go through the pre-March 2023 history of the
-`.bootstrap` script if you want MFA on your AWS CLI use cases.
-
 
 # Home directory git repo
 

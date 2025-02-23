@@ -195,7 +195,6 @@ bin/ttyname
 bin/nproc
 bin/op
 bin/oci
-bin/pty*
 bin/publish*
 bin/script.sh
 build/

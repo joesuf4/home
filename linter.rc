@@ -64,11 +64,7 @@ EOT
     XARGS_MAX_FILES=1
     PCRE_PAT='\.p[ml]$'
     export STTY_NAME=0
-    LINTER+=' -T -I. -Iblib/lib -Ilib -Ilib/perl5 -c 3<&0'
-    ;;
-
-  perlcritic)
-    PCRE_PAT='\.p[ml]$'
+    LINTER+=' -I. -Ibin -Iblib/lib -Ilib -Ilib/perl5 -c 3<&0'
     ;;
 
   ruff)
