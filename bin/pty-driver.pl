@@ -38,13 +38,14 @@ drive {
     # out by toggling the driver off temporarily first.
     write_slave "r\n";
   }
-  elsif (/^$PREFIX_RE\: ([Pp]) (.+)/m and echo_enabled) {
+  elsif (/^$PREFIX_RE\: ([PpQq]) (.+)/m and echo_enabled) {
     no warnings;
     no strict;
     local ($@, $_, @_);
     local $SIG{__DIE__} = sub { die shift };
     $_ = $2;
-    my $wa = $1 eq "P";
+    my $wa    = $1 eq "P" || $1 eq "Q";
+    my $quiet = $1 eq "q" || $1 eq "Q";
     s/[^[:print:]].*$//mg;
     s/\[\w+\]\s*$//mg;
     s/([a-z]+)\.(\S+)/$1 . (index($2, "'") == -1 && index($2, q(")) == -1 ? "->$2" : ".$2")/ge;
@@ -53,8 +54,9 @@ drive {
     }
     else {
       $_[0] = eval;
+      $#_ == 1;
     }
-    write_master("\r\n$_\r\n$@\r\n") for join "\r\n", @_;
+    $quiet or write_master("\r\n$_\r\n$@\r\n") for join "\r\n", @_;
   }
   elsif (/^$PREFIX_RE\botp-sha1 (\d+) (\w+)/m and not echo_enabled) {
     my ($idx, $salt) = ($1, $2);

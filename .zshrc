@@ -72,6 +72,8 @@ alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 alias :p='pon;: p'
 alias :P='pon;: P'
+alias :q='pon;: q'
+alias :Q='pon;: Q'
 
 pon() { ptyon; sleep 1; setopt unset }
 poff() { ptyoff; sleep 1 }
@@ -272,15 +274,15 @@ for cmd in "${PTYON[@]}"; do
     elif [[ $cmd == sudo ]]; then
       ptyon
       local e='\$ENV{MOZILLA}=qq//'
-      _bcs_title : p \$e
+      _bcs_title : q \$e
     else
       ptyon
     fi
     local rv n
     for n in {1..3}; do \"$exep\" \"\$@\"; rv=\$?; [[ \$rv -eq 0 ]] && break; [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && [[ $cmd != sudo ]] || return \$rv; sleep 1; done
     if [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") && $cmd == sudo ]]; then
-      e='\$ENV{MOZILLA}=qq/${MOZILLA/./\\.}/'
-      _bcs_title : p \$e
+      e='\$ENV{MOZILLA}=qq/'\${MOZILLA/./\\\.}/
+      _bcs_title : q \$e
       sleep 3
     fi
     return \$rv
