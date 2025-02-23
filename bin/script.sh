@@ -12,7 +12,7 @@ while getopts aq o; do
   esac
 done
 
-while [ ! "$1" = "$(echo "$1" | sed -e 's/^-//')" ]; do
+while [ ! "$1" = "${1#-}" ]; do
   shift
 done
 
