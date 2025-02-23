@@ -255,3 +255,4 @@ save/
 .config/mimeapps.list
 .config/htop/
 .gsutil/
+.ipython/

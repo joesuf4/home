@@ -1,4 +1,4 @@
-cat <<'EOBCSRC' | sed -e 's/### VERSION ###/3.0/' -e 's/### CLI ###/bcs gke/' > ~/.bcsrc
+cat <<'EOBCSRC' | sed -e 's/### VERSION ###/3.0/' -e 's/### CLI ###/bcs/' > ~/.bcsrc
 # -*- sh -*-
 declare -ax words REQUIRED_ASDF_UTILITIES=(aws terraform kubectl go node k9s tflint dotnet golangci-lint) \
 REQUIRED_APT_UTILITIES=(jq xsltproc gcc clang zsh tmux pip3 pylint yamllint clang-tidy daemonize) \
@@ -259,10 +259,6 @@ _bcs_command_exists() {
 
 _bcs_check_shell_requirements() {
   local req
-  if ! _bcs_command_exists asdf; then
-    [[ -d ~/.asdf ]] || git clone https://github.com/asdf-vm/asdf.git ~/.asdf
-    . ~/.asdf/asdf.sh
-  fi
   for req in "${REQUIRED_ASDF_UTILITIES[@]}"; do
     if ! _bcs_command_exists "$req"; then
       [[ "$req" == aws ]] && req+=cli
