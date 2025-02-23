@@ -1,7 +1,7 @@
 cat <<'EOBCSRC' | sed -e 's/### VERSION ###/3.0/' -e 's/### CLI ###/bcs gke/' > ~/.bcsrc
 # -*- sh -*-
-declare -ax words REQUIRED_ASDF_UTILITIES=(aws terraform kubectl go node k9s tflint dotnet golangci-lint) \
-REQUIRED_APT_UTILITIES=(jq xsltproc gcc clang zsh tmux pip3 pylint yamllint clang-tidy cmake clang llvm-dev clang-format daemonize) \
+declare -ax words REQUIRED_ASDF_UTILITIES=(aws terraform gcloud kubectl go node k9s tflint dotnet golangci-lint) \
+REQUIRED_APT_UTILITIES=(jq xsltproc gcc clang zsh tmux pip3 pylint yamllint clang-tidy cmake clang clang-format daemonize alpine) \
 REQUIRED_PIP3_UTILITIES=(ansible flake8 black virtualenv) \
 REQUIRED_NPM_UTILITIES=(eslint serverless) \
 _bcs_tools=(pty script.sh pffxg.sh smag yq) \
@@ -277,11 +277,12 @@ _bcs_check_shell_requirements() {
     local UTILS=REQUIRED_"$(tr '[:lower:]' '[:upper:]' <<<"$pm")"_UTILITIES
     for req in $(eval echo "\${${UTILS}[@]}"); do
       if ! _bcs_command_exists "$req"; then
-        echo "Missing required utility: $req; installing w/ sudo -Es $pm" >&2
-        [[ "$req" == pip3 ]] && req=python3-pip
+        echo "Missing required utility: $req; installing w/ $pm" >&2
+        [[ "$pm" == apt ]]     && req+=" llvm-dev"
+        [[ "$pm" == pip3 ]]    && req+=" --break-system-packages"
         [[ "$req" == eslint ]] && req+=' typescript typescript-eslint'
-        [[ "$pm" == npm ]] && req="-g $req"
-        [[ "$req" == pip3 ]] && sudo -Es $pm install -U $req --ignore-installed --break-system-packages || $pm install req || return $?
+        [[ "$pm" == npm ]]     && req="-g $req"
+        [[ "$pm" == pip3 || "$pm" == apt ]] && sudo -Es $pm install $req || $pm install req || return $?
       fi
     done
   done
@@ -561,12 +562,11 @@ _bcs_generate_cli ### CLI ###
 EOBCSRC
 . ~/.bcsrc
 _bcs_check_shell_requirements
-sudo cpan install Term::ReadKey IO::Select URI Test2::Harness
-sudo pip3 install -U setproctitle cryptography --ignore-installed --break-system-packages
+sudo cpan install Term::ReadKey IO::Select URI Test2::Harness Log::Log4perl
+sudo pip3 install -U setproctitle cryptography --break-system-packages
 pkill pty-agent
 pty-agent
 mkdir -p ~/src
 [[ -d ~/src/WSL2-Linux-Kernel ]] || (cd ~/src && git clone https://github.com/Microsoft/WSL2-Linux-Kernel)
 [[ -d ~/src/cascadia-code ]] || (cd ~/src && git clone https://github.com/Microsoft/cascadia-code && cd cascadia-code && sudo pip3 install -r requirements.txt --ignore-installed --break-system-packages && python3 build.py && sudo mkdir -p /usr/local/share/fonts/cascadia && sudo cp -r build/ttf/Cascadia /usr/local/share/fonts/cascadia)
-CMAKE_PREFIX_PATH=/usr/lib/llvm-*
 [[ -d ~/src/ccls ]] || (cd ~/src && git clone https://github.com/MaskRay/ccls --depth=1 --recursive && cd ccls && cmake -S. -Brelease -DCMAKE_BUILD_TYPE=Release && cmake --build Release && sudo cmake --install Release)

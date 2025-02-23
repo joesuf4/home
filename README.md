@@ -1,19 +1,25 @@
 # TLDR - steps for installing this repo into your own home dir...
 
+0. FORK @joesuf4/home on GitHub to `$your_github_account`
 1. cd ~
-2. git clone https://github.com/joesuf4/home -b wsl
+2. git clone https://github.com/$your_github_account/home
 3. cp -a home/.git .
 4. git checkout .
 5. rm -rf home
 6. . ./bootstrap.sh
 
-That will get you the whole ball of wax.
+That will get you the whole ball of wax, that you can customize and commit to at will.
 
+You don't need to publish your subsequent commits to GitHub, unless you want to do a
+PR against the @joesuf4/home repo (or to just share them publicly as I am now).
+
+You can resync your fork with @joesuf/home future changes and pull them into your ~/
+checkout as you see fit.
+
+## ASIDE FOR HARDCORE NON-WORK-COLLEAGUES
 
 Below documents what's involved in getting the `bcs assume-role $foo $bar`
 to function correctly for your workplace, assuming you aren't yet a colleague.
-
-## ASIDE
 
 Post-Op: (OBSOLETE) The strings `### XSLTPROC ###` and `### XSLTPROCREV ###` in the
 `.bootstrap`-produced `.bcsrc` script need to each reflect your
