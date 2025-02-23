@@ -271,8 +271,7 @@ for cmd in "${PTYON[@]}"; do
       [[ \"\${1:-}\" -pcre-match '^(up|co|ci)' ]] && ptyon
     elif [[ $cmd == sudo ]]; then
       ptyon
-      $exep -v
-      ptyoff
+      local MOZILLA
     else
       ptyon
     fi
