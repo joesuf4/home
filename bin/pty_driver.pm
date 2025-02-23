@@ -167,7 +167,7 @@ sub write_master (;$) {
     alarm TTY_WRITE_TIMEOUT;
     do {
       my $w = syswrite $mterm, $_, $blen - $wrote, $wrote;
-      die "syswrite failed: $!" unless $w >= 0;
+      die "syswrite failed: $!" unless defined $w and $w >= 0;
       $wrote += $w;
     } while $wrote < $blen;
     alarm 0;

@@ -116,7 +116,7 @@ alias zplugu='setopt unset && zplug update; unsetopt unset'
 
 alias npmu='npm update --location=global'
 
-alias pip3u='pip3 freeze | cut -d= -f1 | sudo -Es xargs pip3 install -U --break-system-packages'
+alias pip3u='pip3 freeze | cut -d= -f1 | sudo -Es xargs pip3 install -U --ignore-installed --break-system-packages'
 
 alias gpgr='gpg --refresh-keys'
 

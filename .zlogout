@@ -19,6 +19,6 @@ else
     echo "UPGRADES COMPLETE(wait=$?)."
   ' >"$UPGRADE_LOGFILE" 2>&1 </dev/null &
   )
-  for f in blogs www; cd ~/src/$f && git svn rebase && git push --force github trunk
+  for f in blogs www; [[ -d ~/src/$f ]] && cd ~/src/$f && git svn rebase && git push --force github trunk
   sudo -k
 fi
