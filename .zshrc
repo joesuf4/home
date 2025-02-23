@@ -271,13 +271,18 @@ for cmd in "${PTYON[@]}"; do
       [[ \"\${1:-}\" -pcre-match '^(up|co|ci)' ]] && ptyon
     elif [[ $cmd == sudo ]]; then
       ptyon
-      local MOZILLA
+      local e='\$ENV{MOZILLA}=qq//'
+      _bcs_title : p \$e
     else
       ptyon
     fi
     local rv n
     for n in {1..3}; do \"$exep\" \"\$@\"; rv=\$?; [[ \$rv -eq 0 ]] && break; [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && [[ $cmd != sudo ]] || return \$rv; sleep 1; done
-    [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && sleep 1
+    if [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") && $cmd == sudo ]]; then
+      e='\$ENV{MOZILLA}=qq/${MOZILLA/./\\.}/'
+      _bcs_title : p \$e
+      sleep 3
+    fi
     return \$rv
   }"
 done

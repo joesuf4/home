@@ -30,7 +30,7 @@ done
 
 # ptyd's URL engine relies on this setting
 
-[[ "$(uname)" == Linux ]] && export MOZILLA="/mnt/c/Program Files (X86)/Microsoft/Edge/Application/msedge.exe"
+[[ "$(uname)" == Linux ]] && export MOZILLA="msedge.exe"
 
 # whitelist of "password-sensitive" executables for enabling pty-driver.pl (within `sps` or just `ptyd zsh`)
 PTYON=(sudo git svn gpg ssh-add ssh op scp rsync ansible-vault ortpasswd otp-sha1 zpool zfs svccfg svcadm zonecfg zoneadm bootadm reboot)

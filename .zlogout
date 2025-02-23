@@ -1,5 +1,5 @@
 set -e
-unset MOZILLA
+MOZILLA=""
 if [[ "$(uname)" != Linux ]]; then
    sudo -k
 else

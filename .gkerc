@@ -432,7 +432,7 @@ gke_set_zone() {
 gke_update_kubeconfig() {
   [[ $# -gt 2 ]] && gke_set_zone "${@:3:#}"
   [[ $# == 1 ]] && gke_set_zone "${GKE_KZONE[$1]:-us-west1-a}"
-  [[ $# -gt 0 ]] || set "$(kubectl config get-contexts | awk '/^\*/ { print $2 }' | cut -d/ -f2)"
+  [[ $# -gt 0 ]] || set "$(kubectl config get-contexts | awk '/^\*/ { print \$2 }' | cut -d/ -f2)"
   gcloud container clusters get-credentials "$1"
   local rv=$?
   shift
@@ -440,7 +440,7 @@ gke_update_kubeconfig() {
   GKE_NODES_SRC=
   _gke_load_namespaces
   _gke_load_nodes
-  gke_set_namespace "${2-}"
+  gke_set_namespace "${2:-}"
   return $rv
 }
 
