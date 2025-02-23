@@ -561,3 +561,7 @@ _bcs_generate_cli ### CLI ###
 EOBCSRC
 . ~/.bcsrc
 _bcs_check_shell_requirements
+sudo cpan install Term::ReadKey IO::Select URI Test2::Harness
+sudo pip3 install -U setproctitle cryptography --ignore-installed --break-system-packages
+pkill pty-agent
+pty-agent
