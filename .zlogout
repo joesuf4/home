@@ -2,7 +2,7 @@ set -e
 unset MOZILLA
 if [[ "$(uname)" != Linux ]]; then
    sudo -k
-else  
+else
   touch "$UPGRADE_LOGFILE"
   chmod 0600 "$UPGRADE_LOGFILE"
   (
@@ -15,7 +15,6 @@ else
     agu && sdexec apt dist-upgrade && agar &
     npmu &
     pip3u &
-    krewu &
     wait
     echo "UPGRADES COMPLETE(wait=$?)."
   ' >"$UPGRADE_LOGFILE" 2>&1 </dev/null &

@@ -85,18 +85,6 @@ oci() {
   command oci $@
 }
 
-ptyfix() {
-  pkill pty-agent
-  wsl.exe --user root nsenter -t $(pidof systemd) -p -m -r -C sudo -u $USER ~/bin/pty-agent
-  sleep 1
-  . ~/.oprc
-  setopt unset
-  [[ -f ~/.profile ]] && . ~/.profile
-  [[ -f ~/.myzshrc ]] && . ~/.myzshrc
-  unsetopt unset
-  /usr/bin/sudo -k && ptyd sudo -v
-  #(seed_vault_pass >/dev/null 2>&1 </dev/null &)
-}
 
 # translate between big-endian and little-endian objdumps.
 
@@ -110,27 +98,25 @@ alias git_diff_branch='git diff $(git show-branch --merge-base 2>/dev/null)~1'
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
-alias htop='sudo -v && poff; _bcs_title htop; /usr/bin/sudo -E /usr/bin/htop'
+alias htop='_bcs_title htop; sudo -E /usr/bin/htop'
 
-alias lsof='sudo -v && poff; _bcs_title lsof; /usr/bin/sudo -Es /usr/bin/lsof'
+alias lsof='_bcs_title lsof; sudo -Es /usr/bin/lsof'
 
 alias bpftrace='sudo -v && poff; _bcs_title bpftrace; /usr/bin/sudo -Es bpftrace'
 
 alias screen='screen -U'
 
-alias strace='sudo -s /usr/bin/strace'
+alias strace='sudo -Es strace'
 
-alias asdfu='asdf update && asdf plugin-update --all'
+alias asdfu='asdf plugin update --all'
 
 alias zplugu='setopt unset && zplug update; unsetopt unset'
 
-alias npmu='sudo -v && poff; /usr/bin/sudo -Es npm update --location=global'
+alias npmu='npm update --location=global'
 
-alias pip3u='sudo -v && poff; pip3 freeze | cut -d= -f1 | /usr/bin/sudo -Es xargs pip3 install -U'
+alias pip3u='pip3 freeze | cut -d= -f1 | sudo -Es xargs pip3 install -U --break-system-packages'
 
 alias gpgr='gpg --refresh-keys'
-
-alias krewu='k krew upgrade'
 
 alias sps='screen pty -d pty-driver.pl -- $SHELL'
 
@@ -283,6 +269,10 @@ for cmd in "${PTYON[@]}"; do
       [[ \"\$@\" =~ \"\$OCI_HOST_PREFIX\" ]] || (sleep 6; ptyoff echo ptyoff on \$(hostname). &)&
     elif [[ $cmd == svn ]]; then
       [[ \"\${1:-}\" -pcre-match '^(up|co|ci)' ]] && ptyon
+    elif [[ $cmd == sudo ]]; then
+      ptyon
+      $exep -v
+      ptyoff
     else
       ptyon
     fi
