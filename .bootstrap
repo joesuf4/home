@@ -1,4 +1,4 @@
-cat <<'EOBCSRC' | sed -e 's/### VERSION ###/3.0/' -e 's/### CLI ###/bcs/' > ~/.bcsrc
+cat <<'EOBCSRC' | sed -e 's/### VERSION ###/3.0/' -e 's/### CLI ###/bcs gke/' > ~/.bcsrc
 # -*- sh -*-
 declare -ax words REQUIRED_ASDF_UTILITIES=(aws terraform kubectl go node k9s tflint dotnet golangci-lint) \
 REQUIRED_APT_UTILITIES=(jq xsltproc gcc clang zsh tmux pip3 pylint yamllint clang-tidy daemonize) \
@@ -459,6 +459,7 @@ bcs_clear_envs() {
 
 _bcs_generate_cli() {
   for ns; do
+    [[ "$ns" == bcs ]] || . ~/.${ns}rc
     eval "$ns() {
       local cmd=\"\$1\"
       shift
@@ -467,7 +468,6 @@ _bcs_generate_cli() {
         return \$?
       elif _bcs_command_exists ${ns}-\$cmd.sh; then
         ${ns}-\$cmd.sh \"\$@\"
-        return \$?
       fi
       _bcs_cli_usage $ns
     }

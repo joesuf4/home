@@ -949,4 +949,3 @@ alias _gke_report_pod_actual_mem=': "${_k_top_pod:=$(k top pod --all-namespaces)
 alias _gke_report_pod_datadog_fd=_gke_report_namespace_datadog_fd
 
 _gke_load_clusters >/dev/null 2>&1
-_bcs_generate_cli gke
