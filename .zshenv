@@ -41,7 +41,10 @@ PLACEHOLDER=n/a
 export ASDF_DATA_DIR=~/.asdf
 
 # PATH
-for p in /sbin /usr/sbin /usr/local/cuda-12.6/bin "$(asdf where gcloud 2>/dev/null)/bin" "$(go env GOPATH 2>/dev/null)/bin" /usr/local/texlive/2023/bin/x86_64-solaris /usr/local/bin ~/{.local,.krew}/bin ~/.dotnet/tools $ASDF_DATA_DIR ~/bin; do
+for p in /sbin /usr/sbin /usr/local/cuda-12.6/bin "$(asdf where nodejs 2>/dev/null)/bin" \
+               "$(asdf where gcloud 2>/dev/null)/bin" "$(go env GOPATH 2>/dev/null)/bin" \
+               /usr/local/texlive/2023/bin/x86_64-solaris /usr/local/bin ~/{.local,.krew}/bin \
+               ~/.dotnet/tools $ASDF_DATA_DIR/shims ~/bin; do
   # fyi- this is not going to work if you use it on nested $p paths...
   [[ -d "$p" ]] && PATH="$p$(echo ":$PATH" | sed -e "s|:$p||g")"
 done
