@@ -138,10 +138,6 @@ alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 
 alias sdexec='sudo -E nsenter -t $(pidof systemd | awk "{print \$1}") -p -m -r -C'
 
-alias sbei='seed_bastion_ec2_inventory ~/src/*-deployer'
-
-alias accept_bastion_ssh_host_keys='for count in {1..100}; do sleep 3; timeout 1 yes yes | head -n 1; done | pty -ne -- $SHELL -ic "BCS_PROFILE=n/a _ec2_load_inventory; for host in \${(k)EC2_ID[@]}; ssh \$host true"'
-
 alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
 
 # typescript file walker
@@ -410,24 +406,6 @@ emac() {
   else
     (TERM=xterm-256color nohup emacsclient "${args[@]}" </dev/null >/dev/null 2>&1 &) >/dev/null 2>&1
   fi
-}
-
-seed_vault_pass() {
-  local TMP="$(mktemp)"
-  (
-    BCS_ABORT_LOGIN=1 bcs assume-role devops-nonprod engineer >/dev/null &&
-      PW="$(aws secretsmanager get-secret-value --secret-id service-deployer-ansible-vault-pass |
-        jq .SecretString | tr -d \")"
-    (printf "%s\n%s\n" "$PW" "$PW" && sleep 1) | pty -nie -- pty -d pty-driver.pl ansible-vault encrypt "$TMP"
-  )
-  rm "$TMP"
-}
-
-seed_bastion_ec2_inventory() {
-  EC2_ID_SRC="$(for dir in "$@"; do
-    cd $dir && grep ansible_ provisioning/inventory/*/hosts | cut -d: -f2 | awk "{gsub(\"^.*/\", \"$dir/\", \$3); print \$1, \$3\".encrypted\"}" | sort -u | grep -Fv 10.161.160.
-  done)"
-  BCS_PROFILE=n/a _ec2_load_inventory
 }
 
 # pull in local rc config
