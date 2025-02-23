@@ -430,7 +430,7 @@ if [[ -n "$PFFXG_CACHE" ]]; then
   # work directly from the cache tree unless we are refreshing it
   if [[ -z "$refresh" ]]; then
     cd "$PFFXG_CACHE$PWD" || exit 255
-    if [[ -n "$PFFXG_COMPRESS" ]] && pgrep -P 1 -u $USER "${PFFXG_COMPRESSOR% **}"; then
+    if [[ -n "$PFFXG_COMPRESS" ]] && pgrep -P 1 -u $USER "${PFFXG_COMPRESSOR%% *}"; then
       echo "Compression still in progress from a prior run..."
       echo "Please wait for the above-listed processes to finish."
       exit 4
@@ -627,7 +627,7 @@ ls -A | filter_exclusions | xargs -r -d '\n' -P $PFFXG_WORKERS -n $find_args bas
 rc=$?
 
 if [[ "$rc" -gt 123 ]]; then
-  cmd="${PFFXG_CMD% **}"
+  cmd="${PFFXG_CMD%% *}"
   echo "pffxg.sh: [$cmd $@] FATALITY: exit status exceeded $PFFXG_MAX_STATUS." >&2
   echo -e "See the $cmd manpage for additional help.\n" >&2
 
