@@ -613,7 +613,7 @@ ls -A | filter_exclusions | xargs -r -d '\n' -P $PFFXG_WORKERS -n $find_args bas
   $set_and_shift_cmd_args
   compression_suffix=
   [[ -n \"$PFFXG_CACHE\" ]] && process_cache \"\$@\"
-  \$([[ $unzip -eq 1 ]] && unzip_prefix \"\$1\")$PFFXG_CMD \
+  \$([[ $unzip -eq 1 ]] && echo -n pty -nie -- \"\" && unzip_prefix \"\$1\")$PFFXG_CMD \
       \"\${cmd_args[@]}\" -- \"\${@%\$compression_suffix}\" >> $temp_dir/\$\$
   [[ \$? -gt $PFFXG_MAX_STATUS ]] && exit 255
   ' \
@@ -628,8 +628,9 @@ rc=$?
 
 if [[ "$rc" -gt 123 ]]; then
   cmd="${PFFXG_CMD% **}"
-  echo "pffxg.sh: [$PFFXG_CMD $@] FATALITY: exit status exceeded $PFFXG_MAX_STATUS." >&2
+  echo "pffxg.sh: [$cmd $@] FATALITY: exit status exceeded $PFFXG_MAX_STATUS." >&2
   echo -e "See the $cmd manpage for additional help.\n" >&2
+
   $cmd --help >&2
   exit $rc
 fi
