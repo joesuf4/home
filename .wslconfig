@@ -2,6 +2,3 @@
 kernel=C:\\Users\\jschaefer\\bzImage
 swap=128GB
 memory=24GB
-
-[experimental]
-#autoMemoryReclaim=gradual
