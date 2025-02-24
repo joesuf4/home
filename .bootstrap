@@ -1,7 +1,7 @@
 cat <<'EOBCSRC' | sed -e 's/### VERSION ###/3.0/' -e 's/### CLI ###/bcs gke/' > ~/.bcsrc
 # -*- sh -*-
 declare -ax words REQUIRED_ASDF_UTILITIES=(aws terraform gcloud kubectl go node k9s tflint dotnet golangci-lint) \
-REQUIRED_APT_UTILITIES=(unzip jq xsltproc make cmake gcc clang zsh tmux pip3 pylint yamllint clang-tidy clang-format daemonize alpine pdfgrep bpftrace htop lzop) \
+REQUIRED_APT_UTILITIES=(unzip jq xsltproc make cmake gcc clang zsh tmux pip3 pylint yamllint clang-tidy clang-format daemonize alpine pdfgrep bpftrace htop lzop gh) \
 REQUIRED_PIP3_UTILITIES=(ansible ruff virtualenv pytest ipython) \
 REQUIRED_NPM_UTILITIES=(eslint serverless stylelint remark-cli) \
 _bcs_tools=(pty script.sh pffxg.sh smag yq) \
