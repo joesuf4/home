@@ -583,4 +583,4 @@ fi
 sudo rm -f /etc/wsl.conf
 sudo chown $USER:nogroup /mnt
 sudo chmod 0770 /mnt
-mkdir -p ~/src/gha-runner ~/src/case/{ceval,rsim}
+mkdir -p ~/src/gha-runner ~/src/case/ceval
