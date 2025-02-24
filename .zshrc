@@ -25,17 +25,18 @@ setopt share_history extended_history hist_expire_dups_first hist_no_store
 
 # ctrl-(up/down/right/left) arrow bindings
 
-bindkey '\e[1;5A' history-incremental-search-backward
-bindkey '\e[1;5B' history-incremental-search-forward
+bindkey '\e[1;5A' history-substring-search-up
+bindkey '\e[1;5B' history-substring-search-down
 bindkey '\e[1;5C' emacs-forward-word
 bindkey '\e[1;5D' emacs-backward-word
 
-bindkey '^P' history-substring-search-up
-bindkey '^N' history-substring-search-down
+bindkey '^P' history-incremental-search-backward
+bindkey '^N' history-incremental-search-forward
 
 bindkey '^A' vi-beginning-of-line
 bindkey '^K' kill-line
 bindkey '^Y' yank
+bindkey '^U' kill-region
 
 # directory stuff
 

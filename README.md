@@ -1,6 +1,6 @@
 # TLDR - steps for installing this repo into your own home dir...
 
-0. FORK @joesuf4/home on GitHub to `$your_github_account`
+0. FORK @joesuf4/home (github.com/joesuf4/home) on GitHub to `$your_github_account`
 1. cd ~
 2. git clone https://github.com/$your_github_account/home
 3. cp -a home/.git .
@@ -8,6 +8,7 @@
 5. rm -rf home
 6. bash ~/.bootstrap
 7. wsl.exe —-shutdown
+8. install Docker Desktop (or google instructions for installing docker via Ubuntu's apt).
 
 That will get you the whole ball of wax, that you can customize and commit to at will.
 
