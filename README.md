@@ -6,7 +6,8 @@
 3. cp -a home/.git .
 4. git checkout .
 5. rm -rf home
-6. . ./bootstrap.sh
+6. bash ~/.bootstrap
+7. exit 
 
 That will get you the whole ball of wax, that you can customize and commit to at will.
 
