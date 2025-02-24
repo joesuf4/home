@@ -570,7 +570,7 @@ mkdir -p ~/src
 [[ -d ~/src/cascadia-code ]] || (cd ~/src && git clone https://github.com/Microsoft/cascadia-code && cd cascadia-code && sudo pip3 install -r requirements.txt --ignore-installed --break-system-packages && python3 build.py && sudo mkdir -p /usr/local/share/fonts/cascadia && sudo cp -r build/ttf/Cascadia /usr/local/share/fonts/cascadia)
 [[ -d ~/src/ccls ]] || (cd ~/src && git clone https://github.com/MaskRay/ccls --depth=1 --recursive && cd ccls && cmake -S. -Brelease -DCMAKE_BUILD_TYPE=Release && cmake --build Release && sudo cmake --install Release)
 if [[ "$(getent passwd $USER | cut -d: -f7)" != /usr/bin/tmux ]]; then
-  echo chsh -s /usr/bin/tmux
-  chsh -s /usr/bin/tmux
+  echo chsh -s /usr/bin/tmux $USER
+  sudo chsh -s /usr/bin/tmux $USER
 fi
 sudo rm -f /etc/wsl.conf
