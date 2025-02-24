@@ -100,11 +100,11 @@ alias git_diff_branch='git diff $(git show-branch --merge-base 2>/dev/null)~1'
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
-alias htop='_bcs_title htop; sudo -E htop'
+alias htop='_bcs_title htop; sudo -Es htop'
 
-alias lsof='_bcs_title lsof; sudo -E lsof'
+alias lsof='_bcs_title lsof; sudo -Es lsof'
 
-alias bpftrace='_bcs_title bpftrace; sudo -E bpftrace'
+alias bpftrace='_bcs_title bpftrace; sudo -Es bpftrace'
 
 alias screen='screen -U'
 
