@@ -100,15 +100,15 @@ alias git_diff_branch='git diff $(git show-branch --merge-base 2>/dev/null)~1'
 
 alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
-alias htop='_bcs_title htop; sudo -E /usr/bin/htop'
+alias htop='_bcs_title htop; sudo -E htop'
 
-alias lsof='_bcs_title lsof; sudo -Es /usr/bin/lsof'
+alias lsof='_bcs_title lsof; sudo -E lsof'
 
-alias bpftrace='sudo -v && poff; _bcs_title bpftrace; /usr/bin/sudo -Es bpftrace'
+alias bpftrace='_bcs_title bpftrace; sudo -E bpftrace'
 
 alias screen='screen -U'
 
-alias strace='sudo -Es strace'
+alias strace='sudo -E strace'
 
 alias asdfu='asdf plugin update --all'
 
@@ -272,6 +272,7 @@ for cmd in "${PTYON[@]}"; do
       local e='\$ENV{MOZILLA}=qq//'
       _bcs_title : q \$e
       sleep 1
+      _bcs_title sudo \"\$@\"
     else
       ptyon
     fi
@@ -280,7 +281,6 @@ for cmd in "${PTYON[@]}"; do
     if [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") && $cmd == sudo ]]; then
       e='\$ENV{MOZILLA}=qq/'\${MOZILLA/./\\\.}/
       _bcs_title : q \$e
-      sleep 3
     fi
     return \$rv
   }"

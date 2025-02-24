@@ -222,11 +222,11 @@ _bcs_title() {
     cat <<'EOF'
     # screen title
     #[[ "$TERM" =~ screen ]] && \
-    print -Pn "\ek" && print -rn $@ && print -Pn "\e\\"
+    print -Pn "\ek" && print -rn -- $@ && print -Pn "\e\\"
 
     # window title
     print -Pn "\e]0;$BCS_PROFILE\[$GKE_CLUSTER/$GKE_NAMESPACE\]: "
-    print -rn $@
+    print -rn -- $@
     print -Pn " [%j]\a"
 EOF
   )
