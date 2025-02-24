@@ -281,6 +281,7 @@ for cmd in "${PTYON[@]}"; do
     if [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") && $cmd == sudo ]]; then
       e='\$ENV{MOZILLA}=qq/'\${MOZILLA/./\\\.}/
       _bcs_title : q \$e
+      sleep 1
     fi
     return \$rv
   }"
