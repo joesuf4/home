@@ -277,7 +277,7 @@
 (add-hook 'prog-mode-hook #'lsp)
 (global-auto-complete-mode t)
 (which-key-mode)
-(helm-mode)
+;(helm-mode)
 (require 'helm-xref)
 
 (use-package lsp-ui :commands lsp-ui-mode)
