@@ -7,7 +7,7 @@
 4. git checkout .
 5. rm -rf home
 6. bash ~/.bootstrap
-7. exit 
+7. wsl.exe —-shutdown
 
 That will get you the whole ball of wax, that you can customize and commit to at will.
 
