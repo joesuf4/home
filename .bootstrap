@@ -573,3 +573,4 @@ if [[ "$(getent passwd $USER | cut -d: -f7)" != /usr/bin/tmux ]]; then
   echo chsh -s /usr/bin/tmux
   chsh -s /usr/bin/tmux
 fi
+sudo rm -f /etc/wsl.conf
