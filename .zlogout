@@ -1,5 +1,5 @@
 set -e
-MOZILLA=""
+
 if [[ "$(uname)" != Linux ]]; then
    sudo -k
 else
