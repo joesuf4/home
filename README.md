@@ -14,7 +14,7 @@ That will get you the whole ball of wax, that you can customize and commit to at
 You don't need to publish your subsequent commits to GitHub, unless you want to do a
 PR against the @joesuf4/home repo (or to just share them publicly as I am now).
 
-You can resync your fork with @joesuf/home future changes and pull them into your ~/
+You can resync your fork with @joesuf4/home future changes and pull them into your ~/
 checkout as you see fit.
 
 ## ASIDE FOR HARDCORE NON-WORK-COLLEAGUES
