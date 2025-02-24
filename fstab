@@ -1,0 +1,1 @@
+tmpfs /tmp tmpfs defaults,size=4G,mode=0777,noatime,nodev,nosuid,noexec 0 0
