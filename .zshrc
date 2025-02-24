@@ -205,7 +205,7 @@ precmd() {
   fi
 
   vcs_info 2>/dev/null
-  unsetopt unset;
+  unsetopt unset
 }
 
 preexec() {
