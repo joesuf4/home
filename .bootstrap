@@ -3,7 +3,7 @@
 cat <<'EOBCSRC' | sed -e 's/### VERSION ###/3.0/' -e 's/### CLI ###/bcs gke/' > ~/.bcsrc
 # -*- sh -*-
 declare -ax words REQUIRED_ASDF_UTILITIES=(aws terraform gcloud kubectl go node k9s tflint dotnet golangci-lint) \
-REQUIRED_APT_UTILITIES=(unzip jq xsltproc make cmake gcc clang zsh tmux pip3 pylint yamllint clang-tidy clang-format daemonize alpine pdfgrep bpftrace htop lzop gh tree) \
+REQUIRED_APT_UTILITIES=(unzip jq xsltproc make cmake gcc clang zsh tmux pylint yamllint clang-tidy clang-format daemonize postfix alpine pdfgrep bpftrace htop lzop gh tree) \
 REQUIRED_PIP3_UTILITIES=(ansible ruff pytest ipython) \
 REQUIRED_NPM_UTILITIES=(eslint serverless stylelint remark) \
 _bcs_tools=(pty script.sh pffxg.sh smag yq) \
@@ -261,6 +261,22 @@ _bcs_command_exists() {
 
 _bcs_check_shell_requirements() {
   local req
+  local pm
+  for pm in apt pip3 $([[ -n "${BCS_INSTALL_NPM_MODULES-}" ]] && echo npm); do
+    local UTILS=REQUIRED_"$(tr '[:lower:]' '[:upper:]' <<<"$pm")"_UTILITIES
+    for req in $(eval echo "\${${UTILS}[@]}"); do
+      if ! _bcs_command_exists "$req"; then
+        echo "Missing required utility: $req; installing w/ $pm" >&2
+        [[ "$pm" == apt ]]     && req="-y -qq $req locales python3-pip python3-dev python3-venv llvm-dev libcairo2-dev libgirepository1.0-dev libbsd-dev libgsl-dev libpng-dev uuid-dev libx11-dev"
+        [[ "$req" == pip3 ]]   && req="python3-pip"
+        [[ "$req" == remark ]] && req+="-cli marked-mermaid marked marked-cli"
+        [[ "$pm" == pip3 ]]    && req+=" ansible-lint pytest-tap cffi numpy pandas --break-system-packages"
+        [[ "$req" == eslint ]] && req+=' typescript typescript-eslint'
+        [[ "$pm" == npm ]]     && req="-g $req"
+        [[ "$pm" == pip3 || "$pm" == apt ]] && eval sudo -Es $pm install $req || eval $pm install $req || return $?
+      fi
+    done
+  done
   for req in "${REQUIRED_ASDF_UTILITIES[@]}"; do
     if ! _bcs_command_exists "$req"; then
       [[ "$req" == aws ]] && req+=cli
@@ -273,22 +289,6 @@ _bcs_check_shell_requirements() {
       PATH="/usr/bin:$PATH" asdf install "$req" "$version" || return $?
       echo "$req" "$version" >>~/.tool-versions
     fi
-  done
-  local pm
-  for pm in apt pip3 $([[ -n "${BCS_INSTALL_NPM_MODULES-}" ]] && echo npm); do
-    local UTILS=REQUIRED_"$(tr '[:lower:]' '[:upper:]' <<<"$pm")"_UTILITIES
-    for req in $(eval echo "\${${UTILS}[@]}"); do
-      if ! _bcs_command_exists "$req"; then
-        echo "Missing required utility: $req; installing w/ $pm" >&2
-        [[ "$pm" == apt ]]     && req="-y -qq $req locales python3-dev python3-venv llvm-dev libcairo2-dev libgirepository1.0-dev libbsd-dev libgsl-dev libpng-dev zlib uuid-dev libx11-dev"
-        [[ "$req" == pip3 ]]   && req="python3-pip"
-        [[ "$req" == remark ]] && req+="-cli marked-mermaid marked marked-cli"
-        [[ "$pm" == pip3 ]]    && req+=" ansible-lint pytest-tap cffi numpy pandas --break-system-packages"
-        [[ "$req" == eslint ]] && req+=' typescript typescript-eslint'
-        [[ "$pm" == npm ]]     && req="-g $req"
-        [[ "$pm" == pip3 || "$pm" == apt ]] && eval sudo -Es $pm install $req || eval $pm install $req || return $?
-      fi
-    done
   done
 }
 
@@ -565,6 +565,8 @@ _bcs_generate_cli ### CLI ###
 EOBCSRC
 
 . ~/.bcsrc
+
+
 _bcs_check_shell_requirements
 
 sudo cpan install Term::ReadKey IO::Select URI Test2::Harness Log::Log4perl
