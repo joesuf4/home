@@ -34,7 +34,7 @@ if ! pgrep pty-agent >/dev/null 2>&1; then
     umount /tmp/.X11-unix
     mkdir -p /run/user/1000/dconf;chown -R $USER:$USER /run/user/1000
     daemonize /usr/bin/unshare --fork --pid --mount-proc /lib/systemd/systemd --system-unit=basic.target
-    # update-binfmts --disable cli
+    rm -rf /var/lib/docker/network
     modprobe -a $(cd /lib/modules/$(uname -r) && find . -type f -name "*.ko*" | sed -e "s!.*/!!" -e "s!\.ko.*!!")
   '
   /mnt/c/Program\ Files/Docker/Docker/Docker\ Desktop.exe
