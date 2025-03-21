@@ -23,7 +23,7 @@ process.stdin.on('end', () => {
       ]
     },
     tex: {
-      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      inlineMath: [['$', '$']],
       packages: ['base', 'newcommand', 'action']
     }
   };
