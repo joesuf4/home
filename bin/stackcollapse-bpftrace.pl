@@ -81,7 +81,7 @@ if (!$in_stack) {
         $count += $c;
       }
     }
-    $h{join(';',reverse( @stack))} += $increment || $count;
+    $h{join(';',reverse( @stack))} += $increment || ($timing_data ? log($count) : $count);
     $in_stack = 0;
     @stack = ();
   }
