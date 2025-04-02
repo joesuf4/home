@@ -49,13 +49,13 @@ BEGIN {
   our $increment = @ARGV && ($ARGV[0] eq "++");
   shift if $timing_data;
   shift if $increment;
-  our %nano = {
+  our %nano = (
     K => 1024,
     M => 1024**2,
     G => 1024**3,
     T => 1024**4,
     P => 1024**5,
-  };
+  );
   our $nk = join "", keys %nano;
 }
 
