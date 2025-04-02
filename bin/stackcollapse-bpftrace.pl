@@ -45,7 +45,7 @@
 use strict;
 
 BEGIN {
-  our $timing_data = @ARGV > 1 && ($ARGV[1] eq "-t");
+  our $timing_data = @ARGV && ($ARGV[-1] eq "-t");
   our $increment = @ARGV && ($ARGV[0] eq "++");
   shift if $timing_data;
   shift if $increment;
@@ -73,16 +73,17 @@ if (!$in_stack) {
         chomp;
         s/\r$//;
         last unless /(\s+)(\d+)\s+[|]\@*/;
-        $count += $2;
+        my $c = $2;
+        if ($timing_data and /\[\d+[$nk], (\d+)([$nk])\)/) {
+          my $ns_upper = $1 * $nano{$2};
+          $c *= $ns_upper;
+        }
+        $count += $c;
       }
     }
     $h{join(';',reverse( @stack))} += $increment || $count;
     $in_stack = 0;
     @stack = ();
-  }
-  elsif ($timing_data and /\[\d+[$nk], (\d+)([$nk])\)/) {
-    my $ns_upper = $1 * $nano{$2};
-    /^\s+[\dxa-f]+ (\w.*?[+]\d+|[\dxa-f]+)/ and push @stack, $1 * $ns_upper;
   }
   else {
     /^\s+[\dxa-f]+ (\w.*?[+]\d+|[\dxa-f]+)/ and push @stack, $1;

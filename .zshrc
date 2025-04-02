@@ -147,12 +147,12 @@ flameg() {
   local TMP="$(mktemp ~winhome/tmp/flameg-XXXX.svg)"
   local URL="file:///C:/${TMP#/mnt/c/}"
   local timing=""
-  if [[ "$1" == "-t" ]]; then
-    timing="-t"
+  if [[ "$1" == "-t" || "$1" == "++" ]]; then
+    timing="$1"
     shift
   fi
 
-  pptyd "$@" | stackcollapse-bpftrace.pl ++ $timing | flamegraph.pl >"$TMP"
+  pptyd "$@" | stackcollapse-bpftrace.pl $timing | flamegraph.pl >"$TMP"
   "$MOZILLA" "$URL"
 }
 
