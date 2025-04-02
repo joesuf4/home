@@ -390,7 +390,7 @@
                                     "https://www.sunstarsys.com/css/mermaid.min.css"))
 
 ; still using 80-column terminals (at times)
-(setq-default fill-column 72)
+(setq-default fill-column 100)
 
 (add-hook 'markdown-mode-hook
           '(lambda ()

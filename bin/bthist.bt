@@ -9,7 +9,7 @@ uprobe:$1:$2
 {
   @stack[tid]++;
   @start[tid, @stack[tid]] = nsecs;
-  @bt[tid, @stack[tid]] = ustack(perf);
+  @bt[tid, @stack[tid]] = ustack(perf,$3);
 }
 
 uretprobe:$1:$2

@@ -45,13 +45,23 @@
 use strict;
 
 BEGIN {
+  our $timing_data = @ARGV > 1 && ($ARGV[1] eq "-t");
   our $increment = @ARGV && ($ARGV[0] eq "++");
+  shift if $timing_data;
   shift if $increment;
+  our %nano = {
+    K => 1024,
+    M => 1024**2,
+    G => 1024**3,
+    T => 1024**4,
+    P => 1024**5,
+  };
+  our $nk = join "", keys %nano;
 }
 
 chomp;
 s/\r$//;
-our (@stack, $increment, $in_stack, %h);
+our (@stack, $increment, $timing_data, $in_stack, %h, %nano, $nk);
 
 if (!$in_stack) {
   $in_stack = /^@\w*\[[^\]]*$/;
@@ -69,7 +79,12 @@ if (!$in_stack) {
     $h{join(';',reverse( @stack))} += $increment || $count;
     $in_stack = 0;
     @stack = ();
-  } else {
+  }
+  elsif ($timing_data and /\[\d+[$nk], (\d+)([$nk])\)/) {
+    my $ns_upper = $1 * $nano{$2};
+    /^\s+[\dxa-f]+ (\w.*?[+]\d+|[\dxa-f]+)/ and push @stack, $1 * $ns_upper;
+  }
+  else {
     /^\s+[\dxa-f]+ (\w.*?[+]\d+|[\dxa-f]+)/ and push @stack, $1;
   }
 }

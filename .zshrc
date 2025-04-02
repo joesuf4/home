@@ -146,7 +146,13 @@ alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
 flameg() {
   local TMP="$(mktemp ~winhome/tmp/flameg-XXXX.svg)"
   local URL="file:///C:/${TMP#/mnt/c/}"
-  pptyd "$@" | stackcollapse-bpftrace.pl ++ | flamegraph.pl >"$TMP"
+  local timing=""
+  if [[ "$1" == "-t" ]]; then
+    timing="-t"
+    shift
+  fi
+
+  pptyd "$@" | stackcollapse-bpftrace.pl ++ $timing | flamegraph.pl >"$TMP"
   "$MOZILLA" "$URL"
 }
 
