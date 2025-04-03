@@ -95,7 +95,7 @@ else {
         $count += $c;
       }
     }
-    $h{join(';', reverse(@stack))} += $increment || ($timing_data ? log($count) : $count);
+    $h{join(';', reverse(@stack))} += $increment || ($timing_data ? log($count)/log(10) : $count);
     $in_stack = 0;
     @stack = ();
   }
