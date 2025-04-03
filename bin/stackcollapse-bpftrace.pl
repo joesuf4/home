@@ -45,10 +45,23 @@
 use strict;
 
 BEGIN {
-  our $timing_data = @ARGV && ($ARGV[-1] eq "-t");
+  our $timing_data = @ARGV && ($ARGV[0] eq "-t");
   our $increment = @ARGV && ($ARGV[0] eq "++");
   shift if $timing_data;
   shift if $increment;
+  our %symbols;
+  while (@ARGV) {
+    my $fname = shift;
+    my @s = qx(readelf -s -W $fname 2>/dev/null);
+    next if $?;
+    for (@s) {
+      /\d+: 0+(\w+)\s+\d+\s+\w+\s+\w+\s+\w+\s+\w+\s+(\S+)/ or next;
+      $symbols{"0x$1"} = $2;
+    }
+    unshift @ARGV, map / => (\S+)/, qx(ldd $fname);
+    push our @pname, $fname;
+  }
+
   our %nano = (
     K => 1024,
     M => 1024**2,
@@ -61,11 +74,12 @@ BEGIN {
 
 chomp;
 s/\r$//;
-our (@stack, $increment, $timing_data, $in_stack, %h, %nano, $nk);
+our (@stack, $increment, $timing_data, $in_stack, %symbols, %h, %nano, $nk, @pname);
 
 if (!$in_stack) {
   $in_stack = /^@\w*\[[^\]]*$/;
-} else {
+}
+else {
   if (/^,?\s?(.*)\]:\s*(\d+)?$/) {
     my $count = $2;
     unless ($count) {
@@ -81,12 +95,21 @@ if (!$in_stack) {
         $count += $c;
       }
     }
-    $h{join(';',reverse( @stack))} += $increment || ($timing_data ? log($count) : $count);
+    $h{join(';', reverse(@stack))} += $increment || ($timing_data ? log($count) : $count);
     $in_stack = 0;
     @stack = ();
   }
   else {
-    /^\s+[\dxa-f]+ (\w.*?[+]\d+|[\dxa-f]+)/ and push @stack, $1;
+    /^\s+[\dxa-f]+ (\w.*?[+]\d+|[\dxa-f]+)/ and push @stack, $symbols{$1} //= do {
+      my @s;
+      my $addr = $1;
+      for my $p (@pname) {
+        @s = qx(addr2line -f -e $p $addr);
+        chomp $s[0];
+        last if length($s[0]) > 0 and index($s[0], "?") == -1;
+      }
+      index($s[0], "?") == -1 ? $s[0] : $addr
+    };
   }
 }
 
@@ -94,4 +117,5 @@ END {
   $, = " ";
   $\ = "\n";
   print $_, $h{$_} for sort {$h{$b} <=> $h{$a}} keys %h;
+#  warn join ":", our %symbols;
 }

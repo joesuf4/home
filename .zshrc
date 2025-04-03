@@ -152,7 +152,7 @@ flameg() {
     shift
   fi
 
-  pptyd "$@" | stackcollapse-bpftrace.pl $timing | flamegraph.pl >"$TMP"
+  pptyd "$@" | stackcollapse-bpftrace.pl $timing "$@" | flamegraph.pl >"$TMP"
   "$MOZILLA" "$URL"
 }
 
