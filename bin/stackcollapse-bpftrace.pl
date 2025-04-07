@@ -2,7 +2,7 @@
 #
 # stackcollapse-bpftrace.pl	collapse bpftrace samples into single lines.
 #
-# USAGE ./stackcollapse-bpftrace.pl infile > outfile
+# USAGE ./stackcollapse-bpftrace.pl [++|-n] [<file> ...] <infile > outfile
 #
 # Example input:
 #
