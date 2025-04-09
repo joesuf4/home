@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=windows-edge
+Comment=Windows 11 Edge Browser
+Terminal=false
+Exec=msedge.exe
+Categories=Network,WebBrowser

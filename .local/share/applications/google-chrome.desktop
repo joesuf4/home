@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=google-chrome
+Comment=Google
+Terminal=false
+Exec=chrome.exe
+Categories=Network,WebBrowser
+
