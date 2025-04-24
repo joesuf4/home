@@ -13,7 +13,7 @@ process.stdin.on('data', (chunk) => {
         data = chunk
 })
 process.stdin.on('end', () => {
-    data = DecodeURIComponent(escape(data)) + `
+    data = decodeURIComponent(escape(data)) + `
 <script type="text/javascript">
   MathJax = {
     loader: {
