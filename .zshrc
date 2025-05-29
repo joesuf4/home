@@ -88,6 +88,14 @@ oci() {
   command oci $@
 }
 
+rsim_attack () {
+  local rsim_dir=~r/build/bin
+  for d in "${@-.}"; do
+    [[ -f "$d/Parameter.csv" ]] && echo "$d";
+  done |
+    xargs -P$(($(nproc)/2)) -i zsh -c \
+          "cd {} && $rsim_dir/rsim.exe $rsim_dir/ClearPrice.cmd /batch"
+}
 
 # translate between big-endian and little-endian objdumps.
 
