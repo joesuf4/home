@@ -93,7 +93,7 @@ rsim_attack () {
   for d in "${@-.}"; do
     [[ -f "$d/Parameter.csv" ]] && echo "$d";
   done |
-    xargs -P$(($(nproc)/2)) -i zsh -c \
+    xargs -P$(($(nproc)*2/3)) -i zsh -c \
           "cd {} && $rsim_dir/rsim.exe $rsim_dir/ClearPrice.cmd /batch"
 }
 
