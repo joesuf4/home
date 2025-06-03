@@ -1,7 +1,8 @@
 #!/bin/bash
 messages="$(grep -c "^From " /var/spool/mail/$USER 2>/dev/null)"
 messages_read="$(perl -l -000 -ne 'BEGIN{$count=0} $count++ if m/^From / and /^Status: RO/m; END {print $count}' /var/spool/mail/$USER 2>/dev/null)"
-
+free_space="$(df -h /mnt/c | (read _; awk '{print $4}'))"
 if [[ "$messages" -gt "$messages_read" ]]; then
-  echo "📬($((messages - messages_read)))"
+  echo "📬($((messages - messages_read))), ${free_space} free "
 fi
+echo "${free_space} free "
