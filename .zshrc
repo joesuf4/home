@@ -213,14 +213,18 @@ precmd() {
   ptyoff
   _bcs_title
 
+  local warn="$(tmux-free-c-drive.sh | cut -d' ' -f2)"
+  [[ "${#warn}" < 5 ]] || warn=""
+
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
-    zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}[${PR_RESET}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_BLACK}]${PR_RESET}"
+    zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}${warn}[${PR_RESET}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_BLACK}]${PR_RESET}"
   else
-    zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}[${PR_RESET}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_RED}✗${PR_BRIGHT_BLACK}]${PR_RESET}"
+    zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}${warn}[${PR_RESET}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_RED}✗${PR_BRIGHT_BLACK}]${PR_RESET}"
   fi
 
   vcs_info 2>/dev/null
   unsetopt unset
+
 }
 
 preexec() {
