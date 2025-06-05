@@ -219,9 +219,9 @@ precmd() {
   [[ "$warn" =~ ' [5-9][0-9]GB' ]] && warn="${PR_BRIGHT_YELLOW}$warn"
 
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
-    zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}${warn//☠/}💾${PR_BRIGHT_BLACK}[${PR_RESET}${PR_BRIGHT_BLACK}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_BLACK}]${PR_RESET}"
+    zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}[${PR_RESET}${PR_BRIGHT_BLACK}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_BLACK}]${PR_RESET}"
   else
-    zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}${warn//☠/}💾${PR_BRIGHT_BLACK}[${PR_RESET}${PR_BRIGHT_BLACK}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_RED}✗${PR_BRIGHT_BLACK}]${PR_RESET}"
+    zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}[${PR_RESET}${PR_BRIGHT_BLACK}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_RED}✗${PR_BRIGHT_BLACK}]${PR_RESET}"
   fi
 
   vcs_info 2>/dev/null
