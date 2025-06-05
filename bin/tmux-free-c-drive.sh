@@ -3,9 +3,8 @@
 df -h /mnt/c | (
   read -r _
   [[ -t 2 ]] && awk '$4 ~ /^[1-4]?[0-9]G/ {printf("/mnt/c☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠ ");}
-   {print $4 "B"}' || awk '$4 ~ /^[0-9]G/ {color="#[fg=brightred]"}
+   {print $4 "B"}' || awk '$4 ~ /^[0-9]G/ {color="#[fg=brightred]";warning="/mnt/c☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠ "}
    $4 ~ /^[1-4][0-9]G/ {color="#[fg=orange]";warning="/mnt/c☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠ "}
-   $4 ~ /^[5-9][0-9]*G/ {color="#[fg=brightyellow]";warning="/mnt/c☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠ "}
-   $4 ~ /^[1-4]?[0-9]G/ {printf("/mnt/c☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠ ")}
+   $4 ~ /^[5-9][0-9]*G/ {color="#[fg=brightyellow]"}
    {printf("%s%s%sB\n", color, warning, $4)} BEGIN{color="";warning=""}'
 )
