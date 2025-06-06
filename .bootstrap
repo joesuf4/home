@@ -11,6 +11,7 @@ cp ~/vdk-shrink.ps1 /mnt/c/Users/$USER/vdk-shrink.ps1
 Action="New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-ExecutionPolicy Bypass -File %USERPROFILE%/vdk-shrink.ps1'"
 Trigger="New-ScheduledTaskTrigger -AtLogon -User CLEARDEMAND\\\\$USER"
 echo Register-ScheduledTask -Action "\$($Action)" -Trigger "\$($Trigger)" -TaskName CompressUbuntuVHDX > /mnt/c/Users/$USER/vdk-trigger.ps1
+sleep 2
 cat /mnt/c/Users/$USER/vdk-trigger.ps1
 powershell.exe Start-Process powershell -ArgumentList '"-NoProfile -ExecutionPolicy Bypass -File $env:USERPROFILE/vdk-trigger.ps1"' -Verb RunAs
 rm -rf /mnt/c/Users/$USER/vdk-trigger.ps1
