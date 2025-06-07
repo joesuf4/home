@@ -93,7 +93,7 @@ rsim_attack () {
   for d in "${@-.}"; do
     [[ -f "$d/Parameter.csv" ]] && echo "$d";
   done |
-    xargs -P$(($(nproc)/3)) -i zsh -c \
+    xargs -P$(($(nproc)/6)) -i zsh -c \
       "cd {} && $rsim_dir/rsim.exe $rsim_dir/ClearPrice.cmd /batch || true"
 }
 
@@ -216,7 +216,7 @@ precmd() {
   local warn="$(tmux-free-c-drive.sh)"
   [[ "$warn" =~ ' [0-9]GB' ]] && warn="${PR_BRIGHT_RED}$warn"
   [[ "$warn" =~ ' [1-4][0-9]GB' ]] && warn="${PR_BRIGHT_ORANGE}$warn"
-  [[ "$warn" =~ ' [5-9][0-9]GB' ]] && warn="${PR_BRIGHT_YELLOW}$warn"
+  [[ "$warn" =~ '^[5-9][0-9]GB' ]] && warn="${PR_BRIGHT_YELLOW}$warn"
 
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
     zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}[${PR_RESET}${PR_BRIGHT_BLACK}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_BLACK}]${PR_RESET}"

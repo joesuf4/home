@@ -586,6 +586,7 @@ sudo cpan install Term::ReadKey IO::Select URI Test2::Harness Log::Log4perl
 sudo pip3 install -U setproctitle cryptography --break-system-packages
 
 mkdir -p ~/src
+ssh git@github.com true
 [[ -d ~/src/WSL2-Linux-Kernel ]] || (cd ~/src && git clone git@github.com:Microsoft/WSL2-Linux-Kernel)
 [[ -d ~/src/cascadia-code ]] || (cd ~/src && git clone git@github.com:Microsoft/cascadia-code && cd cascadia-code && sudo pip3 install -r requirements.txt --ignore-installed --break-system-packages && python3 build.py && sudo mkdir -p /usr/local/share/fonts/cascadia && sudo cp -r build/ttf/Cascadia /usr/local/share/fonts/cascadia)
 [[ -d ~/src/ccls ]] || (cd ~/src && git clone git@github.com:MaskRay/ccls --depth=1 --recursive && cd ccls && cmake -S. -Brelease -DCMAKE_BUILD_TYPE=Release && cmake --build Release && sudo cmake --install Release)
@@ -598,4 +599,6 @@ fi
 sudo rm -f /etc/wsl.conf
 sudo chown $USER:nogroup /mnt
 sudo chmod 0770 /mnt
+sudo locale-gen en_US.UTF-8
 mkdir -p ~/src/gha-runner ~/src/case/ceval
+mkdir -p -m 0700 ~/.ssh/sockets ~/.pty-agent
