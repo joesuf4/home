@@ -252,3 +252,9 @@ save/
 .ipython/
 .vscode-remote-containers/
 .ccls-cache/
+.config/dconf/
+.config/.gsd-keyboard.settings-ported
+.config/evolution/
+.config/pulse/
+.config/user-dirs.dirs
+.config/user-dirs.locale

@@ -3,11 +3,11 @@
 rv="$(~/bin/tmux-mem-cpu-load "$@")"
 
 if [[ "${rv##* }" -ge $(($(nproc)*2)) ]]; then
-  c="fg=brightred,bg=black"
+  c="fg=brightred,bg=terminal"
 elif [[ "${rv##* }" -ge $(($(nproc))) ]]; then
-  c="fg=orange,bright,bg=black"
+  c="fg=orange,bg=terminal"
 elif [[ "${rv##* }" -ge $(($(nproc)/2)) ]]; then
-  c="fg=brightyellow,bg=black"
+  c="fg=brightyellow,bg=terminal"
 else
   c=""
 fi
