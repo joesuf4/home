@@ -207,8 +207,19 @@ PR_RESET="%{${reset_color}%}"
 eval "$(dircolors <(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/'))"
 
 # window/screen title hooks
+sec="$(date +%s)"
+delta_sec=0
 
 precmd() {
+  delta_sec="$(($(date +%s)-sec))"
+  if [[ $delta_sec -gt 3600 ]]; then
+    delta_sec="$((delta_sec/3600))h$((delta_sec/60%60))m$((delta_sec%60))s"
+  elif [[ $delta_sec -gt 60 ]]; then
+    delta_sec="$((delta_sec/60))m$((delta_sec%60))s"
+  else
+    delta_sec="$((delta_sec))s"
+  fi
+
   setopt monitor
   ptyoff
   _bcs_title
@@ -219,18 +230,18 @@ precmd() {
   [[ "$warn" =~ '^[5-9][0-9]GB' ]] && warn="${PR_BRIGHT_YELLOW}$warn"
 
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
-    zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}[${PR_RESET}${PR_BRIGHT_BLACK}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_BLACK}]${PR_RESET}"
+    zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}%t[${PR_RESET}${PR_BRIGHT_BLACK}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_BLACK}]${PR_RESET}"
   else
     zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}[${PR_RESET}${PR_BRIGHT_BLACK}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_RED}✗${PR_BRIGHT_BLACK}]${PR_RESET}"
   fi
 
   vcs_info 2>/dev/null
   unsetopt unset
-
 }
 
 preexec() {
   _bcs_title $2
+  sec="$(date +%s)"
 }
 
 # VCS status RPROMPT
@@ -256,7 +267,7 @@ else
     Linux)
       alias ls='ls --color=auto'
       alias grep='grep --color=auto'
-      PROMPT=$'$PR_CYAN%~$PR_RESET$PR_BRIGHT_BLACK%(?..($PR_RESET$PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
+      PROMPT=$'$PR_BRIGHT_BLACK${delta_sec}$PR_CYAN%~$PR_RESET$PR_BRIGHT_BLACK%(?..($PR_RESET$PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
       ;;
     FreeBSD | Darwin)
       alias ls='ls -G'
