@@ -230,13 +230,14 @@ precmd() {
   [[ "$warn" =~ '^[5-9][0-9]GB' ]] && warn="${PR_BRIGHT_YELLOW}$warn"
 
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
-    zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}%t[${PR_RESET}${PR_BRIGHT_BLACK}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_BLACK}]${PR_RESET}"
+    zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}%t ${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_RESET}"
   else
-    zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}%t[${PR_RESET}${PR_BRIGHT_BLACK}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_RED}✗${PR_BRIGHT_BLACK}]${PR_RESET}"
+    zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}%t ${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_RED}✗${PR_RESET}"
   fi
 
   vcs_info 2>/dev/null
   unsetopt unset
+  sec="$(date +%s)"
 }
 
 preexec() {
@@ -267,12 +268,12 @@ else
     Linux)
       alias ls='ls --color=auto'
       alias grep='grep --color=auto'
-      PROMPT=$'$PR_BRIGHT_BLACK${delta_sec}$PR_CYAN%~$PR_RESET$PR_BRIGHT_BLACK%(?..($PR_RESET$PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
+      PROMPT=$'$PR_BRIGHT_BLACK${delta_sec}$PR_CYAN%~$PR_BRIGHT_BLACK%(?..($PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
       ;;
     FreeBSD | Darwin)
       alias ls='ls -G'
       alias grep='grep --color=auto'
-      PROMPT=$'$PR_CYAN%~$PR_RESET$PR_MAGENTA(?..($PR_RESET$PR_RED%?$PR_MAGENTA%))$PR_MAGENTA%#$PR_RESET '
+      PROMPT=$'$PR_CYAN%~$PR_MAGENTA(?..($PR_RED%?$PR_MAGENTA%))$PR_MAGENTA%#$PR_RESET '
       ;;
     SunOS)
       alias ls='ls --color'
