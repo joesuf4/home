@@ -16,6 +16,7 @@ else
     npmu &
     pip3u &
     wait
+    for d in ~/src/*; cd $d && git gc --aggressive &
     echo "UPGRADES COMPLETE(wait=$?)."
   ' >"$UPGRADE_LOGFILE" 2>&1 </dev/null &
   )

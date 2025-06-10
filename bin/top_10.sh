@@ -15,6 +15,7 @@
 : "${TPUT:=tput}"
 
 perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; sub log_2 (\$) {log(shift)/log(2)} }
+              use POSIX qw(strftime);
               END {
                 \$DIV = \$KB**(\$UNIT);
                 for (sort {\$h{\$b} <=> \$h{\$a}} keys %h) {
@@ -34,7 +35,10 @@ perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; sub log_2 (\$) {log(shift)/log(2
               }
               next unless /\\S\\s+[+-]?[\\d.]+\\w*\\b/;
               \$F[-1] =~ /^[KMGTPEpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F;
+              \$F[-1] =~ s/^(?:(\\d+)h)?(?:(\\d{1,2})m)?(\\d{1,2})s.*\$/(\$1||0).\"*3600+\".(\$2||0).\"*60+\$3\"/e ||
+                 (\$F[-2] =~ s/^(?:(\\d+)h)?(?:(\\d{1,2})m)?(\\d{1,2})s.*\$/(\$1||0).\"*3600+\".(\$2||0).\"*60+\$3\"/e and pop @F);
               s/:\$// for @F;
+              @F = grep length, @F;
               my \$unit = 0;
               for (\$F[-1]) {
                 s/E/*(\$KB**6)/    and \$unit = 6;
@@ -50,5 +54,6 @@ perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; sub log_2 (\$) {log(shift)/log(2
                 tr!0-9*/().+-!!dc;
                 \$_ = eval
               }
+              \$F[0] =~ s/^(\\d+):0;/(strftime '%a %b %e %H:%M:%S', localtime \$1) . \" % \"/e;
               \$UNIT = \$unit if \$unit > \$UNIT;
               \$h{+join \" \", grep !/^(?:\\Q$($TPUT bold)\\E[^$HIST_ANCESTRY]*?[$HIST_ANCESTRY]+\\Q$($TPUT sgr0)\\E)+$/, @F[0..(\$#F-1)]} += \$F[-1]" | head "${@:-${TOP_10_ARGS:--10}}"

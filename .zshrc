@@ -209,6 +209,7 @@ eval "$(dircolors <(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/'))"
 # window/screen title hooks
 sec="$(date +%s)"
 disk="$(tmux-free-c-drive.sh)"
+histlines="$(wc -l ~/.zsh_history)"
 
 precmd() {
   delta_sec="$(($(date +%s)-sec))"
@@ -230,6 +231,7 @@ precmd() {
   [[ "$warn" =~ ' [0-9]GB' ]] && warn="${PR_BRIGHT_RED}$warn"
   [[ "$warn" =~ ' [1-4][0-9]GB' ]] && warn="${PR_BRIGHT_ORANGE}$warn"
   [[ "$warn" =~ '^[5-9][0-9]GB' ]] && warn="${PR_BRIGHT_YELLOW}$warn"
+
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
     zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}%t ${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_RESET}"
   else
@@ -239,7 +241,10 @@ precmd() {
   vcs_info 2>/dev/null
   unsetopt unset
   sec="$(date +%s)"
-  [[ -n "${args-}" ]] && (ARGS="$args" perl -i -ple 'length $ENV{ARGS} and s{;\Q$ENV{ARGS}\E(?!.*\#\s+)(.*)}{;$ENV{ARGS}$1 # '"$delta_sec$delta_disk"'}' ~/.zsh_history && history >/dev/null 2>&1 &)
+  [[ -n "${toggle-}" ]] && (ARGS="$args" LINE=$histlines DATA="$delta_sec$delta_disk" perl -i -ple \
+                              '$. == $ENV{LINE} and s{;\Q$ENV{ARGS}\E(?: # \d[^#]*(?= |$))*((?: # [^\d][^#]*(?= |$))*)(?: # [^#]*(?= |$))*}{;$ENV{ARGS}$1 # $ENV{DATA}} and qx/echo "$_" >&2/' \
+   ~/.zsh_history 2>>(grep -qF "$args # top_10 " && sleep 1 && echo "# top_10" && grep -F "$args" ~/.zsh_history | top_10) &)
+  toggle=
 }
 
 preexec() {
@@ -247,6 +252,8 @@ preexec() {
   sec="$(date +%s)"
   args="$2"
   disk="$(tmux-free-c-drive.sh)"
+  histlines="$(wc -l ~/.zsh_history)"
+  toggle=1
 }
 
 # VCS status RPROMPT
