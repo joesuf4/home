@@ -107,7 +107,7 @@ alias strip_cr="sed -i -e 's/\\r//'"
 
 alias git_diff_branch='git diff $(git show-branch --merge-base 2>/dev/null)~1'
 
-alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
+alias ldif_decode_base64='command perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
 alias htop='_bcs_title htop; sudo -Es htop'
 
@@ -115,7 +115,7 @@ alias lsof='_bcs_title lsof; sudo -Es lsof'
 
 alias bpftrace='_bcs_title bpftrace; sudo -Es bpftrace'
 
-alias screen='screen -U'
+alias screen='command screen -U'
 
 alias strace='sudo -E strace'
 
@@ -129,15 +129,15 @@ alias pip3u='pip3 freeze | cut -d= -f1 | sudo -Es xargs pip3 install -U --ignore
 
 alias gpgr='gpg --refresh-keys'
 
-alias sps='screen pty -d pty-driver.pl -- $SHELL'
+alias sps='command screen -U pty -d pty-driver.pl -- $SHELL'
 
-alias make='TERM=xterm-256color make -kj$(nproc)'
+alias make='TERM=xterm-256color command make -kj$(nproc)'
 
 alias k=~/.asdf/shims/kubectl
 
 alias tf=terraform
 
-alias perl='perl -CSD -Mutf8 -e "BEGIN{sub log_2 (\$) {log(shift)/log(2)}}"'
+alias perl='command perl -CSD -Mutf8 -e "BEGIN{sub log_2 (\$) {log(shift)/log(2)}}"'
 
 alias plint='command perl -MO=Lint'
 
@@ -148,8 +148,6 @@ alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 alias sdexec='sudo -E nsenter -t $(pidof systemd | awk "{print \$1}") -p -m -r -C'
 
 alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
-
-# typescript file walker
 
 flameg() {
   local TMP="$(mktemp ~winhome/tmp/flameg-XXXX.svg)"
@@ -163,6 +161,8 @@ flameg() {
   pptyd "$@" | stackcollapse-bpftrace.pl $timing "$@" | flamegraph.pl >"$TMP"
   "$MOZILLA" "$URL"
 }
+
+# typescript file walker
 
 tplay() {
   perl -MPOSIX=ctermid -MTerm::ReadKey -e '
@@ -208,7 +208,7 @@ eval "$(dircolors <(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/'))"
 
 # window/screen title hooks
 sec="$(date +%s)"
-delta_sec=0
+disk="$(tmux-free-c-drive.sh)"
 
 precmd() {
   delta_sec="$(($(date +%s)-sec))"
@@ -225,10 +225,11 @@ precmd() {
   _bcs_title
 
   local warn="$(tmux-free-c-drive.sh)"
+  local delta_disk=" $((${warn//[^0-9]/} - ${disk//[^0-9]/}))GB"
+  [[ "$delta_disk" == " 0GB" ]] && delta_disk=""
   [[ "$warn" =~ ' [0-9]GB' ]] && warn="${PR_BRIGHT_RED}$warn"
   [[ "$warn" =~ ' [1-4][0-9]GB' ]] && warn="${PR_BRIGHT_ORANGE}$warn"
   [[ "$warn" =~ '^[5-9][0-9]GB' ]] && warn="${PR_BRIGHT_YELLOW}$warn"
-
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
     zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}%t ${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_RESET}"
   else
@@ -238,11 +239,14 @@ precmd() {
   vcs_info 2>/dev/null
   unsetopt unset
   sec="$(date +%s)"
+  [[ -n "${args-}" ]] && (ARGS="$args" perl -i -ple 'length $ENV{ARGS} and s{;\Q$ENV{ARGS}\E(?!.*\#\s+)(.*)}{;$ENV{ARGS}$1 # '"$delta_sec$delta_disk"'}' ~/.zsh_history && history >/dev/null 2>&1 &)
 }
 
 preexec() {
   _bcs_title $2
   sec="$(date +%s)"
+  args="$2"
+  disk="$(tmux-free-c-drive.sh)"
 }
 
 # VCS status RPROMPT
@@ -266,8 +270,8 @@ if [[ ${EMACS+} == t ]]; then
 else
   case "$(uname)" in
     Linux)
-      alias ls='ls --color=auto'
-      alias grep='grep --color=auto'
+      alias ls='command ls --color=auto'
+      alias grep='command grep --color=auto'
       PROMPT=$'$PR_BRIGHT_BLACK${delta_sec} $PR_CYAN%~$PR_BRIGHT_BLACK%(?..($PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
       ;;
     FreeBSD | Darwin)
@@ -488,6 +492,8 @@ command -v kubectl >/dev/null 2>&1 && . <(kubectl completion $(basename "$SHELL"
 . ~/.bcsrc
 . ~/.gkerc
 . ~/git.rc
+
+zstyle ':completion:*' completer _expand_alias _complete _ignored
 
 patch_swig_pl() {
   for f in ~/src/svn-1.*/subversion/bindings/swig/perl/native/*.c; do
