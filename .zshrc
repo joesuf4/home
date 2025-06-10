@@ -268,7 +268,7 @@ else
     Linux)
       alias ls='ls --color=auto'
       alias grep='grep --color=auto'
-      PROMPT=$'$PR_BRIGHT_BLACK${delta_sec}$PR_CYAN%~$PR_BRIGHT_BLACK%(?..($PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
+      PROMPT=$'$PR_BRIGHT_BLACK${delta_sec} $PR_CYAN%~$PR_BRIGHT_BLACK%(?..($PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
       ;;
     FreeBSD | Darwin)
       alias ls='ls -G'
