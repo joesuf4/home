@@ -32,7 +32,7 @@ _gtag() {
   git "$@"
   rv="$?"
 
-  [[ "$rv" == 0 && -n "$ts" ]] && git tag "${ts%.}" && echo tagged "${ts%.}"
+  [[ "$rv" == 0 && -n "$ts" ]] && git tag "${ts%.}" "$@" && echo tagged "${ts%.}"
   return "$rv"
 }
 
