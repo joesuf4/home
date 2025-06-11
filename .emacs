@@ -245,10 +245,11 @@
    '(## auto-complete-clang auto-complete-clang-async auto-complete-distel avy-flycheck bpftrace-mode
         ccls color-theme-modern company-lsp csharp-mode dap-mode dired-git-info diredfl
         dockerfile-mode dtrace-script-mode editorconfig flycheck-clang-analyzer flycheck-clang-tidy
-        flycheck-clangcheck flycheck-rust flymake flymake-hadolint flymake-yamllint forge ghub+
-        git-commit-ts-mode go-mode helm-lsp kubectx-mode kubed lsp-docker lsp-jedi lsp-mode
-        lsp-python-ms lsp-treemacs lsp-ui markdown-preview-mode mermaid-mode poly-ansible popup
-        rust-mode shfmt terraform-doc terraform-mode use-package which-key yasnippet zenburn-theme))
+        flycheck-clangcheck flycheck-cython flycheck-rust flymake flymake-hadolint flymake-yamllint
+        forge ghub+ git-commit-ts-mode go-mode helm-lsp kubectx-mode kubed lsp-docker lsp-jedi
+        lsp-mode lsp-python-ms lsp-treemacs lsp-ui magit markdown-preview-mode mermaid-mode
+        poly-ansible popup rust-mode shfmt terraform-doc terraform-mode use-package which-key
+        yasnippet zenburn-theme))
  '(sh-basic-offset 2)
  '(shfmt-arguments '("-i" "2" "-ci"))
  '(shfmt-command "shfmt")
@@ -365,7 +366,7 @@
     :ensure t
     :bind (:map dired-mode-map
                 (")" . dired-git-info-mode)
-                ("M-s s" . forge-status)))
+                ("M-s s" . magit-status)))
 
 ;;-perlcritic
 ;;(require 'flymake-perlcritic)
