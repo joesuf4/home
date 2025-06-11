@@ -27,8 +27,10 @@ perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; sub log_2 (\$) {log(shift)/log(2
                   printf \"%${COL-40}s %s %s%s\\n\",
                     \$_,
                     \"$($TPUT bold)$($TPUT setaf ${ANSI_COLOR_ID-1})${HIST_BLOCK-x}$($TPUT sgr0)\" x
-                      eval \"\$SCALE(\$h{\$_}/\$DIV)\",
-                    (eval          \"\$h{\$_}/\$DIV\"),
+                      (eval \"\$SCALE(\$h{\$_}/\$DIV)\"),
+                    ((\$UNIT==0) ? do {\$a= int (\$h{\$_} / 3600) . \"h\" . (int (\$h{\$_}/60) % 60).\"m\" .
+                     (int (\$h{\$_} % 60).\"s\"); s/^0h//, s/^0m// for \$a; \$a} :
+                      eval          \"\$h{\$_}/\$DIV\"),
                     (\"\", map \" \$_\".(\$KB==1024 && 'i').(\"\", \"B\", \"s\")[\$UNIT<=>0],
                              qw/K M G T P E p n μ m/)[\$UNIT]
                 }
