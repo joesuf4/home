@@ -9,7 +9,7 @@
 # top_10() customizations
 : "${ANSI_COLOR_ID:=2}"
 : "${HIST_BLOCK:=▬}"
-: "${HIST_ANCESTRY:=🐰🍀🌷x✡♱☠❤❄◆▬■●▶}"
+: "${HIST_ANCESTRY:=🐰🍀🌷x✡♱☠❤❄◆▬■●▶ }"
 : "${COL:=70}"
 
 : "${TPUT:=tput}"
@@ -38,7 +38,7 @@ perl -nale "BEGIN { \$KB=${KB-1024}; \$UNIT=-4; sub log_2 (\$) {log(shift)/log(2
               next unless /\\S\\s+[+-]?[\\d.]+\\w*\\b/;
               \$F[-1] =~ /^[KMGTPEpnμm]i?[Bs]\$/ and \$F[-2] .= \$F[-1] and pop @F;
               s/[#:]\$// for @F;
-              @F = grep length && !/top_10/, @F;
+              @F = grep length && !/^top_10\$/, @F;
               (\$F[-1] =~ s/^(?:(\\d+)h)?(?:(\\d{1,2})m)?(\\d{1,2})s.*\$/(\$1||0).\"*3600+\".(\$2||0).\"*60+\$3\"/e or
                  (\$F[-2] =~ s/^(?:(\\d+)h)?(?:(\\d{1,2})m)?(\\d{1,2})s.*\$/(\$1||0).\"*3600+\".(\$2||0).\"*60+\$3\"/e and pop @F)) and
 
