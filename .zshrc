@@ -207,18 +207,18 @@ PR_RESET="%{${reset_color}%}"
 eval "$(dircolors <(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/'))"
 
 # window/screen title hooks
-sec="$(date +%s)"
-disk="$(tmux-free-c-drive.sh)"
-histlines="$(wc -l ~/.zsh_history)"
+_sec="$(date +%s)"
+_disk="$(tmux-free-c-drive.sh)"
+_histlines="$(wc -l ~/.zsh_history)"
 
 precmd() {
-  delta_sec="$(($(date +%s)-sec))"
-  if [[ $delta_sec -gt 3600 ]]; then
-    delta_sec="$((delta_sec/3600))h$((delta_sec/60%60))m$((delta_sec%60))s"
-  elif [[ $delta_sec -gt 60 ]]; then
-    delta_sec="$((delta_sec/60))m$((delta_sec%60))s"
+  _delta_sec="$(($(date +%s)-_sec))"
+  if [[ $_delta_sec -gt 3600 ]]; then
+    _delta_sec="$((_delta_sec/3600))h$((_delta_sec/60%60))m$((_delta_sec%60))s"
+  elif [[ $_delta_sec -gt 60 ]]; then
+    _delta_sec="$((_delta_sec/60))m$((_delta_sec%60))s"
   else
-    delta_sec="$((delta_sec))s"
+    _delta_sec="$((_delta_sec))s"
   fi
 
   setopt monitor
@@ -226,7 +226,7 @@ precmd() {
   _bcs_title
 
   local warn="$(tmux-free-c-drive.sh)"
-  local delta_disk=" $((${warn//[^0-9]/} - ${disk//[^0-9]/}))GB"
+  local delta_disk=" $((${warn//[^0-9]/} - ${_disk//[^0-9]/}))GB"
   [[ "$delta_disk" == " 0GB" ]] && delta_disk=""
   [[ "$warn" =~ ' [0-9]GB' ]] && warn="${PR_BRIGHT_RED}$warn"
   [[ "$warn" =~ ' [1-4][0-9]GB' ]] && warn="${PR_BRIGHT_ORANGE}$warn"
@@ -240,21 +240,21 @@ precmd() {
 
   vcs_info 2>/dev/null
   unsetopt unset
-  sec="$(date +%s)"
+  _sec="$(date +%s)"
 
-  [[ -n "${toggle-}" ]] && (ARGS="$args" LINE=$histlines DATA="$delta_sec$delta_disk" perl -i -ple \
+  [[ -n "${_toggle-}" ]] && (ARGS="$_args" LINE=$_histlines DATA="$_delta_sec$delta_disk" perl -i -ple \
                               '$. == $ENV{LINE} and s{;\Q$ENV{ARGS}\E(?: # \d[^#]*(?= |$))*((?: # [^\d][^#]*(?= |$))*)(?: # [^#]*(?= |$))*}{;$ENV{ARGS}$1 # $ENV{DATA}} and qx/echo \Q$_\E >&2/' \
-   ~/.zsh_history 2>>(grep -qF "$args # top_10 " && tmux display-popup -T '# top_10' -w 150 -h 13 -E "tail -1000 ~/.zsh_history | grep -F '${args//\'/'\''} #' | HIST_BLOCK=\"${HIST_BLOCK-}\" ~/bin/top_10.sh; cat -") &)
-  toggle=""
+   ~/.zsh_history 2>>(grep -qF "$_args # top_10 " && tmux display-popup -T '# top_10' -w 150 -h 13 -E "tail -1000 ~/.zsh_history | grep -F '${_args//\'/'\''} #' | HIST_BLOCK=\"${HIST_BLOCK-}\" ~/bin/top_10.sh; cat -") &)
+  _toggle=""
 }
 
 preexec() {
   _bcs_title $2
-  sec="$(date +%s)"
-  args="$2"
-  disk="$(tmux-free-c-drive.sh)"
-  histlines="$(wc -l ~/.zsh_history)"
-  toggle=1
+  _args="$2"
+  _disk="$(tmux-free-c-drive.sh)"
+  _histlines="$(wc -l ~/.zsh_history)"
+  _sec="$(date +%s)"
+  _toggle=1
 }
 
 # VCS status RPROMPT
@@ -280,7 +280,7 @@ else
     Linux)
       alias ls='command ls --color=auto'
       alias grep='command grep --color=auto'
-      PROMPT=$'$PR_BRIGHT_BLACK${delta_sec} $PR_CYAN%~$PR_BRIGHT_BLACK%(?..($PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
+      PROMPT=$'$PR_BRIGHT_BLACK${_delta_sec} $PR_CYAN%~$PR_BRIGHT_BLACK%(?..($PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
       ;;
     FreeBSD | Darwin)
       alias ls='ls -G'
