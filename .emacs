@@ -17,7 +17,9 @@
   (interactive)
   (set-background-color ()))
 
-  ;;--------------------------------------------------
+(xterm-mouse-mode 1)
+
+;;--------------------------------------------------
 ;; set up unicode (bulletproof, from a different era)
 (prefer-coding-system       'utf-8)
 (set-default-coding-systems 'utf-8)
