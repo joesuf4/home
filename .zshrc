@@ -243,7 +243,7 @@ precmd() {
   _sec="$(date +%s)"
 
   [[ -n "${_toggle-}" ]] && (ARGS="$_args" LINE=$_histlines DATA="$_delta_sec$delta_disk" perl -i -ple \
-                              '$. == $ENV{LINE} and s{;\Q$ENV{ARGS}\E(?: # \d[^#]*(?= |$))*((?: # [^\d][^#]*(?= |$))*)(?: # [^#]*(?= |$))*}{;$ENV{ARGS}$1 # $ENV{DATA}} and qx/echo \Q$_\E >&2/' \
+                              '$. == $ENV{LINE} and s{;\Q$ENV{ARGS}\E(?: # \d[^#]*(?= |$))*((?: # [^\d][^#]*(?= |$))*)(?: # [^#]*(?= |$))*}{;$ENV{ARGS}$1 # $ENV{DATA}} and print STDERR $_' \
    ~/.zsh_history 2>>(grep -qF "$_args # top_10 " && tmux display-popup -T '# top_10' -w 150 -h 13 -E "tail -1000 ~/.zsh_history | grep -F '${_args//\'/'\''} #' | HIST_BLOCK=\"${HIST_BLOCK-}\" ~/bin/top_10.sh; cat -") &)
   _toggle=""
 }
