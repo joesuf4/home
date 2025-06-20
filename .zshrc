@@ -226,10 +226,10 @@ precmd() {
   _bcs_title
 
   local warn="$(tmux-free-c-drive.sh)"
-  local delta_disk=" $((${warn//[^0-9]/} - ${_disk//[^0-9]/}))GB"
+  local delta_disk=" $((${warn//[^0-9.]/} - ${_disk//[^0-9.]/}))GB"
   [[ "$delta_disk" == " 0GB" ]] && delta_disk=""
-  [[ "$warn" =~ ' [0-9]GB' ]] && warn="${PR_BRIGHT_RED}$warn"
-  [[ "$warn" =~ ' [1-4][0-9]GB' ]] && warn="${PR_BRIGHT_ORANGE}$warn"
+  [[ "$warn" =~ ' [0-9]([.][0-9])?GB' ]] && warn="${PR_BRIGHT_RED}$warn"
+  [[ "$warn" =~ ' [1-4][0-9]([.][0-9])?GB' ]] && warn="${PR_BRIGHT_MAGENTA}$warn"
   [[ "$warn" =~ '^[5-9][0-9]GB' ]] && warn="${PR_BRIGHT_YELLOW}$warn"
 
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
