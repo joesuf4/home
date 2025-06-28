@@ -2,13 +2,19 @@
 
 0. FORK @joesuf4/home (github.com/joesuf4/home) on GitHub to `$your_github_account`
 1. cd ~
-2. git clone https://github.com/$your_github_account/home
+2. git.exe clone https://github.com/$your_github_account/home
 3. cp -a home/.git .
 4. git checkout .
-5. rm -rf home
-6. bash ~/.bootstrap
+5. sudo rm -rf home
+6. zsh ~/.bootstrap
 7. wsl.exe —-shutdown
 8. install Docker Desktop (or google instructions for installing docker via Ubuntu's apt).
+9. install gpg4win
+10. install Visual Studio Code w/ WSL Plugin and Clang/Cmake plugins
+11. purchase and plug in a YubiKey 5C USB-C w/ NFC for OpenPGP/ed25519-sk key storage
+12. enable and launch OpenSSH-Authentication-Agent in Windows Services
+13. customize .gitconfig and ~/.ssh/allowed-signers with your SSH signing key details
+14. commit your local changes to your ~ dir. Optionally push them as a public backup.
 
 That will get you the whole ball of wax, that you can customize and commit to at will.
 
@@ -17,6 +23,10 @@ PR against the @joesuf4/home repo (or to just share them publicly as I am now).
 
 You can resync your fork with @joesuf4/home future changes and pull them into your ~/
 checkout as you see fit.
+
+We need 128GB RAM. 4TB+ NVME and 24+ hyperthreads for our daily change/test/commit/CI workflow,
+since we run our CI GitHub Actions pipelines on our laptops inside Docker containers (see
+`bin/gha-run.sh`). The suggested settings in `.wslconfig` reflect that.
 
 ## ASIDE FOR HARDCORE NON-WORK-COLLEAGUES
 

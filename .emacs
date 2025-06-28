@@ -414,7 +414,7 @@
 
 (add-hook 'markdown-mode-hook
           '(lambda ()
-             (setq fill-column 'nil)))
+             (auto-fill-mode -1)))
 
 (add-hook 'c-mode-common-hook
 	  '(lambda ()
