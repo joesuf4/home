@@ -2,7 +2,7 @@
 
 0. FORK @joesuf4/home (github.com/joesuf4/home) on GitHub to `$your_github_account`
 1. cd ~
-2. git.exe clone https://github.com/$your_github_account/home
+2. git.exe clone git@github.com:`$your_github_account`/home
 3. cp -a home/.git .
 4. git checkout .
 5. sudo rm -rf home
@@ -24,9 +24,10 @@ PR against the @joesuf4/home repo (or to just share them publicly as I am now).
 You can resync your fork with @joesuf4/home future changes and pull them into your ~/
 checkout as you see fit.
 
-We need 128GB RAM. 4TB+ NVME and 24+ hyperthreads for our daily change/test/commit/CI workflow,
-since we run our CI GitHub Actions pipelines on our laptops inside Docker containers (see
-`bin/gha-run.sh`). The suggested settings in `.wslconfig` reflect that.
+We need 128GB RAM, 4TB+ NVME and 24+ hyperthreads for our daily change/test/commit/push/CI workflow,
+since we run our CI GitHub Actions pipelines from our laptops as self-hosted runners inside Docker
+containers over `~/src/gha-runner/*` (see `grep -F gha-run.sh  ~/.zlogin` and `bin/gha-run.sh`).
+The suggested settings in `.wslconfig` reflect the requisite laptop spec.
 
 ## ASIDE FOR HARDCORE NON-WORK-COLLEAGUES
 
