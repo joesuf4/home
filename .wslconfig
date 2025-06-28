@@ -1,4 +1,4 @@
 [wsl2]
 kernel=C:\\Users\\jschaefer\\bzImage
-swap=128GB
-memory=24GB
+swap=99GB
+memory=99GB
