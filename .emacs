@@ -256,7 +256,7 @@
  '(shfmt-arguments '("-i" "2" "-ci"))
  '(shfmt-command "shfmt")
  '(visible-bell t)
- '(warning-suppress-log-types '(((unlock-file))))
+ '(warning-suppress-log-types '(((unlock-file)))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
