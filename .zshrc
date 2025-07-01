@@ -88,6 +88,8 @@ oci() {
   command oci $@
 }
 
+b () { bash -ci "b $@" }
+
 rsim_attack () {
   local rsim_dir=~r/build/bin
   for d in "${@-.}"; do
