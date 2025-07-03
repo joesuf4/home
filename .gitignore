@@ -258,3 +258,4 @@ save/
 .config/pulse/
 .config/user-dirs.dirs
 .config/user-dirs.locale
+.duckdb/
