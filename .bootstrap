@@ -286,7 +286,7 @@ _bcs_check_shell_requirements() {
         [[ "$pm" == apt ]]     && req="-y -qq $req locales python3-dev python3-venv llvm-dev libclang-dev libcairo2-dev libcurl4-openssl-dev libgirepository1.0-dev libbsd-dev libgsl-dev libpng-dev uuid-dev libx11-dev"
         [[ "$req" == pip3 ]]   && req="python3-pip"
         [[ "$req" == remark ]] && req+="-cli marked-mermaid marked marked-cli"
-        [[ "$pm" == pip3 ]]    && req+=" ansible-lint pytest-tap cffi numpy pandas --break-system-packages"
+        [[ "$pm" == pip3 ]]    && req+=" ansible-lint pytest-tap cffi pandas --break-system-packages"
         [[ "$req" == eslint ]] && req+=' typescript typescript-eslint'
         [[ "$pm" == npm ]]     && req="-g $req"
         [[ "$pm" == pip3 || "$pm" == apt ]] && eval sudo -Es $pm install $req || eval $pm install $req || return $?
@@ -583,7 +583,8 @@ EOBCSRC
 zsh -i _bcs_check_shell_requirements
 
 sudo cpan install Term::ReadKey IO::Select URI Test2::Harness Log::Log4perl
-sudo pip3 install -U setproctitle cryptography --break-system-packages
+sudo pip3 install -U setproctitle cryptography duckdb numpy --break-system-packages
+curl https://install.duckdb.org | sh
 
 mkdir -p ~/src
 ssh git@github.com true
