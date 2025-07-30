@@ -38,6 +38,8 @@ if ! pgrep pty-agent >/dev/null 2>&1; then
     modprobe -a $(cd /lib/modules/$(uname -r) && find . -type f -name "*.ko*" | sed -e "s!.*/!!" -e "s!\.ko.*!!")
   '
   /mnt/c/Program\ Files/Docker/Docker/Docker\ Desktop.exe
+  rm -rf ~winhome/Local/Temp/wsl-crashes
+  mkdir -p ~winhome/Local/Temp/wsl-crashes
   mkdir -m 0700 -p /tmp/ptyon-$USER
   ln -s -f /mnt/wslg/.X11-unix/X0 /tmp/.X11-unix/X0
   [[ -f /etc/wsl.conf ]] || ptyd sudo zsh -c "rm /etc/resolv.conf && cp /mnt/wsl/resolv.conf /etc"

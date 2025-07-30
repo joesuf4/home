@@ -249,9 +249,9 @@
         dockerfile-mode dtrace-script-mode editorconfig flycheck-clang-analyzer flycheck-clang-tidy
         flycheck-clangcheck flycheck-cython flycheck-rust flymake flymake-hadolint flymake-yamllint
         forge ghub+ git-commit-ts-mode go-mode helm-lsp kubectx-mode kubed lsp-docker lsp-jedi
-        lsp-mode lsp-python-ms lsp-treemacs lsp-ui magit markdown-preview-mode mermaid-mode
-        poly-ansible popup rust-mode shfmt terraform-doc terraform-mode use-package which-key
-        yasnippet zenburn-theme))
+        lsp-mode lsp-python-ms lsp-treemacs lsp-ui magit magit-stats magit-svn magit-todos
+        markdown-preview-mode mermaid-mode poly-ansible popup rust-mode shfmt terraform-doc
+        terraform-mode use-package which-key yasnippet zenburn-theme))
  '(sh-basic-offset 2)
  '(shfmt-arguments '("-i" "2" "-ci"))
  '(shfmt-command "shfmt")
