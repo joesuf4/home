@@ -18,7 +18,7 @@
 [tag]
         gpgsign = true
 [http]
-        sslCAinfo = /etc/certs/ca-certificates.crt
+#        sslCAinfo = /etc/certs/ca-certificates.crt
 [gpg]
 	format = ssh
 [gpg "ssh"]

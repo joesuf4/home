@@ -1,8 +1,0 @@
-#!/usr/bin/zsh
-echoon <&2 >/dev/null 2>&1
-
-if command -v ssh-keygen.exe >/dev/null 2>&1; then
-  exec ssh-keygen.exe "$@" 1>>(tr -d '\r')
-fi
-
-exec /usr/bin/ssh-keygen "$@"

@@ -1,7 +1,0 @@
-#!/usr/bin/zsh
-echoon <&2 >/dev/null 2>&1
-
-if command -v ssh.exe >/dev/null 2>&1; then
-  exec ssh.exe -t "$@"
-fi
-exec /usr/bin/ssh "$@"
