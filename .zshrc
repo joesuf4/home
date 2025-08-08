@@ -228,7 +228,9 @@ precmd() {
   _bcs_title
 
   local warn="$(tmux-free-c-drive.sh)"
-  local delta_disk=" $((${warn//[^0-9.]/} - ${_disk//[^0-9.]/}))GB"
+  local TB=1024
+  [[ "${warn%%TB}" == "$warn" ]] && TB=1
+  local delta_disk=" $(awk "{d=(${warn//[^0-9.]/} - ${_disk//[^0-9.]/})*$TB; print d \"GB\"}" </dev/null)"
   [[ "$delta_disk" == " 0GB" ]] && delta_disk=""
   [[ "$warn" =~ ' [0-9]([.][0-9])?GB' ]] && warn="${PR_BRIGHT_RED}$warn"
   [[ "$warn" =~ ' [1-4][0-9]([.][0-9])?GB' ]] && warn="${PR_BRIGHT_MAGENTA}$warn"
