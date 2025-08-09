@@ -5,7 +5,7 @@ rv="$(~/bin/tmux-mem-cpu-load "$@")"
 if [[ "${rv##* }" -ge $(($(nproc)*2)) ]]; then
   c="fg=brightred,bg=terminal"
 elif [[ "${rv##* }" -ge $(($(nproc))) ]]; then
-  c="fg=brightmagenta,bg=terminal"
+  c="fg=magenta,bg=terminal"
 elif [[ "${rv##* }" -ge $(($(nproc)/2)) ]]; then
   c="fg=brightyellow,bg=terminal"
 else
