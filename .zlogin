@@ -47,7 +47,7 @@ if ! pgrep pty-agent >/dev/null 2>&1; then
   ptyd ssh-add.exe
   ptyd zsh -ic 'echo foo | gpg --clear-sign --armor >/dev/null 2>&1'
   for d in ~/src/gha-runner/*; (cd $d && ptyd gha-run.sh)
-  #  wsl.exe -d wsl-vpnkit --cd /app service wsl-vpnkit start
+  (usbipd.exe attach -a --wsl Ubuntu -i 1050:0407 &)</dev/null >/dev/null 2>&1
 fi
 
 reset
