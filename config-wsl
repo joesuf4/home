@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 6.6.87.1 Kernel Configuration
+# Linux/x86 6.6.87.2 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0"
 CONFIG_CC_IS_GCC=y
@@ -2178,6 +2178,7 @@ CONFIG_VMWARE_BALLOON=m
 # CONFIG_DW_XDATA_PCIE is not set
 # CONFIG_PCI_ENDPOINT_TEST is not set
 # CONFIG_XILINX_SDFEC is not set
+CONFIG_MISC_RTSX=m
 # CONFIG_C2PORT is not set
 
 #
@@ -2214,7 +2215,7 @@ CONFIG_VMWARE_VMCI=m
 # CONFIG_BCM_VK is not set
 # CONFIG_MISC_ALCOR_PCI is not set
 # CONFIG_MISC_RTSX_PCI is not set
-# CONFIG_MISC_RTSX_USB is not set
+CONFIG_MISC_RTSX_USB=m
 # CONFIG_UACCE is not set
 # CONFIG_PVPANIC is not set
 # CONFIG_GP_PCI1XXXX is not set
@@ -5779,6 +5780,7 @@ CONFIG_MMC_SDHCI_ACPI=m
 # CONFIG_MMC_VUB300 is not set
 # CONFIG_MMC_USHC is not set
 # CONFIG_MMC_USDHI6ROL0 is not set
+CONFIG_MMC_REALTEK_USB=m
 CONFIG_MMC_CQHCI=m
 # CONFIG_MMC_HSQ is not set
 # CONFIG_MMC_TOSHIBA_PCI is not set
