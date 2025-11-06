@@ -50,7 +50,8 @@ alias dh='dirs -v'
 
 nd winhome /mnt/c/Users/$USER
 nd winsrc ~winhome/src
-nd winssh ~winhome/.ssh
+nd cores ~winhome/AppData/Local/Temp/wsl-crashes
+
 nd r ~/src/rsim
 nd c ~/src/ceval
 
