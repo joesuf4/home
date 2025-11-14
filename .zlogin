@@ -36,6 +36,7 @@ if ! pgrep pty-agent >/dev/null 2>&1; then
     daemonize /usr/bin/unshare --fork --pid --mount-proc /lib/systemd/systemd --system-unit=basic.target
     rm -rf /var/lib/docker/network
     modprobe -a $(cd /lib/modules/$(uname -r) && find . -type f -name "*.ko*" | sed -e "s!.*/!!" -e "s!\.ko.*!!")
+    sysctl vm.overcommit_memory=1
   '
   /mnt/c/Program\ Files/Docker/Docker/Docker\ Desktop.exe
   rm -rf ~winhome/AppData/Local/Temp/wsl-crashes
