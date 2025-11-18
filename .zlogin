@@ -39,8 +39,8 @@ if ! pgrep pty-agent >/dev/null 2>&1; then
     sysctl vm.overcommit_memory=1
   '
   /mnt/c/Program\ Files/Docker/Docker/Docker\ Desktop.exe
-  rm -rf ~winhome/AppData/Local/Temp/wsl-crashes
-  mkdir -p ~winhome/AppData/Local/Temp/wsl-crashes
+  rm -rf ~cores
+  mkdir -p ~cores
   mkdir -m 0700 -p /tmp/ptyon-$USER
   ln -s -f /mnt/wslg/.X11-unix/X0 /tmp/.X11-unix/X0
   [[ -f /etc/wsl.conf ]] || ptyd sudo zsh -c "rm /etc/resolv.conf && cp /mnt/wsl/resolv.conf /etc"

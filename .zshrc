@@ -136,7 +136,7 @@ alias sps='command screen -U pty -d pty-driver.pl -- $SHELL'
 
 alias make='TERM=xterm-256color command make -kj$(nproc)'
 
-alias k=~/.asdf/shims/kubectl
+alias k=kubectl
 
 alias tf=terraform
 
