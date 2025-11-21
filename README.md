@@ -185,7 +185,7 @@ To search `pwd` for `foo`:
    : ${PFFXG_COMPRESS:=}
    # Cache compression level (happens in background so can be relatively expensive)
    : ${PFFXG_LEVEL:=7}
-   # Compression prefix (lzop -U is faster than gzip is faster than pigz here)
+   # Compression prefix (lz4 is faster than lzop is faster than pigz is faster than gzip here)
    : ${PFFXG_COMPRESSOR:=lzop -U}
 ```
 

@@ -110,7 +110,7 @@ all=0
 unzip=0
 not=""
 refresh=""
-cache_compression_extension="gz"
+cache_compression_extension="${PFFXG_COMPRESSION_EXT:-gz}"
 set_and_shift_cmd_args="cmd_args=(); while [[ \"\$1\" != \"--\" ]]; do cmd_args+=(\"\$1\"); shift; done; shift"
 original_argument_count="$#"
 list_active_extensions=0
@@ -220,7 +220,7 @@ declare -A extension_types=(
   [sass]="sass  scss"
   [scala]="scala"
   [scheme]="scm  ss"
-  [shell]="sh  bash  csh  tcsh  ksh  zsh  fish"
+  [shell]="sh  bash  csh  tcsh  ksh  zsh  fish  rc"
   [smalltalk]="st"
   [sml]="sml  fun  mlb  sig"
   [sql]="sql  ctl"
@@ -521,7 +521,7 @@ process_cache() {
     # `cp -u` mtime comparison check, to avoid unnecessary copying.
 
     cd "$cache_dir" || exit 255
-    $PFFXG_COMPRESSOR -d -f -- "${@/%/.$cache_compression_extension}" 2>/dev/null
+    $PFFXG_COMPRESSOR -d -f "${@/%/.$cache_compression_extension}" 2>/dev/null
     cd "$OLDPWD" || exit 255
 
     # back in live tree: copy to $cache_dir if newer, preserving parent dirs
@@ -542,7 +542,7 @@ process_cache() {
   compression_suffix=".$cache_compression_extension"
 
   # decompress, but keep compressed originals for future use
-  $PFFXG_COMPRESSOR -d -f -k -- "$@"
+  $PFFXG_COMPRESSOR -d -f -k "$@"
   trap '(compress_cache "$@" &)' EXIT
 
 }
@@ -550,7 +550,7 @@ process_cache() {
 compress_cache() {
   # this runs double-forked the background; init(1) is its parent.
   if [[ -n "$refresh" ]]; then
-    nice $PFFXG_COMPRESSOR -$PFFXG_LEVEL -f -- "$@"
+    nice $PFFXG_COMPRESSOR -$PFFXG_LEVEL -f "$@"
   else
     nice rm -f -- "${@%"$compression_suffix"}"
   fi
