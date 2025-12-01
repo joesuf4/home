@@ -19,7 +19,7 @@ rm -rf /mnt/c/Users/$USER/vdk-trigger.ps1
 cat <<'EOBCSRC' | sed -e 's/### VERSION ###/3.0/' -e 's/### CLI ###/bcs gke/' > ~/.bcsrc
 # -*- sh -*-
 declare -ax words REQUIRED_ASDF_UTILITIES=(aws terraform gcloud kubectl go node k9s tflint dotnet golangci-lint) \
-REQUIRED_APT_UTILITIES=(unzip jq xsltproc make cmake gcc clang zsh tmux pylint yamllint clang-tidy clang-format daemonize postfix alpine pdfgrep bpftrace htop lzop gh tree) \
+REQUIRED_APT_UTILITIES=(unzip jq xsltproc make cmake gcc clang zsh tmux pylint yamllint clang-tidy clang-format daemonize postfix alpine pdfgrep bpftrace htop lzop lz4 gh tree) \
 REQUIRED_PIP3_UTILITIES=(ansible ruff pytest ipython) \
 REQUIRED_NPM_UTILITIES=(eslint serverless stylelint remark) \
 _bcs_tools=(pty script.sh pffxg.sh smag yq) \
