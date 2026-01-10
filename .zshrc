@@ -152,6 +152,8 @@ alias sdexec='sudo -E nsenter -t $(pidof systemd | awk "{print \$1}") -p -m -r -
 
 alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
 
+alias fzf='fzf --ansi'
+
 flameg() {
   local TMP="$(mktemp ~winhome/tmp/flameg-XXXX.svg)"
   local URL="file:///C:/${TMP#/mnt/c/}"
