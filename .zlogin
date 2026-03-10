@@ -44,7 +44,7 @@ if ! pgrep pty-agent >/dev/null 2>&1; then
   mkdir -m 0700 -p /tmp/ptyon-$USER
   ln -s -f /mnt/wslg/.X11-unix/X0 /tmp/.X11-unix/X0
   [[ -f /etc/wsl.conf ]] || ptyd sudo zsh -c "rm /etc/resolv.conf && cp /mnt/wsl/resolv.conf /etc"
-  (usbipd.exe attach -a --wsl -b 1-3 -u &)</dev/null >/dev/null 2>&1
+  (usbipd.exe attach -a --wsl -i 1050:0407 &)</dev/null >/dev/null 2>&1
   emacs --daemon
   ptyd zsh -ic 'echo foo | gpg --clear-sign --armor >/dev/null 2>&1'
   for d in ~/src/gha-runner/*; (cd $d && ptyd gha-run.sh)
