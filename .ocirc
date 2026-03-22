@@ -230,7 +230,7 @@ oci_release () {
 
       for svc in ${OCI_SITE_SVCS[@]}
       do
-        ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm disable site/$svc
+        [[ "$svc" != "markdownd" ]] && ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm disable site/$svc
       done
 
       for volume in ${ZFS_EXPORTS[@]}
@@ -254,10 +254,11 @@ oci_release () {
 
       for svc in ${OCI_SITE_SVCS[@]}
       do
-        ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm enable site/$svc
+        [[ "$svc" != "markdownd" ]] && ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm enable site/$svc
       done
 
       ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm restart site/http:apache24
+      ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm restart site/markdownd
       ssh -t $OCI_HOST_PREFIX-$id.$region sudo rm /etc/nocommit
       ssh -t $OCI_HOST_PREFIX-$id.$region sudo svcadm restart site/ssh
 
