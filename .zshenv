@@ -15,7 +15,7 @@ UPGRADE_LOGFILE="/tmp/upgrades-$USER"
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
-HISTORY_FILTER_EXCLUDE=('(?i:secret|passw|_key)')
+HISTORY_FILTER_EXCLUDE=('(?i:secret|passw|_key|pin)')
 HISTORY_FILTER_SILENT=
 DIRSTACKSIZE=8
 
@@ -70,4 +70,4 @@ PKG_REPOS=http://127.0.0.1:9999/
 
 [[ -f ~/.cargo/env ]] && . ~/.cargo/env
 [[ "$(uname)" == SunOS && "$TERM" != screen && "$TERM" != vt100 ]] && export TERM=xterm-256color LDFLAGS="-L/usr/local/lib/amd64 -R/usr/local/lib/amd64 -L/usr/local/lib -R/usr/local/lib"
-export CC=gcc CPPFLAGS=-I/usr/local/include BCS_PROFILE="$(gcloud config get account 2>/dev/null | cut -d@ -f1)@$(gcloud config get project 2>/dev/null).us-west1-a" R=~/src/rsim C=~/src/ceval
+export CC=gcc CPPFLAGS=-I/usr/local/include BCS_PROFILE="$(gcloud config get account 2>/dev/null | cut -d@ -f1)@$(gcloud config get project 2>/dev/null).us-west1-a"
