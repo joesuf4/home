@@ -314,7 +314,7 @@ for cmd in "${PTYON[@]}"; do
       [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch|remote|commit|svn)\$' ]] && ptyon
     elif [[ $cmd == ssh ]]; then
       ptyon
-      [[ \"\$@\" =~ \"\$OCI_HOST_PREFIX\" ]] || (sleep 6; ptyoff echo ptyoff on \$(hostname). &)&
+      [[ \"\$@\" =~ \"\$OCI_HOST_PREFIX\" ]] || (sleep \${SLEEP_WINDOW:-6}; ptyoff echo ptyoff on \$(hostname). &)&
     elif [[ $cmd == svn ]]; then
       [[ \"\${1:-}\" -pcre-match '^(up|co|ci)' ]] && ptyon
     elif [[ $cmd == sudo ]]; then
