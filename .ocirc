@@ -219,7 +219,7 @@ oci_release () {
   local ZULU=$(date -Iseconds | tr '+' 'Z')
   local LAST=$(realpath --relative-to ~ ~/.zulu-last | sed -e 's/^\.zulu-//')
   [[ -n "$LAST" ]] || return 1
-
+  rm -f /x1/httpd/cores/core.*
   for region ad in ${(kv)OCI_AD}
   do
     for id in {1..$ad}

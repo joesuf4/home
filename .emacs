@@ -1,7 +1,22 @@
-; startup config file
 
 (package-initialize)
 (setq exec-path (append exec-path '("/usr/local/bin")))
+(defun transparency-95-hook (framenum)
+  (set-frame-parameter framenum 'alpha-background 95))
+
+(setq color-theme-is-global nil)
+(add-hook 'after-make-frame-functions 'transparency-95-hook)
+
+(defun transparency (value)
+   "Sets the transparency of the frame window. 0=transparent/100=opaque"
+   (interactive "n")
+   (set-frame-parameter (selected-frame) 'alpha-background value))
+
+(defun clear-background ()
+  (interactive)
+  (set-background-color ()))
+
+(xterm-mouse-mode 1)
 
 ;;--------------------------------------------------
 ;; set up unicode (bulletproof, from a different era)
@@ -203,6 +218,15 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(browse-url-browser-function 'browse-url-chrome)
+ '(browse-url-chrome-program "chrome.exe")
+ '(custom-safe-themes
+   '("09b833239444ac3230f591e35e3c28a4d78f1556b107bafe0eb32b5977204d93"
+     "103b4cc7fb9063c614f0413828ae7c223dba14b8ce987746b6416de05d99dacf"
+     "e7c33a10a4494a4f3ca8acfdf174cd83e91b4cb401246d78f406aec0d960f847"
+     "70755427a482cf762b032172eda8e042e2aca58e9cb9542f251067142aacfa26"
+     "011e5acf8327c380a9bae9e4281ec8509e3d1139ed136672635467e3c4ca09c7"
+     "56e7eb6ba5dbe81bad46f22f6eb74682caf69dc652e57f1538ea52de93d44289" default))
  '(dired-use-ls-dired nil)
  '(diredfl-global-mode t nil (diredfl))
  '(exec-suffixes '(".exe" ".com" ".bat" ".cmd" ".btm" ".ps1" ""))
@@ -212,14 +236,21 @@
  '(lsp-enable-file-watchers nil)
  '(lsp-file-watch-threshold nil)
  '(lsp-log-io t)
+ '(markdown-command "marked-mermaid.js")
  '(message-send-mail-partially-limit 100000000)
  '(message-sendmail-f-is-evil t)
  '(package-archives
-   '(("gnu" . "https://elpa.gnu.org/packages/")
-     ("melpa" . "https://melpa.org/packages/")
+   '(("gnu" . "https://elpa.gnu.org/packages/") ("melpa" . "https://melpa.org/packages/")
      ("melpa-stable" . "https://stable.melpa.org/packages/")))
  '(package-selected-packages
-   '(flymake-hadolint flymake flymake-yamllint shfmt editorconfig rust-mode flycheck-rust mermaid-mode lsp-jedi dockerfile-mode kubernetes kubectx-mode terraform-doc terraform-mode lsp-python-ms go-mode yasnippet csharp-mode lsp-docker auto-complete-distel auto-complete-clang-async auto-complete-clang poly-ansible magithub diredfl color-theme-modern bpftrace-mode dtrace-script-mode flycheck-clangcheck dired-git-info dap-mode lsp-treemacs helm-lsp company-lsp lsp-ui flycheck-clang-tidy ccls use-package flycheck-clang-analyzer lsp-mode))
+   '(## auto-complete-clang auto-complete-clang-async auto-complete-distel avy-flycheck bpftrace-mode
+        ccls color-theme-modern company-lsp csharp-mode dap-mode dired-git-info diredfl
+        dockerfile-mode dtrace-script-mode editorconfig flycheck-clang-analyzer flycheck-clang-tidy
+        flycheck-clangcheck flycheck-cython flycheck-rust flymake flymake-hadolint flymake-yamllint
+        forge ghub+ git-commit-ts-mode go-mode helm-lsp kubectx-mode kubed lsp-docker lsp-jedi
+        lsp-mode lsp-python-ms lsp-treemacs lsp-ui magit magit-stats magit-svn magit-todos
+        markdown-preview-mode mermaid-mode poly-ansible popup rust-mode shfmt terraform-doc
+        terraform-mode use-package which-key yasnippet zenburn-theme))
  '(sh-basic-offset 2)
  '(shfmt-arguments '("-i" "2" "-ci"))
  '(shfmt-command "shfmt")
@@ -231,8 +262,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :extend nil :stipple nil :background "DarkSlateGray" :foreground "White" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 150 :width normal :foundry "outline" :family "Cascadia Code NF Regular")))))
-
+ '(default ((t (:inherit nil :extend nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "outline" :family "Cascadia Code NF Regular")))))
 
 ;;--------------------------------------------------
 ;; packaged LSP stuff
@@ -271,16 +301,19 @@
 ;                  :major-modes '(asy-mode)
 ;                  :server-id 'asyls))
 (add-to-list 'auto-mode-alist '("\\.asy\\'" . asy-mode))
-
+(add-hook 'prog-mode-hook #'lsp)
 (global-auto-complete-mode t)
+;(which-key-mode)
+;(helm-mode)
+;(require 'helm-xref)
 
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package company-lsp :commands company-lsp)
 (use-package helm-lsp :commands helm-lsp-workspace-symbol)
 (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 (use-package flymake)
-(use-package flymake-yamllint)
-(use-package flymake-hadolint)
+;(use-package flymake-yamllint)
+;(use-package flymake-hadolint)
 (use-package dap-mode)
 (use-package dap-lldb)
 
@@ -305,30 +338,29 @@
 (require 'dtrace-script-mode)
 (add-to-list 'auto-mode-alist '("\\.d\\'" . dtrace-script-mode))
 
-
-(require 'shfmt)
+;(require 'shfmt)
 ;(add-hook 'sh-mode-hook 'shfmt-on-save-mode)
 (add-hook 'yaml-mode-hook 'flymake-yamllint-setup)
 (add-hook 'dockerfile-mode-hook 'flymake-hadolint-setup)
 ;;--------------------------------------------------
 ;; ccls: nice LSP app for emacs integration
-(use-package ccls
-  :ensure t
-  :config
-  (with-eval-after-load "lsp-mode"
-    (add-to-list 'lsp-enabled-clients 'ccls))
-  (setq ccls-executable "ccls")
-  (setq ccls-initialization-options
-      '(;:compilationDatabaseDirectory "out"
-        ;:cache (:directory "out/.ccls-cache")
-        :include (:maxPathSize 10000 :maxNum 1000000)
-        :workspaceSymbol (:maxNum 1000000)
-        :xref (:maxNum 2000000)
-        )))
+;(use-package ccls
+;  :ensure t
+;  :config
+;  (with-eval-after-load "lsp-mode"
+;    (add-to-list 'lsp-enabled-clients 'ccls))
+;  (setq ccls-executable "ccls")
+;  (setq ccls-initialization-options
+;      '(;:compilationDatabaseDirectory "out"
+;        ;:cache (:directory "out/.ccls-cache")
+;        :include (:maxPathSize 10000 :maxNum 1000000)
+;        :workspaceSymbol (:maxNum 1000000)
+;        :xref (:maxNum 2000000)
+;        )))
 
 ;;--------------------------------------------------
 ;; dired-git-info mode - too lazy to deal with fancy git-mode packages
-(use-package magithub)
+;(use-package forge)
 (require 'dired-x)
 (require 'diredfl)
 (use-package dired-git-info
@@ -349,13 +381,6 @@
   (tool-bar-mode 0)
   (menu-bar-mode 0))
 
-(defun transparency (value)
-   "Sets the transparency of the frame window. 0=transparent/100=opaque"
-   (interactive "Transparency Value 0 - 100 opaque:")
-   (set-frame-parameter (selected-frame) 'alpha value))
-(defun transparency-90-hook (framenum)
-  (set-frame-parameter framenum 'alpha 90))
-(add-hook 'after-make-frame-functions 'transparency-90-hook)
 
 (put 'narrow-to-page 'disabled nil)
 (require 'page-ext)
@@ -374,12 +399,21 @@
 (add-hook 'shell-script-mode-hook 'turn-on-auto-fill)
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 
+; markdown-preview
+;(require 'markdown-preview-mode)
+
+(setq markdown-preview-stylesheets (list
+				    "http://thomasf.github.io/solarized-css/solarized-light.min.css"
+                                    "https://www.sunstarsys.com/editor.md/lib/codemirror/codemirror.min.css"
+                                    "https://www.sunstarsys.com/editor.md/lib/codemirror/theme/solarized.css"
+                                    "https://www.sunstarsys.com/css/mermaid.min.css"))
+
 ; still using 80-column terminals (at times)
-(setq-default fill-column 72)
+(setq-default fill-column 100)
 
 (add-hook 'markdown-mode-hook
           '(lambda ()
-             (setq fill-column 'nil)))
+             (auto-fill-mode -1)))
 
 (add-hook 'c-mode-common-hook
 	  '(lambda ()
@@ -395,7 +429,32 @@
 (setq tab-stop-list '(2 4 8 12 16 24 32 40 48 56 64 72 80 88 96 104 112 120))
 (setq-default indent-tabs-mode nil)
 
-;;(ignore-errors (color-theme-initialize) (color-theme-pok-wog))
+(defun rgmacs/copy-theme-pgtk (from-theme to-theme)
+  "Copies all faces from from-theme to to-theme but restricts to TTY frames only."
+  (dolist (entry (get from-theme 'theme-settings))
+    (when (eq (car entry) 'theme-face)
+      (let ((face (nth 1 entry))
+            (face-specs (nth 3 entry))
+            (new-specs))
+        (dolist (face-spec face-specs)
+          (let ((display (car face-spec))
+                (rest (cdr face-spec)))
+            (cond
+             ((listp display)
+              (progn
+                (setq display (cl-copy-seq display))
+                (add-to-list 'display '(type pgtk x-toolkit x))))
+             ((eq display t)
+              (setq display '((type pgtk x-toolkit x)))))
+            (add-to-list 'new-specs (append `(,display) rest))))
+        (custom-theme-set-faces to-theme `(,face ,new-specs))))))
+
+
+;(load-theme 'zenburn t t)
+;(deftheme zenburn-pgtk)
+
+;(rgmacs/copy-theme-pgtk 'zenburn 'zenburn-pgtk)
+;(enable-theme 'zenburn-pgtk)
 
 ; WSL fu
 (defun delete-if-file ()
@@ -433,13 +492,13 @@
     (add-to-list 'lsp-disabled-clients 'pyls)
     (add-to-list 'lsp-enabled-clients 'jedi)))
 
-
+(add-to-list 'lsp-enabled-clients 'ts-ls)
 ;; terraform
-(require 'terraform-mode)
-(require 'terraform-doc)
+;(require 'terraform-mode)
+;(require 'terraform-doc)
 
 ;;kubectx
-(require 'kubectx-mode)
+;(require 'kubectx-mode)
 
 ;;gnus
 (setq gnus-select-method '(nnml ""))
