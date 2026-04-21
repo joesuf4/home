@@ -25,17 +25,18 @@ setopt share_history extended_history hist_expire_dups_first hist_no_store
 
 # ctrl-(up/down/right/left) arrow bindings
 
-bindkey '\e[1;5A' history-incremental-search-backward
-bindkey '\e[1;5B' history-incremental-search-forward
+bindkey '\e[1;5A' history-substring-search-up
+bindkey '\e[1;5B' history-substring-search-down
 bindkey '\e[1;5C' emacs-forward-word
 bindkey '\e[1;5D' emacs-backward-word
 
-bindkey '^P' history-substring-search-up
-bindkey '^N' history-substring-search-down
+bindkey '^P' history-incremental-search-backward
+bindkey '^N' history-incremental-search-forward
 
 bindkey '^A' vi-beginning-of-line
 bindkey '^K' kill-line
 bindkey '^Y' yank
+bindkey '^U' kill-region
 
 # directory stuff
 
@@ -49,7 +50,10 @@ alias dh='dirs -v'
 
 nd winhome /mnt/c/Users/$USER
 nd winsrc ~winhome/src
-nd sd ~/src/service-deployer
+nd cores ~winhome/AppData/Local/Temp/wsl-crashes
+
+nd r ~/src/rsim
+nd c ~/src/ceval
 
 # utilities
 
@@ -70,6 +74,8 @@ alias ptyoff='rm -f /tmp/ptyon-$USER/$(basename "$(ttyname 2)");'
 
 alias :p='pon;: p'
 alias :P='pon;: P'
+alias :q='pon;: q'
+alias :Q='pon;: Q'
 
 pon() { ptyon; sleep 1; setopt unset }
 poff() { ptyoff; sleep 1 }
@@ -83,17 +89,15 @@ oci() {
   command oci $@
 }
 
-ptyfix() {
-  pkill pty-agent
-  wsl.exe --user root nsenter -t $(pidof systemd) -p -m -r -C sudo -u $USER ~/bin/pty-agent
-  sleep 1
-  . ~/.oprc
-  setopt unset
-  [[ -f ~/.profile ]] && . ~/.profile
-  [[ -f ~/.myzshrc ]] && . ~/.myzshrc
-  unsetopt unset
-  /usr/bin/sudo -k && ptyd sudo -v
-  #(seed_vault_pass >/dev/null 2>&1 </dev/null &)
+b () { bash -ci "b $@" }
+
+rsim_attack () {
+  local rsim_dir=~r/build/bin
+  for d in "${@-.}"; do
+    [[ -f "$d/Parameter.csv" ]] && echo "$d";
+  done |
+    xargs -P$(($(nproc)/6)) -i zsh -c \
+      "cd {} && $rsim_dir/rsim.exe $rsim_dir/ClearPrice.cmd /batch || true"
 }
 
 # translate between big-endian and little-endian objdumps.
@@ -104,41 +108,39 @@ alias dsign='DOCKER_CONTENT_TRUST=1 docker trust sign --local'
 
 alias strip_cr="sed -i -e 's/\\r//'"
 
-alias git_diff_branch='git diff $(git show-branch --merge-base HEAD 2>/dev/null)~1'
+alias git_diff_branch='git diff $(git show-branch --merge-base 2>/dev/null)~1'
 
-alias ldif_decode_base64='perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
+alias ldif_decode_base64='command perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
-alias htop='sudo -v && pon; _bcs_title htop; /usr/bin/sudo -E /usr/bin/htop'
+alias htop='_bcs_title htop; sudo -Es htop'
 
-alias lsof='sudo -v && pon; _bcs_title lsof; /usr/bin/sudo -Es /usr/bin/lsof'
+alias lsof='_bcs_title lsof; sudo -Es lsof'
 
-alias bpftrace='sudo -v && pon; _bcs_title bpftrace; /usr/bin/sudo -Es bpftrace'
+alias bpftrace='_bcs_title bpftrace; sudo -Es bpftrace'
 
-alias screen='screen -U'
+alias screen='command screen -U'
 
-alias strace='sudo -s /usr/bin/strace'
+alias strace='sudo -E strace'
 
-alias asdfu='asdf update && asdf plugin-update --all'
+alias asdfu='asdf plugin update --all'
 
 alias zplugu='setopt unset && zplug update; unsetopt unset'
 
-alias npmu='sudo -v && poff; /usr/bin/sudo -Es npm update --location=global'
+alias npmu='npm update --location=global'
 
-alias pip3u='sudo -v && poff; pip3 freeze | cut -d= -f1 | /usr/bin/sudo -Es xargs pip3 install -U'
+alias pip3u='pip3 freeze | cut -d= -f1 | sudo -Es xargs pip3 install -U --ignore-installed --break-system-packages'
 
 alias gpgr='gpg --refresh-keys'
 
-alias krewu='k krew upgrade'
+alias sps='command screen -U pty -d pty-driver.pl -- $SHELL'
 
-alias sps='screen pty -d pty-driver.pl -- $SHELL'
+alias make='TERM=xterm-256color command make -kj$(nproc)'
 
-alias make='TERM=xterm-256color make -kj$(nproc)'
-
-alias k=~/.asdf/shims/kubectl
+alias k=kubectl
 
 alias tf=terraform
 
-alias perl='perl -CSD -Mutf8 -e "BEGIN{sub log_2 (\$) {log(shift)/log(2)}}"'
+alias perl='command perl -CSD -Mutf8 -e "BEGIN{sub log_2 (\$) {log(shift)/log(2)}}"'
 
 alias plint='command perl -MO=Lint'
 
@@ -148,20 +150,24 @@ alias sqrt='perl -le "print int sqrt \$_ for @ARGV"'
 
 alias sdexec='sudo -E nsenter -t $(pidof systemd | awk "{print \$1}") -p -m -r -C'
 
-alias sbei='seed_bastion_ec2_inventory ~/src/*-deployer'
-
-alias accept_bastion_ssh_host_keys='for count in {1..100}; do sleep 3; timeout 1 yes yes | head -n 1; done | pty -ne -- $SHELL -ic "BCS_PROFILE=n/a _ec2_load_inventory; for host in \${(k)EC2_ID[@]}; ssh \$host true"'
-
 alias gerrit_push='git push origin HEAD:refs/for/$(git branch --show-current)'
 
-# typescript file walker
+alias fzf='fzf --ansi'
 
 flameg() {
   local TMP="$(mktemp ~winhome/tmp/flameg-XXXX.svg)"
   local URL="file:///C:/${TMP#/mnt/c/}"
-  pptyd "$@" | stackcollapse-bpftrace.pl ++ | flamegraph.pl >"$TMP"
+  local timing=""
+  if [[ "$1" == "-t" || "$1" == "++" ]]; then
+    timing="$1"
+    shift
+  fi
+
+  pptyd "$@" | stackcollapse-bpftrace.pl $timing "$@" | flamegraph.pl >"$TMP"
   "$MOZILLA" "$URL"
 }
+
+# typescript file walker
 
 tplay() {
   perl -MPOSIX=ctermid -MTerm::ReadKey -e '
@@ -206,24 +212,56 @@ PR_RESET="%{${reset_color}%}"
 eval "$(dircolors <(dircolors -p | sed -e 's/DIR 01;34/DIR 00;36/'))"
 
 # window/screen title hooks
+_sec="$(date +%s)"
+#_disk="$(tmux-free-c-drive.sh)"
+_histlines="$(wc -l ~/.zsh_history)"
 
 precmd() {
+  _delta_sec="$(($(date +%s)-_sec))"
+  if [[ $_delta_sec -gt 3600 ]]; then
+    _delta_sec="$((_delta_sec/3600))h$((_delta_sec/60%60))m$((_delta_sec%60))s"
+  elif [[ $_delta_sec -gt 60 ]]; then
+    _delta_sec="$((_delta_sec/60))m$((_delta_sec%60))s"
+  else
+    _delta_sec="$((_delta_sec))s"
+  fi
+
   setopt monitor
   ptyoff
   _bcs_title
 
+#  local warn="$(tmux-free-c-drive.sh)"
+#  local delta_disk=" $(awk "{d=(${${warn//[^0-9T.]/}/T/*1024} - ${${_disk//[^0-9T.]/}/T/*1024}); print d \"GB\"}" </dev/null)"
+  local warn=""
+  local delta_disk=""
+  [[ "$delta_disk" == " 0GB" ]] && delta_disk=""
+  [[ "$warn" =~ ' [0-9]([.][0-9])?GB' ]] && warn="${PR_BRIGHT_RED}$warn"
+  [[ "$warn" =~ ' [1-4][0-9]([.][0-9])?GB' ]] && warn="${PR_BRIGHT_MAGENTA}$warn"
+  [[ "$warn" =~ '^[5-9][0-9]GB' ]] && warn="${PR_BRIGHT_YELLOW}$warn"
+
   if [[ -z "$(git ls-files --other --exclude-standard 2>/dev/null)" ]]; then
-    zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}[${PR_RESET}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_BLACK}]${PR_RESET}"
+    zstyle ':vcs_info:*' formats "${PR_BLUE}${warn//☠/}💾${PR_BRIGHT_BLACK}%t ${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_RESET}"
   else
-    zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}[${PR_RESET}${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_RED}✗${PR_BRIGHT_BLACK}]${PR_RESET}"
+    zstyle ':vcs_info:*' formats "${PR_BRIGHT_BLACK}%t ${PR_CYAN}%b${PR_BRIGHT_YELLOW}%u${PR_BRIGHT_GREEN}%c${PR_BRIGHT_RED}✗${PR_RESET}"
   fi
 
   vcs_info 2>/dev/null
-  unsetopt unset;
+  unsetopt unset
+  _sec="$(date +%s)"
+
+  [[ -n "${_toggle-}" ]] && (ARGS="$_args" LINE=$_histlines DATA="$_delta_sec$delta_disk" perl -i -ple \
+                              '$. == $ENV{LINE} and s{;\Q$ENV{ARGS}\E(?: # \d[^#]*(?= |$))*((?: # [^\d][^#]*(?= |$))*)(?: # [^#]*(?= |$))*}{;$ENV{ARGS}$1 # $ENV{DATA}} and print STDERR $_' \
+   ~/.zsh_history 2>>(grep -qF "$_args # top_10 " && tmux display-popup -T '# top_10' -w 150 -h 13 -E "tail -1000 ~/.zsh_history | grep -F '${_args//\'/'\''} #' | HIST_BLOCK=\"${HIST_BLOCK-}\" ~/bin/top_10.sh; cat -") &)
+  _toggle=""
 }
 
 preexec() {
   _bcs_title $2
+  _args="$2"
+  _disk="" # "$(tmux-free-c-drive.sh)"
+  _histlines="$(wc -l ~/.zsh_history)"
+  _sec="$(date +%s)"
+  _toggle=1
 }
 
 # VCS status RPROMPT
@@ -247,14 +285,14 @@ if [[ ${EMACS+} == t ]]; then
 else
   case "$(uname)" in
     Linux)
-      alias ls='ls --color=auto'
-      alias grep='grep --color=auto'
-      PROMPT=$'$PR_CYAN%~$PR_RESET$PR_BRIGHT_BLACK%(?..($PR_RESET$PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
+      alias ls='command ls --color=auto'
+      alias grep='command grep --color=auto'
+      PROMPT=$'$PR_BRIGHT_BLACK${_delta_sec} $PR_CYAN%~$PR_BRIGHT_BLACK%(?..($PR_RED%?$PR_BRIGHT_BLACK%))$PR_BRIGHT_BLACK%#$PR_RESET '
       ;;
     FreeBSD | Darwin)
       alias ls='ls -G'
       alias grep='grep --color=auto'
-      PROMPT=$'$PR_CYAN%~$PR_RESET$PR_MAGENTA(?..($PR_RESET$PR_RED%?$PR_MAGENTA%))$PR_MAGENTA%#$PR_RESET '
+      PROMPT=$'$PR_CYAN%~$PR_MAGENTA(?..($PR_RED%?$PR_MAGENTA%))$PR_MAGENTA%#$PR_RESET '
       ;;
     SunOS)
       alias ls='ls --color'
@@ -278,15 +316,25 @@ for cmd in "${PTYON[@]}"; do
       [[ \"\${1:-}\" -pcre-match '^(clone|push|pull|fetch|remote|commit|svn)\$' ]] && ptyon
     elif [[ $cmd == ssh ]]; then
       ptyon
-      [[ \"\$@\" =~ \"\$OCI_HOST_PREFIX\" ]] || (sleep 6; ptyoff echo ptyoff on \$(hostname). &)&
+      [[ \"\$@\" =~ \"\$OCI_HOST_PREFIX\" ]] || (sleep \${SLEEP_WINDOW:-6}; ptyoff echo ptyoff on \$(hostname). &)&
     elif [[ $cmd == svn ]]; then
       [[ \"\${1:-}\" -pcre-match '^(up|co|ci)' ]] && ptyon
+    elif [[ $cmd == sudo ]]; then
+      ptyon
+      local e='\$ENV{MOZILLA}=qq//'
+      _bcs_title : q \$e
+      sleep 1
+      _bcs_title sudo \"\$@\"
     else
       ptyon
     fi
     local rv n
     for n in {1..3}; do \"$exep\" \"\$@\"; rv=\$?; [[ \$rv -eq 0 ]] && break; [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && [[ $cmd != sudo ]] || return \$rv; sleep 1; done
-    [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") ]] && sleep 1
+    if [[ -f /tmp/ptyon-\$USER/\$(basename \"\$(ttyname 2)\") && $cmd == sudo ]]; then
+      e='\$ENV{MOZILLA}=qq/'\${MOZILLA/./\\\.}/
+      _bcs_title : q \$e
+      sleep 1
+    fi
     return \$rv
   }"
 done
@@ -294,17 +342,24 @@ done
 # report_* aliases
 
 for t in all cluster node namespace pod; do
-  for n in all percent load actual cpu mem; do
-    eval "alias report_${t}_${n}_smag='_bcs_title \"$t-$n graphs for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; smag -n 10 \"gke report ${t//all/.} ${n//all/.} -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
-    eval "alias report_${t}_${n}_smag_diff='_bcs_title \"$t-$n diff graphs for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; smag -d -n 10 \"gke report ${t//all/.} ${n//all/.} -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
-    eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$EKS_CLUSTER/\$EKS_NAMESPACE]\"; for i in {1..100}; date && gke report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
+  for n in all percent load cpu mem; do
+    eval "alias report_${t}_${n}_smag='_bcs_title \"$t-$n graphs for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; smag -n 10 \"gke report ${t//all/.} ${n//all/.} -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
+    eval "alias report_${t}_${n}_smag_diff='_bcs_title \"$t-$n diff graphs for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; smag -d -n 10 \"gke report ${t//all/.} ${n//all/.} -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
+    eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; for i in {1..100}; date && gke report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
     eval "alias report_${t}_${n}_forever='while :; do bcs_assume_role && report_${t}_${n}_loop_100; done'"
   done
+
+  n=actual
+  eval "alias report_${t}_${n}_smag='_bcs_title \"$t-$n graphs for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; smag -n 10 \"gke report ${t//all/.} ${n}-cpu -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\" \"gke report ${t//all/.} ${n}-mem -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
+  eval "alias report_${t}_${n}_smag_diff='_bcs_title \"$t-$n diff graphs for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; smag -d -n 10 \"gke report ${t//all/.} ${n}-cpu -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\" \"gke report ${t//all/.} ${n}-mem -n 5 | top_10 -n 1 | awk \\\"{ print \\\\\\\$3 }\\\"\"'"
+  eval "alias report_${t}_${n}_loop_100='_bcs_title \"$t-$n reports for [\$GKE_CLUSTER/\$GKE_NAMESPACE]\"; for i in {1..100}; date && gke report \"${t//all/.}\"  \"${n//all/.}\" -n 5 && sleep 10 && clear'"
+  eval "alias report_${t}_${n}_forever='while :; do bcs_assume_role && report_${t}_${n}_loop_100; done'"
+
 done
 unalias report_node_percent_smag report_node_percent_smag_diff
 
-alias report_node_percent_smag='_bcs_title "node-percent cpu/mem graphs for [$EKS_CLUSTER/$EKS_NAMESPACE]"; smag -n 10 "gke report node percent-cpu -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\"" "gke report node percent-mem -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\""'
-alias report_node_percent_smag_diff='_bcs_title "node-percent cpu/mem diff graphs for [$EKS_CLUSTER/$EKS_NAMESPACE]"; smag -d -n 10 "gke report node percent-cpu -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\"" "gke report node percent-mem -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\""'
+alias report_node_percent_smag='_bcs_title "node-percent cpu/mem graphs for [$GKE_CLUSTER/$GKE_NAMESPACE]"; smag -n 10 "gke report node percent-cpu -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\"" "gke report node percent-mem -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\""'
+alias report_node_percent_smag_diff='_bcs_title "node-percent cpu/mem diff graphs for [$GKE_CLUSTER/$GKE_NAMESPACE]"; smag -d -n 10 "gke report node percent-cpu -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\"" "gke report node percent-mem -n 5 | top_10 -n 1 | awk \"{ print \\\$3 }\""'
 
 for t in cluster node namespace; do
   for n in cpu mem fd; do
@@ -407,24 +462,6 @@ emac() {
   fi
 }
 
-seed_vault_pass() {
-  local TMP="$(mktemp)"
-  (
-    BCS_ABORT_LOGIN=1 bcs assume-role devops-nonprod engineer >/dev/null &&
-      PW="$(aws secretsmanager get-secret-value --secret-id service-deployer-ansible-vault-pass |
-        jq .SecretString | tr -d \")"
-    (printf "%s\n%s\n" "$PW" "$PW" && sleep 1) | pty -nie -- pty -d pty-driver.pl ansible-vault encrypt "$TMP"
-  )
-  rm "$TMP"
-}
-
-seed_bastion_ec2_inventory() {
-  EC2_ID_SRC="$(for dir in "$@"; do
-    cd $dir && grep ansible_ provisioning/inventory/*/hosts | cut -d: -f2 | awk "{gsub(\"^.*/\", \"$dir/\", \$3); print \$1, \$3\".encrypted\"}" | sort -u | grep -Fv 10.161.160.
-  done)"
-  BCS_PROFILE=n/a _ec2_load_inventory
-}
-
 # pull in local rc config
 
 [[ -f ~/.myzshrc ]] && . ~/.myzshrc
@@ -450,7 +487,6 @@ unsetopt unset
 autoload -Uz bashcompinit
 bashcompinit -i
 
-[[ -d ~/.asdf ]] && . ~/.asdf/completions/asdf.bash
 [[ -d ~/.asdf ]] && . $(asdf where gcloud)/completion.zsh.inc
 
 # enable job control (something's turned it off somewhere on Ubuntu-21.04)
@@ -467,10 +503,12 @@ for sfile in ~/lib/oci_autocomplete.sh ~/.ocirc; do
 done
 
 command -v kubectl >/dev/null 2>&1 && . <(kubectl completion $(basename "$SHELL"))
+
 . ~/.bcsrc
 . ~/.eksrc
-. ~/.gkerc
 . ~/git.rc
+
+zstyle ':completion:*' completer _expand_alias _complete _ignored
 
 patch_swig_pl() {
   for f in ~/src/svn-1.*/subversion/bindings/swig/perl/native/*.c; do
@@ -483,3 +521,5 @@ patch_swig_pl() {
     perl -i -0777 -pe 's#^((?!typedef)\w+\s+[^{]+{)#$1\n    dTHX;#msg' $f
   done
 }
+
+#GKE_KZONE=([identity-db-cluster]=us-west1)
