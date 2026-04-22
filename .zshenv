@@ -15,7 +15,7 @@ UPGRADE_LOGFILE="/tmp/upgrades-$USER"
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
-HISTORY_FILTER_EXCLUDE=('(?i:secret|passw|_key)')
+HISTORY_FILTER_EXCLUDE=('(?i:secret|passw|_key|token)')
 HISTORY_FILTER_SILENT=
 DIRSTACKSIZE=8
 
