@@ -81,11 +81,11 @@ pon() { ptyon; sleep 1; setopt unset }
 poff() { ptyoff; sleep 1 }
 
 oci() {
-  sudo sed -i -e s/fipsmodule.cnf/fipsmodule.cnf-ootw/ /usr/local/ssl/openssl.cnf >/dev/null 2>&1
-  (
-    sleep 5
-    sudo sed -i -e s/-ootw//g /usr/local/ssl/openssl.cnf >/dev/null 2>&1 &
-  ) &
+  sed -i -e s'/^fips =/#fips =/' /usr/local/ssl/openssl.cnf >/dev/null 2>&1
+  (nohup zsh -c "
+    sleep 3
+    sed -i -e 's/^#fips =/fips =/g' /usr/local/ssl/openssl.cnf
+  " >/dev/null 2>&1 </dev/null &)&
   command oci $@
 }
 
