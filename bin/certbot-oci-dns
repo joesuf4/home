@@ -1,0 +1,9 @@
+#!/usr/bin/pfzsh
+DOMAIN="$CERTBOT_DOMAIN"
+TOKEN="$CERTBOT_VALIDATION"
+
+pty -ie -- nohup $SHELL -ic "oci dns record domain update --domain _acme-challenge.$DOMAIN --zone-name-or-id $DOMAIN --items '[{\"domain\":\"_acme-challenge.$DOMAIN\",\"rdata\":\"$TOKEN\",\"rtype\":\"TXT\",\"ttl\":7200}]' --force >/tmp/err 2>&1" >/dev/null 2>&1 </dev/null
+rv=$?
+
+[[ $rv -eq 0 ]] && sleep 10
+exit $rv
