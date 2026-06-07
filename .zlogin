@@ -38,7 +38,7 @@ if ! pgrep pty-agent >/dev/null 2>&1; then
     modprobe -a $(cd /lib/modules/$(uname -r) && find . -type f -name "*.ko*" | sed -e "s!.*/!!" -e "s!\.ko.*!!")
     sysctl vm.overcommit_memory=1
   '
-  /mnt/c/Program\ Files/Docker/Docker/Docker\ Desktop.exe
+  /mnt/c/Program\ Files/Docker/Docker/Docker\ Desktop.exe &
   rm -rf ~cores
   mkdir -p ~cores
   mkdir -m 0700 -p /tmp/ptyon-$USER

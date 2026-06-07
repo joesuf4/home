@@ -38,12 +38,12 @@ drive {
     # out by toggling the driver off temporarily first.
     write_slave "r\n";
   }
-  elsif (/^$PREFIX_RE\: ([PpQq]) (.+)/m and echo_enabled) {
+  elsif (/^$PREFIX_RE\: ([PpQq]) (.+)/m) {
     no warnings;
     no strict;
     local ($@, $_, @_);
     local $SIG{__DIE__} = sub { die shift };
-    $_ = $2;
+    write_master($_ = "$2\r\n");
     my $wa    = $1 eq "P" || $1 eq "Q";
     my $quiet = $1 eq "q" || $1 eq "Q";
     s/[^[:print:]].*$//mg;
