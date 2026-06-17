@@ -112,9 +112,9 @@ alias git_diff_branch='git diff $(git show-branch --merge-base 2>/dev/null)~1'
 
 alias ldif_decode_base64='command perl -MMIME::Base64 -ple '\''/^([\w.-]+):: (.*)/ and $_=qq($1: ) . decode_base64($2)'\'
 
-alias htop='_bcs_title htop; sudo -Es htop'
+alias htop='_bcs_title htop; sudo -Es /usr/local/bin/htop'
 
-alias lsof='_bcs_title lsof; sudo -Es lsof'
+alias lsof='_bcs_title lsof; sudo -Es /usr/local/bin/lsof'
 
 alias bpftrace='_bcs_title bpftrace; sudo -Es bpftrace'
 
