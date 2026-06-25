@@ -11,9 +11,9 @@ do
     for id in {1..$ad}
     do
         [[ -z "$slice" || $slice -eq $id ]] || continue
-	(timeout 30 ssh $OCI_HOST_PREFIX-$id.$region netstat -an '|' grep -F 127.0.0.1.4433 || (rm -f ~/.ssh/sockets/$USER@$OCI_HOST_PREFIX-$id.$region:22 && timeout 20 ssh $OCI_HOST_PREFIX-$id.$region true))>/dev/null 2>&1 &
+	(timeout 30 pty -nd pty-driver.pl -- ssh $OCI_HOST_PREFIX-$id.$region netstat -an '|' grep -F 127.0.0.1.4433 || (rm -f ~/.ssh/sockets/$USER@$OCI_HOST_PREFIX-$id.$region:22 ; timeout 20 pty -nie -- pty -nd pty-driver.pl -- ssh $OCI_HOST_PREFIX-$id.$region true)) 2>&1 &
     done
 done
 
-ssh 127.0.0.1 true >/dev/null 2>&1
+pty -nd pty-driver.pl -- ssh 127.0.0.1 true >/dev/null 2>&1
 wait
