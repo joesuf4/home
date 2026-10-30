@@ -1,6 +1,8 @@
 # -*- sh -*-
 cd
 echoon
+[[ -o interactive ]] || return
+
 
 [[ $(~/bin/ttyname) =~ /dev/term/[ab] ]] && export TERM=vt100 USER=joe
 export SSH_AGENT_PID="$(pgrep -u $USER -f ssh-agent)"
